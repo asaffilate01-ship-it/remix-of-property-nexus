@@ -326,11 +326,21 @@ function ListingForm({ form, setForm, agencies }: { form: Form; setForm: (f: For
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
-        <div><Label>Beds</Label><Input type="number" value={form.bedrooms} onChange={(e) => u("bedrooms", e.target.value)} /></div>
-        <div><Label>Baths</Label><Input type="number" value={form.bathrooms} onChange={(e) => u("bathrooms", e.target.value)} /></div>
-        <div><Label>Receptions</Label><Input type="number" value={form.receptions} onChange={(e) => u("receptions", e.target.value)} /></div>
-      </div>
+      {form.is_hmo ? (
+        <>
+          <div className="grid grid-cols-2 gap-3">
+            <div><Label>Baths</Label><Input type="number" value={form.bathrooms} onChange={(e) => u("bathrooms", e.target.value)} /></div>
+            <div><Label>Receptions</Label><Input type="number" value={form.receptions} onChange={(e) => u("receptions", e.target.value)} /></div>
+          </div>
+          <RoomsEditor rooms={form.rooms} onChange={(rooms) => u("rooms", rooms)} />
+        </>
+      ) : (
+        <div className="grid grid-cols-3 gap-3">
+          <div><Label>Beds</Label><Input type="number" value={form.bedrooms} onChange={(e) => u("bedrooms", e.target.value)} /></div>
+          <div><Label>Baths</Label><Input type="number" value={form.bathrooms} onChange={(e) => u("bathrooms", e.target.value)} /></div>
+          <div><Label>Receptions</Label><Input type="number" value={form.receptions} onChange={(e) => u("receptions", e.target.value)} /></div>
+        </div>
+      )}
 
       <div className="grid grid-cols-2 gap-3">
         <div className="col-span-2"><Label>Address</Label><Input value={form.address} onChange={(e) => u("address", e.target.value)} placeholder="12 High Street" /></div>
@@ -338,15 +348,25 @@ function ListingForm({ form, setForm, agencies }: { form: Form; setForm: (f: For
         <div><Label>Postcode</Label><Input value={form.postcode} onChange={(e) => u("postcode", e.target.value)} placeholder="SW1A 1AA" /></div>
       </div>
 
-      <div><Label>Cover image URL</Label><Input value={form.cover_image} onChange={(e) => u("cover_image", e.target.value)} placeholder="https://…" /></div>
       <div>
-        <Label>Photo gallery URLs <span className="text-muted-foreground text-xs">(one per line)</span></Label>
-        <Textarea rows={3} value={form.photos_text} onChange={(e) => u("photos_text", e.target.value)} placeholder="https://...&#10;https://..." />
+        <Label>Photos</Label>
+        <p className="text-xs text-muted-foreground mb-2">Drag & drop or upload. Click the star to set the cover image{form.is_hmo ? "; tag each shot to a room." : "."}</p>
+        <PhotoUploader
+          photos={form.photos}
+          onChange={(photos) => u("photos", photos)}
+          coverIndex={form.cover_index}
+          onCoverChange={(i) => u("cover_index", i)}
+          roomOptions={form.is_hmo ? form.rooms.map((r) => `Room ${r.room_number}${r.name ? ` – ${r.name}` : ""}`) : []}
+        />
       </div>
+
       <div>
-        <Label>Features <span className="text-muted-foreground text-xs">(comma separated)</span></Label>
-        <Input value={form.features_text} onChange={(e) => u("features_text", e.target.value)} placeholder="garden, parking, gas central heating" />
+        <Label>Features</Label>
+        <FeatureMultiSelect value={form.features} onChange={(features) => u("features", features)} />
       </div>
+
+      <ComplianceEditor value={form.compliance} onChange={(c) => u("compliance", c)} isHmo={form.is_hmo} />
+
 
       <div className="grid grid-cols-3 gap-3">
         <div><Label>EPC</Label>
