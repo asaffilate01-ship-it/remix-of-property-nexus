@@ -29,12 +29,12 @@ export function TenantDashboard({ name, userId }: { name: string; userId: string
       if (ids.length) {
         const { data: rs } = await supabase
           .from("rent_schedule")
-          .select("due_date,amount_due,status")
+          .select("due_date,amount,status")
           .in("tenancy_id", ids)
           .order("due_date", { ascending: true });
         const now = new Date();
         const upcoming = (rs ?? []).find((r) => r.status !== "paid" && new Date(r.due_date) >= now);
-        setNextDue(upcoming ? { due_date: upcoming.due_date, amount_due: Number(upcoming.amount_due) } : null);
+        setNextDue(upcoming ? { due_date: upcoming.due_date, amount_due: Number(upcoming.amount) } : null);
         setOverdueCount((rs ?? []).filter((r) => r.status !== "paid" && new Date(r.due_date) < now).length);
       }
     })();
