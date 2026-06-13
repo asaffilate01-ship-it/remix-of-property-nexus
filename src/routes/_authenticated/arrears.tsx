@@ -1,10 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Banknote, TrendingDown, AlertTriangle, Mail, Phone, FileText, Link2 } from "lucide-react";
+import { Banknote, Mail, Phone, FileText, Link2, Sparkles, RefreshCw, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
+import { listBankTransactions, reconcileTransactions, seedMockBankFeed } from "@/lib/banking.functions";
 
 export const Route = createFileRoute("/_authenticated/arrears")({
   head: () => ({ meta: [{ title: "Arrears & rent reconciliation — Estately" }] }),
