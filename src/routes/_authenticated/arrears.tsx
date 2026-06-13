@@ -146,12 +146,54 @@ function ArrearsPage() {
         </CardContent>
       </Card>
 
+      {txns.length > 0 && (
+        <Card className="border-0 shadow-card">
+          <CardContent className="p-5">
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <h2 className="font-semibold">Bank transactions</h2>
+                <p className="text-xs text-muted-foreground">{txns.filter((t) => t.matched_rent_schedule_id).length} of {txns.length} matched to rent due</p>
+              </div>
+              <Badge variant="secondary">{txns.length} cleared</Badge>
+            </div>
+            <div className="overflow-x-auto -mx-5 px-5">
+              <table className="w-full text-sm">
+                <thead className="text-xs uppercase tracking-wide text-muted-foreground">
+                  <tr>
+                    <th className="text-left py-2">Posted</th>
+                    <th className="text-left py-2">Counterparty</th>
+                    <th className="text-left py-2">Reference</th>
+                    <th className="text-right py-2">Amount</th>
+                    <th className="text-right py-2">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {txns.slice(0, 20).map((t) => (
+                    <tr key={t.id} className="border-t">
+                      <td className="py-2 text-xs text-muted-foreground">{new Date(t.posted_at).toLocaleDateString()}</td>
+                      <td className="py-2">{t.counterparty ?? "—"}</td>
+                      <td className="py-2 text-xs text-muted-foreground">{t.reference ?? "—"}</td>
+                      <td className="py-2 text-right tabular-nums">£{Number(t.amount).toLocaleString()}</td>
+                      <td className="py-2 text-right">
+                        {t.matched_rent_schedule_id
+                          ? <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200"><CheckCircle2 className="h-3 w-3 mr-1" />Matched</Badge>
+                          : <Badge variant="outline">Unmatched</Badge>}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <Card className="border-0 shadow-card">
         <CardContent className="p-5 flex items-start gap-3">
           <div className="h-10 w-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center"><Banknote className="h-5 w-5" /></div>
           <div className="text-sm">
             <div className="font-semibold">How reconciliation works</div>
-            <div className="text-muted-foreground mt-1">Open Banking feeds (TrueLayer/Plaid) pull cleared transactions every 4 hours. We match by tenancy reference, amount and payer name — anything ambiguous lands in a review queue.</div>
+            <div className="text-muted-foreground mt-1">A sandbox feed is currently in use. Switch to a live Open Banking provider (TrueLayer/Plaid) to pull cleared transactions every 4 hours. We match by tenancy reference and amount — anything ambiguous lands in a review queue.</div>
           </div>
         </CardContent>
       </Card>
