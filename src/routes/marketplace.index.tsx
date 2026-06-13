@@ -387,7 +387,9 @@ function FiltersSheet({ s, setSearch, category }: { s: SearchParams; setSearch: 
     epc_min: s.epc_min ?? "any",
     tenure: s.tenure ?? "any",
     features: s.features ?? [],
+    available_from: s.available_from ?? "",
   });
+
   const [local, setLocal] = useState(initial);
   useEffect(() => { setLocal(initial()); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [s]);
 
