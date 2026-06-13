@@ -70,13 +70,6 @@ function AuthPage() {
     } finally { setBusy(false); }
   };
 
-  const google = async () => {
-    setBusy(true);
-    const r = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin + "/dashboard" });
-    if (r.error) { toast.error("Google sign-in failed"); setBusy(false); return; }
-    if (r.redirected) return;
-    navigate({ to: "/dashboard" });
-  };
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
@@ -100,13 +93,6 @@ function AuthPage() {
                 <TabsTrigger value="signup">Create account</TabsTrigger>
               </TabsList>
 
-              <Button variant="outline" className="w-full mb-4" onClick={google} disabled={busy}>
-                Continue with Google
-              </Button>
-              <div className="relative my-4 text-xs text-muted-foreground text-center">
-                <span className="bg-card px-2 relative z-10">or with email</span>
-                <div className="absolute inset-x-0 top-1/2 border-t -z-0" />
-              </div>
 
               <TabsContent value="signin" className="space-y-4 mt-0">
                 <Field id="email" label="Email" type="email" value={email} onChange={setEmail} />
