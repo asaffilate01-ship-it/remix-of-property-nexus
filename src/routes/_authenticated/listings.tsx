@@ -82,20 +82,37 @@ function ListingsPage() {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<Form>(empty);
   const [filter, setFilter] = useState<StatusFilter>("all");
+  const [saving, setSaving] = useState(false);
+  const [uploadingPhotos, setUploadingPhotos] = useState(false);
 
   useEffect(() => {
     if (search.new) { setForm(empty); setOpen(true); }
   }, [search.new]);
 
   const load = async () => {
-    const { data } = await supabase.from("listings").select("*").order("created_at", { ascending: false });
+    const { data: u } = await supabase.auth.getUser();
+    if (!u.user) {
+      setRows([]);
+      return;
+    }
+    const { data } = await supabase
+      .from("listings")
+      .select("*")
+      .or(`owner_id.eq.${u.user.id},agency_id.in.(${agencies.map((a) => a.id).join(",") || "00000000-0000-0000-0000-000000000000"})`)
+      .order("created_at", { ascending: false });
     setRows((data as Listing[]) ?? []);
   };
   const loadAgencies = async () => {
-    const { data } = await supabase.from("agencies").select("id,name");
+    const { data: u } = await supabase.auth.getUser();
+    if (!u.user) {
+      setAgencies([]);
+      return;
+    }
+    const { data } = await supabase.from("agencies").select("id,name").or(`owner_id.eq.${u.user.id},id.in.(select agency_id from agency_members where user_id = '${u.user.id}')` as any);
     setAgencies(data ?? []);
   };
-  useEffect(() => { load(); loadAgencies(); }, []);
+  useEffect(() => { void loadAgencies(); }, []);
+  useEffect(() => { void load(); }, [agencies]);
 
   useEffect(() => {
     const channel = supabase
@@ -139,8 +156,13 @@ function ListingsPage() {
   };
 
   const save = async () => {
+    if (saving || uploadingPhotos) return;
+    setSaving(true);
     const { data: u } = await supabase.auth.getUser();
-    if (!u.user) return;
+    if (!u.user) {
+      setSaving(false);
+      return;
+    }
     const photos = form.photos;
     const coverUrl = photos[form.cover_index]?.url ?? photos[0]?.url ?? form.cover_image ?? null;
     // If HMO, infer bedrooms from rooms count
@@ -181,14 +203,21 @@ function ListingsPage() {
 
     if (form.id) {
       const { error } = await supabase.from("listings").update(payload).eq("id", form.id);
-      if (error) return toast.error(error.message);
+      if (error) {
+        setSaving(false);
+        return toast.error(error.message);
+      }
       toast.success("Listing updated");
     } else {
       const { error } = await supabase.from("listings").insert({ ...payload, owner_id: u.user.id, slug: slugify(form.title) });
-      if (error) return toast.error(error.message);
+      if (error) {
+        setSaving(false);
+        return toast.error(error.message);
+      }
       toast.success("Listing created");
     }
     setOpen(false); setForm(empty); load();
+    setSaving(false);
   };
 
 
@@ -218,10 +247,10 @@ function ListingsPage() {
         actions={
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild><Button onClick={openNew}><Plus className="mr-2 h-4 w-4" /> New listing</Button></DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[92vh] overflow-y-auto">
+              <DialogContent className="max-w-2xl max-h-[92vh] overflow-y-auto">
               <DialogHeader><DialogTitle>{form.id ? "Edit listing" : "New listing"}</DialogTitle></DialogHeader>
-              <ListingForm form={form} setForm={setForm} agencies={agencies} />
-              <DialogFooter><Button onClick={save} disabled={!form.title}>{form.id ? "Save changes" : "Create listing"}</Button></DialogFooter>
+                <ListingForm form={form} setForm={setForm} agencies={agencies} onUploadingChange={setUploadingPhotos} />
+                <DialogFooter><Button onClick={save} disabled={!form.title || saving || uploadingPhotos}>{uploadingPhotos ? "Uploading photos…" : saving ? "Saving…" : form.id ? "Save changes" : "Create listing"}</Button></DialogFooter>
             </DialogContent>
           </Dialog>
         }
@@ -297,7 +326,7 @@ function ListingsPage() {
   );
 }
 
-function ListingForm({ form, setForm, agencies }: { form: Form; setForm: (f: Form) => void; agencies: { id: string; name: string }[] }) {
+function ListingForm({ form, setForm, agencies, onUploadingChange }: { form: Form; setForm: (f: Form) => void; agencies: { id: string; name: string }[]; onUploadingChange?: (uploading: boolean) => void }) {
   const u = <K extends keyof Form>(k: K, v: Form[K]) => setForm({ ...form, [k]: v });
   return (
     <div className="space-y-4 pr-1">
@@ -383,6 +412,7 @@ function ListingForm({ form, setForm, agencies }: { form: Form; setForm: (f: For
           coverIndex={form.cover_index}
           onCoverChange={(i) => u("cover_index", i)}
           roomOptions={form.is_hmo ? form.rooms.map((r) => `Room ${r.room_number}${r.name ? ` – ${r.name}` : ""}`) : []}
+          onUploadingChange={onUploadingChange}
         />
       </div>
 
