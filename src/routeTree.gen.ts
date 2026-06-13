@@ -75,6 +75,7 @@ import { Route as AuthenticatedAgencyRouteImport } from './routes/_authenticated
 import { Route as ApiPublicReferencingWebhookRouteImport } from './routes/api/public/referencing-webhook'
 import { Route as AuthenticatedTenanciesIdRouteImport } from './routes/_authenticated/tenancies.$id'
 import { Route as ApiPublicHooksMatchSavedSearchesRouteImport } from './routes/api/public/hooks/match-saved-searches'
+import { Route as AuthenticatedListingsIdWindowCardRouteImport } from './routes/_authenticated/listings.$id.window-card'
 
 const ValuationRoute = ValuationRouteImport.update({
   id: '/valuation',
@@ -414,6 +415,12 @@ const ApiPublicHooksMatchSavedSearchesRoute =
     path: '/api/public/hooks/match-saved-searches',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AuthenticatedListingsIdWindowCardRoute =
+  AuthenticatedListingsIdWindowCardRouteImport.update({
+    id: '/$id/window-card',
+    path: '/$id/window-card',
+    getParentRoute: () => AuthenticatedListingsRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -450,7 +457,7 @@ export interface FileRoutesByFullPath {
   '/inspections': typeof AuthenticatedInspectionsRoute
   '/leads': typeof AuthenticatedLeadsRoute
   '/leasehold': typeof AuthenticatedLeaseholdRoute
-  '/listings': typeof AuthenticatedListingsRoute
+  '/listings': typeof AuthenticatedListingsRouteWithChildren
   '/media': typeof AuthenticatedMediaRoute
   '/mobile-inspection': typeof AuthenticatedMobileInspectionRoute
   '/move': typeof AuthenticatedMoveRoute
@@ -480,6 +487,7 @@ export interface FileRoutesByFullPath {
   '/marketplace/': typeof MarketplaceIndexRoute
   '/tenancies/$id': typeof AuthenticatedTenanciesIdRoute
   '/api/public/referencing-webhook': typeof ApiPublicReferencingWebhookRoute
+  '/listings/$id/window-card': typeof AuthenticatedListingsIdWindowCardRoute
   '/api/public/hooks/match-saved-searches': typeof ApiPublicHooksMatchSavedSearchesRoute
 }
 export interface FileRoutesByTo {
@@ -515,7 +523,7 @@ export interface FileRoutesByTo {
   '/inspections': typeof AuthenticatedInspectionsRoute
   '/leads': typeof AuthenticatedLeadsRoute
   '/leasehold': typeof AuthenticatedLeaseholdRoute
-  '/listings': typeof AuthenticatedListingsRoute
+  '/listings': typeof AuthenticatedListingsRouteWithChildren
   '/media': typeof AuthenticatedMediaRoute
   '/mobile-inspection': typeof AuthenticatedMobileInspectionRoute
   '/move': typeof AuthenticatedMoveRoute
@@ -545,6 +553,7 @@ export interface FileRoutesByTo {
   '/marketplace': typeof MarketplaceIndexRoute
   '/tenancies/$id': typeof AuthenticatedTenanciesIdRoute
   '/api/public/referencing-webhook': typeof ApiPublicReferencingWebhookRoute
+  '/listings/$id/window-card': typeof AuthenticatedListingsIdWindowCardRoute
   '/api/public/hooks/match-saved-searches': typeof ApiPublicHooksMatchSavedSearchesRoute
 }
 export interface FileRoutesById {
@@ -584,7 +593,7 @@ export interface FileRoutesById {
   '/_authenticated/inspections': typeof AuthenticatedInspectionsRoute
   '/_authenticated/leads': typeof AuthenticatedLeadsRoute
   '/_authenticated/leasehold': typeof AuthenticatedLeaseholdRoute
-  '/_authenticated/listings': typeof AuthenticatedListingsRoute
+  '/_authenticated/listings': typeof AuthenticatedListingsRouteWithChildren
   '/_authenticated/media': typeof AuthenticatedMediaRoute
   '/_authenticated/mobile-inspection': typeof AuthenticatedMobileInspectionRoute
   '/_authenticated/move': typeof AuthenticatedMoveRoute
@@ -614,6 +623,7 @@ export interface FileRoutesById {
   '/marketplace/': typeof MarketplaceIndexRoute
   '/_authenticated/tenancies/$id': typeof AuthenticatedTenanciesIdRoute
   '/api/public/referencing-webhook': typeof ApiPublicReferencingWebhookRoute
+  '/_authenticated/listings/$id/window-card': typeof AuthenticatedListingsIdWindowCardRoute
   '/api/public/hooks/match-saved-searches': typeof ApiPublicHooksMatchSavedSearchesRoute
 }
 export interface FileRouteTypes {
@@ -683,6 +693,7 @@ export interface FileRouteTypes {
     | '/marketplace/'
     | '/tenancies/$id'
     | '/api/public/referencing-webhook'
+    | '/listings/$id/window-card'
     | '/api/public/hooks/match-saved-searches'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -748,6 +759,7 @@ export interface FileRouteTypes {
     | '/marketplace'
     | '/tenancies/$id'
     | '/api/public/referencing-webhook'
+    | '/listings/$id/window-card'
     | '/api/public/hooks/match-saved-searches'
   id:
     | '__root__'
@@ -816,6 +828,7 @@ export interface FileRouteTypes {
     | '/marketplace/'
     | '/_authenticated/tenancies/$id'
     | '/api/public/referencing-webhook'
+    | '/_authenticated/listings/$id/window-card'
     | '/api/public/hooks/match-saved-searches'
   fileRoutesById: FileRoutesById
 }
@@ -1309,8 +1322,29 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksMatchSavedSearchesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/listings/$id/window-card': {
+      id: '/_authenticated/listings/$id/window-card'
+      path: '/$id/window-card'
+      fullPath: '/listings/$id/window-card'
+      preLoaderRoute: typeof AuthenticatedListingsIdWindowCardRouteImport
+      parentRoute: typeof AuthenticatedListingsRoute
+    }
   }
 }
+
+interface AuthenticatedListingsRouteChildren {
+  AuthenticatedListingsIdWindowCardRoute: typeof AuthenticatedListingsIdWindowCardRoute
+}
+
+const AuthenticatedListingsRouteChildren: AuthenticatedListingsRouteChildren = {
+  AuthenticatedListingsIdWindowCardRoute:
+    AuthenticatedListingsIdWindowCardRoute,
+}
+
+const AuthenticatedListingsRouteWithChildren =
+  AuthenticatedListingsRoute._addFileChildren(
+    AuthenticatedListingsRouteChildren,
+  )
 
 interface AuthenticatedTenanciesRouteChildren {
   AuthenticatedTenanciesIdRoute: typeof AuthenticatedTenanciesIdRoute
@@ -1344,7 +1378,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedInspectionsRoute: typeof AuthenticatedInspectionsRoute
   AuthenticatedLeadsRoute: typeof AuthenticatedLeadsRoute
   AuthenticatedLeaseholdRoute: typeof AuthenticatedLeaseholdRoute
-  AuthenticatedListingsRoute: typeof AuthenticatedListingsRoute
+  AuthenticatedListingsRoute: typeof AuthenticatedListingsRouteWithChildren
   AuthenticatedMediaRoute: typeof AuthenticatedMediaRoute
   AuthenticatedMobileInspectionRoute: typeof AuthenticatedMobileInspectionRoute
   AuthenticatedMoveRoute: typeof AuthenticatedMoveRoute
@@ -1385,7 +1419,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedInspectionsRoute: AuthenticatedInspectionsRoute,
   AuthenticatedLeadsRoute: AuthenticatedLeadsRoute,
   AuthenticatedLeaseholdRoute: AuthenticatedLeaseholdRoute,
-  AuthenticatedListingsRoute: AuthenticatedListingsRoute,
+  AuthenticatedListingsRoute: AuthenticatedListingsRouteWithChildren,
   AuthenticatedMediaRoute: AuthenticatedMediaRoute,
   AuthenticatedMobileInspectionRoute: AuthenticatedMobileInspectionRoute,
   AuthenticatedMoveRoute: AuthenticatedMoveRoute,

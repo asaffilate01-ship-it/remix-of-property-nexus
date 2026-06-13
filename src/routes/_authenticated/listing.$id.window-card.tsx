@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Printer, ArrowLeft, Bed, Bath, Sofa, Ruler, Zap, Home } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated/listings/$id/window-card")({
+export const Route = createFileRoute("/_authenticated/listing/$id/window-card")({
   component: WindowCardPage,
 });
 
