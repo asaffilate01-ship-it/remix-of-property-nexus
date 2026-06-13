@@ -95,12 +95,13 @@ function ListingsPage() {
       setRows([]);
       return;
     }
+    const managedAgencyIds = new Set(agencies.map((a) => a.id));
     const { data } = await supabase
       .from("listings")
       .select("*")
-      .or(`owner_id.eq.${u.user.id},agency_id.in.(${agencies.map((a) => a.id).join(",") || "00000000-0000-0000-0000-000000000000"})`)
       .order("created_at", { ascending: false });
-    setRows((data as Listing[]) ?? []);
+    const visible = ((data as Listing[]) ?? []).filter((listing) => listing.owner_id === u.user.id || (!!listing.agency_id && managedAgencyIds.has(listing.agency_id)));
+    setRows(visible);
   };
   const loadAgencies = async () => {
     const { data: u } = await supabase.auth.getUser();
