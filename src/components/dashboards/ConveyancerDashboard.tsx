@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Scale, FileSignature, Clock, Sparkles, ArrowRight } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Scale, FileSignature, Clock, Sparkles, ArrowRight, Eye, Gavel } from "lucide-react";
 
 type Deal = { id: string; status: string; offer_amount: number | null; agreed_price: number | null; exchange_at: string | null; completion_at: string | null; created_at: string };
 
@@ -31,7 +32,8 @@ export function ConveyancerDashboard({ name }: { name: string }) {
   const exchanged = deals.filter((d) => d.exchange_at && !d.completion_at).length;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
+      {/* Hero */}
       <div className="relative overflow-hidden rounded-2xl border bg-gradient-to-br from-primary/10 via-background to-accent/10 p-6 sm:p-8 shadow-card">
         <div className="inline-flex items-center gap-2 rounded-full border bg-card/70 backdrop-blur px-3 py-1 text-xs font-medium mb-3">
           <Sparkles className="h-3 w-3 text-accent" /> Conveyancer portal
@@ -40,35 +42,64 @@ export function ConveyancerDashboard({ name }: { name: string }) {
         <p className="text-muted-foreground mt-1">Your active matters and milestones.</p>
       </div>
 
-      <div className="grid sm:grid-cols-3 gap-4">
-        <Card className="border-0 shadow-card"><CardContent className="p-5"><Scale className="h-5 w-5 mb-2 text-accent" /><div className="text-2xl font-bold">{active}</div><div className="text-xs text-muted-foreground">Active matters</div></CardContent></Card>
-        <Card className="border-0 shadow-card"><CardContent className="p-5"><FileSignature className="h-5 w-5 mb-2 text-accent" /><div className="text-2xl font-bold">{exchanged}</div><div className="text-xs text-muted-foreground">Exchanged, awaiting completion</div></CardContent></Card>
-        <Card className="border-0 shadow-card"><CardContent className="p-5"><Clock className="h-5 w-5 mb-2 text-accent" /><div className="text-2xl font-bold">{deals.length}</div><div className="text-xs text-muted-foreground">Total matters</div></CardContent></Card>
-      </div>
+      <Tabs defaultValue="overview" className="space-y-4">
+        <TabsList className="bg-muted/50">
+          <TabsTrigger value="overview" className="gap-1.5"><Eye className="h-3.5 w-3.5" /> Overview</TabsTrigger>
+          <TabsTrigger value="matters" className="gap-1.5"><Gavel className="h-3.5 w-3.5" /> Matters</TabsTrigger>
+        </TabsList>
 
-      <Card className="border-0 shadow-card">
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold">Matters</h2>
-            <Button asChild variant="ghost" size="sm"><Link to="/sales">Sales pipeline <ArrowRight className="ml-1 h-3 w-3" /></Link></Button>
+        <TabsContent value="overview" className="space-y-4">
+          <div className="grid sm:grid-cols-3 gap-4">
+            <Card className="border-0 shadow-card">
+              <CardContent className="p-5">
+                <Scale className="h-5 w-5 mb-2 text-accent" />
+                <div className="text-2xl font-bold">{active}</div>
+                <div className="text-xs text-muted-foreground">Active matters</div>
+              </CardContent>
+            </Card>
+            <Card className="border-0 shadow-card">
+              <CardContent className="p-5">
+                <FileSignature className="h-5 w-5 mb-2 text-accent" />
+                <div className="text-2xl font-bold">{exchanged}</div>
+                <div className="text-xs text-muted-foreground">Exchanged, awaiting completion</div>
+              </CardContent>
+            </Card>
+            <Card className="border-0 shadow-card">
+              <CardContent className="p-5">
+                <Clock className="h-5 w-5 mb-2 text-accent" />
+                <div className="text-2xl font-bold">{deals.length}</div>
+                <div className="text-xs text-muted-foreground">Total matters</div>
+              </CardContent>
+            </Card>
           </div>
-          {deals.length === 0 ? (
-            <div className="text-sm text-muted-foreground py-8 text-center">No matters assigned to you yet.</div>
-          ) : (
-            <div className="divide-y">
-              {deals.slice(0, 10).map((d) => (
-                <div key={d.id} className="py-3 flex items-center justify-between">
-                  <div>
-                    <div className="font-medium">£{Number(d.agreed_price ?? d.offer_amount ?? 0).toLocaleString()}</div>
-                    <div className="text-xs text-muted-foreground">Opened {new Date(d.created_at).toLocaleDateString("en-GB")}</div>
-                  </div>
-                  <Badge variant="outline">{d.status}</Badge>
+        </TabsContent>
+
+        <TabsContent value="matters" className="space-y-4">
+          <Card className="border-0 shadow-card">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="font-semibold">Matters</h2>
+                <Button asChild variant="ghost" size="sm"><Link to="/sales">Sales pipeline <ArrowRight className="ml-1 h-3 w-3" /></Link></Button>
+              </div>
+              {deals.length === 0 ? (
+                <div className="text-sm text-muted-foreground py-8 text-center">No matters assigned to you yet.</div>
+              ) : (
+                <div className="divide-y">
+                  {deals.slice(0, 10).map((d) => (
+                    <div key={d.id} className="py-3 flex items-center justify-between">
+                      <div>
+                        <div className="font-medium">£{Number(d.agreed_price ?? d.offer_amount ?? 0).toLocaleString()}</div>
+                        <div className="text-xs text-muted-foreground">Opened {new Date(d.created_at).toLocaleDateString("en-GB")}</div>
+                      </div>
+                      <Badge variant="outline">{d.status}</Badge>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
