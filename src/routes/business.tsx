@@ -218,34 +218,6 @@ function BusinessPage() {
             </div>
           </div>
         </section>
-            <div className="grid md:grid-cols-3 gap-5 max-w-5xl mx-auto">
-              {PLANS.map((p) => (
-                <Card key={p.name} className={`border-0 shadow-card relative h-full ${p.highlight ? "ring-2 ring-primary shadow-elevated" : ""}`}>
-                  {p.highlight && <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground">Most popular</Badge>}
-                  <CardContent className="p-6 flex flex-col h-full">
-                    <div className="font-semibold">{p.name}</div>
-                    <div className="mt-3 flex items-baseline gap-1">
-                      <div className="text-4xl font-bold font-display">{p.price}</div>
-                      <div className="text-sm text-muted-foreground">{p.suffix}</div>
-                    </div>
-                    <div className="text-xs text-muted-foreground mt-1">{p.note}</div>
-                    <Button className="mt-5" variant={p.highlight ? "default" : "outline"} asChild>
-                      <Link to="/auth" search={{ mode: "signup" } as never}>{p.cta}</Link>
-                    </Button>
-                    <ul className="mt-6 space-y-2.5 text-sm">
-                      {p.features.map((f) => (
-                        <li key={f} className="flex items-start gap-2">
-                          <Check className="h-4 w-4 text-success shrink-0 mt-0.5" />
-                          <span>{f}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </section>
 
         {/* Comparison */}
         <section className="container mx-auto px-4 py-16 md:py-20">
