@@ -157,7 +157,7 @@ function PropertiesPage() {
         description="Your portfolio — units, rooms, tenancies, short-lets, schedule, docs & compliance"
         actions={
           <div className="flex gap-2">
-            <Button variant="outline" onClick={() => { setForm({ ...emptyProp, title: "Quick add" }); setOpen(true); }}>
+            <Button variant="outline" onClick={() => { setForm({ ...emptyProp }); setOpen(true); }} title="Add with just a title + postcode, fill rest later">
               <Plus className="mr-2 h-4 w-4" /> Quick add
             </Button>
             <Button onClick={startNew}><Plus className="mr-2 h-4 w-4" /> Add property</Button>
