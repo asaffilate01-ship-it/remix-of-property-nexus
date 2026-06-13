@@ -21,6 +21,7 @@ import { PostcodeAutocomplete } from "@/components/properties/PostcodeAutocomple
 import { PropertyScheduleGantt } from "@/components/properties/PropertyScheduleGantt";
 import { PropertyDocsPanel } from "@/components/properties/PropertyDocsPanel";
 import { PropertyCompliancePanel } from "@/components/properties/PropertyCompliancePanel";
+import { StreetViewThumb } from "@/components/properties/StreetViewThumb";
 
 export const Route = createFileRoute("/_authenticated/properties")({ component: PropertiesPage });
 
