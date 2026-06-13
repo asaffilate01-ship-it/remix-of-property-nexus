@@ -1,11 +1,14 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, Building2, Tag, Inbox, Kanban, ShieldCheck, Users, Settings, LogOut, BedDouble, Wrench, Contact, Handshake } from "lucide-react";
+import { LayoutDashboard, Building2, Tag, Inbox, Kanban, ShieldCheck, Users, Settings, LogOut, BedDouble, Wrench, Contact, Handshake, Search, Heart, Home, Scale, ClipboardCheck } from "lucide-react";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader, SidebarFooter, useSidebar } from "@/components/ui/sidebar";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
+import { useUserRole, type AppRole } from "@/hooks/useUserRole";
 
-const items = [
+type NavItem = { to: string; label: string; icon: typeof LayoutDashboard };
+
+const FULL: NavItem[] = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/properties", label: "Properties", icon: Building2 },
   { to: "/listings", label: "Listings", icon: Tag },
@@ -20,12 +23,60 @@ const items = [
   { to: "/settings", label: "Settings", icon: Settings },
 ];
 
+const TENANT: NavItem[] = [
+  { to: "/dashboard", label: "My home", icon: Home },
+  { to: "/work-orders", label: "Repair requests", icon: Wrench },
+  { to: "/compliance", label: "Documents", icon: ShieldCheck },
+  { to: "/marketplace", label: "Browse homes", icon: Search },
+  { to: "/settings", label: "Settings", icon: Settings },
+];
+
+const CONTRACTOR: NavItem[] = [
+  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/work-orders", label: "My jobs", icon: Wrench },
+  { to: "/settings", label: "Settings", icon: Settings },
+];
+
+const CONVEYANCER: NavItem[] = [
+  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/sales", label: "Matters", icon: Scale },
+  { to: "/settings", label: "Settings", icon: Settings },
+];
+
+const BUYER: NavItem[] = [
+  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/marketplace", label: "Browse", icon: Search },
+  { to: "/leads", label: "My enquiries", icon: Heart },
+  { to: "/settings", label: "Settings", icon: Settings },
+];
+
+const SIMPLE: NavItem[] = [
+  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/work-orders", label: "Assignments", icon: ClipboardCheck },
+  { to: "/settings", label: "Settings", icon: Settings },
+];
+
+function navFor(role: AppRole | null): NavItem[] {
+  switch (role) {
+    case "tenant": return TENANT;
+    case "contractor": return CONTRACTOR;
+    case "conveyancer": return CONVEYANCER;
+    case "buyer": return BUYER;
+    case "inventory_clerk":
+    case "utility_provider":
+      return SIMPLE;
+    default: return FULL;
+  }
+}
+
 export function AppSidebar() {
   const path = useRouterState({ select: (s) => s.location.pathname });
   const { state } = useSidebar();
   const navigate = useNavigate();
   const qc = useQueryClient();
   const collapsed = state === "collapsed";
+  const { role } = useUserRole();
+  const items = navFor(role);
 
   const signOut = async () => {
     await qc.cancelQueries();
