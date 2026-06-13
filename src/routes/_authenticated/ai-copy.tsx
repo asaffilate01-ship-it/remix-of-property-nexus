@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,9 +8,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Sparkles, Copy, RefreshCw, Wand2 } from "lucide-react";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { Sparkles, Copy, RefreshCw, Wand2, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
-import { generateListingCopy } from "@/lib/ai-copy.functions";
+import { generateListingCopy, listMyListings } from "@/lib/ai-copy.functions";
 
 export const Route = createFileRoute("/_authenticated/ai-copy")({
   head: () => ({ meta: [{ title: "AI listing copy — Estately" }] }),
@@ -22,6 +23,9 @@ type Output = { headline: string; short: string; long: string; bullets: string[]
 
 function AiCopyPage() {
   const gen = useServerFn(generateListingCopy);
+  const loadListings = useServerFn(listMyListings);
+  const [listings, setListings] = useState<Array<{ id: string; title: string; city: string | null; bedrooms: number | null; bathrooms: number | null; listing_type: string | null; properties?: { property_type?: string | null } | null }>>([]);
+  const [listingId, setListingId] = useState<string>("");
   const [form, setForm] = useState({
     title: "",
     property_type: "house",
@@ -33,8 +37,28 @@ function AiCopyPage() {
   });
   const [out, setOut] = useState<Output | null>(null);
   const [busy, setBusy] = useState(false);
+  const [applied, setApplied] = useState(false);
 
-  const generate = async () => {
+  useEffect(() => {
+    loadListings({}).then((r) => setListings(r.listings as never)).catch(() => {});
+  }, [loadListings]);
+
+  const pickListing = (id: string) => {
+    setListingId(id);
+    setApplied(false);
+    const l = listings.find((x) => x.id === id);
+    if (!l) return;
+    setForm((f) => ({
+      ...f,
+      title: l.title ?? f.title,
+      property_type: l.properties?.property_type ?? f.property_type,
+      beds: l.bedrooms != null ? String(l.bedrooms) : f.beds,
+      baths: l.bathrooms != null ? String(l.bathrooms) : f.baths,
+      area: l.city ?? f.area,
+    }));
+  };
+
+  const generate = async (apply = false) => {
     setBusy(true);
     try {
       const r = await gen({ data: {
@@ -45,9 +69,12 @@ function AiCopyPage() {
         area: form.area,
         features: form.features,
         tone: form.tone,
+        listing_id: apply && listingId ? listingId : undefined,
+        apply: apply && !!listingId,
       } });
       setOut({ headline: r.headline, short: r.short, long: r.long, bullets: r.bullets, caption: r.caption });
-      toast.success("Copy generated");
+      setApplied(!!r.applied);
+      toast.success(r.applied ? "Copy generated and applied to listing" : "Copy generated");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Generation failed");
     } finally { setBusy(false); }
