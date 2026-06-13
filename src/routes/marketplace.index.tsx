@@ -21,17 +21,28 @@ import { toast } from "sonner";
 
 const categories = ["all", "sale", "rent", "hmo", "commercial"] as const;
 type Category = (typeof categories)[number];
-const sorts = ["newest", "price_asc", "price_desc", "beds_desc"] as const;
+const sorts = ["newest", "distance", "price_asc", "price_desc", "beds_desc"] as const;
 type SortKey = (typeof sorts)[number];
+const propertyTypes = ["any", "house", "flat", "bungalow", "studio", "room", "commercial", "land"] as const;
+type PropertyType = (typeof propertyTypes)[number];
+const FEATURE_OPTIONS = ["Garden", "Parking", "Garage", "Balcony", "Lift", "Gym", "Concierge", "Pets allowed", "Students welcome", "New build", "Wheelchair access", "Conservatory", "EV charging"] as const;
 
 const search = z.object({
   category: z.enum(categories).optional(),
   city: z.string().optional(),
+  postcode: z.string().optional(),
+  radius: z.number().optional(),
+  property_type: z.enum(propertyTypes).optional(),
+  features: z.array(z.string()).optional(),
+  epc_min: z.enum(["A", "B", "C", "D", "E"]).optional(),
+  tenure: z.enum(["freehold", "leasehold", "share_of_freehold"]).optional(),
   q: z.string().optional(),
   min_price: z.number().optional(),
   max_price: z.number().optional(),
   beds: z.number().optional(),
   baths: z.number().optional(),
+  receptions: z.number().optional(),
+  min_sqft: z.number().optional(),
   bills_included: z.boolean().optional(),
   furnished: z.string().optional(),
   sort: z.enum(sorts).optional(),
@@ -63,6 +74,7 @@ const tabs: { value: Category; label: string }[] = [
 
 const SORT_LABEL: Record<SortKey, string> = {
   newest: "Newest first",
+  distance: "Distance: nearest",
   price_asc: "Price: low to high",
   price_desc: "Price: high to low",
   beds_desc: "Most bedrooms",
@@ -72,7 +84,7 @@ function MarketplacePage() {
   const s = useSearch({ from: "/marketplace/" });
   const navigate = useNavigate({ from: "/marketplace/" });
   const [q, setQ] = useState(s.q ?? "");
-  const [city, setCity] = useState(s.city ?? "");
+  const [where, setWhere] = useState(s.postcode ?? s.city ?? "");
   const category: Category = s.category ?? "all";
   const sort: SortKey = s.sort ?? "newest";
   const [view, setView] = useState<"grid" | "map">("grid");
@@ -81,28 +93,55 @@ function MarketplacePage() {
 
   const meta = useQuery({ queryKey: ["mp-meta"], queryFn: useServerFn(fetchMarketplaceMeta) });
 
+  // Detect postcode-ish input vs town name
+  const isPostcode = (v: string) => /^[A-Z]{1,2}\d[A-Z\d]?( ?\d[A-Z]{2})?$/i.test(v.trim());
+  const onSubmitWhere = () => {
+    const v = where.trim();
+    if (!v) { setSearch({ postcode: undefined, city: undefined }); return; }
+    if (isPostcode(v)) setSearch({ postcode: v.toUpperCase(), city: undefined });
+    else setSearch({ city: v, postcode: undefined });
+  };
+
   const fn = useServerFn(fetchListings);
   const { data, isLoading, isFetching } = useQuery({
-    queryKey: ["listings", s, q, city],
+    queryKey: ["listings", s, q],
     queryFn: () => fn({ data: {
-      q: q || undefined, city: city || undefined, category,
-      min_price: s.min_price, max_price: s.max_price, beds: s.beds, baths: s.baths,
-      bills_included: s.bills_included, furnished: s.furnished, sort,
+      q: q || undefined,
+      city: s.city || undefined,
+      postcode: s.postcode || undefined,
+      radius_miles: s.radius,
+      property_type: s.property_type,
+      features: s.features,
+      epc_min: s.epc_min,
+      tenure: s.tenure,
+      category,
+      min_price: s.min_price, max_price: s.max_price,
+      beds: s.beds, baths: s.baths, receptions: s.receptions, min_sqft: s.min_sqft,
+      bills_included: s.bills_included, furnished: s.furnished,
+      sort,
     } }),
   });
 
   const activeFilters: string[] = [];
+  if (s.postcode) activeFilters.push(`📍 ${s.postcode}${s.radius ? ` · ${s.radius} mi` : ""}`);
+  else if (s.city && s.radius) activeFilters.push(`📍 ${s.city} · ${s.radius} mi`);
+  if (s.property_type && s.property_type !== "any") activeFilters.push(s.property_type);
   if (s.min_price) activeFilters.push(`from £${s.min_price.toLocaleString()}`);
   if (s.max_price) activeFilters.push(`to £${s.max_price.toLocaleString()}`);
   if (s.beds) activeFilters.push(`${s.beds}+ beds`);
   if (s.baths) activeFilters.push(`${s.baths}+ baths`);
+  if (s.receptions) activeFilters.push(`${s.receptions}+ reception`);
+  if (s.min_sqft) activeFilters.push(`${s.min_sqft}+ sq ft`);
+  if (s.epc_min) activeFilters.push(`EPC ${s.epc_min}+`);
+  if (s.tenure) activeFilters.push(s.tenure.replace("_", " "));
+  if (s.features?.length) s.features.forEach((f: string) => activeFilters.push(f));
   if (s.bills_included) activeFilters.push("bills included");
   if (s.furnished) activeFilters.push(s.furnished);
 
   const saveSearch = () => {
     try {
       const saved = JSON.parse(localStorage.getItem("estately:saved-searches") ?? "[]");
-      saved.unshift({ when: new Date().toISOString(), search: s, q, city });
+      saved.unshift({ when: new Date().toISOString(), search: s, q, where });
       localStorage.setItem("estately:saved-searches", JSON.stringify(saved.slice(0, 20)));
       toast.success("Search saved");
     } catch { toast.error("Could not save"); }
@@ -126,9 +165,16 @@ function MarketplacePage() {
             </p>
 
             <SearchBar
-              q={q} setQ={setQ} city={city} setCity={setCity}
-              onSubmit={() => setSearch({ q: q || undefined, city: city || undefined })}
+              q={q} setQ={setQ}
+              where={where} setWhere={setWhere}
+              radius={s.radius ?? 0} setRadius={(r) => setSearch({ radius: r || undefined })}
+              onSubmit={() => { setSearch({ q: q || undefined }); onSubmitWhere(); }}
             />
+            {data?.centroid && s.radius ? (
+              <div className="mt-3 text-xs text-white/80">
+                Showing properties within {s.radius} miles of <strong>{data.centroid.label}</strong>
+              </div>
+            ) : null}
 
             {meta.data && (
               <div className="mt-5 sm:mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs sm:text-sm text-white/90">
@@ -260,17 +306,42 @@ function MarketplacePage() {
   );
 }
 
-function SearchBar({ q, setQ, city, setCity, onSubmit }: { q: string; setQ: (v: string) => void; city: string; setCity: (v: string) => void; onSubmit: () => void }) {
+function SearchBar({ q, setQ, where, setWhere, radius, setRadius, onSubmit }: { q: string; setQ: (v: string) => void; where: string; setWhere: (v: string) => void; radius: number; setRadius: (r: number) => void; onSubmit: () => void }) {
   return (
     <div className="bg-card text-foreground rounded-2xl p-2 shadow-2xl ring-1 ring-border/50">
       <form className="grid grid-cols-1 md:grid-cols-12 gap-2" onSubmit={(e) => { e.preventDefault(); onSubmit(); }}>
-        <div className="md:col-span-7 relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Search by area, postcode or keyword…" value={q} onChange={(e) => setQ(e.target.value)} className="pl-9 h-11 md:h-12 border-0 focus-visible:ring-0" />
-        </div>
-        <div className="md:col-span-3 relative">
+        <div className="md:col-span-5 relative">
           <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="City" value={city} onChange={(e) => setCity(e.target.value)} className="pl-9 h-11 md:h-12 border-0 focus-visible:ring-0" />
+          <Input
+            placeholder="Postcode or town (e.g. SW1A 1AA, Manchester)"
+            value={where}
+            onChange={(e) => setWhere(e.target.value)}
+            className="pl-9 h-11 md:h-12 border-0 focus-visible:ring-0"
+            autoComplete="postal-code"
+          />
+        </div>
+        <div className="md:col-span-3">
+          <Select value={String(radius)} onValueChange={(v) => setRadius(Number(v))}>
+            <SelectTrigger className="h-11 md:h-12 border-0 focus:ring-0">
+              <SelectValue placeholder="Within…" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="0">This area only</SelectItem>
+              <SelectItem value="0.25">Within ¼ mile</SelectItem>
+              <SelectItem value="0.5">Within ½ mile</SelectItem>
+              <SelectItem value="1">Within 1 mile</SelectItem>
+              <SelectItem value="3">Within 3 miles</SelectItem>
+              <SelectItem value="5">Within 5 miles</SelectItem>
+              <SelectItem value="10">Within 10 miles</SelectItem>
+              <SelectItem value="15">Within 15 miles</SelectItem>
+              <SelectItem value="25">Within 25 miles</SelectItem>
+              <SelectItem value="40">Within 40 miles</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="md:col-span-2 relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input placeholder="Keyword" value={q} onChange={(e) => setQ(e.target.value)} className="pl-9 h-11 md:h-12 border-0 focus-visible:ring-0" />
         </div>
         <Button type="submit" className="md:col-span-2 h-11 md:h-12 w-full">
           <Search className="h-4 w-4 mr-2 md:hidden" />Search
@@ -283,43 +354,79 @@ function SearchBar({ q, setQ, city, setCity, onSubmit }: { q: string; setQ: (v: 
 
 function FiltersSheet({ s, setSearch }: { s: SearchParams; setSearch: (patch: Partial<SearchParams>) => void }) {
   const [open, setOpen] = useState(false);
-  const [local, setLocal] = useState({
+  const initial = () => ({
     min_price: s.min_price?.toString() ?? "",
     max_price: s.max_price?.toString() ?? "",
     beds: s.beds?.toString() ?? "any",
     baths: s.baths?.toString() ?? "any",
+    receptions: s.receptions?.toString() ?? "any",
+    min_sqft: s.min_sqft?.toString() ?? "",
     bills_included: s.bills_included ?? false,
     furnished: s.furnished ?? "any",
+    property_type: (s.property_type ?? "any") as PropertyType,
+    epc_min: s.epc_min ?? "any",
+    tenure: s.tenure ?? "any",
+    features: s.features ?? [],
   });
-  useEffect(() => {
-    setLocal({
-      min_price: s.min_price?.toString() ?? "",
-      max_price: s.max_price?.toString() ?? "",
-      beds: s.beds?.toString() ?? "any",
-      baths: s.baths?.toString() ?? "any",
-      bills_included: s.bills_included ?? false,
-      furnished: s.furnished ?? "any",
-    });
-  }, [s]);
+  const [local, setLocal] = useState(initial);
+  useEffect(() => { setLocal(initial()); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [s]);
+
+  const toggleFeature = (f: string) => setLocal((p) => ({
+    ...p,
+    features: p.features.includes(f) ? p.features.filter((x) => x !== f) : [...p.features, f],
+  }));
+
   const apply = () => {
     setSearch({
       min_price: local.min_price ? Number(local.min_price) : undefined,
       max_price: local.max_price ? Number(local.max_price) : undefined,
       beds: local.beds !== "any" ? Number(local.beds) : undefined,
       baths: local.baths !== "any" ? Number(local.baths) : undefined,
+      receptions: local.receptions !== "any" ? Number(local.receptions) : undefined,
+      min_sqft: local.min_sqft ? Number(local.min_sqft) : undefined,
       bills_included: local.bills_included || undefined,
       furnished: local.furnished !== "any" ? local.furnished : undefined,
+      property_type: local.property_type !== "any" ? local.property_type : undefined,
+      epc_min: local.epc_min !== "any" ? (local.epc_min as "A" | "B" | "C" | "D" | "E") : undefined,
+      tenure: local.tenure !== "any" ? (local.tenure as "freehold" | "leasehold" | "share_of_freehold") : undefined,
+      features: local.features.length ? local.features : undefined,
     });
     setOpen(false);
   };
+
+  const activeCount = [
+    s.min_price, s.max_price, s.beds, s.baths, s.receptions, s.min_sqft,
+    s.bills_included, s.furnished, s.property_type !== undefined && s.property_type !== "any" ? 1 : undefined,
+    s.epc_min, s.tenure, s.features?.length,
+  ].filter(Boolean).length;
+
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="outline" size="sm" className="h-9"><SlidersHorizontal className="h-4 w-4 mr-1" /> Filters</Button>
+        <Button variant="outline" size="sm" className="h-9">
+          <SlidersHorizontal className="h-4 w-4 mr-1" /> Filters
+          {activeCount > 0 && <Badge className="ml-1.5 h-5 px-1.5 text-[10px]">{activeCount}</Badge>}
+        </Button>
       </SheetTrigger>
-      <SheetContent className="w-full sm:max-w-md">
+      <SheetContent className="w-full sm:max-w-md overflow-y-auto">
         <SheetHeader><SheetTitle>Refine your search</SheetTitle></SheetHeader>
         <div className="space-y-5 mt-6">
+          <div>
+            <Label>Property type</Label>
+            <div className="grid grid-cols-4 gap-1.5 mt-2">
+              {propertyTypes.map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() => setLocal({ ...local, property_type: t })}
+                  className={`h-9 rounded-md border text-xs font-medium capitalize transition-colors ${local.property_type === t ? "bg-primary text-primary-foreground border-primary" : "bg-card hover:bg-accent/10"}`}
+                >
+                  {t === "any" ? "Any" : t}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div>
             <Label>Price range (£)</Label>
             <div className="grid grid-cols-2 gap-2 mt-2">
@@ -327,7 +434,8 @@ function FiltersSheet({ s, setSearch }: { s: SearchParams; setSearch: (patch: Pa
               <Input placeholder="Max" inputMode="numeric" value={local.max_price} onChange={(e) => setLocal({ ...local, max_price: e.target.value.replace(/[^0-9]/g, "") })} />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+
+          <div className="grid grid-cols-3 gap-3">
             <div>
               <Label>Bedrooms</Label>
               <Select value={local.beds} onValueChange={(v) => setLocal({ ...local, beds: v })}>
@@ -348,6 +456,65 @@ function FiltersSheet({ s, setSearch }: { s: SearchParams; setSearch: (patch: Pa
                 </SelectContent>
               </Select>
             </div>
+            <div>
+              <Label>Reception</Label>
+              <Select value={local.receptions} onValueChange={(v) => setLocal({ ...local, receptions: v })}>
+                <SelectTrigger className="mt-2"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="any">Any</SelectItem>
+                  {[1,2,3,4].map((n) => <SelectItem key={n} value={String(n)}>{n}+</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label>Min floor area (sq ft)</Label>
+              <Input className="mt-2" placeholder="e.g. 600" inputMode="numeric" value={local.min_sqft} onChange={(e) => setLocal({ ...local, min_sqft: e.target.value.replace(/[^0-9]/g, "") })} />
+            </div>
+            <div>
+              <Label>EPC rating (min)</Label>
+              <Select value={local.epc_min} onValueChange={(v) => setLocal({ ...local, epc_min: v })}>
+                <SelectTrigger className="mt-2"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="any">Any</SelectItem>
+                  {["A","B","C","D","E"].map((b) => <SelectItem key={b} value={b}>{b} or better</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div>
+            <Label>Tenure</Label>
+            <Select value={local.tenure} onValueChange={(v) => setLocal({ ...local, tenure: v })}>
+              <SelectTrigger className="mt-2"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="any">Any</SelectItem>
+                <SelectItem value="freehold">Freehold</SelectItem>
+                <SelectItem value="leasehold">Leasehold</SelectItem>
+                <SelectItem value="share_of_freehold">Share of freehold</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label>Features &amp; must-haves</Label>
+            <div className="flex flex-wrap gap-1.5 mt-2">
+              {FEATURE_OPTIONS.map((f) => {
+                const on = local.features.includes(f);
+                return (
+                  <button
+                    key={f}
+                    type="button"
+                    onClick={() => toggleFeature(f)}
+                    className={`h-8 px-3 rounded-full border text-xs font-medium transition-colors ${on ? "bg-primary text-primary-foreground border-primary" : "bg-card hover:bg-accent/10"}`}
+                  >
+                    {f}
+                  </button>
+                );
+              })}
+            </div>
           </div>
           <div>
             <Label>Furnished</Label>
@@ -367,7 +534,7 @@ function FiltersSheet({ s, setSearch }: { s: SearchParams; setSearch: (patch: Pa
           </div>
         </div>
         <SheetFooter className="mt-6 flex-row gap-2">
-          <Button variant="outline" className="flex-1" onClick={() => { setLocal({ min_price: "", max_price: "", beds: "any", baths: "any", bills_included: false, furnished: "any" }); }}>Reset</Button>
+          <Button variant="outline" className="flex-1" onClick={() => { setLocal({ min_price: "", max_price: "", beds: "any", baths: "any", receptions: "any", min_sqft: "", bills_included: false, furnished: "any", property_type: "any", epc_min: "any", tenure: "any", features: [] }); }}>Reset</Button>
           <Button className="flex-1" onClick={apply}>Apply filters</Button>
         </SheetFooter>
       </SheetContent>
