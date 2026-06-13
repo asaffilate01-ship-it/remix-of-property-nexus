@@ -210,15 +210,16 @@ function PropertiesPage() {
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filtered.map((p) => (
-            <Card key={p.id} className="border-0 shadow-card hover:shadow-md transition-shadow cursor-pointer" onClick={() => setActive(p)}>
-              <CardContent className="p-5">
-                <div className="flex justify-between items-start mb-2 gap-2">
-                  <div className="font-semibold truncate">{p.title}</div>
-                  <div className="flex gap-1 shrink-0 flex-wrap justify-end">
-                    {p.is_hmo && <Badge className="bg-accent text-accent-foreground">HMO</Badge>}
-                    <Badge variant="outline" className="capitalize">{p.listing_purpose.replace("_", " ")}</Badge>
-                  </div>
+            <Card key={p.id} className="border-0 shadow-card hover:shadow-md transition-shadow cursor-pointer overflow-hidden" onClick={() => setActive(p)}>
+              <div className="aspect-[16/10] relative bg-muted">
+                <StreetViewThumb address={p.address} city={p.city} postcode={p.postcode} className="absolute inset-0 h-full w-full" />
+                <div className="absolute top-2 right-2 flex gap-1 flex-wrap justify-end">
+                  {p.is_hmo && <Badge className="bg-accent text-accent-foreground border-0">HMO</Badge>}
+                  <Badge variant="secondary" className="capitalize border-0 backdrop-blur bg-card/85">{p.listing_purpose.replace("_", " ")}</Badge>
                 </div>
+              </div>
+              <CardContent className="p-5">
+                <div className="font-semibold truncate">{p.title}</div>
                 <div className="text-sm text-muted-foreground truncate">{[p.address, p.city, p.postcode].filter(Boolean).join(", ") || "No address"}</div>
                 <div className="text-xs text-muted-foreground mt-2 flex gap-3 flex-wrap">
                   {p.bedrooms != null && <span>{p.bedrooms} bed</span>}
