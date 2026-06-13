@@ -47,14 +47,14 @@ export const saveComplianceRecord = createServerFn({ method: "POST" })
     notes?: string | null;
   }) => d)
   .handler(async ({ data, context }) => {
-    const row: Record<string, unknown> = {
-      type: data.type,
+    const row = {
+      type: data.type as never,
       issued_on: data.issued_on || null,
       expires_on: data.expires_on || null,
       reference: data.reference || null,
       document_url: data.document_url || null,
       notes: data.notes || null,
-      status: computeStatus(data.expires_on),
+      status: computeStatus(data.expires_on) as never,
       property_id: data.scope_kind === "property" ? data.scope_id : null,
       agency_id: data.scope_kind === "agency" ? data.scope_id : null,
       tenancy_id: data.scope_kind === "tenancy" ? data.scope_id : null,

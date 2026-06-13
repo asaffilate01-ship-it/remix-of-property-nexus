@@ -113,7 +113,7 @@ function MarketplacePage() {
         <section className="container mx-auto px-4 py-6">
           <Tabs
             value={category}
-            onValueChange={(v) => navigate({ search: (prev) => ({ ...prev, category: v === "all" ? undefined : (v as Category) }) })}
+            onValueChange={(v) => navigate({ search: (prev: z.infer<typeof search>) => ({ ...prev, category: v === "all" ? undefined : (v as Category) }) })}
           >
             <TabsList className="flex flex-wrap h-auto">
               {tabs.map((t) => (

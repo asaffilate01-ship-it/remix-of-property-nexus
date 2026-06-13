@@ -111,7 +111,7 @@ export const saveTenancy = createServerFn({ method: "POST" })
     if (data.generate_schedule && tenancyId) {
       const months = Math.max(1, Math.min(36, data.months ?? 12));
       const start = new Date(data.start_date);
-      const rows = [] as Array<Record<string, unknown>>;
+      const rows = [] as Array<{ tenancy_id: string; period_start: string; period_end: string; due_date: string; amount: number; status: "due" }>;
       for (let i = 0; i < months; i++) {
         const periodStart = new Date(start);
         periodStart.setMonth(start.getMonth() + i);
