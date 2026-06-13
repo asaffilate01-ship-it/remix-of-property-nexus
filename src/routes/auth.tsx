@@ -29,7 +29,7 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
-  const [role, setRole] = useState<"landlord" | "agent" | "tenant" | "buyer">("landlord");
+  const [role, setRole] = useState<"landlord" | "agent" | "tenant" | "buyer" | "conveyancer" | "contractor" | "inventory_clerk" | "utility_provider">("landlord");
   const [show, setShow] = useState(false);
   const [busy, setBusy] = useState(false);
   const ensureDemo = useServerFn(ensureDemoUsers);
