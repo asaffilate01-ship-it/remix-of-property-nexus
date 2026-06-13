@@ -28,7 +28,7 @@ function ListingDetail() {
   const l = data?.listing;
   if (!l) return <Shell><div className="container mx-auto p-8">Listing not found.</div></Shell>;
   const price = l.price ? new Intl.NumberFormat("en-GB", { style: "currency", currency: l.currency || "GBP", maximumFractionDigits: 0 }).format(Number(l.price)) : "POA";
-  const photos: string[] = Array.isArray(l.photos) ? l.photos : [];
+  const photos: string[] = Array.isArray(l.photos) ? (l.photos as unknown[]).filter((p): p is string => typeof p === "string") : [];
 
   return (
     <Shell>
