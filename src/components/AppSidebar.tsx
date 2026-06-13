@@ -26,6 +26,7 @@ const FULL: NavItem[] = [
   { to: "/leasehold", label: "Leasehold register", icon: Landmark },
   { to: "/commercial", label: "Commercial lettings", icon: Briefcase },
   { to: "/renewals", label: "Renewals", icon: RefreshCcw },
+  { to: "/referencing-cases", label: "Referencing", icon: ClipboardCheck },
   { to: "/deposits", label: "Deposits", icon: Vault },
   { to: "/right-to-rent", label: "Right to Rent", icon: UserCheck },
   { to: "/arrears", label: "Arrears", icon: Banknote },
