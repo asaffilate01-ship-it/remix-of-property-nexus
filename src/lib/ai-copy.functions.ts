@@ -2,6 +2,18 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 
+export const listMyListings = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await context.supabase
+      .from("listings")
+      .select("id, title, city, postcode, bedrooms, bathrooms, price, listing_type, status, ai_copy_generated_at, properties(property_type)")
+      .order("created_at", { ascending: false })
+      .limit(100);
+    if (error) throw new Error(error.message);
+    return { listings: data ?? [] };
+  });
+
 const inputSchema = z.object({
   title: z.string().max(200).optional(),
   property_type: z.string().max(40).optional(),

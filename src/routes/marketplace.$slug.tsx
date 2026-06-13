@@ -120,6 +120,7 @@ function ListingDetail() {
             <TabsList>
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="features">Features</TabsTrigger>
+              {(l.floorplan_url || l.tour_url) && <TabsTrigger value="tour">Floorplan & tour</TabsTrigger>}
               {isSale && <TabsTrigger value="mortgage">Mortgage</TabsTrigger>}
               <TabsTrigger value="area">Area</TabsTrigger>
             </TabsList>
@@ -137,6 +138,35 @@ function ListingDetail() {
                 </div>
               ) : <p className="text-muted-foreground">No features listed.</p>}
             </TabsContent>
+            {(l.floorplan_url || l.tour_url) && (
+              <TabsContent value="tour" className="pt-4 space-y-4">
+                {l.tour_url && (
+                  <div className="rounded-2xl overflow-hidden border bg-muted aspect-video">
+                    <iframe
+                      src={l.tour_url}
+                      title="Virtual 360° tour"
+                      className="w-full h-full"
+                      allow="fullscreen; accelerometer; gyroscope; magnetometer; vr"
+                      allowFullScreen
+                      loading="lazy"
+                    />
+                  </div>
+                )}
+                {l.floorplan_url && (
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <button className="block w-full rounded-2xl overflow-hidden border bg-card hover:shadow-card transition">
+                        <img src={l.floorplan_url} alt={`${l.title} floorplan`} className="w-full h-auto" loading="lazy" />
+                      </button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-5xl"><img src={l.floorplan_url} alt="" className="w-full h-auto rounded-md" /></DialogContent>
+                  </Dialog>
+                )}
+                {!l.tour_url && !l.floorplan_url && (
+                  <p className="text-muted-foreground">No tour or floorplan provided yet.</p>
+                )}
+              </TabsContent>
+            )}
             {isSale && <TabsContent value="mortgage" className="pt-4"><MortgageEstimator price={Number(l.price ?? 0)} /></TabsContent>}
             <TabsContent value="area" className="pt-4">
               <AreaMap lat={l.latitude} lng={l.longitude} postcode={l.postcode} />

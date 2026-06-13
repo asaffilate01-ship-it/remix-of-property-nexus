@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,9 +8,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Sparkles, Copy, RefreshCw, Wand2 } from "lucide-react";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { Sparkles, Copy, RefreshCw, Wand2, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
-import { generateListingCopy } from "@/lib/ai-copy.functions";
+import { generateListingCopy, listMyListings } from "@/lib/ai-copy.functions";
 
 export const Route = createFileRoute("/_authenticated/ai-copy")({
   head: () => ({ meta: [{ title: "AI listing copy — Estately" }] }),
@@ -22,6 +23,9 @@ type Output = { headline: string; short: string; long: string; bullets: string[]
 
 function AiCopyPage() {
   const gen = useServerFn(generateListingCopy);
+  const loadListings = useServerFn(listMyListings);
+  const [listings, setListings] = useState<Array<{ id: string; title: string; city: string | null; bedrooms: number | null; bathrooms: number | null; listing_type: string | null; properties?: { property_type?: string | null } | null }>>([]);
+  const [listingId, setListingId] = useState<string>("");
   const [form, setForm] = useState({
     title: "",
     property_type: "house",
@@ -33,8 +37,28 @@ function AiCopyPage() {
   });
   const [out, setOut] = useState<Output | null>(null);
   const [busy, setBusy] = useState(false);
+  const [applied, setApplied] = useState(false);
 
-  const generate = async () => {
+  useEffect(() => {
+    loadListings({}).then((r) => setListings(r.listings as never)).catch(() => {});
+  }, [loadListings]);
+
+  const pickListing = (id: string) => {
+    setListingId(id);
+    setApplied(false);
+    const l = listings.find((x) => x.id === id);
+    if (!l) return;
+    setForm((f) => ({
+      ...f,
+      title: l.title ?? f.title,
+      property_type: l.properties?.property_type ?? f.property_type,
+      beds: l.bedrooms != null ? String(l.bedrooms) : f.beds,
+      baths: l.bathrooms != null ? String(l.bathrooms) : f.baths,
+      area: l.city ?? f.area,
+    }));
+  };
+
+  const generate = async (apply = false) => {
     setBusy(true);
     try {
       const r = await gen({ data: {
@@ -45,9 +69,12 @@ function AiCopyPage() {
         area: form.area,
         features: form.features,
         tone: form.tone,
+        listing_id: apply && listingId ? listingId : undefined,
+        apply: apply && !!listingId,
       } });
       setOut({ headline: r.headline, short: r.short, long: r.long, bullets: r.bullets, caption: r.caption });
-      toast.success("Copy generated");
+      setApplied(!!r.applied);
+      toast.success(r.applied ? "Copy generated and applied to listing" : "Copy generated");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Generation failed");
     } finally { setBusy(false); }
@@ -66,6 +93,17 @@ function AiCopyPage() {
         <Card className="border-0 shadow-card">
           <CardContent className="p-5 space-y-4">
             <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground"><Sparkles className="h-3.5 w-3.5 text-primary" /> Inputs</div>
+            <Field label="Apply to existing listing (optional)">
+              <Select value={listingId || "none"} onValueChange={(v) => pickListing(v === "none" ? "" : v)}>
+                <SelectTrigger><SelectValue placeholder="Free-form / no listing" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Free-form / no listing</SelectItem>
+                  {listings.map((l) => (
+                    <SelectItem key={l.id} value={l.id}>{l.title}{l.city ? ` · ${l.city}` : ""}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
             <Field label="Property title / address"><Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="2 bed flat, Salford Quays" /></Field>
             <div className="grid grid-cols-3 gap-2">
               <Field label="Type">
@@ -88,9 +126,15 @@ function AiCopyPage() {
                 ))}
               </div>
             </Field>
-            <Button className="w-full" onClick={generate} disabled={busy || !form.title}>
-              {busy ? <><RefreshCw className="h-4 w-4 mr-2 animate-spin" /> Generating…</> : <><Wand2 className="h-4 w-4 mr-2" /> Generate copy</>}
-            </Button>
+            <div className="grid grid-cols-2 gap-2">
+              <Button variant="outline" onClick={() => generate(false)} disabled={busy || !form.title}>
+                {busy ? <RefreshCw className="h-4 w-4 mr-2 animate-spin" /> : <Wand2 className="h-4 w-4 mr-2" />} Generate
+              </Button>
+              <Button onClick={() => generate(true)} disabled={busy || !form.title || !listingId}>
+                {applied ? <CheckCircle2 className="h-4 w-4 mr-2" /> : <Sparkles className="h-4 w-4 mr-2" />} {applied ? "Applied" : "Generate & apply"}
+              </Button>
+            </div>
+            {!listingId && <p className="text-[11px] text-muted-foreground">Pick a listing above to enable Apply.</p>}
           </CardContent>
         </Card>
 

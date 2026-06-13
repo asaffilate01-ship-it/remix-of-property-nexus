@@ -70,6 +70,7 @@ import { Route as AuthenticatedArrearsRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedAiCopyRouteImport } from './routes/_authenticated/ai-copy'
 import { Route as AuthenticatedAgencyRouteImport } from './routes/_authenticated/agency'
 import { Route as ApiPublicReferencingWebhookRouteImport } from './routes/api/public/referencing-webhook'
+import { Route as ApiPublicHooksMatchSavedSearchesRouteImport } from './routes/api/public/hooks/match-saved-searches'
 
 const ValuationRoute = ValuationRouteImport.update({
   id: '/valuation',
@@ -382,6 +383,12 @@ const ApiPublicReferencingWebhookRoute =
     path: '/api/public/referencing-webhook',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksMatchSavedSearchesRoute =
+  ApiPublicHooksMatchSavedSearchesRouteImport.update({
+    id: '/api/public/hooks/match-saved-searches',
+    path: '/api/public/hooks/match-saved-searches',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -444,6 +451,7 @@ export interface FileRoutesByFullPath {
   '/blog/': typeof BlogIndexRoute
   '/marketplace/': typeof MarketplaceIndexRoute
   '/api/public/referencing-webhook': typeof ApiPublicReferencingWebhookRoute
+  '/api/public/hooks/match-saved-searches': typeof ApiPublicHooksMatchSavedSearchesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -504,6 +512,7 @@ export interface FileRoutesByTo {
   '/blog': typeof BlogIndexRoute
   '/marketplace': typeof MarketplaceIndexRoute
   '/api/public/referencing-webhook': typeof ApiPublicReferencingWebhookRoute
+  '/api/public/hooks/match-saved-searches': typeof ApiPublicHooksMatchSavedSearchesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -568,6 +577,7 @@ export interface FileRoutesById {
   '/blog/': typeof BlogIndexRoute
   '/marketplace/': typeof MarketplaceIndexRoute
   '/api/public/referencing-webhook': typeof ApiPublicReferencingWebhookRoute
+  '/api/public/hooks/match-saved-searches': typeof ApiPublicHooksMatchSavedSearchesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -632,6 +642,7 @@ export interface FileRouteTypes {
     | '/blog/'
     | '/marketplace/'
     | '/api/public/referencing-webhook'
+    | '/api/public/hooks/match-saved-searches'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -692,6 +703,7 @@ export interface FileRouteTypes {
     | '/blog'
     | '/marketplace'
     | '/api/public/referencing-webhook'
+    | '/api/public/hooks/match-saved-searches'
   id:
     | '__root__'
     | '/'
@@ -755,6 +767,7 @@ export interface FileRouteTypes {
     | '/blog/'
     | '/marketplace/'
     | '/api/public/referencing-webhook'
+    | '/api/public/hooks/match-saved-searches'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -780,6 +793,7 @@ export interface RootRouteChildren {
   ModulesSlugRoute: typeof ModulesSlugRoute
   BlogIndexRoute: typeof BlogIndexRoute
   ApiPublicReferencingWebhookRoute: typeof ApiPublicReferencingWebhookRoute
+  ApiPublicHooksMatchSavedSearchesRoute: typeof ApiPublicHooksMatchSavedSearchesRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1211,6 +1225,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicReferencingWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/match-saved-searches': {
+      id: '/api/public/hooks/match-saved-searches'
+      path: '/api/public/hooks/match-saved-searches'
+      fullPath: '/api/public/hooks/match-saved-searches'
+      preLoaderRoute: typeof ApiPublicHooksMatchSavedSearchesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -1345,6 +1366,7 @@ const rootRouteChildren: RootRouteChildren = {
   ModulesSlugRoute: ModulesSlugRoute,
   BlogIndexRoute: BlogIndexRoute,
   ApiPublicReferencingWebhookRoute: ApiPublicReferencingWebhookRoute,
+  ApiPublicHooksMatchSavedSearchesRoute: ApiPublicHooksMatchSavedSearchesRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
