@@ -155,7 +155,14 @@ function PropertiesPage() {
       <PageHeader
         title="Properties"
         description="Your portfolio — units, rooms, tenancies, short-lets, schedule, docs & compliance"
-        actions={<Button onClick={startNew}><Plus className="mr-2 h-4 w-4" /> Add property</Button>}
+        actions={
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => { setForm({ ...emptyProp, title: "Quick add" }); setOpen(true); }}>
+              <Plus className="mr-2 h-4 w-4" /> Quick add
+            </Button>
+            <Button onClick={startNew}><Plus className="mr-2 h-4 w-4" /> Add property</Button>
+          </div>
+        }
       />
 
       <div className="flex flex-wrap gap-2 items-center">
