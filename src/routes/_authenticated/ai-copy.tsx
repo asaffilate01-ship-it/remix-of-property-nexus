@@ -93,6 +93,17 @@ function AiCopyPage() {
         <Card className="border-0 shadow-card">
           <CardContent className="p-5 space-y-4">
             <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground"><Sparkles className="h-3.5 w-3.5 text-primary" /> Inputs</div>
+            <Field label="Apply to existing listing (optional)">
+              <Select value={listingId || "none"} onValueChange={(v) => pickListing(v === "none" ? "" : v)}>
+                <SelectTrigger><SelectValue placeholder="Free-form / no listing" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Free-form / no listing</SelectItem>
+                  {listings.map((l) => (
+                    <SelectItem key={l.id} value={l.id}>{l.title}{l.city ? ` · ${l.city}` : ""}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
             <Field label="Property title / address"><Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="2 bed flat, Salford Quays" /></Field>
             <div className="grid grid-cols-3 gap-2">
               <Field label="Type">
@@ -115,9 +126,15 @@ function AiCopyPage() {
                 ))}
               </div>
             </Field>
-            <Button className="w-full" onClick={generate} disabled={busy || !form.title}>
-              {busy ? <><RefreshCw className="h-4 w-4 mr-2 animate-spin" /> Generating…</> : <><Wand2 className="h-4 w-4 mr-2" /> Generate copy</>}
-            </Button>
+            <div className="grid grid-cols-2 gap-2">
+              <Button variant="outline" onClick={() => generate(false)} disabled={busy || !form.title}>
+                {busy ? <RefreshCw className="h-4 w-4 mr-2 animate-spin" /> : <Wand2 className="h-4 w-4 mr-2" />} Generate
+              </Button>
+              <Button onClick={() => generate(true)} disabled={busy || !form.title || !listingId}>
+                {applied ? <CheckCircle2 className="h-4 w-4 mr-2" /> : <Sparkles className="h-4 w-4 mr-2" />} {applied ? "Applied" : "Generate & apply"}
+              </Button>
+            </div>
+            {!listingId && <p className="text-[11px] text-muted-foreground">Pick a listing above to enable Apply.</p>}
           </CardContent>
         </Card>
 
