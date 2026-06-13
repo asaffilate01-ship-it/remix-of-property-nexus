@@ -96,7 +96,7 @@ export const logTenancyEvent = createServerFn({ method: "POST" })
       actor_user_id: userId,
       kind: data.kind as any,
       summary: data.summary ?? null,
-      payload: data.payload ?? {},
+      payload: (data.payload ?? {}) as any,
     });
     if (error) throw new Error(error.message);
     return { ok: true };
