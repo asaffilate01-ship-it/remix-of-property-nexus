@@ -261,13 +261,16 @@ export function AppSidebar() {
         {!collapsed && (
           <div className="px-2 pb-2">
             <div className="relative">
-              <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-sidebar-foreground/50" />
               <Input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Jump to…"
-                className="h-8 pl-7 text-xs bg-sidebar-accent/40 border-sidebar-border"
+                placeholder="Jump to anything…"
+                className="h-9 pl-8 pr-12 text-xs bg-sidebar-accent/40 border-sidebar-border text-sidebar-foreground placeholder:text-sidebar-foreground/40 focus-visible:ring-sidebar-ring/40"
               />
+              <kbd className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 hidden sm:inline-flex h-5 items-center gap-0.5 rounded border border-sidebar-border/60 bg-sidebar/60 px-1.5 font-mono text-[10px] font-medium text-sidebar-foreground/50">
+                ⌘K
+              </kbd>
             </div>
           </div>
         )}
