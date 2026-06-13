@@ -165,7 +165,7 @@ function BusinessPage() {
           <div className="container mx-auto px-4 py-16 md:py-20">
             <div className="text-center max-w-2xl mx-auto mb-10">
               <h2 className="font-display text-3xl md:text-4xl font-bold">Honest pricing</h2>
-              <p className="text-muted-foreground mt-3">Start with 30 days free. No per-lead fees. No portal upsells. Cancel anytime.</p>
+              <p className="text-muted-foreground mt-3">Pricing is per branch. Start with 30 days free. No per-lead fees. No portal upsells. Cancel anytime.</p>
             </div>
             <div className="grid md:grid-cols-3 gap-5 max-w-5xl mx-auto">
               {PLANS.map((p) => (
@@ -194,12 +194,23 @@ function BusinessPage() {
               ))}
             </div>
 
+            {/* Multi-branch note */}
+            <div className="mt-8 max-w-5xl mx-auto">
+              <div className="flex items-start gap-3 rounded-xl border bg-card p-4 text-sm">
+                <Info className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-medium">Running multiple branches?</p>
+                  <p className="text-muted-foreground mt-1">Each branch is billed separately on its own plan. Add-ons apply per branch too. Contact us for franchise or network pricing.</p>
+                </div>
+              </div>
+            </div>
+
             {/* Add-ons */}
-            <div className="mt-16 max-w-5xl mx-auto">
+            <div className="mt-14 max-w-5xl mx-auto">
               <div className="text-center max-w-2xl mx-auto mb-8">
                 <Badge variant="outline" className="mb-3"><Sparkles className="h-3 w-3 mr-1.5" /> Optional add-ons</Badge>
                 <h3 className="font-display text-2xl md:text-3xl font-bold">AI & power features — add only what you need</h3>
-                <p className="text-muted-foreground mt-3 text-sm">Available on every plan. Turn on or off any month — no contract.</p>
+                <p className="text-muted-foreground mt-3 text-sm">Available on every plan, per branch. Turn on or off any month — no contract.</p>
               </div>
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {ADDONS.map((a) => (
