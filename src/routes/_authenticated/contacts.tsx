@@ -15,6 +15,7 @@ import { Plus, Star, Phone, Mail, Trash2, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import { fetchOpsData, saveContact, deleteContact } from "@/lib/ops.functions";
 import { PageHeader } from "@/components/PageHeader";
+import { QuickContactActions } from "@/components/QuickContactActions";
 
 export const Route = createFileRoute("/_authenticated/contacts")({ component: ContactsPage });
 
@@ -195,9 +196,12 @@ function ContactsPage() {
                   {c.email && <a href={`mailto:${c.email}`} className="flex items-center gap-2 hover:text-primary truncate"><Mail className="h-3 w-3 shrink-0" /> <span className="truncate">{c.email}</span></a>}
                 </div>
                 {c.hourly_rate && <div className="text-xs text-muted-foreground">£{c.hourly_rate}/hr</div>}
-                <div className="flex gap-2 pt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Button size="sm" variant="outline" onClick={() => edit(c)}><Pencil className="h-3 w-3" /></Button>
-                  <Button size="sm" variant="outline" onClick={() => remove(c.id)}><Trash2 className="h-3 w-3" /></Button>
+                <div className="flex items-center justify-between pt-2">
+                  <QuickContactActions phone={c.phone} email={c.email} />
+                  <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button size="sm" variant="outline" onClick={() => edit(c)}><Pencil className="h-3 w-3" /></Button>
+                    <Button size="sm" variant="outline" onClick={() => remove(c.id)}><Trash2 className="h-3 w-3" /></Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
