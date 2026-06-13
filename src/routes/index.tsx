@@ -8,9 +8,9 @@ import { Building2, ShieldCheck, Kanban, Inbox, Search, Sparkles, Check, Home, S
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "PropOS — The complete OS for estate & letting agents" },
-      { name: "description", content: "One platform for sales, lettings, HMO and commercial. CRM, marketplace, compliance — built for modern agencies and landlords." },
-      { property: "og:title", content: "PropOS — Property OS for agents and landlords" },
+      { title: "HMOFlow — The complete OS for estate & letting agents" },
+      { name: "description", content: "Sales, lettings, HMO and commercial in one workspace. CRM, marketplace and compliance — built for modern agencies and landlords." },
+      { property: "og:title", content: "HMOFlow — Property OS for agents and landlords" },
       { property: "og:description", content: "Sales, lettings, HMO and commercial in one workspace." },
     ],
   }),
