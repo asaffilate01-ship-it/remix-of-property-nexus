@@ -98,7 +98,9 @@ function DocumentsPage() {
     if (!form.scope_id) return toast.error(`Pick a ${form.scope}`);
     setUploading(true);
     try {
-      const path = `${form.scope}/${form.scope_id}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
+      const { data: auth } = await supabase.auth.getUser();
+      if (!auth.user) throw new Error("Not signed in");
+      const path = `${auth.user.id}/${form.scope}/${form.scope_id}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
       const { error: upErr } = await supabase.storage.from("documents").upload(path, file, { contentType: file.type });
       if (upErr) throw upErr;
       await create({
