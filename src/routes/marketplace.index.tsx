@@ -374,3 +374,48 @@ function FiltersSheet({ s, setSearch }: { s: SearchParams; setSearch: (patch: Pa
     </Sheet>
   );
 }
+
+type MapListing = { id: string; slug: string; title: string; city: string | null; price: number | null; currency: string; listing_type: string; latitude?: number | null; longitude?: number | null; postcode?: string | null };
+
+function MapView({ listings }: { listings: MapListing[] }) {
+  const withGeo = listings.filter((l) => (l.latitude && l.longitude) || l.postcode);
+  const first = withGeo[0];
+  const query = first
+    ? first.latitude && first.longitude
+      ? `${first.latitude},${first.longitude}`
+      : first.postcode ?? ""
+    : "United Kingdom";
+  const src = `https://www.google.com/maps?q=${encodeURIComponent(query)}&z=12&output=embed`;
+
+  return (
+    <div className="grid lg:grid-cols-[1fr_360px] gap-4">
+      <div className="rounded-2xl overflow-hidden border aspect-[4/3] lg:aspect-auto lg:h-[600px] bg-muted">
+        <iframe src={src} loading="lazy" referrerPolicy="no-referrer-when-downgrade" className="w-full h-full" title="Listings map" />
+      </div>
+      <div className="space-y-2 lg:max-h-[600px] lg:overflow-y-auto pr-1">
+        {withGeo.length === 0 && (
+          <Card className="border-dashed">
+            <CardContent className="p-4 text-sm text-muted-foreground">
+              No precise locations on these listings yet. Agents will see their pins here once coordinates or postcodes are added.
+            </CardContent>
+          </Card>
+        )}
+        {listings.map((l) => (
+          <Link key={l.id} to="/marketplace/$slug" params={{ slug: l.slug }} className="block">
+            <Card className="border hover:shadow-card transition-shadow">
+              <CardContent className="p-3 flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="text-sm font-medium truncate">{l.title}</div>
+                  <div className="text-xs text-muted-foreground inline-flex items-center gap-1"><MapPin className="h-3 w-3" />{l.city ?? "—"}</div>
+                </div>
+                <div className="text-sm font-bold text-primary shrink-0">
+                  {l.price ? new Intl.NumberFormat("en-GB", { style: "currency", currency: l.currency || "GBP", maximumFractionDigits: 0 }).format(Number(l.price)) : "POA"}
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}

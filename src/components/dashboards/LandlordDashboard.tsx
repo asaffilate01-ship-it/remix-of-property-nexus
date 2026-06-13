@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { IsoIcon } from "@/components/iso/IsoIcon";
 import {
   Building2, Tag, Inbox, ShieldCheck, Plus, BedDouble, PoundSterling,
   Users, Wrench, ArrowRight, Sparkles, TrendingUp,
@@ -65,14 +66,19 @@ export function LandlordDashboard({ name, agentMode = false }: { name: string; a
         <div className="absolute -top-12 -right-12 h-48 w-48 rounded-full bg-primary/10 blur-3xl" />
         <div className="absolute -bottom-16 -left-16 h-56 w-56 rounded-full bg-accent/10 blur-3xl" />
         <div className="relative flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <div className="inline-flex items-center gap-2 rounded-full border bg-card/70 backdrop-blur px-3 py-1 text-xs font-medium mb-3">
-              <Sparkles className="h-3 w-3 text-accent" /> {agentMode ? "Agency control centre" : "Your property OS"}
+          <div className="flex items-start gap-4">
+            <div className="hidden sm:block shrink-0 rounded-2xl bg-card/70 backdrop-blur border shadow-card p-2">
+              <IsoIcon name={agentMode ? "agent" : "house"} size={64} />
             </div>
-            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">
-              Welcome back{name ? `, ${name.split(" ")[0]}` : ""}.
-            </h1>
-            <p className="text-muted-foreground mt-1">Here's what's happening across your portfolio today.</p>
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full border bg-card/70 backdrop-blur px-3 py-1 text-xs font-medium mb-3">
+                <Sparkles className="h-3 w-3 text-accent" /> {agentMode ? "Agency control centre" : "Your property OS"}
+              </div>
+              <h1 className="font-display text-3xl sm:text-4xl font-bold tracking-tight">
+                Welcome back{name ? `, ${name.split(" ")[0]}` : ""}.
+              </h1>
+              <p className="text-muted-foreground mt-1">Here's what's happening across your portfolio today.</p>
+            </div>
           </div>
           <div className="flex gap-2 flex-wrap">
             <Button asChild variant="outline"><Link to="/listings"><Tag className="mr-2 h-4 w-4" /> New listing</Link></Button>
