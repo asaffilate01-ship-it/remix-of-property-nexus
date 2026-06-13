@@ -253,7 +253,11 @@ function PropertiesPage() {
             <div className="sm:col-span-2"><Label>Title *</Label><Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="e.g. 12 Oak Avenue" /></div>
             <div className="sm:col-span-2"><Label>Address</Label><Input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} /></div>
             <div><Label>City</Label><Input value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} /></div>
-            <div><Label>Postcode</Label><Input value={form.postcode} onChange={(e) => setForm({ ...form, postcode: e.target.value.toUpperCase() })} /></div>
+            <PostcodeLookup
+              postcode={form.postcode}
+              onPostcode={(v) => setForm({ ...form, postcode: v })}
+              onResolve={(info) => setForm((f) => ({ ...f, postcode: form.postcode.toUpperCase(), city: f.city || info.city }))}
+            />
             <div><Label>Type</Label>
               <Select value={form.property_type} onValueChange={(v) => setForm({ ...form, property_type: v })}>
                 <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
