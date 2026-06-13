@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Plus, Tag, ExternalLink, Pencil, Trash2, Eye, EyeOff, Globe } from "lucide-react";
 import { toast } from "sonner";
+import { PageHeader } from "@/components/PageHeader";
 
 type Listing = {
   id: string; slug: string; title: string; description: string | null;
@@ -159,20 +160,21 @@ function ListingsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap justify-between items-center gap-3">
-        <div>
-          <h1 className="text-2xl font-bold">Listings</h1>
-          <p className="text-muted-foreground text-sm">Publish to the Estately marketplace and your own agency page.</p>
-        </div>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild><Button onClick={openNew}><Plus className="mr-2 h-4 w-4" /> New listing</Button></DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[92vh] overflow-y-auto">
-            <DialogHeader><DialogTitle>{form.id ? "Edit listing" : "New listing"}</DialogTitle></DialogHeader>
-            <ListingForm form={form} setForm={setForm} agencies={agencies} />
-            <DialogFooter><Button onClick={save} disabled={!form.title}>{form.id ? "Save changes" : "Create listing"}</Button></DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </div>
+      <PageHeader
+        title="Listings"
+        description="Publish to the Estately marketplace and your own agency page."
+        actions={
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild><Button onClick={openNew}><Plus className="mr-2 h-4 w-4" /> New listing</Button></DialogTrigger>
+            <DialogContent className="max-w-2xl max-h-[92vh] overflow-y-auto">
+              <DialogHeader><DialogTitle>{form.id ? "Edit listing" : "New listing"}</DialogTitle></DialogHeader>
+              <ListingForm form={form} setForm={setForm} agencies={agencies} />
+              <DialogFooter><Button onClick={save} disabled={!form.title}>{form.id ? "Save changes" : "Create listing"}</Button></DialogFooter>
+            </DialogContent>
+          </Dialog>
+        }
+      />
+
 
       <Tabs value={filter} onValueChange={(v) => setFilter(v as StatusFilter)}>
         <TabsList>

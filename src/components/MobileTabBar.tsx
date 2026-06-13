@@ -43,19 +43,20 @@ export function MobileTabBar() {
 
   return (
     <nav
-      className="md:hidden fixed bottom-0 inset-x-0 z-30 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80"
+      className="md:hidden fixed bottom-0 inset-x-0 z-30 border-t border-border/60 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
-      <ul className="grid grid-cols-5 h-14">
+      <ul className="grid grid-cols-5 h-16">
         {tabs.map((t) => {
           const active = isActive(t.to);
           return (
             <li key={t.to} className="contents">
               <Link
                 to={t.to}
-                className={`flex flex-col items-center justify-center gap-0.5 text-[10px] font-medium transition-colors ${active ? "text-primary" : "text-muted-foreground"}`}
+                className={`relative flex flex-col items-center justify-center gap-1 text-[10px] font-medium transition-colors min-h-11 ${active ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
               >
-                <t.icon className={`h-5 w-5 ${active ? "" : ""}`} />
+                {active && <span className="absolute top-0 h-0.5 w-8 rounded-b-full bg-primary" />}
+                <t.icon className="h-5 w-5" />
                 <span className="leading-none">{t.label}</span>
               </Link>
             </li>
@@ -65,7 +66,7 @@ export function MobileTabBar() {
           <button
             type="button"
             onClick={() => setOpenMobile(true)}
-            className="flex flex-col items-center justify-center gap-0.5 text-[10px] font-medium text-muted-foreground"
+            className="flex flex-col items-center justify-center gap-1 text-[10px] font-medium text-muted-foreground hover:text-foreground min-h-11"
             aria-label="Open full menu"
           >
             <Menu className="h-5 w-5" />

@@ -15,6 +15,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 import { Plus, Building2, Pencil, Trash2, BedDouble, Users, PoundSterling, Search } from "lucide-react";
 import { toast } from "sonner";
+import { PageHeader } from "@/components/PageHeader";
 
 export const Route = createFileRoute("/_authenticated/properties")({ component: PropertiesPage });
 
@@ -113,13 +114,13 @@ function PropertiesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Properties</h1>
-          <p className="text-muted-foreground text-sm">Your portfolio — units, rooms, tenancies & rent</p>
-        </div>
-        <Button onClick={startNew}><Plus className="mr-2 h-4 w-4" /> Add property</Button>
-      </div>
+      <PageHeader
+        title="Properties"
+        description="Your portfolio — units, rooms, tenancies & rent"
+        actions={<Button onClick={startNew}><Plus className="mr-2 h-4 w-4" /> Add property</Button>}
+      />
+
+
 
       <div className="flex flex-wrap gap-2 items-center">
         <div className="relative flex-1 min-w-[200px]">
