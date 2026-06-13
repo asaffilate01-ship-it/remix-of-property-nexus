@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, Building2, Tag, Inbox, Kanban, ShieldCheck, Users, Settings, LogOut, BedDouble, Wrench, Contact, Handshake, Search, Heart, Home, Scale, ClipboardCheck, ClipboardList, CalendarDays, Gavel, Receipt, BarChart3, Sparkles, Eye, Bookmark, RefreshCcw, Vault, UserCheck, FilePenLine, Hammer, Banknote, Image, Landmark, Briefcase, Smartphone, PackageOpen } from "lucide-react";
+import { LayoutDashboard, Building2, Tag, Inbox, Kanban, ShieldCheck, Users, Settings, LogOut, BedDouble, Wrench, Contact, Handshake, Search, Heart, Home, Scale, ClipboardCheck, ClipboardList, CalendarDays, Gavel, Receipt, BarChart3, Sparkles, Eye, Bookmark, RefreshCcw, Vault, UserCheck, FilePenLine, Hammer, Banknote, Image, Landmark, Briefcase, Smartphone, PackageOpen, FolderLock, Camera } from "lucide-react";
 import { BranchSwitcher } from "@/components/BranchSwitcher";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader, SidebarFooter, useSidebar } from "@/components/ui/sidebar";
 import { supabase } from "@/integrations/supabase/client";
@@ -35,6 +35,8 @@ const FULL: NavItem[] = [
   { to: "/statements", label: "Owner statements", icon: Receipt },
   { to: "/contacts", label: "Contacts", icon: Contact },
   { to: "/compliance", label: "Compliance", icon: ShieldCheck },
+  { to: "/documents", label: "Document vault", icon: FolderLock },
+  { to: "/evidence", label: "Evidence capture", icon: Camera },
   { to: "/reports", label: "Reports", icon: BarChart3 },
   { to: "/ai-copy", label: "AI listing copy", icon: Sparkles },
   { to: "/agency", label: "Agency", icon: Users },
@@ -44,7 +46,8 @@ const FULL: NavItem[] = [
 const TENANT: NavItem[] = [
   { to: "/dashboard", label: "My home", icon: Home },
   { to: "/work-orders", label: "Repair requests", icon: Wrench },
-  { to: "/compliance", label: "Documents", icon: ShieldCheck },
+  { to: "/evidence", label: "Photo / video proof", icon: Camera },
+  { to: "/documents", label: "My documents", icon: FolderLock },
   { to: "/marketplace", label: "Browse homes", icon: Search },
   { to: "/settings", label: "Settings", icon: Settings },
 ];
@@ -52,6 +55,7 @@ const TENANT: NavItem[] = [
 const CONTRACTOR: NavItem[] = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/work-orders", label: "My jobs", icon: Wrench },
+  { to: "/evidence", label: "Site photos / video", icon: Camera },
   { to: "/contractor-marketplace", label: "Bid on jobs", icon: Hammer },
   { to: "/settings", label: "Settings", icon: Settings },
 ];

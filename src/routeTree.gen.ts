@@ -52,7 +52,9 @@ import { Route as AuthenticatedLeaseholdRouteImport } from './routes/_authentica
 import { Route as AuthenticatedLeadsRouteImport } from './routes/_authenticated/leads'
 import { Route as AuthenticatedInspectionsRouteImport } from './routes/_authenticated/inspections'
 import { Route as AuthenticatedHmoRouteImport } from './routes/_authenticated/hmo'
+import { Route as AuthenticatedEvidenceRouteImport } from './routes/_authenticated/evidence'
 import { Route as AuthenticatedESignRouteImport } from './routes/_authenticated/e-sign'
+import { Route as AuthenticatedDocumentsRouteImport } from './routes/_authenticated/documents'
 import { Route as AuthenticatedDepositsRouteImport } from './routes/_authenticated/deposits'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedContractorMarketplaceRouteImport } from './routes/_authenticated/contractor-marketplace'
@@ -281,9 +283,19 @@ const AuthenticatedHmoRoute = AuthenticatedHmoRouteImport.update({
   path: '/hmo',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedEvidenceRoute = AuthenticatedEvidenceRouteImport.update({
+  id: '/evidence',
+  path: '/evidence',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedESignRoute = AuthenticatedESignRouteImport.update({
   id: '/e-sign',
   path: '/e-sign',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDocumentsRoute = AuthenticatedDocumentsRouteImport.update({
+  id: '/documents',
+  path: '/documents',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedDepositsRoute = AuthenticatedDepositsRouteImport.update({
@@ -360,7 +372,9 @@ export interface FileRoutesByFullPath {
   '/contractor-marketplace': typeof AuthenticatedContractorMarketplaceRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/deposits': typeof AuthenticatedDepositsRoute
+  '/documents': typeof AuthenticatedDocumentsRoute
   '/e-sign': typeof AuthenticatedESignRoute
+  '/evidence': typeof AuthenticatedEvidenceRoute
   '/hmo': typeof AuthenticatedHmoRoute
   '/inspections': typeof AuthenticatedInspectionsRoute
   '/leads': typeof AuthenticatedLeadsRoute
@@ -412,7 +426,9 @@ export interface FileRoutesByTo {
   '/contractor-marketplace': typeof AuthenticatedContractorMarketplaceRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/deposits': typeof AuthenticatedDepositsRoute
+  '/documents': typeof AuthenticatedDocumentsRoute
   '/e-sign': typeof AuthenticatedESignRoute
+  '/evidence': typeof AuthenticatedEvidenceRoute
   '/hmo': typeof AuthenticatedHmoRoute
   '/inspections': typeof AuthenticatedInspectionsRoute
   '/leads': typeof AuthenticatedLeadsRoute
@@ -468,7 +484,9 @@ export interface FileRoutesById {
   '/_authenticated/contractor-marketplace': typeof AuthenticatedContractorMarketplaceRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/deposits': typeof AuthenticatedDepositsRoute
+  '/_authenticated/documents': typeof AuthenticatedDocumentsRoute
   '/_authenticated/e-sign': typeof AuthenticatedESignRoute
+  '/_authenticated/evidence': typeof AuthenticatedEvidenceRoute
   '/_authenticated/hmo': typeof AuthenticatedHmoRoute
   '/_authenticated/inspections': typeof AuthenticatedInspectionsRoute
   '/_authenticated/leads': typeof AuthenticatedLeadsRoute
@@ -524,7 +542,9 @@ export interface FileRouteTypes {
     | '/contractor-marketplace'
     | '/dashboard'
     | '/deposits'
+    | '/documents'
     | '/e-sign'
+    | '/evidence'
     | '/hmo'
     | '/inspections'
     | '/leads'
@@ -576,7 +596,9 @@ export interface FileRouteTypes {
     | '/contractor-marketplace'
     | '/dashboard'
     | '/deposits'
+    | '/documents'
     | '/e-sign'
+    | '/evidence'
     | '/hmo'
     | '/inspections'
     | '/leads'
@@ -631,7 +653,9 @@ export interface FileRouteTypes {
     | '/_authenticated/contractor-marketplace'
     | '/_authenticated/dashboard'
     | '/_authenticated/deposits'
+    | '/_authenticated/documents'
     | '/_authenticated/e-sign'
+    | '/_authenticated/evidence'
     | '/_authenticated/hmo'
     | '/_authenticated/inspections'
     | '/_authenticated/leads'
@@ -984,11 +1008,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedHmoRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/evidence': {
+      id: '/_authenticated/evidence'
+      path: '/evidence'
+      fullPath: '/evidence'
+      preLoaderRoute: typeof AuthenticatedEvidenceRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/e-sign': {
       id: '/_authenticated/e-sign'
       path: '/e-sign'
       fullPath: '/e-sign'
       preLoaderRoute: typeof AuthenticatedESignRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/documents': {
+      id: '/_authenticated/documents'
+      path: '/documents'
+      fullPath: '/documents'
+      preLoaderRoute: typeof AuthenticatedDocumentsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/deposits': {
@@ -1067,7 +1105,9 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedContractorMarketplaceRoute: typeof AuthenticatedContractorMarketplaceRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedDepositsRoute: typeof AuthenticatedDepositsRoute
+  AuthenticatedDocumentsRoute: typeof AuthenticatedDocumentsRoute
   AuthenticatedESignRoute: typeof AuthenticatedESignRoute
+  AuthenticatedEvidenceRoute: typeof AuthenticatedEvidenceRoute
   AuthenticatedHmoRoute: typeof AuthenticatedHmoRoute
   AuthenticatedInspectionsRoute: typeof AuthenticatedInspectionsRoute
   AuthenticatedLeadsRoute: typeof AuthenticatedLeadsRoute
@@ -1101,7 +1141,9 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedContractorMarketplaceRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedDepositsRoute: AuthenticatedDepositsRoute,
+  AuthenticatedDocumentsRoute: AuthenticatedDocumentsRoute,
   AuthenticatedESignRoute: AuthenticatedESignRoute,
+  AuthenticatedEvidenceRoute: AuthenticatedEvidenceRoute,
   AuthenticatedHmoRoute: AuthenticatedHmoRoute,
   AuthenticatedInspectionsRoute: AuthenticatedInspectionsRoute,
   AuthenticatedLeadsRoute: AuthenticatedLeadsRoute,
