@@ -19,6 +19,8 @@ import { GoogleListingsMap } from "@/components/GoogleListingsMap";
 
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
+import { SaveListingButton } from "@/components/marketplace/SaveListingButton";
+import { OfferDialog } from "@/components/marketplace/OfferDialog";
 
 function ListingError({ error, reset }: { error: Error; reset: () => void }) {
   const router = useRouter();
