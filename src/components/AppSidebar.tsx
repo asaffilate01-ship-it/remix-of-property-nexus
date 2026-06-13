@@ -62,6 +62,7 @@ const FULL: NavSection[] = [
       { to: "/arrears", label: "Arrears", icon: Banknote },
       { to: "/work-orders", label: "Work orders", icon: Wrench },
       { to: "/contractor-marketplace", label: "Find a contractor", icon: Hammer },
+      { to: "/survey", label: "Survey & site capture", icon: Camera },
     ],
   },
   {
@@ -93,6 +94,7 @@ const FULL: NavSection[] = [
 const TENANT: NavSection[] = [{ label: "Home", defaultOpen: true, items: [
   { to: "/dashboard", label: "My home", icon: Home },
   { to: "/work-orders", label: "Repair requests", icon: Wrench },
+  { to: "/survey", label: "Photo / video capture", icon: Camera },
   { to: "/evidence", label: "Photo / video proof", icon: Camera },
   { to: "/documents", label: "My documents", icon: FolderLock },
   { to: "/marketplace", label: "Browse homes", icon: Search },
