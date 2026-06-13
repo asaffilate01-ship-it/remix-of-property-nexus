@@ -5,15 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Check, X, ArrowRight, Sparkles, Building2, Users, Globe, Zap, ShieldCheck, BarChart3, Smartphone, Quote } from "lucide-react";
+import { Check, X, ArrowRight, Sparkles, Building2, Users, Globe, Zap, ShieldCheck, BarChart3, Smartphone, Quote, Bot, Camera, MessageSquare, FileSignature, Megaphone, Languages } from "lucide-react";
 
 export const Route = createFileRoute("/business")({
   head: () => ({
     meta: [
       { title: "Estately for agencies — the property OS for UK estate agents" },
-      { name: "description", content: "One platform for sales, lettings, HMO, compliance and the portal — replacing Reapit, Alto, Dezrez and Arthur. Free for 14 days." },
+      { name: "description", content: "One platform for sales, lettings, HMO, compliance and the portal — replacing Reapit, Alto, Dezrez and Arthur. 30 days free, then from £29.99/mo." },
       { property: "og:title", content: "Estately for agencies — the property OS" },
-      { property: "og:description", content: "CRM + portal + compliance in one place. From £49/month." },
+      { property: "og:description", content: "CRM + portal + compliance in one place. 30 days free, then from £29.99/mo." },
       { property: "og:url", content: "https://proptest.313test.co.uk/business" },
     ],
     links: [{ rel: "canonical", href: "https://proptest.313test.co.uk/business" }],
@@ -24,31 +24,66 @@ export const Route = createFileRoute("/business")({
 const PLANS = [
   {
     name: "Starter",
-    price: "£49",
-    suffix: "/mo per branch",
-    note: "Up to 50 listings",
-    cta: "Start free trial",
+    price: "£29.99",
+    suffix: "/mo",
+    note: "Up to 3 live listings",
+    cta: "Start 30-day free trial",
     highlight: false,
-    features: ["Sales & lettings CRM", "Public marketplace listing", "Up to 3 negotiators", "Lead inbox & viewings diary", "Email support"],
+    features: [
+      "30 days free — no card required",
+      "Up to 3 live listings",
+      "Full backend: CRM, leads, viewings, offers",
+      "Public marketplace listing",
+      "Compliance hub & document vault",
+      "Tenant & landlord portals",
+      "Email support",
+    ],
   },
   {
     name: "Growth",
-    price: "£149",
-    suffix: "/mo per branch",
-    note: "Most popular — unlimited listings",
-    cta: "Start free trial",
+    price: "£49.99",
+    suffix: "/mo",
+    note: "Most popular — up to 10 live listings",
+    cta: "Start 30-day free trial",
     highlight: true,
-    features: ["Everything in Starter", "Unlimited listings & users", "HMO room manager", "Compliance hub & inspections", "Owner statements & landlord portal", "Tenant portal + repairs", "Sales chain & offers ladder", "Branch performance reports"],
+    features: [
+      "30 days free — no card required",
+      "Up to 10 live listings",
+      "Everything in Starter",
+      "HMO room manager & inspections app",
+      "Sales chain & offers ladder",
+      "Owner statements & branded portals",
+      "Branch performance reports",
+      "Priority support",
+    ],
   },
   {
-    name: "Enterprise",
-    price: "From £499",
+    name: "Unlimited",
+    price: "£99.99",
     suffix: "/mo",
-    note: "Multi-branch & franchises",
-    cta: "Talk to sales",
+    note: "Unlimited listings + full backend",
+    cta: "Start 30-day free trial",
     highlight: false,
-    features: ["Everything in Growth", "Unlimited branches", "Role-based permissions", "White-label microsites", "API & Zapier", "SSO + audit logs", "Dedicated CSM"],
+    features: [
+      "30 days free — no card required",
+      "Unlimited live listings",
+      "Everything in Growth",
+      "Unlimited users & branches",
+      "White-label microsites",
+      "API access & Zapier",
+      "SSO + audit logs",
+      "Dedicated account manager",
+    ],
   },
+];
+
+const ADDONS = [
+  { icon: <Bot className="h-5 w-5" />, name: "AI Copilot", price: "£19.99/mo", desc: "Smart property descriptions, auto-replies to enquiries, tenancy summaries and lease abstraction." },
+  { icon: <Camera className="h-5 w-5" />, name: "AI Photo & Floorplan", price: "£14.99/mo", desc: "Auto-enhance listing photos, virtual staging and AI-generated floorplans from a quick scan." },
+  { icon: <MessageSquare className="h-5 w-5" />, name: "WhatsApp & SMS", price: "£9.99/mo", desc: "Two-way WhatsApp, SMS reminders for viewings, rent and inspections." },
+  { icon: <FileSignature className="h-5 w-5" />, name: "Advanced e-sign", price: "£12.99/mo", desc: "eIDAS Advanced Electronic Signatures, RFC 3161 timestamps, 12-yr audit trail." },
+  { icon: <Megaphone className="h-5 w-5" />, name: "Portal syndication+", price: "£24.99/mo", desc: "Push to Rightmove, Zoopla, OnTheMarket and PrimeLocation with one click." },
+  { icon: <Languages className="h-5 w-5" />, name: "Multi-language", price: "£7.99/mo", desc: "Auto-translate listings and tenant comms into 12 languages." },
 ];
 
 const COMPARE = [
@@ -87,11 +122,11 @@ function BusinessPage() {
                 Estately replaces your CRM, portal subscription, compliance tracker and landlord portal with a single, modern system your team will actually use.
               </p>
               <div className="flex flex-col sm:flex-row gap-3">
-                <Button asChild size="lg" className="h-12 px-6"><Link to="/auth" search={{ mode: "signup" } as never}>Start free 14-day trial <ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
+                <Button asChild size="lg" className="h-12 px-6"><Link to="/auth" search={{ mode: "signup" } as never}>Start 30-day free trial <ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
                 <Button asChild size="lg" variant="outline" className="h-12 px-6"><a href="mailto:sales@estately.test">Book a demo</a></Button>
               </div>
               <div className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground">
-                {["No setup fee", "Free migration from Reapit/Alto/Arthur", "Cancel any time", "UK-hosted, GDPR-compliant"].map((f) => (
+                {["30 days free, no card required", "Free migration from Reapit/Alto/Arthur", "Cancel any time", "UK-hosted, GDPR-compliant"].map((f) => (
                   <span key={f} className="inline-flex items-center gap-1.5"><Check className="h-4 w-4 text-success" />{f}</span>
                 ))}
               </div>
@@ -130,7 +165,7 @@ function BusinessPage() {
           <div className="container mx-auto px-4 py-16 md:py-20">
             <div className="text-center max-w-2xl mx-auto mb-10">
               <h2 className="font-display text-3xl md:text-4xl font-bold">Honest pricing</h2>
-              <p className="text-muted-foreground mt-3">No per-lead fees. No portal upsells. Cancel anytime.</p>
+              <p className="text-muted-foreground mt-3">Start with 30 days free. No per-lead fees. No portal upsells. Cancel anytime.</p>
             </div>
             <div className="grid md:grid-cols-3 gap-5 max-w-5xl mx-auto">
               {PLANS.map((p) => (
@@ -157,6 +192,29 @@ function BusinessPage() {
                   </CardContent>
                 </Card>
               ))}
+            </div>
+
+            {/* Add-ons */}
+            <div className="mt-16 max-w-5xl mx-auto">
+              <div className="text-center max-w-2xl mx-auto mb-8">
+                <Badge variant="outline" className="mb-3"><Sparkles className="h-3 w-3 mr-1.5" /> Optional add-ons</Badge>
+                <h3 className="font-display text-2xl md:text-3xl font-bold">AI & power features — add only what you need</h3>
+                <p className="text-muted-foreground mt-3 text-sm">Available on every plan. Turn on or off any month — no contract.</p>
+              </div>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {ADDONS.map((a) => (
+                  <Card key={a.name} className="border-0 shadow-card h-full">
+                    <CardContent className="p-5">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="h-10 w-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center">{a.icon}</div>
+                        <div className="text-sm font-semibold text-primary whitespace-nowrap">{a.price}</div>
+                      </div>
+                      <div className="font-semibold mt-3">{a.name}</div>
+                      <div className="text-sm text-muted-foreground mt-1.5">{a.desc}</div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </div>
           </div>
         </section>
