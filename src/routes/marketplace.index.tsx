@@ -592,14 +592,7 @@ type MapListing = { id: string; slug: string; title: string; city: string | null
 function MapView({ listings }: { listings: MapListing[] }) {
   const [drawing, setDrawing] = useState(false);
   const [polygon, setPolygon] = useState(false);
-  const withGeo = listings.filter((l) => (l.latitude && l.longitude) || l.postcode);
-  const first = withGeo[0];
-  const query = first
-    ? first.latitude && first.longitude
-      ? `${first.latitude},${first.longitude}`
-      : first.postcode ?? ""
-    : "United Kingdom";
-  const src = `https://www.google.com/maps?q=${encodeURIComponent(query)}&z=12&output=embed`;
+  const withGeo = listings.filter((l) => l.latitude != null && l.longitude != null);
 
   const startDraw = () => { setDrawing(true); setPolygon(false); };
   const finishDraw = () => { setDrawing(false); setPolygon(true); toast.success("Search area applied — showing listings within polygon"); };
@@ -608,7 +601,8 @@ function MapView({ listings }: { listings: MapListing[] }) {
   return (
     <div className="grid lg:grid-cols-[1fr_360px] gap-4">
       <div className="relative rounded-2xl overflow-hidden border aspect-[4/3] lg:aspect-auto lg:h-[600px] bg-muted">
-        <iframe src={src} loading="lazy" referrerPolicy="no-referrer-when-downgrade" className="w-full h-full" title="Listings map" />
+        <GoogleListingsMap listings={listings} />
+
         <div className="absolute top-3 left-3 flex flex-col gap-2 z-10">
           {!drawing && !polygon && (
             <Button size="sm" onClick={startDraw} className="shadow-lg"><MapIcon className="h-3.5 w-3.5 mr-1" /> Draw area</Button>
