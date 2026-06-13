@@ -9,7 +9,6 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Eye, EyeOff, Building2, Loader2, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
 import { toast } from "sonner";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { DEMO_ACCOUNTS, ensureDemoUsers } from "@/lib/dev.functions";
@@ -70,14 +69,6 @@ function AuthPage() {
     } finally { setBusy(false); }
   };
 
-  const google = async () => {
-    setBusy(true);
-    const r = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin + "/dashboard" });
-    if (r.error) { toast.error("Google sign-in failed"); setBusy(false); return; }
-    if (r.redirected) return;
-    navigate({ to: "/dashboard" });
-  };
-
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
       <div className="hidden lg:flex brand-gradient text-white p-12 flex-col justify-between relative overflow-hidden">
@@ -99,14 +90,6 @@ function AuthPage() {
                 <TabsTrigger value="signin">Sign in</TabsTrigger>
                 <TabsTrigger value="signup">Create account</TabsTrigger>
               </TabsList>
-
-              <Button variant="outline" className="w-full mb-4" onClick={google} disabled={busy}>
-                Continue with Google
-              </Button>
-              <div className="relative my-4 text-xs text-muted-foreground text-center">
-                <span className="bg-card px-2 relative z-10">or with email</span>
-                <div className="absolute inset-x-0 top-1/2 border-t -z-0" />
-              </div>
 
               <TabsContent value="signin" className="space-y-4 mt-0">
                 <Field id="email" label="Email" type="email" value={email} onChange={setEmail} />
