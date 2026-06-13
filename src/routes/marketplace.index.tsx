@@ -47,7 +47,9 @@ const search = z.object({
   min_sqft: z.number().optional(),
   bills_included: z.boolean().optional(),
   furnished: z.string().optional(),
+  available_from: z.string().optional(),
   sort: z.enum(sorts).optional(),
+
 });
 
 type SearchParams = z.infer<typeof search>;
@@ -119,8 +121,9 @@ function MarketplacePage() {
       category,
       min_price: s.min_price, max_price: s.max_price,
       beds: s.beds, baths: s.baths, receptions: s.receptions, min_sqft: s.min_sqft,
-      bills_included: s.bills_included, furnished: s.furnished,
+      bills_included: s.bills_included, furnished: s.furnished, available_from: s.available_from,
       sort,
+
     } }),
   });
 
@@ -139,6 +142,8 @@ function MarketplacePage() {
   if (s.features?.length) s.features.forEach((f: string) => activeFilters.push(f));
   if (s.bills_included) activeFilters.push("bills included");
   if (s.furnished) activeFilters.push(s.furnished);
+  if (s.available_from) activeFilters.push(`from ${new Date(s.available_from).toLocaleDateString("en-GB")}`);
+
 
   const saveSearchRemote = useServerFn(saveSearchRemoteFn);
   const saveSearch = async () => {
@@ -250,7 +255,7 @@ function MarketplacePage() {
                   <MapIcon className="h-3.5 w-3.5 sm:mr-1" /><span className="hidden md:inline">Map</span>
                 </button>
               </div>
-              <FiltersSheet s={s} setSearch={setSearch} />
+              <FiltersSheet s={s} setSearch={setSearch} category={category} />
               <Select value={sort} onValueChange={(v) => setSearch({ sort: v as SortKey })}>
                 <SelectTrigger className="h-9 w-auto min-w-0 px-3 sm:w-[180px]">
                   <ArrowUpDown className="h-3.5 w-3.5 mr-1 shrink-0" />
@@ -367,7 +372,7 @@ function SearchBar({ q, setQ, where, setWhere, radius, setRadius, onSubmit }: { 
 }
 
 
-function FiltersSheet({ s, setSearch }: { s: SearchParams; setSearch: (patch: Partial<SearchParams>) => void }) {
+function FiltersSheet({ s, setSearch, category }: { s: SearchParams; setSearch: (patch: Partial<SearchParams>) => void; category: Category }) {
   const [open, setOpen] = useState(false);
   const initial = () => ({
     min_price: s.min_price?.toString() ?? "",
@@ -382,7 +387,9 @@ function FiltersSheet({ s, setSearch }: { s: SearchParams; setSearch: (patch: Pa
     epc_min: s.epc_min ?? "any",
     tenure: s.tenure ?? "any",
     features: s.features ?? [],
+    available_from: s.available_from ?? "",
   });
+
   const [local, setLocal] = useState(initial);
   useEffect(() => { setLocal(initial()); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [s]);
 
@@ -405,7 +412,9 @@ function FiltersSheet({ s, setSearch }: { s: SearchParams; setSearch: (patch: Pa
       epc_min: local.epc_min !== "any" ? (local.epc_min as "A" | "B" | "C" | "D" | "E") : undefined,
       tenure: local.tenure !== "any" ? (local.tenure as "freehold" | "leasehold" | "share_of_freehold") : undefined,
       features: local.features.length ? local.features : undefined,
+      available_from: local.available_from || undefined,
     });
+
     setOpen(false);
   };
 
@@ -450,38 +459,43 @@ function FiltersSheet({ s, setSearch }: { s: SearchParams; setSearch: (patch: Pa
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
-            <div>
-              <Label>Bedrooms</Label>
-              <Select value={local.beds} onValueChange={(v) => setLocal({ ...local, beds: v })}>
-                <SelectTrigger className="mt-2"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="any">Any</SelectItem>
-                  {[1,2,3,4,5,6].map((n) => <SelectItem key={n} value={String(n)}>{n}+</SelectItem>)}
-                </SelectContent>
-              </Select>
+          {category !== "commercial" && (
+            <div className="grid grid-cols-3 gap-3">
+              <div>
+                <Label>{category === "hmo" ? "Rooms" : "Bedrooms"}</Label>
+                <Select value={local.beds} onValueChange={(v) => setLocal({ ...local, beds: v })}>
+                  <SelectTrigger className="mt-2"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="any">Any</SelectItem>
+                    {[1,2,3,4,5,6].map((n) => <SelectItem key={n} value={String(n)}>{n}+</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Bathrooms</Label>
+                <Select value={local.baths} onValueChange={(v) => setLocal({ ...local, baths: v })}>
+                  <SelectTrigger className="mt-2"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="any">Any</SelectItem>
+                    {[1,2,3,4].map((n) => <SelectItem key={n} value={String(n)}>{n}+</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              {category !== "hmo" && (
+                <div>
+                  <Label>Reception</Label>
+                  <Select value={local.receptions} onValueChange={(v) => setLocal({ ...local, receptions: v })}>
+                    <SelectTrigger className="mt-2"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="any">Any</SelectItem>
+                      {[1,2,3,4].map((n) => <SelectItem key={n} value={String(n)}>{n}+</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
             </div>
-            <div>
-              <Label>Bathrooms</Label>
-              <Select value={local.baths} onValueChange={(v) => setLocal({ ...local, baths: v })}>
-                <SelectTrigger className="mt-2"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="any">Any</SelectItem>
-                  {[1,2,3,4].map((n) => <SelectItem key={n} value={String(n)}>{n}+</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>Reception</Label>
-              <Select value={local.receptions} onValueChange={(v) => setLocal({ ...local, receptions: v })}>
-                <SelectTrigger className="mt-2"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="any">Any</SelectItem>
-                  {[1,2,3,4].map((n) => <SelectItem key={n} value={String(n)}>{n}+</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
+          )}
+
 
           <div className="grid grid-cols-2 gap-3">
             <div>
@@ -500,18 +514,21 @@ function FiltersSheet({ s, setSearch }: { s: SearchParams; setSearch: (patch: Pa
             </div>
           </div>
 
-          <div>
-            <Label>Tenure</Label>
-            <Select value={local.tenure} onValueChange={(v) => setLocal({ ...local, tenure: v })}>
-              <SelectTrigger className="mt-2"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="any">Any</SelectItem>
-                <SelectItem value="freehold">Freehold</SelectItem>
-                <SelectItem value="leasehold">Leasehold</SelectItem>
-                <SelectItem value="share_of_freehold">Share of freehold</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          {(category === "all" || category === "sale") && (
+            <div>
+              <Label>Tenure</Label>
+              <Select value={local.tenure} onValueChange={(v) => setLocal({ ...local, tenure: v })}>
+                <SelectTrigger className="mt-2"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="any">Any</SelectItem>
+                  <SelectItem value="freehold">Freehold</SelectItem>
+                  <SelectItem value="leasehold">Leasehold</SelectItem>
+                  <SelectItem value="share_of_freehold">Share of freehold</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
 
           <div>
             <Label>Features &amp; must-haves</Label>
@@ -531,25 +548,36 @@ function FiltersSheet({ s, setSearch }: { s: SearchParams; setSearch: (patch: Pa
               })}
             </div>
           </div>
-          <div>
-            <Label>Furnished</Label>
-            <Select value={local.furnished} onValueChange={(v) => setLocal({ ...local, furnished: v })}>
-              <SelectTrigger className="mt-2"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="any">Any</SelectItem>
-                <SelectItem value="furnished">Furnished</SelectItem>
-                <SelectItem value="part_furnished">Part furnished</SelectItem>
-                <SelectItem value="unfurnished">Unfurnished</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="flex items-center justify-between rounded-lg border p-3">
-            <Label htmlFor="bills" className="cursor-pointer">Bills included</Label>
-            <Switch id="bills" checked={local.bills_included} onCheckedChange={(v) => setLocal({ ...local, bills_included: v })} />
-          </div>
+          {(category === "rent" || category === "hmo" || category === "all") && (
+            <>
+              <div>
+                <Label>Furnished</Label>
+                <Select value={local.furnished} onValueChange={(v) => setLocal({ ...local, furnished: v })}>
+                  <SelectTrigger className="mt-2"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="any">Any</SelectItem>
+                    <SelectItem value="furnished">Furnished</SelectItem>
+                    <SelectItem value="part_furnished">Part furnished</SelectItem>
+                    <SelectItem value="unfurnished">Unfurnished</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex items-center justify-between rounded-lg border p-3">
+                <Label htmlFor="bills" className="cursor-pointer">Bills included</Label>
+                <Switch id="bills" checked={local.bills_included} onCheckedChange={(v) => setLocal({ ...local, bills_included: v })} />
+              </div>
+            </>
+          )}
+          {category !== "sale" && (
+            <div>
+              <Label>Available from</Label>
+              <Input type="date" className="mt-2" value={local.available_from} onChange={(e) => setLocal({ ...local, available_from: e.target.value })} />
+            </div>
+          )}
+
         </div>
         <SheetFooter className="mt-6 flex-row gap-2">
-          <Button variant="outline" className="flex-1" onClick={() => { setLocal({ min_price: "", max_price: "", beds: "any", baths: "any", receptions: "any", min_sqft: "", bills_included: false, furnished: "any", property_type: "any", epc_min: "any", tenure: "any", features: [] }); }}>Reset</Button>
+          <Button variant="outline" className="flex-1" onClick={() => { setLocal({ min_price: "", max_price: "", beds: "any", baths: "any", receptions: "any", min_sqft: "", bills_included: false, furnished: "any", property_type: "any", epc_min: "any", tenure: "any", features: [], available_from: "" }); }}>Reset</Button>
           <Button className="flex-1" onClick={apply}>Apply filters</Button>
         </SheetFooter>
       </SheetContent>
