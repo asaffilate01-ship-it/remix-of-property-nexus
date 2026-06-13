@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as PlatformRouteImport } from './routes/platform'
 import { Route as MarketplaceRouteImport } from './routes/marketplace'
 import { Route as ForLandlordsRouteImport } from './routes/for-landlords'
 import { Route as ForAgentsRouteImport } from './routes/for-agents'
@@ -46,6 +47,11 @@ const TermsRoute = TermsRouteImport.update({
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlatformRoute = PlatformRouteImport.update({
+  id: '/platform',
+  path: '/platform',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MarketplaceRoute = MarketplaceRouteImport.update({
@@ -187,6 +193,7 @@ export interface FileRoutesByFullPath {
   '/for-agents': typeof ForAgentsRoute
   '/for-landlords': typeof ForLandlordsRoute
   '/marketplace': typeof MarketplaceRouteWithChildren
+  '/platform': typeof PlatformRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/agency': typeof AuthenticatedAgencyRoute
@@ -214,6 +221,7 @@ export interface FileRoutesByTo {
   '/cookies': typeof CookiesRoute
   '/for-agents': typeof ForAgentsRoute
   '/for-landlords': typeof ForLandlordsRoute
+  '/platform': typeof PlatformRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/agency': typeof AuthenticatedAgencyRoute
@@ -245,6 +253,7 @@ export interface FileRoutesById {
   '/for-agents': typeof ForAgentsRoute
   '/for-landlords': typeof ForLandlordsRoute
   '/marketplace': typeof MarketplaceRouteWithChildren
+  '/platform': typeof PlatformRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/_authenticated/agency': typeof AuthenticatedAgencyRoute
@@ -276,6 +285,7 @@ export interface FileRouteTypes {
     | '/for-agents'
     | '/for-landlords'
     | '/marketplace'
+    | '/platform'
     | '/privacy'
     | '/terms'
     | '/agency'
@@ -303,6 +313,7 @@ export interface FileRouteTypes {
     | '/cookies'
     | '/for-agents'
     | '/for-landlords'
+    | '/platform'
     | '/privacy'
     | '/terms'
     | '/agency'
@@ -333,6 +344,7 @@ export interface FileRouteTypes {
     | '/for-agents'
     | '/for-landlords'
     | '/marketplace'
+    | '/platform'
     | '/privacy'
     | '/terms'
     | '/_authenticated/agency'
@@ -364,6 +376,7 @@ export interface RootRouteChildren {
   ForAgentsRoute: typeof ForAgentsRoute
   ForLandlordsRoute: typeof ForLandlordsRoute
   MarketplaceRoute: typeof MarketplaceRouteWithChildren
+  PlatformRoute: typeof PlatformRoute
   PrivacyRoute: typeof PrivacyRoute
   TermsRoute: typeof TermsRoute
   ModulesSlugRoute: typeof ModulesSlugRoute
@@ -383,6 +396,13 @@ declare module '@tanstack/react-router' {
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/platform': {
+      id: '/platform'
+      path: '/platform'
+      fullPath: '/platform'
+      preLoaderRoute: typeof PlatformRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/marketplace': {
@@ -641,6 +661,7 @@ const rootRouteChildren: RootRouteChildren = {
   ForAgentsRoute: ForAgentsRoute,
   ForLandlordsRoute: ForLandlordsRoute,
   MarketplaceRoute: MarketplaceRouteWithChildren,
+  PlatformRoute: PlatformRoute,
   PrivacyRoute: PrivacyRoute,
   TermsRoute: TermsRoute,
   ModulesSlugRoute: ModulesSlugRoute,
