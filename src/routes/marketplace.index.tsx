@@ -306,17 +306,41 @@ function MarketplacePage() {
   );
 }
 
-function SearchBar({ q, setQ, city, setCity, onSubmit }: { q: string; setQ: (v: string) => void; city: string; setCity: (v: string) => void; onSubmit: () => void }) {
+function SearchBar({ q, setQ, where, setWhere, radius, setRadius, onSubmit }: { q: string; setQ: (v: string) => void; where: string; setWhere: (v: string) => void; radius: number; setRadius: (r: number) => void; onSubmit: () => void }) {
   return (
     <div className="bg-card text-foreground rounded-2xl p-2 shadow-2xl ring-1 ring-border/50">
       <form className="grid grid-cols-1 md:grid-cols-12 gap-2" onSubmit={(e) => { e.preventDefault(); onSubmit(); }}>
-        <div className="md:col-span-7 relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Search by area, postcode or keyword…" value={q} onChange={(e) => setQ(e.target.value)} className="pl-9 h-11 md:h-12 border-0 focus-visible:ring-0" />
-        </div>
-        <div className="md:col-span-3 relative">
+        <div className="md:col-span-5 relative">
           <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="City" value={city} onChange={(e) => setCity(e.target.value)} className="pl-9 h-11 md:h-12 border-0 focus-visible:ring-0" />
+          <Input
+            placeholder="Postcode or town (e.g. SW1A 1AA, Manchester)"
+            value={where}
+            onChange={(e) => setWhere(e.target.value)}
+            className="pl-9 h-11 md:h-12 border-0 focus-visible:ring-0"
+            autoComplete="postal-code"
+          />
+        </div>
+        <div className="md:col-span-3">
+          <Select value={String(radius)} onValueChange={(v) => setRadius(Number(v))}>
+            <SelectTrigger className="h-11 md:h-12 border-0 focus:ring-0">
+              <SelectValue placeholder="Within…" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="0">This area only</SelectItem>
+              <SelectItem value="1">Within ¼ mile</SelectItem>
+              <SelectItem value="1">Within 1 mile</SelectItem>
+              <SelectItem value="3">Within 3 miles</SelectItem>
+              <SelectItem value="5">Within 5 miles</SelectItem>
+              <SelectItem value="10">Within 10 miles</SelectItem>
+              <SelectItem value="15">Within 15 miles</SelectItem>
+              <SelectItem value="25">Within 25 miles</SelectItem>
+              <SelectItem value="40">Within 40 miles</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="md:col-span-2 relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input placeholder="Keyword" value={q} onChange={(e) => setQ(e.target.value)} className="pl-9 h-11 md:h-12 border-0 focus-visible:ring-0" />
         </div>
         <Button type="submit" className="md:col-span-2 h-11 md:h-12 w-full">
           <Search className="h-4 w-4 mr-2 md:hidden" />Search
