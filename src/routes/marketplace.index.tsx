@@ -121,8 +121,9 @@ function MarketplacePage() {
       category,
       min_price: s.min_price, max_price: s.max_price,
       beds: s.beds, baths: s.baths, receptions: s.receptions, min_sqft: s.min_sqft,
-      bills_included: s.bills_included, furnished: s.furnished,
+      bills_included: s.bills_included, furnished: s.furnished, available_from: s.available_from,
       sort,
+
     } }),
   });
 
