@@ -1,5 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, Building2, Tag, Inbox, Kanban, ShieldCheck, Users, Settings, LogOut, BedDouble, Wrench, Contact, Handshake, Search, Heart, Home, Scale, ClipboardCheck, ClipboardList, CalendarDays, Gavel, Receipt, BarChart3, Sparkles, Eye, Bookmark } from "lucide-react";
+import { LayoutDashboard, Building2, Tag, Inbox, Kanban, ShieldCheck, Users, Settings, LogOut, BedDouble, Wrench, Contact, Handshake, Search, Heart, Home, Scale, ClipboardCheck, ClipboardList, CalendarDays, Gavel, Receipt, BarChart3, Sparkles, Eye, Bookmark, RefreshCcw, Vault, UserCheck, FilePenLine, Hammer, Banknote } from "lucide-react";
+import { BranchSwitcher } from "@/components/BranchSwitcher";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader, SidebarFooter, useSidebar } from "@/components/ui/sidebar";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "@tanstack/react-router";
@@ -19,7 +20,13 @@ const FULL: NavItem[] = [
   { to: "/offers", label: "Offers & chains", icon: Gavel },
   { to: "/hmo", label: "HMO", icon: BedDouble },
   { to: "/inspections", label: "Inspections", icon: ClipboardList },
+  { to: "/renewals", label: "Renewals", icon: RefreshCcw },
+  { to: "/deposits", label: "Deposits", icon: Vault },
+  { to: "/right-to-rent", label: "Right to Rent", icon: UserCheck },
+  { to: "/arrears", label: "Arrears", icon: Banknote },
   { to: "/work-orders", label: "Work orders", icon: Wrench },
+  { to: "/contractor-marketplace", label: "Find a contractor", icon: Hammer },
+  { to: "/e-sign", label: "E‑signatures", icon: FilePenLine },
   { to: "/statements", label: "Owner statements", icon: Receipt },
   { to: "/contacts", label: "Contacts", icon: Contact },
   { to: "/compliance", label: "Compliance", icon: ShieldCheck },
@@ -40,6 +47,7 @@ const TENANT: NavItem[] = [
 const CONTRACTOR: NavItem[] = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/work-orders", label: "My jobs", icon: Wrench },
+  { to: "/contractor-marketplace", label: "Bid on jobs", icon: Hammer },
   { to: "/settings", label: "Settings", icon: Settings },
 ];
 
@@ -102,6 +110,9 @@ export function AppSidebar() {
           </span>
           {!collapsed && <span className="font-bold text-sidebar-foreground tracking-tight">Estately</span>}
         </Link>
+        {!collapsed && (role === "agent" || role === "admin" || role === "landlord") && (
+          <div className="px-2 pb-2"><BranchSwitcher /></div>
+        )}
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
