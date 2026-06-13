@@ -110,6 +110,9 @@ export function AppSidebar() {
           </span>
           {!collapsed && <span className="font-bold text-sidebar-foreground tracking-tight">Estately</span>}
         </Link>
+        {!collapsed && (role === "agent" || role === "admin" || role === "landlord") && (
+          <div className="px-2 pb-2"><BranchSwitcher /></div>
+        )}
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
