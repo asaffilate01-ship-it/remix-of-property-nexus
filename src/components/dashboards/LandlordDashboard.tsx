@@ -12,6 +12,7 @@ import {
   Users, Wrench, ArrowRight, Sparkles, TrendingUp, LayoutDashboard,
   Briefcase, Hammer, Activity,
 } from "lucide-react";
+import { ExpiryWidget } from "@/components/dashboards/ExpiryWidget";
 
 type Stats = {
   properties: number; listings: number; leads: number; compliance: number;
