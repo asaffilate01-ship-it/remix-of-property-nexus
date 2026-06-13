@@ -14,6 +14,7 @@ import {
   logTenancyEvent,
   advanceTenancyStatus,
 } from "@/lib/tenancy-lifecycle.functions";
+import { TenancyActions } from "@/components/tenancy/TenancyActions";
 
 const lifecycleQueryOptions = (id: string) =>
   queryOptions({
@@ -102,6 +103,9 @@ function TenancyDetail() {
             </p>
           </div>
           <Badge variant="outline" className={STATUS_TONE[data.tenancy.status] ?? ""}>{data.tenancy.status}</Badge>
+        </div>
+        <div className="mt-4">
+          <TenancyActions tenancyId={id} />
         </div>
       </div>
 
