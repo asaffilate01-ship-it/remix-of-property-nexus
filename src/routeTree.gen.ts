@@ -18,6 +18,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as MarketplaceIndexRouteImport } from './routes/marketplace.index'
 import { Route as AgenciesIndexRouteImport } from './routes/agencies.index'
+import { Route as ModulesSlugRouteImport } from './routes/modules.$slug'
 import { Route as MarketplaceSlugRouteImport } from './routes/marketplace.$slug'
 import { Route as AgenciesSlugRouteImport } from './routes/agencies.$slug'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
@@ -72,6 +73,11 @@ const AgenciesIndexRoute = AgenciesIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AgenciesRoute,
+} as any)
+const ModulesSlugRoute = ModulesSlugRouteImport.update({
+  id: '/modules/$slug',
+  path: '/modules/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const MarketplaceSlugRoute = MarketplaceSlugRouteImport.update({
   id: '/$slug',
@@ -141,6 +147,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof AuthenticatedSettingsRoute
   '/agencies/$slug': typeof AgenciesSlugRoute
   '/marketplace/$slug': typeof MarketplaceSlugRoute
+  '/modules/$slug': typeof ModulesSlugRoute
   '/agencies/': typeof AgenciesIndexRoute
   '/marketplace/': typeof MarketplaceIndexRoute
 }
@@ -159,6 +166,7 @@ export interface FileRoutesByTo {
   '/settings': typeof AuthenticatedSettingsRoute
   '/agencies/$slug': typeof AgenciesSlugRoute
   '/marketplace/$slug': typeof MarketplaceSlugRoute
+  '/modules/$slug': typeof ModulesSlugRoute
   '/agencies': typeof AgenciesIndexRoute
   '/marketplace': typeof MarketplaceIndexRoute
 }
@@ -181,6 +189,7 @@ export interface FileRoutesById {
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/agencies/$slug': typeof AgenciesSlugRoute
   '/marketplace/$slug': typeof MarketplaceSlugRoute
+  '/modules/$slug': typeof ModulesSlugRoute
   '/agencies/': typeof AgenciesIndexRoute
   '/marketplace/': typeof MarketplaceIndexRoute
 }
@@ -203,6 +212,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/agencies/$slug'
     | '/marketplace/$slug'
+    | '/modules/$slug'
     | '/agencies/'
     | '/marketplace/'
   fileRoutesByTo: FileRoutesByTo
@@ -221,6 +231,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/agencies/$slug'
     | '/marketplace/$slug'
+    | '/modules/$slug'
     | '/agencies'
     | '/marketplace'
   id:
@@ -242,6 +253,7 @@ export interface FileRouteTypes {
     | '/_authenticated/settings'
     | '/agencies/$slug'
     | '/marketplace/$slug'
+    | '/modules/$slug'
     | '/agencies/'
     | '/marketplace/'
   fileRoutesById: FileRoutesById
@@ -254,6 +266,7 @@ export interface RootRouteChildren {
   ForAgentsRoute: typeof ForAgentsRoute
   ForLandlordsRoute: typeof ForLandlordsRoute
   MarketplaceRoute: typeof MarketplaceRouteWithChildren
+  ModulesSlugRoute: typeof ModulesSlugRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -320,6 +333,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/agencies/'
       preLoaderRoute: typeof AgenciesIndexRouteImport
       parentRoute: typeof AgenciesRoute
+    }
+    '/modules/$slug': {
+      id: '/modules/$slug'
+      path: '/modules/$slug'
+      fullPath: '/modules/$slug'
+      preLoaderRoute: typeof ModulesSlugRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/marketplace/$slug': {
       id: '/marketplace/$slug'
@@ -455,6 +475,7 @@ const rootRouteChildren: RootRouteChildren = {
   ForAgentsRoute: ForAgentsRoute,
   ForLandlordsRoute: ForLandlordsRoute,
   MarketplaceRoute: MarketplaceRouteWithChildren,
+  ModulesSlugRoute: ModulesSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
