@@ -70,7 +70,7 @@ export const getTenancyLifecycle = createServerFn({ method: "GET" })
       supabase.from("rent_schedule").select("*").eq("tenancy_id", tenancy.id).order("due_date", { ascending: true }),
       supabase.from("offers").select("id, amount, status, buyer_name, submitted_at").eq("tenancy_id", tenancy.id).order("submitted_at", { ascending: false }),
       supabase.from("viewings").select("id, applicant_name, scheduled_at, status, feedback").eq("property_id", tenancy.property_id ?? "00000000-0000-0000-0000-000000000000").order("scheduled_at", { ascending: false }).limit(10),
-      supabase.from("compliance_records").select("id, kind, status, due_date").eq("tenancy_id", tenancy.id),
+      supabase.from("compliance_records").select("id, type, status, expires_on").eq("tenancy_id", tenancy.id),
       supabase.from("documents").select("id, name, scope, created_at").eq("tenancy_id", tenancy.id).order("created_at", { ascending: false }).limit(20),
     ]);
 
