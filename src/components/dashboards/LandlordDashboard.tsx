@@ -189,26 +189,29 @@ export function LandlordDashboard({ name, agentMode = false }: { name: string; a
 
         {/* Activity tab */}
         <TabsContent value="activity" className="space-y-4">
-          <Card className="border-0 shadow-card">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="font-semibold">Recent leads</h2>
-                <Button asChild variant="ghost" size="sm"><Link to="/leads">View all <ArrowRight className="ml-1 h-3 w-3" /></Link></Button>
-              </div>
-              {recent.length === 0 ? (
-                <div className="text-sm text-muted-foreground py-6 text-center">No leads yet. Publish a listing to start receiving enquiries.</div>
-              ) : (
-                <div className="divide-y">
-                  {recent.map((r) => (
-                    <div key={r.id} className="py-3 flex items-center justify-between">
-                      <div className="font-medium truncate">{r.title}</div>
-                      <div className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleDateString("en-GB")}</div>
-                    </div>
-                  ))}
+          <div className="grid lg:grid-cols-2 gap-4">
+            <ExpiryWidget />
+            <Card className="border-0 shadow-card">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="font-semibold">Recent leads</h2>
+                  <Button asChild variant="ghost" size="sm"><Link to="/leads">View all <ArrowRight className="ml-1 h-3 w-3" /></Link></Button>
                 </div>
-              )}
-            </CardContent>
-          </Card>
+                {recent.length === 0 ? (
+                  <div className="text-sm text-muted-foreground py-6 text-center">No leads yet. Publish a listing to start receiving enquiries.</div>
+                ) : (
+                  <div className="divide-y">
+                    {recent.map((r) => (
+                      <div key={r.id} className="py-3 flex items-center justify-between">
+                        <div className="font-medium truncate">{r.title}</div>
+                        <div className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleDateString("en-GB")}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
       </Tabs>
     </div>
