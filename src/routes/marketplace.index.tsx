@@ -327,7 +327,8 @@ function SearchBar({ q, setQ, where, setWhere, radius, setRadius, onSubmit }: { 
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="0">This area only</SelectItem>
-              <SelectItem value="1">Within ¼ mile</SelectItem>
+              <SelectItem value="0.25">Within ¼ mile</SelectItem>
+              <SelectItem value="0.5">Within ½ mile</SelectItem>
               <SelectItem value="1">Within 1 mile</SelectItem>
               <SelectItem value="3">Within 3 miles</SelectItem>
               <SelectItem value="5">Within 5 miles</SelectItem>
