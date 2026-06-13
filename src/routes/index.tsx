@@ -36,70 +36,86 @@ function Landing() {
         {/* Hero */}
         <section className="relative overflow-hidden border-b">
           <div
-            className="absolute inset-0 opacity-[0.08] pointer-events-none"
+            className="absolute inset-0 opacity-[0.06] pointer-events-none"
             style={{ backgroundImage: `url(${heroPattern})`, backgroundSize: "cover", backgroundPosition: "center" }}
           />
           <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-muted/40" />
           <div className="container relative mx-auto px-4 py-16 md:py-24 lg:py-28 grid lg:grid-cols-12 gap-10 lg:gap-16 items-center">
             <div className="lg:col-span-6">
-              <div className="inline-flex items-center gap-2 rounded-full border bg-card/70 backdrop-blur px-3 py-1 text-xs font-medium mb-5 shadow-sm">
-                <Sparkles className="h-3 w-3 text-accent" /> The property OS, reimagined.
+              <div className="inline-flex items-center gap-2 rounded-full border border-accent/40 bg-card px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary mb-6 shadow-sm">
+                <span className="h-2 w-2 rounded-full bg-accent animate-pulse" />
+                The property OS, reimagined
               </div>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight mb-6 leading-[1.05]">
-                Run your agency like
-                <span className="block bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-transparent">a single, calm workspace.</span>
+              <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold tracking-tight mb-6 leading-[1.04] text-foreground">
+                Run your agency like a single,
+                <span className="block text-[oklch(0.45_0.10_165)]"> calm workspace.</span>
               </h1>
-              <p className="text-base sm:text-lg text-muted-foreground mb-8 max-w-xl">
+              <p className="text-base sm:text-lg text-muted-foreground mb-8 max-w-xl leading-relaxed">
                 Sales, lettings, HMO and commercial — one CRM, one marketplace, one compliance engine. Replace Reapit, Alto and a stack of spreadsheets.
               </p>
               <div className="flex flex-col sm:flex-row gap-3">
-                <Button asChild size="lg" className="shadow-lg shadow-primary/20">
+                <Button asChild size="lg" className="shadow-xl shadow-primary/20">
                   <Link to="/auth">Start free <ArrowRight className="ml-2 h-4 w-4" /></Link>
                 </Button>
-                <Button asChild size="lg" variant="outline">
-                  <Link to="/marketplace"><Search className="mr-2 h-4 w-4" /> Browse marketplace</Link>
+                <Button asChild size="lg" variant="outline" className="border-primary/15 bg-card/60 backdrop-blur hover:bg-card">
+                  <Link to="/marketplace"><Search className="mr-2 h-4 w-4 opacity-70" /> Browse marketplace</Link>
                 </Button>
               </div>
-              <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-2 text-sm text-muted-foreground">
+              <div className="mt-8 grid grid-cols-2 gap-y-3 gap-x-6 pt-6 border-t border-primary/10 max-w-md">
                 {["Sales pipeline", "Lettings workflow", "HMO compliance", "Commercial leases"].map((f) => (
-                  <span key={f} className="inline-flex items-center gap-1.5"><Check className="h-4 w-4 text-success shrink-0" />{f}</span>
+                  <span key={f} className="inline-flex items-center gap-2 text-sm font-medium text-foreground">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-success/10">
+                      <Check className="h-3.5 w-3.5 text-success" />
+                    </span>
+                    {f}
+                  </span>
                 ))}
               </div>
             </div>
             <div className="lg:col-span-6 relative">
-              <div className="relative rounded-3xl overflow-hidden shadow-2xl ring-1 ring-border/50">
+              <div className="absolute -inset-6 bg-accent/15 rounded-[3rem] blur-3xl pointer-events-none" />
+              <div className="relative rounded-[2.5rem] overflow-hidden border-8 border-card shadow-prestige">
                 <img
                   src={heroHome}
                   alt="Modern residential street at golden hour"
                   width={1536}
                   height={1024}
-                  className="w-full h-[320px] sm:h-[420px] lg:h-[520px] object-cover"
+                  className="w-full h-[340px] sm:h-[460px] lg:h-[560px] object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-foreground/40 via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-primary/55 via-transparent to-transparent" />
+                {/* Floating badge */}
+                <div className="absolute bottom-6 left-6 right-6 bg-card/95 backdrop-blur-xl p-5 rounded-2xl border border-card shadow-2xl flex items-center gap-4">
+                  <div className="flex -space-x-3">
+                    <div className="w-10 h-10 rounded-full border-2 border-card bg-primary/10" />
+                    <div className="w-10 h-10 rounded-full border-2 border-card bg-primary/20" />
+                    <div className="w-10 h-10 rounded-full border-2 border-card bg-primary/35" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-display text-sm font-bold text-foreground">Join 450+ modern agencies</p>
+                    <p className="text-xs text-muted-foreground truncate">Elevating property management standards</p>
+                  </div>
+                </div>
               </div>
-              {/* Floating stat card */}
-              <div className="hidden sm:block absolute -bottom-6 -left-6 lg:-left-10 bg-card rounded-2xl p-5 shadow-2xl ring-1 ring-border/50 w-[260px]">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="brand-gradient h-10 w-10 rounded-xl flex items-center justify-center text-white">
+              {/* Pipeline stat */}
+              <div className="hidden sm:block absolute -bottom-8 -left-6 lg:-left-10 bg-card rounded-2xl p-5 shadow-2xl border border-border w-[240px] gold-hairline">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="brand-gradient h-10 w-10 rounded-xl flex items-center justify-center text-primary-foreground">
                     <Kanban className="h-5 w-5" />
                   </div>
                   <div>
-                    <div className="text-xs text-muted-foreground">In pipeline</div>
-                    <div className="text-xl font-bold">£2.4M</div>
+                    <div className="text-[10px] uppercase tracking-widest text-muted-foreground">In pipeline</div>
+                    <div className="font-display text-xl font-bold">£2.4M</div>
                   </div>
                 </div>
                 <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <Star className="h-3 w-3 text-warning fill-warning" />
-                  <Star className="h-3 w-3 text-warning fill-warning" />
-                  <Star className="h-3 w-3 text-warning fill-warning" />
-                  <Star className="h-3 w-3 text-warning fill-warning" />
-                  <Star className="h-3 w-3 text-warning fill-warning" />
-                  <span className="ml-1">Trusted by 200+ agencies</span>
+                  {[0,1,2,3,4].map(i => <Star key={i} className="h-3 w-3 text-accent fill-accent" />)}
+                  <span className="ml-1">Trusted by 200+</span>
                 </div>
               </div>
             </div>
           </div>
         </section>
+
 
         {/* Modules */}
         <section className="container mx-auto px-4 py-16 md:py-24">
