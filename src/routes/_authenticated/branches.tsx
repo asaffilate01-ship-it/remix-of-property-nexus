@@ -109,7 +109,17 @@ function BranchesPage() {
       </div>
 
       {loading ? (
-        <Card><CardContent className="p-6 text-sm text-muted-foreground">Loading…</CardContent></Card>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Card key={i} className="animate-pulse">
+              <CardContent className="p-5 space-y-2">
+                <div className="h-5 w-32 bg-muted rounded" />
+                <div className="h-4 w-3/4 bg-muted rounded" />
+                <div className="h-3 w-1/2 bg-muted rounded" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       ) : items.length === 0 ? (
         <Card className="border-dashed"><CardContent className="p-10 text-center">
           <div className="mx-auto h-14 w-14 rounded-2xl bg-muted flex items-center justify-center mb-3"><Building2 className="h-6 w-6 text-muted-foreground" /></div>

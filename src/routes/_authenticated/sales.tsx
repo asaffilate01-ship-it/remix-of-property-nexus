@@ -142,7 +142,19 @@ function SalesPage() {
         </Dialog>
       </div>
 
-      {isLoading ? <div className="text-muted-foreground">Loading...</div> : (
+      {isLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Card key={i} className="border-0 shadow-card overflow-hidden animate-pulse">
+              <div className="p-4 space-y-3">
+                <div className="h-5 w-32 bg-muted rounded" />
+                <div className="h-4 w-full bg-muted rounded" />
+                <div className="h-3 w-2/3 bg-muted rounded" />
+              </div>
+            </Card>
+          ))}
+        </div>
+      ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {STAGES.map((stage) => (
             <Card key={stage}>

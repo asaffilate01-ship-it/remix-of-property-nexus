@@ -206,7 +206,19 @@ function HmoPage() {
         </TabsList>
 
         <TabsContent value="rooms" className="mt-4">
-          {isLoading ? <div className="text-muted-foreground">Loading…</div> : rooms.length === 0 ? (
+          {isLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <Card key={i} className="animate-pulse">
+                  <CardContent className="p-4 space-y-3">
+                    <div className="h-5 w-20 bg-muted rounded" />
+                    <div className="h-4 w-full bg-muted rounded" />
+                    <div className="h-3 w-2/3 bg-muted rounded" />
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : rooms.length === 0 ? (
             <EmptyState text={hmoProps.length === 0 ? "Mark a property as HMO to start adding rooms." : "Add your first room to begin."} />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">

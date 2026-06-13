@@ -170,7 +170,19 @@ function WorkOrdersPage() {
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList><TabsTrigger value="active">Active</TabsTrigger><TabsTrigger value="done">Completed</TabsTrigger><TabsTrigger value="all">All</TabsTrigger></TabsList>
         <TabsContent value={tab} className="space-y-3 mt-4">
-          {isLoading ? <div className="text-muted-foreground">Loading...</div> : filtered.length === 0 ? (
+          {isLoading ? (
+            <div className="space-y-3">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Card key={i} className="animate-pulse">
+                  <CardContent className="p-4 space-y-2">
+                    <div className="h-5 w-40 bg-muted rounded" />
+                    <div className="h-4 w-3/4 bg-muted rounded" />
+                    <div className="h-3 w-1/2 bg-muted rounded" />
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : filtered.length === 0 ? (
             <Card><CardContent className="py-12 text-center text-muted-foreground"><Wrench className="h-8 w-8 mx-auto mb-2 opacity-40" /> No jobs in this view</CardContent></Card>
           ) : filtered.map((w) => {
             const wMedia = media.filter((m) => m.work_order_id === w.id);

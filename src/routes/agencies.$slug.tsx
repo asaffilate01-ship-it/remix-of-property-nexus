@@ -1,4 +1,4 @@
-import { createFileRoute, useParams, Link } from "@tanstack/react-router";
+import { createFileRoute, useParams, Link, useRouter } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -11,6 +11,78 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Building2, MapPin, Mail, Globe, ChevronLeft, ShieldCheck, Wrench, Home, Users, ArrowRight, Star } from "lucide-react";
 import { PhoneReveal } from "@/components/PhoneReveal";
 import { fetchAgency } from "@/lib/public.functions";
+
+function AgencyError({ error, reset }: { error: Error; reset: () => void }) {
+  const router = useRouter();
+  return (
+    <Shell>
+      <div className="container mx-auto px-4 py-20 text-center">
+        <h1 className="text-xl font-semibold tracking-tight">This agency page didn't load</h1>
+        <p className="mt-2 text-sm text-muted-foreground">Something went wrong. Try refreshing or browse other agencies.</p>
+        <div className="mt-6 flex flex-wrap justify-center gap-2">
+          <button onClick={() => { router.invalidate(); reset(); }} className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90">Try again</button>
+          <Link to="/agencies" className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent">All agencies</Link>
+        </div>
+      </div>
+    </Shell>
+  );
+}
+
+function AgencyNotFound() {
+  return (
+    <Shell>
+      <div className="container mx-auto px-4 py-20 text-center">
+        <h1 className="text-xl font-semibold tracking-tight">Agency not found</h1>
+        <p className="mt-2 text-sm text-muted-foreground">We couldn't find that agency. It may have been removed or the link might be incorrect.</p>
+        <div className="mt-6">
+          <Link to="/agencies" className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90">All agencies</Link>
+        </div>
+      </div>
+    </Shell>
+  );
+}
+
+function AgencySkeleton() {
+  return (
+    <Shell>
+      <section className="relative">
+        <div className="h-48 md:h-72 brand-gradient opacity-30 animate-pulse" />
+      </section>
+      <div className="container mx-auto px-4">
+        <div className="-mt-16 md:-mt-20 flex flex-wrap items-end gap-5 pb-6">
+          <div className="h-24 w-24 md:h-32 md:w-32 rounded-2xl bg-muted animate-pulse shrink-0" />
+          <div className="flex-1 min-w-0 space-y-2">
+            <div className="h-4 w-32 bg-muted rounded animate-pulse" />
+            <div className="h-8 w-64 bg-muted rounded animate-pulse" />
+            <div className="h-4 w-40 bg-muted rounded animate-pulse" />
+          </div>
+        </div>
+      </div>
+      <div className="container mx-auto px-4 pb-16 space-y-6">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="rounded-xl border bg-card p-4 space-y-2">
+              <div className="h-8 w-12 bg-muted rounded animate-pulse" />
+              <div className="h-3 w-20 bg-muted rounded animate-pulse" />
+            </div>
+          ))}
+        </div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="rounded-xl border bg-card overflow-hidden">
+              <div className="aspect-[4/3] bg-muted animate-pulse" />
+              <div className="p-4 space-y-2">
+                <div className="h-5 w-24 bg-muted rounded animate-pulse" />
+                <div className="h-4 w-3/4 bg-muted rounded animate-pulse" />
+                <div className="h-3 w-1/2 bg-muted rounded animate-pulse" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </Shell>
+  );
+}
 
 export const Route = createFileRoute("/agencies/$slug")({
   loader: async ({ params }) => {
@@ -36,6 +108,8 @@ export const Route = createFileRoute("/agencies/$slug")({
       links: [{ rel: "canonical", href: url }],
     };
   },
+  errorComponent: AgencyError,
+  notFoundComponent: AgencyNotFound,
   component: AgencyPage,
 });
 
@@ -47,8 +121,8 @@ function AgencyPage() {
   const { data, isLoading } = useQuery({ queryKey: ["agency", slug], queryFn: () => fn({ data: { slug } }) });
   const [tab, setTab] = useState<Filter>("all");
 
-  if (isLoading) return <Shell><div className="container mx-auto p-8">Loading…</div></Shell>;
-  if (!data?.agency) return <Shell><div className="container mx-auto p-8 text-center"><p>Agency not found.</p><Button asChild className="mt-4"><Link to="/agencies">All agencies</Link></Button></div></Shell>;
+  if (isLoading) return <AgencySkeleton />;
+  if (!data?.agency) return <AgencyNotFound />;
 
   const a = data.agency;
   const filtered = data.listings.filter((l) => {

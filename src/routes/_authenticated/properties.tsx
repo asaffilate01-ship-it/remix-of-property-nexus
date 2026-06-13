@@ -147,7 +147,18 @@ function PropertiesPage() {
       </div>
 
       {loading ? (
-        <div className="text-muted-foreground text-sm">Loading…</div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Card key={i} className="animate-pulse">
+              <div className="aspect-[16/10] bg-muted" />
+              <CardContent className="p-5 space-y-2">
+                <div className="h-5 w-32 bg-muted rounded" />
+                <div className="h-4 w-3/4 bg-muted rounded" />
+                <div className="h-3 w-1/2 bg-muted rounded" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       ) : filtered.length === 0 ? (
         <Card className="border-dashed border-2 bg-transparent">
           <CardContent className="p-12 text-center text-muted-foreground">
@@ -495,7 +506,13 @@ function RentPanel({ propertyId }: { propertyId: string }) {
     load();
   };
 
-  if (loading) return <div className="text-sm text-muted-foreground">Loading…</div>;
+  if (loading) return (
+    <div className="space-y-2">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <div key={i} className="h-12 bg-muted rounded animate-pulse" />
+      ))}
+    </div>
+  );
   if (!rows.length) return <div className="text-sm text-muted-foreground text-center py-6 border border-dashed rounded-md">No rent schedule. Use the £ button on a tenancy to generate one.</div>;
 
   const today = new Date().toISOString().slice(0, 10);
