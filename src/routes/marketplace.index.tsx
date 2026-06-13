@@ -558,7 +558,7 @@ function FiltersSheet({ s, setSearch, category }: { s: SearchParams; setSearch: 
           </div>
         </div>
         <SheetFooter className="mt-6 flex-row gap-2">
-          <Button variant="outline" className="flex-1" onClick={() => { setLocal({ min_price: "", max_price: "", beds: "any", baths: "any", receptions: "any", min_sqft: "", bills_included: false, furnished: "any", property_type: "any", epc_min: "any", tenure: "any", features: [] }); }}>Reset</Button>
+          <Button variant="outline" className="flex-1" onClick={() => { setLocal({ min_price: "", max_price: "", beds: "any", baths: "any", receptions: "any", min_sqft: "", bills_included: false, furnished: "any", property_type: "any", epc_min: "any", tenure: "any", features: [], available_from: "" }); }}>Reset</Button>
           <Button className="flex-1" onClick={apply}>Apply filters</Button>
         </SheetFooter>
       </SheetContent>
