@@ -11,9 +11,9 @@ export const Route = createFileRoute("/business")({
   head: () => ({
     meta: [
       { title: "Estately for agencies — the property OS for UK estate agents" },
-      { name: "description", content: "One platform for sales, lettings, HMO, compliance and the portal — replacing Reapit, Alto, Dezrez and Arthur. 30 days free, then from £29.99/mo." },
+      { name: "description", content: "One platform for sales, lettings, HMO, compliance and the portal — replacing Reapit, Alto, Dezrez and Arthur. 30 days free, then from £29.99/mo per branch." },
       { property: "og:title", content: "Estately for agencies — the property OS" },
-      { property: "og:description", content: "CRM + portal + compliance in one place. 30 days free, then from £29.99/mo." },
+      { property: "og:description", content: "CRM + portal + compliance in one place. 30 days free, then from £29.99/mo per branch." },
       { property: "og:url", content: "https://proptest.313test.co.uk/business" },
     ],
     links: [{ rel: "canonical", href: "https://proptest.313test.co.uk/business" }],
