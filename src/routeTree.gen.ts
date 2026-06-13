@@ -11,6 +11,8 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ValuationRouteImport } from './routes/valuation'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as SavedSearchesRouteImport } from './routes/saved-searches'
+import { Route as ReferencingRouteImport } from './routes/referencing'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PlatformRouteImport } from './routes/platform'
 import { Route as MortgageRouteImport } from './routes/mortgage'
@@ -32,6 +34,7 @@ import { Route as MarketplaceSlugRouteImport } from './routes/marketplace.$slug'
 import { Route as AgenciesSlugRouteImport } from './routes/agencies.$slug'
 import { Route as AuthenticatedWorkOrdersRouteImport } from './routes/_authenticated/work-orders'
 import { Route as AuthenticatedViewingsRouteImport } from './routes/_authenticated/viewings'
+import { Route as AuthenticatedVendorPortalRouteImport } from './routes/_authenticated/vendor-portal'
 import { Route as AuthenticatedStatementsRouteImport } from './routes/_authenticated/statements'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedSalesRouteImport } from './routes/_authenticated/sales'
@@ -46,6 +49,7 @@ import { Route as AuthenticatedHmoRouteImport } from './routes/_authenticated/hm
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedContactsRouteImport } from './routes/_authenticated/contacts'
 import { Route as AuthenticatedComplianceRouteImport } from './routes/_authenticated/compliance'
+import { Route as AuthenticatedAiCopyRouteImport } from './routes/_authenticated/ai-copy'
 import { Route as AuthenticatedAgencyRouteImport } from './routes/_authenticated/agency'
 
 const ValuationRoute = ValuationRouteImport.update({
@@ -56,6 +60,16 @@ const ValuationRoute = ValuationRouteImport.update({
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SavedSearchesRoute = SavedSearchesRouteImport.update({
+  id: '/saved-searches',
+  path: '/saved-searches',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReferencingRoute = ReferencingRouteImport.update({
+  id: '/referencing',
+  path: '/referencing',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -162,6 +176,12 @@ const AuthenticatedViewingsRoute = AuthenticatedViewingsRouteImport.update({
   path: '/viewings',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedVendorPortalRoute =
+  AuthenticatedVendorPortalRouteImport.update({
+    id: '/vendor-portal',
+    path: '/vendor-portal',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedStatementsRoute = AuthenticatedStatementsRouteImport.update({
   id: '/statements',
   path: '/statements',
@@ -233,6 +253,11 @@ const AuthenticatedComplianceRoute = AuthenticatedComplianceRouteImport.update({
   path: '/compliance',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAiCopyRoute = AuthenticatedAiCopyRouteImport.update({
+  id: '/ai-copy',
+  path: '/ai-copy',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAgencyRoute = AuthenticatedAgencyRouteImport.update({
   id: '/agency',
   path: '/agency',
@@ -253,9 +278,12 @@ export interface FileRoutesByFullPath {
   '/mortgage': typeof MortgageRoute
   '/platform': typeof PlatformRoute
   '/privacy': typeof PrivacyRoute
+  '/referencing': typeof ReferencingRoute
+  '/saved-searches': typeof SavedSearchesRoute
   '/terms': typeof TermsRoute
   '/valuation': typeof ValuationRoute
   '/agency': typeof AuthenticatedAgencyRoute
+  '/ai-copy': typeof AuthenticatedAiCopyRoute
   '/compliance': typeof AuthenticatedComplianceRoute
   '/contacts': typeof AuthenticatedContactsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
@@ -270,6 +298,7 @@ export interface FileRoutesByFullPath {
   '/sales': typeof AuthenticatedSalesRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/statements': typeof AuthenticatedStatementsRoute
+  '/vendor-portal': typeof AuthenticatedVendorPortalRoute
   '/viewings': typeof AuthenticatedViewingsRoute
   '/work-orders': typeof AuthenticatedWorkOrdersRoute
   '/agencies/$slug': typeof AgenciesSlugRoute
@@ -290,9 +319,12 @@ export interface FileRoutesByTo {
   '/mortgage': typeof MortgageRoute
   '/platform': typeof PlatformRoute
   '/privacy': typeof PrivacyRoute
+  '/referencing': typeof ReferencingRoute
+  '/saved-searches': typeof SavedSearchesRoute
   '/terms': typeof TermsRoute
   '/valuation': typeof ValuationRoute
   '/agency': typeof AuthenticatedAgencyRoute
+  '/ai-copy': typeof AuthenticatedAiCopyRoute
   '/compliance': typeof AuthenticatedComplianceRoute
   '/contacts': typeof AuthenticatedContactsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
@@ -307,6 +339,7 @@ export interface FileRoutesByTo {
   '/sales': typeof AuthenticatedSalesRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/statements': typeof AuthenticatedStatementsRoute
+  '/vendor-portal': typeof AuthenticatedVendorPortalRoute
   '/viewings': typeof AuthenticatedViewingsRoute
   '/work-orders': typeof AuthenticatedWorkOrdersRoute
   '/agencies/$slug': typeof AgenciesSlugRoute
@@ -331,9 +364,12 @@ export interface FileRoutesById {
   '/mortgage': typeof MortgageRoute
   '/platform': typeof PlatformRoute
   '/privacy': typeof PrivacyRoute
+  '/referencing': typeof ReferencingRoute
+  '/saved-searches': typeof SavedSearchesRoute
   '/terms': typeof TermsRoute
   '/valuation': typeof ValuationRoute
   '/_authenticated/agency': typeof AuthenticatedAgencyRoute
+  '/_authenticated/ai-copy': typeof AuthenticatedAiCopyRoute
   '/_authenticated/compliance': typeof AuthenticatedComplianceRoute
   '/_authenticated/contacts': typeof AuthenticatedContactsRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
@@ -348,6 +384,7 @@ export interface FileRoutesById {
   '/_authenticated/sales': typeof AuthenticatedSalesRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/statements': typeof AuthenticatedStatementsRoute
+  '/_authenticated/vendor-portal': typeof AuthenticatedVendorPortalRoute
   '/_authenticated/viewings': typeof AuthenticatedViewingsRoute
   '/_authenticated/work-orders': typeof AuthenticatedWorkOrdersRoute
   '/agencies/$slug': typeof AgenciesSlugRoute
@@ -372,9 +409,12 @@ export interface FileRouteTypes {
     | '/mortgage'
     | '/platform'
     | '/privacy'
+    | '/referencing'
+    | '/saved-searches'
     | '/terms'
     | '/valuation'
     | '/agency'
+    | '/ai-copy'
     | '/compliance'
     | '/contacts'
     | '/dashboard'
@@ -389,6 +429,7 @@ export interface FileRouteTypes {
     | '/sales'
     | '/settings'
     | '/statements'
+    | '/vendor-portal'
     | '/viewings'
     | '/work-orders'
     | '/agencies/$slug'
@@ -409,9 +450,12 @@ export interface FileRouteTypes {
     | '/mortgage'
     | '/platform'
     | '/privacy'
+    | '/referencing'
+    | '/saved-searches'
     | '/terms'
     | '/valuation'
     | '/agency'
+    | '/ai-copy'
     | '/compliance'
     | '/contacts'
     | '/dashboard'
@@ -426,6 +470,7 @@ export interface FileRouteTypes {
     | '/sales'
     | '/settings'
     | '/statements'
+    | '/vendor-portal'
     | '/viewings'
     | '/work-orders'
     | '/agencies/$slug'
@@ -449,9 +494,12 @@ export interface FileRouteTypes {
     | '/mortgage'
     | '/platform'
     | '/privacy'
+    | '/referencing'
+    | '/saved-searches'
     | '/terms'
     | '/valuation'
     | '/_authenticated/agency'
+    | '/_authenticated/ai-copy'
     | '/_authenticated/compliance'
     | '/_authenticated/contacts'
     | '/_authenticated/dashboard'
@@ -466,6 +514,7 @@ export interface FileRouteTypes {
     | '/_authenticated/sales'
     | '/_authenticated/settings'
     | '/_authenticated/statements'
+    | '/_authenticated/vendor-portal'
     | '/_authenticated/viewings'
     | '/_authenticated/work-orders'
     | '/agencies/$slug'
@@ -490,6 +539,8 @@ export interface RootRouteChildren {
   MortgageRoute: typeof MortgageRoute
   PlatformRoute: typeof PlatformRoute
   PrivacyRoute: typeof PrivacyRoute
+  ReferencingRoute: typeof ReferencingRoute
+  SavedSearchesRoute: typeof SavedSearchesRoute
   TermsRoute: typeof TermsRoute
   ValuationRoute: typeof ValuationRoute
   ModulesSlugRoute: typeof ModulesSlugRoute
@@ -509,6 +560,20 @@ declare module '@tanstack/react-router' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/saved-searches': {
+      id: '/saved-searches'
+      path: '/saved-searches'
+      fullPath: '/saved-searches'
+      preLoaderRoute: typeof SavedSearchesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/referencing': {
+      id: '/referencing'
+      path: '/referencing'
+      fullPath: '/referencing'
+      preLoaderRoute: typeof ReferencingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -658,6 +723,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedViewingsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/vendor-portal': {
+      id: '/_authenticated/vendor-portal'
+      path: '/vendor-portal'
+      fullPath: '/vendor-portal'
+      preLoaderRoute: typeof AuthenticatedVendorPortalRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/statements': {
       id: '/_authenticated/statements'
       path: '/statements'
@@ -756,6 +828,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedComplianceRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/ai-copy': {
+      id: '/_authenticated/ai-copy'
+      path: '/ai-copy'
+      fullPath: '/ai-copy'
+      preLoaderRoute: typeof AuthenticatedAiCopyRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/agency': {
       id: '/_authenticated/agency'
       path: '/agency'
@@ -768,6 +847,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAgencyRoute: typeof AuthenticatedAgencyRoute
+  AuthenticatedAiCopyRoute: typeof AuthenticatedAiCopyRoute
   AuthenticatedComplianceRoute: typeof AuthenticatedComplianceRoute
   AuthenticatedContactsRoute: typeof AuthenticatedContactsRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
@@ -782,12 +862,14 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedSalesRoute: typeof AuthenticatedSalesRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedStatementsRoute: typeof AuthenticatedStatementsRoute
+  AuthenticatedVendorPortalRoute: typeof AuthenticatedVendorPortalRoute
   AuthenticatedViewingsRoute: typeof AuthenticatedViewingsRoute
   AuthenticatedWorkOrdersRoute: typeof AuthenticatedWorkOrdersRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAgencyRoute: AuthenticatedAgencyRoute,
+  AuthenticatedAiCopyRoute: AuthenticatedAiCopyRoute,
   AuthenticatedComplianceRoute: AuthenticatedComplianceRoute,
   AuthenticatedContactsRoute: AuthenticatedContactsRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
@@ -802,6 +884,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSalesRoute: AuthenticatedSalesRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedStatementsRoute: AuthenticatedStatementsRoute,
+  AuthenticatedVendorPortalRoute: AuthenticatedVendorPortalRoute,
   AuthenticatedViewingsRoute: AuthenticatedViewingsRoute,
   AuthenticatedWorkOrdersRoute: AuthenticatedWorkOrdersRoute,
 }
@@ -852,6 +935,8 @@ const rootRouteChildren: RootRouteChildren = {
   MortgageRoute: MortgageRoute,
   PlatformRoute: PlatformRoute,
   PrivacyRoute: PrivacyRoute,
+  ReferencingRoute: ReferencingRoute,
+  SavedSearchesRoute: SavedSearchesRoute,
   TermsRoute: TermsRoute,
   ValuationRoute: ValuationRoute,
   ModulesSlugRoute: ModulesSlugRoute,

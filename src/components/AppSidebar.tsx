@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, Building2, Tag, Inbox, Kanban, ShieldCheck, Users, Settings, LogOut, BedDouble, Wrench, Contact, Handshake, Search, Heart, Home, Scale, ClipboardCheck, ClipboardList, CalendarDays, Gavel, Receipt, BarChart3 } from "lucide-react";
+import { LayoutDashboard, Building2, Tag, Inbox, Kanban, ShieldCheck, Users, Settings, LogOut, BedDouble, Wrench, Contact, Handshake, Search, Heart, Home, Scale, ClipboardCheck, ClipboardList, CalendarDays, Gavel, Receipt, BarChart3, Sparkles, Eye, Bookmark } from "lucide-react";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader, SidebarFooter, useSidebar } from "@/components/ui/sidebar";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "@tanstack/react-router";
@@ -24,6 +24,7 @@ const FULL: NavItem[] = [
   { to: "/contacts", label: "Contacts", icon: Contact },
   { to: "/compliance", label: "Compliance", icon: ShieldCheck },
   { to: "/reports", label: "Reports", icon: BarChart3 },
+  { to: "/ai-copy", label: "AI listing copy", icon: Sparkles },
   { to: "/agency", label: "Agency", icon: Users },
   { to: "/settings", label: "Settings", icon: Settings },
 ];
@@ -51,6 +52,8 @@ const CONVEYANCER: NavItem[] = [
 const BUYER: NavItem[] = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/marketplace", label: "Browse", icon: Search },
+  { to: "/saved-searches", label: "Saved searches", icon: Bookmark },
+  { to: "/vendor-portal", label: "My sale", icon: Eye },
   { to: "/leads", label: "My enquiries", icon: Heart },
   { to: "/settings", label: "Settings", icon: Settings },
 ];
