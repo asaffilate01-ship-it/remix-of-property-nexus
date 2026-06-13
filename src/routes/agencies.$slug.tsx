@@ -175,3 +175,16 @@ function AgencyPage() {
 function Shell({ children }: { children: React.ReactNode }) {
   return <div className="min-h-screen flex flex-col"><PublicHeader /><main className="flex-1">{children}</main><PublicFooter /></div>;
 }
+
+function PortalLink({ to, icon, label, sub }: { to: string; icon: React.ReactNode; label: string; sub: string }) {
+  return (
+    <Link to={to} className="rounded-lg border p-3 hover:border-primary/40 hover:bg-primary/5 transition-colors group">
+      <div className="flex items-center justify-between">
+        <div className="h-8 w-8 rounded-md bg-primary/10 text-primary flex items-center justify-center">{icon}</div>
+        <ArrowRight className="h-3 w-3 text-muted-foreground group-hover:text-primary transition-colors" />
+      </div>
+      <div className="font-medium text-sm mt-2">{label}</div>
+      <div className="text-xs text-muted-foreground line-clamp-1">{sub}</div>
+    </Link>
+  );
+}
