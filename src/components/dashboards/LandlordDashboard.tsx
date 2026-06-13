@@ -87,7 +87,7 @@ export function LandlordDashboard({ name, agentMode = false }: { name: string; a
             </div>
           </div>
           <div className="flex gap-2 flex-wrap">
-            <Button asChild variant="outline"><Link to="/listings"><Tag className="mr-2 h-4 w-4" /> New listing</Link></Button>
+            <Button asChild variant="outline"><Link to="/listings" search={{ new: true }}><Tag className="mr-2 h-4 w-4" /> New listing</Link></Button>
             <Button asChild className="shadow-lg shadow-primary/20"><Link to="/properties"><Plus className="mr-2 h-4 w-4" /> Add property</Link></Button>
           </div>
         </div>
