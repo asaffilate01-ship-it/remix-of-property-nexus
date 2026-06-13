@@ -9,15 +9,18 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ValuationRouteImport } from './routes/valuation'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PlatformRouteImport } from './routes/platform'
+import { Route as MortgageRouteImport } from './routes/mortgage'
 import { Route as MarketplaceRouteImport } from './routes/marketplace'
 import { Route as ForLandlordsRouteImport } from './routes/for-landlords'
 import { Route as ForAgentsRouteImport } from './routes/for-agents'
 import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as ComplaintsRouteImport } from './routes/complaints'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AreaGuidesRouteImport } from './routes/area-guides'
 import { Route as AgenciesRouteImport } from './routes/agencies'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
@@ -27,18 +30,28 @@ import { Route as ModulesSlugRouteImport } from './routes/modules.$slug'
 import { Route as MarketplaceSlugRouteImport } from './routes/marketplace.$slug'
 import { Route as AgenciesSlugRouteImport } from './routes/agencies.$slug'
 import { Route as AuthenticatedWorkOrdersRouteImport } from './routes/_authenticated/work-orders'
+import { Route as AuthenticatedViewingsRouteImport } from './routes/_authenticated/viewings'
+import { Route as AuthenticatedStatementsRouteImport } from './routes/_authenticated/statements'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedSalesRouteImport } from './routes/_authenticated/sales'
+import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
 import { Route as AuthenticatedPropertiesRouteImport } from './routes/_authenticated/properties'
 import { Route as AuthenticatedPipelineRouteImport } from './routes/_authenticated/pipeline'
+import { Route as AuthenticatedOffersRouteImport } from './routes/_authenticated/offers'
 import { Route as AuthenticatedListingsRouteImport } from './routes/_authenticated/listings'
 import { Route as AuthenticatedLeadsRouteImport } from './routes/_authenticated/leads'
+import { Route as AuthenticatedInspectionsRouteImport } from './routes/_authenticated/inspections'
 import { Route as AuthenticatedHmoRouteImport } from './routes/_authenticated/hmo'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedContactsRouteImport } from './routes/_authenticated/contacts'
 import { Route as AuthenticatedComplianceRouteImport } from './routes/_authenticated/compliance'
 import { Route as AuthenticatedAgencyRouteImport } from './routes/_authenticated/agency'
 
+const ValuationRoute = ValuationRouteImport.update({
+  id: '/valuation',
+  path: '/valuation',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
@@ -52,6 +65,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
 const PlatformRoute = PlatformRouteImport.update({
   id: '/platform',
   path: '/platform',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MortgageRoute = MortgageRouteImport.update({
+  id: '/mortgage',
+  path: '/mortgage',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MarketplaceRoute = MarketplaceRouteImport.update({
@@ -82,6 +100,11 @@ const ComplaintsRoute = ComplaintsRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AreaGuidesRoute = AreaGuidesRouteImport.update({
+  id: '/area-guides',
+  path: '/area-guides',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AgenciesRoute = AgenciesRouteImport.update({
@@ -128,6 +151,16 @@ const AuthenticatedWorkOrdersRoute = AuthenticatedWorkOrdersRouteImport.update({
   path: '/work-orders',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedViewingsRoute = AuthenticatedViewingsRouteImport.update({
+  id: '/viewings',
+  path: '/viewings',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedStatementsRoute = AuthenticatedStatementsRouteImport.update({
+  id: '/statements',
+  path: '/statements',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -136,6 +169,11 @@ const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
 const AuthenticatedSalesRoute = AuthenticatedSalesRouteImport.update({
   id: '/sales',
   path: '/sales',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedReportsRoute = AuthenticatedReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedPropertiesRoute = AuthenticatedPropertiesRouteImport.update({
@@ -148,6 +186,11 @@ const AuthenticatedPipelineRoute = AuthenticatedPipelineRouteImport.update({
   path: '/pipeline',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedOffersRoute = AuthenticatedOffersRouteImport.update({
+  id: '/offers',
+  path: '/offers',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedListingsRoute = AuthenticatedListingsRouteImport.update({
   id: '/listings',
   path: '/listings',
@@ -158,6 +201,12 @@ const AuthenticatedLeadsRoute = AuthenticatedLeadsRouteImport.update({
   path: '/leads',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedInspectionsRoute =
+  AuthenticatedInspectionsRouteImport.update({
+    id: '/inspections',
+    path: '/inspections',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedHmoRoute = AuthenticatedHmoRouteImport.update({
   id: '/hmo',
   path: '/hmo',
@@ -187,26 +236,34 @@ const AuthenticatedAgencyRoute = AuthenticatedAgencyRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/agencies': typeof AgenciesRouteWithChildren
+  '/area-guides': typeof AreaGuidesRoute
   '/auth': typeof AuthRoute
   '/complaints': typeof ComplaintsRoute
   '/cookies': typeof CookiesRoute
   '/for-agents': typeof ForAgentsRoute
   '/for-landlords': typeof ForLandlordsRoute
   '/marketplace': typeof MarketplaceRouteWithChildren
+  '/mortgage': typeof MortgageRoute
   '/platform': typeof PlatformRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
+  '/valuation': typeof ValuationRoute
   '/agency': typeof AuthenticatedAgencyRoute
   '/compliance': typeof AuthenticatedComplianceRoute
   '/contacts': typeof AuthenticatedContactsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/hmo': typeof AuthenticatedHmoRoute
+  '/inspections': typeof AuthenticatedInspectionsRoute
   '/leads': typeof AuthenticatedLeadsRoute
   '/listings': typeof AuthenticatedListingsRoute
+  '/offers': typeof AuthenticatedOffersRoute
   '/pipeline': typeof AuthenticatedPipelineRoute
   '/properties': typeof AuthenticatedPropertiesRoute
+  '/reports': typeof AuthenticatedReportsRoute
   '/sales': typeof AuthenticatedSalesRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/statements': typeof AuthenticatedStatementsRoute
+  '/viewings': typeof AuthenticatedViewingsRoute
   '/work-orders': typeof AuthenticatedWorkOrdersRoute
   '/agencies/$slug': typeof AgenciesSlugRoute
   '/marketplace/$slug': typeof MarketplaceSlugRoute
@@ -216,25 +273,33 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/area-guides': typeof AreaGuidesRoute
   '/auth': typeof AuthRoute
   '/complaints': typeof ComplaintsRoute
   '/cookies': typeof CookiesRoute
   '/for-agents': typeof ForAgentsRoute
   '/for-landlords': typeof ForLandlordsRoute
+  '/mortgage': typeof MortgageRoute
   '/platform': typeof PlatformRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
+  '/valuation': typeof ValuationRoute
   '/agency': typeof AuthenticatedAgencyRoute
   '/compliance': typeof AuthenticatedComplianceRoute
   '/contacts': typeof AuthenticatedContactsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/hmo': typeof AuthenticatedHmoRoute
+  '/inspections': typeof AuthenticatedInspectionsRoute
   '/leads': typeof AuthenticatedLeadsRoute
   '/listings': typeof AuthenticatedListingsRoute
+  '/offers': typeof AuthenticatedOffersRoute
   '/pipeline': typeof AuthenticatedPipelineRoute
   '/properties': typeof AuthenticatedPropertiesRoute
+  '/reports': typeof AuthenticatedReportsRoute
   '/sales': typeof AuthenticatedSalesRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/statements': typeof AuthenticatedStatementsRoute
+  '/viewings': typeof AuthenticatedViewingsRoute
   '/work-orders': typeof AuthenticatedWorkOrdersRoute
   '/agencies/$slug': typeof AgenciesSlugRoute
   '/marketplace/$slug': typeof MarketplaceSlugRoute
@@ -247,26 +312,34 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/agencies': typeof AgenciesRouteWithChildren
+  '/area-guides': typeof AreaGuidesRoute
   '/auth': typeof AuthRoute
   '/complaints': typeof ComplaintsRoute
   '/cookies': typeof CookiesRoute
   '/for-agents': typeof ForAgentsRoute
   '/for-landlords': typeof ForLandlordsRoute
   '/marketplace': typeof MarketplaceRouteWithChildren
+  '/mortgage': typeof MortgageRoute
   '/platform': typeof PlatformRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
+  '/valuation': typeof ValuationRoute
   '/_authenticated/agency': typeof AuthenticatedAgencyRoute
   '/_authenticated/compliance': typeof AuthenticatedComplianceRoute
   '/_authenticated/contacts': typeof AuthenticatedContactsRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/hmo': typeof AuthenticatedHmoRoute
+  '/_authenticated/inspections': typeof AuthenticatedInspectionsRoute
   '/_authenticated/leads': typeof AuthenticatedLeadsRoute
   '/_authenticated/listings': typeof AuthenticatedListingsRoute
+  '/_authenticated/offers': typeof AuthenticatedOffersRoute
   '/_authenticated/pipeline': typeof AuthenticatedPipelineRoute
   '/_authenticated/properties': typeof AuthenticatedPropertiesRoute
+  '/_authenticated/reports': typeof AuthenticatedReportsRoute
   '/_authenticated/sales': typeof AuthenticatedSalesRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
+  '/_authenticated/statements': typeof AuthenticatedStatementsRoute
+  '/_authenticated/viewings': typeof AuthenticatedViewingsRoute
   '/_authenticated/work-orders': typeof AuthenticatedWorkOrdersRoute
   '/agencies/$slug': typeof AgenciesSlugRoute
   '/marketplace/$slug': typeof MarketplaceSlugRoute
@@ -279,26 +352,34 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/agencies'
+    | '/area-guides'
     | '/auth'
     | '/complaints'
     | '/cookies'
     | '/for-agents'
     | '/for-landlords'
     | '/marketplace'
+    | '/mortgage'
     | '/platform'
     | '/privacy'
     | '/terms'
+    | '/valuation'
     | '/agency'
     | '/compliance'
     | '/contacts'
     | '/dashboard'
     | '/hmo'
+    | '/inspections'
     | '/leads'
     | '/listings'
+    | '/offers'
     | '/pipeline'
     | '/properties'
+    | '/reports'
     | '/sales'
     | '/settings'
+    | '/statements'
+    | '/viewings'
     | '/work-orders'
     | '/agencies/$slug'
     | '/marketplace/$slug'
@@ -308,25 +389,33 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/area-guides'
     | '/auth'
     | '/complaints'
     | '/cookies'
     | '/for-agents'
     | '/for-landlords'
+    | '/mortgage'
     | '/platform'
     | '/privacy'
     | '/terms'
+    | '/valuation'
     | '/agency'
     | '/compliance'
     | '/contacts'
     | '/dashboard'
     | '/hmo'
+    | '/inspections'
     | '/leads'
     | '/listings'
+    | '/offers'
     | '/pipeline'
     | '/properties'
+    | '/reports'
     | '/sales'
     | '/settings'
+    | '/statements'
+    | '/viewings'
     | '/work-orders'
     | '/agencies/$slug'
     | '/marketplace/$slug'
@@ -338,26 +427,34 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/agencies'
+    | '/area-guides'
     | '/auth'
     | '/complaints'
     | '/cookies'
     | '/for-agents'
     | '/for-landlords'
     | '/marketplace'
+    | '/mortgage'
     | '/platform'
     | '/privacy'
     | '/terms'
+    | '/valuation'
     | '/_authenticated/agency'
     | '/_authenticated/compliance'
     | '/_authenticated/contacts'
     | '/_authenticated/dashboard'
     | '/_authenticated/hmo'
+    | '/_authenticated/inspections'
     | '/_authenticated/leads'
     | '/_authenticated/listings'
+    | '/_authenticated/offers'
     | '/_authenticated/pipeline'
     | '/_authenticated/properties'
+    | '/_authenticated/reports'
     | '/_authenticated/sales'
     | '/_authenticated/settings'
+    | '/_authenticated/statements'
+    | '/_authenticated/viewings'
     | '/_authenticated/work-orders'
     | '/agencies/$slug'
     | '/marketplace/$slug'
@@ -370,20 +467,30 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AgenciesRoute: typeof AgenciesRouteWithChildren
+  AreaGuidesRoute: typeof AreaGuidesRoute
   AuthRoute: typeof AuthRoute
   ComplaintsRoute: typeof ComplaintsRoute
   CookiesRoute: typeof CookiesRoute
   ForAgentsRoute: typeof ForAgentsRoute
   ForLandlordsRoute: typeof ForLandlordsRoute
   MarketplaceRoute: typeof MarketplaceRouteWithChildren
+  MortgageRoute: typeof MortgageRoute
   PlatformRoute: typeof PlatformRoute
   PrivacyRoute: typeof PrivacyRoute
   TermsRoute: typeof TermsRoute
+  ValuationRoute: typeof ValuationRoute
   ModulesSlugRoute: typeof ModulesSlugRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/valuation': {
+      id: '/valuation'
+      path: '/valuation'
+      fullPath: '/valuation'
+      preLoaderRoute: typeof ValuationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/terms': {
       id: '/terms'
       path: '/terms'
@@ -403,6 +510,13 @@ declare module '@tanstack/react-router' {
       path: '/platform'
       fullPath: '/platform'
       preLoaderRoute: typeof PlatformRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mortgage': {
+      id: '/mortgage'
+      path: '/mortgage'
+      fullPath: '/mortgage'
+      preLoaderRoute: typeof MortgageRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/marketplace': {
@@ -445,6 +559,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/area-guides': {
+      id: '/area-guides'
+      path: '/area-guides'
+      fullPath: '/area-guides'
+      preLoaderRoute: typeof AreaGuidesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/agencies': {
@@ -510,6 +631,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedWorkOrdersRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/viewings': {
+      id: '/_authenticated/viewings'
+      path: '/viewings'
+      fullPath: '/viewings'
+      preLoaderRoute: typeof AuthenticatedViewingsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/statements': {
+      id: '/_authenticated/statements'
+      path: '/statements'
+      fullPath: '/statements'
+      preLoaderRoute: typeof AuthenticatedStatementsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/settings': {
       id: '/_authenticated/settings'
       path: '/settings'
@@ -522,6 +657,13 @@ declare module '@tanstack/react-router' {
       path: '/sales'
       fullPath: '/sales'
       preLoaderRoute: typeof AuthenticatedSalesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/reports': {
+      id: '/_authenticated/reports'
+      path: '/reports'
+      fullPath: '/reports'
+      preLoaderRoute: typeof AuthenticatedReportsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/properties': {
@@ -538,6 +680,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPipelineRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/offers': {
+      id: '/_authenticated/offers'
+      path: '/offers'
+      fullPath: '/offers'
+      preLoaderRoute: typeof AuthenticatedOffersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/listings': {
       id: '/_authenticated/listings'
       path: '/listings'
@@ -550,6 +699,13 @@ declare module '@tanstack/react-router' {
       path: '/leads'
       fullPath: '/leads'
       preLoaderRoute: typeof AuthenticatedLeadsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/inspections': {
+      id: '/_authenticated/inspections'
+      path: '/inspections'
+      fullPath: '/inspections'
+      preLoaderRoute: typeof AuthenticatedInspectionsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/hmo': {
@@ -596,12 +752,17 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedContactsRoute: typeof AuthenticatedContactsRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedHmoRoute: typeof AuthenticatedHmoRoute
+  AuthenticatedInspectionsRoute: typeof AuthenticatedInspectionsRoute
   AuthenticatedLeadsRoute: typeof AuthenticatedLeadsRoute
   AuthenticatedListingsRoute: typeof AuthenticatedListingsRoute
+  AuthenticatedOffersRoute: typeof AuthenticatedOffersRoute
   AuthenticatedPipelineRoute: typeof AuthenticatedPipelineRoute
   AuthenticatedPropertiesRoute: typeof AuthenticatedPropertiesRoute
+  AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
   AuthenticatedSalesRoute: typeof AuthenticatedSalesRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
+  AuthenticatedStatementsRoute: typeof AuthenticatedStatementsRoute
+  AuthenticatedViewingsRoute: typeof AuthenticatedViewingsRoute
   AuthenticatedWorkOrdersRoute: typeof AuthenticatedWorkOrdersRoute
 }
 
@@ -611,12 +772,17 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedContactsRoute: AuthenticatedContactsRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedHmoRoute: AuthenticatedHmoRoute,
+  AuthenticatedInspectionsRoute: AuthenticatedInspectionsRoute,
   AuthenticatedLeadsRoute: AuthenticatedLeadsRoute,
   AuthenticatedListingsRoute: AuthenticatedListingsRoute,
+  AuthenticatedOffersRoute: AuthenticatedOffersRoute,
   AuthenticatedPipelineRoute: AuthenticatedPipelineRoute,
   AuthenticatedPropertiesRoute: AuthenticatedPropertiesRoute,
+  AuthenticatedReportsRoute: AuthenticatedReportsRoute,
   AuthenticatedSalesRoute: AuthenticatedSalesRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
+  AuthenticatedStatementsRoute: AuthenticatedStatementsRoute,
+  AuthenticatedViewingsRoute: AuthenticatedViewingsRoute,
   AuthenticatedWorkOrdersRoute: AuthenticatedWorkOrdersRoute,
 }
 
@@ -655,15 +821,18 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AgenciesRoute: AgenciesRouteWithChildren,
+  AreaGuidesRoute: AreaGuidesRoute,
   AuthRoute: AuthRoute,
   ComplaintsRoute: ComplaintsRoute,
   CookiesRoute: CookiesRoute,
   ForAgentsRoute: ForAgentsRoute,
   ForLandlordsRoute: ForLandlordsRoute,
   MarketplaceRoute: MarketplaceRouteWithChildren,
+  MortgageRoute: MortgageRoute,
   PlatformRoute: PlatformRoute,
   PrivacyRoute: PrivacyRoute,
   TermsRoute: TermsRoute,
+  ValuationRoute: ValuationRoute,
   ModulesSlugRoute: ModulesSlugRoute,
 }
 export const routeTree = rootRouteImport
