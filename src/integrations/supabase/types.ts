@@ -1239,7 +1239,16 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "agent" | "landlord" | "tenant" | "buyer"
+      app_role:
+        | "admin"
+        | "agent"
+        | "landlord"
+        | "tenant"
+        | "buyer"
+        | "conveyancer"
+        | "contractor"
+        | "inventory_clerk"
+        | "utility_provider"
       compliance_status: "valid" | "due_soon" | "expired" | "missing"
       compliance_type:
         | "hmo_licence"
@@ -1461,7 +1470,17 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "agent", "landlord", "tenant", "buyer"],
+      app_role: [
+        "admin",
+        "agent",
+        "landlord",
+        "tenant",
+        "buyer",
+        "conveyancer",
+        "contractor",
+        "inventory_clerk",
+        "utility_provider",
+      ],
       compliance_status: ["valid", "due_soon", "expired", "missing"],
       compliance_type: [
         "hmo_licence",
