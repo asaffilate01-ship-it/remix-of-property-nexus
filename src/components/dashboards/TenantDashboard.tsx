@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Home, PoundSterling, Wrench, FileText, Search, Sparkles, ArrowRight } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Home, PoundSterling, Wrench, FileText, Search, Sparkles, ArrowRight, Shield, ClipboardList } from "lucide-react";
 
 type Tenancy = {
   id: string; tenant_name: string; rent_amount: number; rent_frequency: string;
@@ -43,7 +44,8 @@ export function TenantDashboard({ name, userId }: { name: string; userId: string
   const active = tenancies[0];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
+      {/* Hero */}
       <div className="relative overflow-hidden rounded-2xl border bg-gradient-to-br from-primary/10 via-background to-accent/10 p-6 sm:p-8 shadow-card">
         <div className="inline-flex items-center gap-2 rounded-full border bg-card/70 backdrop-blur px-3 py-1 text-xs font-medium mb-3">
           <Sparkles className="h-3 w-3 text-accent" /> Tenant portal
@@ -52,7 +54,7 @@ export function TenantDashboard({ name, userId }: { name: string; userId: string
         <p className="text-muted-foreground mt-1">Your home, rent and requests in one place.</p>
       </div>
 
-      {active ? (
+      {active && (
         <Card className="border-0 shadow-card">
           <CardContent className="p-6 space-y-3">
             <div className="flex items-center gap-2 text-sm text-muted-foreground"><Home className="h-4 w-4" /> Your home</div>
@@ -68,57 +70,86 @@ export function TenantDashboard({ name, userId }: { name: string; userId: string
             </div>
           </CardContent>
         </Card>
-      ) : (
-        <Card className="border-dashed border-2 bg-transparent">
-          <CardContent className="p-10 text-center space-y-3">
-            <Search className="mx-auto h-10 w-10 opacity-40" />
-            <div className="font-medium">No active tenancy yet</div>
-            <p className="text-sm text-muted-foreground">Browse the marketplace to find your next home.</p>
-            <Button asChild><Link to="/marketplace">Browse listings</Link></Button>
-          </CardContent>
-        </Card>
       )}
 
-      <div className="grid sm:grid-cols-3 gap-4">
-        <Card className="border-0 shadow-card">
-          <CardContent className="p-5">
-            <PoundSterling className="h-5 w-5 mb-2 text-accent" />
-            <div className="text-2xl font-bold">{nextDue ? `£${nextDue.amount_due.toLocaleString()}` : "—"}</div>
-            <div className="text-xs text-muted-foreground">{nextDue ? `Next rent due ${new Date(nextDue.due_date).toLocaleDateString("en-GB")}` : "No upcoming rent"}</div>
-          </CardContent>
-        </Card>
-        <Card className="border-0 shadow-card">
-          <CardContent className="p-5">
-            <PoundSterling className={`h-5 w-5 mb-2 ${overdueCount ? "text-destructive" : "text-muted-foreground"}`} />
-            <div className="text-2xl font-bold">{overdueCount}</div>
-            <div className="text-xs text-muted-foreground">Overdue payments</div>
-          </CardContent>
-        </Card>
-        <Card className="border-0 shadow-card">
-          <CardContent className="p-5">
-            <Wrench className="h-5 w-5 mb-2 text-accent" />
-            <div className="text-2xl font-bold">—</div>
-            <div className="text-xs text-muted-foreground">Open requests</div>
-          </CardContent>
-        </Card>
-      </div>
+      <Tabs defaultValue="rent" className="space-y-4">
+        <TabsList className="bg-muted/50">
+          <TabsTrigger value="rent" className="gap-1.5"><PoundSterling className="h-3.5 w-3.5" /> Rent & Payments</TabsTrigger>
+          <TabsTrigger value="actions" className="gap-1.5"><Wrench className="h-3.5 w-3.5" /> Actions</TabsTrigger>
+          <TabsTrigger value="docs" className="gap-1.5"><FileText className="h-3.5 w-3.5" /> Documents</TabsTrigger>
+        </TabsList>
 
-      <div className="grid sm:grid-cols-2 gap-4">
-        <Card className="border-0 shadow-card bg-gradient-to-br from-primary/5 to-accent/5">
-          <CardContent className="p-6">
-            <h2 className="font-semibold mb-2 flex items-center gap-2"><Wrench className="h-4 w-4" /> Report an issue</h2>
-            <p className="text-sm text-muted-foreground mb-4">Need a repair? Let your landlord or agent know.</p>
-            <Button asChild><Link to="/work-orders">Raise a request <ArrowRight className="ml-1 h-3 w-3" /></Link></Button>
-          </CardContent>
-        </Card>
-        <Card className="border-0 shadow-card">
-          <CardContent className="p-6">
-            <h2 className="font-semibold mb-2 flex items-center gap-2"><FileText className="h-4 w-4" /> Documents</h2>
-            <p className="text-sm text-muted-foreground mb-4">Tenancy agreement, deposit certificate and safety records.</p>
-            <Button asChild variant="outline"><Link to="/compliance">View documents</Link></Button>
-          </CardContent>
-        </Card>
-      </div>
+        <TabsContent value="rent" className="space-y-4">
+          <div className="grid sm:grid-cols-3 gap-4">
+            <Card className="border-0 shadow-card">
+              <CardContent className="p-5">
+                <PoundSterling className="h-5 w-5 mb-2 text-accent" />
+                <div className="text-2xl font-bold">{nextDue ? `£${nextDue.amount_due.toLocaleString()}` : "—"}</div>
+                <div className="text-xs text-muted-foreground">{nextDue ? `Next rent due ${new Date(nextDue.due_date).toLocaleDateString("en-GB")}` : "No upcoming rent"}</div>
+              </CardContent>
+            </Card>
+            <Card className="border-0 shadow-card">
+              <CardContent className="p-5">
+                <PoundSterling className={`h-5 w-5 mb-2 ${overdueCount ? "text-destructive" : "text-muted-foreground"}`} />
+                <div className="text-2xl font-bold">{overdueCount}</div>
+                <div className="text-xs text-muted-foreground">Overdue payments</div>
+              </CardContent>
+            </Card>
+            <Card className="border-0 shadow-card">
+              <CardContent className="p-5">
+                <Wrench className="h-5 w-5 mb-2 text-accent" />
+                <div className="text-2xl font-bold">—</div>
+                <div className="text-xs text-muted-foreground">Open requests</div>
+              </CardContent>
+            </Card>
+          </div>
+          <Card className="border-0 shadow-card bg-gradient-to-br from-primary/5 to-accent/5">
+            <CardContent className="p-6">
+              <h3 className="font-semibold mb-2">Payment history</h3>
+              <p className="text-sm text-muted-foreground">View past rent payments and download statements.</p>
+              <Button asChild variant="outline" size="sm" className="mt-3"><Link to="/statements">View statements <ArrowRight className="ml-1 h-3 w-3" /></Link></Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="actions" className="space-y-4">
+          <div className="grid sm:grid-cols-2 gap-4">
+            <Card className="border-0 shadow-card bg-gradient-to-br from-primary/5 to-accent/5">
+              <CardContent className="p-6">
+                <h2 className="font-semibold mb-2 flex items-center gap-2"><Wrench className="h-4 w-4" /> Report an issue</h2>
+                <p className="text-sm text-muted-foreground mb-4">Need a repair? Let your landlord or agent know.</p>
+                <Button asChild><Link to="/work-orders">Raise a request <ArrowRight className="ml-1 h-3 w-3" /></Link></Button>
+              </CardContent>
+            </Card>
+            <Card className="border-0 shadow-card">
+              <CardContent className="p-6">
+                <h2 className="font-semibold mb-2 flex items-center gap-2"><ClipboardList className="h-4 w-4" /> Inspection reports</h2>
+                <p className="text-sm text-muted-foreground mb-4">View check-in, periodic and check-out reports.</p>
+                <Button asChild variant="outline"><Link to="/inspections">View reports</Link></Button>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="docs" className="space-y-4">
+          <div className="grid sm:grid-cols-2 gap-4">
+            <Card className="border-0 shadow-card">
+              <CardContent className="p-6">
+                <h2 className="font-semibold mb-2 flex items-center gap-2"><FileText className="h-4 w-4" /> Tenancy documents</h2>
+                <p className="text-sm text-muted-foreground mb-4">Tenancy agreement, deposit certificate and safety records.</p>
+                <Button asChild variant="outline"><Link to="/compliance">View documents</Link></Button>
+              </CardContent>
+            </Card>
+            <Card className="border-0 shadow-card">
+              <CardContent className="p-6">
+                <h2 className="font-semibold mb-2 flex items-center gap-2"><Shield className="h-4 w-4" /> Deposit protection</h2>
+                <p className="text-sm text-muted-foreground mb-4">Check your deposit status and prescribed information.</p>
+                <Button asChild variant="outline"><Link to="/deposits">View deposit</Link></Button>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
