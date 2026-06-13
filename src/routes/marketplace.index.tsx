@@ -354,43 +354,79 @@ function SearchBar({ q, setQ, where, setWhere, radius, setRadius, onSubmit }: { 
 
 function FiltersSheet({ s, setSearch }: { s: SearchParams; setSearch: (patch: Partial<SearchParams>) => void }) {
   const [open, setOpen] = useState(false);
-  const [local, setLocal] = useState({
+  const initial = () => ({
     min_price: s.min_price?.toString() ?? "",
     max_price: s.max_price?.toString() ?? "",
     beds: s.beds?.toString() ?? "any",
     baths: s.baths?.toString() ?? "any",
+    receptions: s.receptions?.toString() ?? "any",
+    min_sqft: s.min_sqft?.toString() ?? "",
     bills_included: s.bills_included ?? false,
     furnished: s.furnished ?? "any",
+    property_type: (s.property_type ?? "any") as PropertyType,
+    epc_min: s.epc_min ?? "any",
+    tenure: s.tenure ?? "any",
+    features: s.features ?? [],
   });
-  useEffect(() => {
-    setLocal({
-      min_price: s.min_price?.toString() ?? "",
-      max_price: s.max_price?.toString() ?? "",
-      beds: s.beds?.toString() ?? "any",
-      baths: s.baths?.toString() ?? "any",
-      bills_included: s.bills_included ?? false,
-      furnished: s.furnished ?? "any",
-    });
-  }, [s]);
+  const [local, setLocal] = useState(initial);
+  useEffect(() => { setLocal(initial()); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [s]);
+
+  const toggleFeature = (f: string) => setLocal((p) => ({
+    ...p,
+    features: p.features.includes(f) ? p.features.filter((x) => x !== f) : [...p.features, f],
+  }));
+
   const apply = () => {
     setSearch({
       min_price: local.min_price ? Number(local.min_price) : undefined,
       max_price: local.max_price ? Number(local.max_price) : undefined,
       beds: local.beds !== "any" ? Number(local.beds) : undefined,
       baths: local.baths !== "any" ? Number(local.baths) : undefined,
+      receptions: local.receptions !== "any" ? Number(local.receptions) : undefined,
+      min_sqft: local.min_sqft ? Number(local.min_sqft) : undefined,
       bills_included: local.bills_included || undefined,
       furnished: local.furnished !== "any" ? local.furnished : undefined,
+      property_type: local.property_type !== "any" ? local.property_type : undefined,
+      epc_min: local.epc_min !== "any" ? (local.epc_min as "A" | "B" | "C" | "D" | "E") : undefined,
+      tenure: local.tenure !== "any" ? (local.tenure as "freehold" | "leasehold" | "share_of_freehold") : undefined,
+      features: local.features.length ? local.features : undefined,
     });
     setOpen(false);
   };
+
+  const activeCount = [
+    s.min_price, s.max_price, s.beds, s.baths, s.receptions, s.min_sqft,
+    s.bills_included, s.furnished, s.property_type !== undefined && s.property_type !== "any" ? 1 : undefined,
+    s.epc_min, s.tenure, s.features?.length,
+  ].filter(Boolean).length;
+
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="outline" size="sm" className="h-9"><SlidersHorizontal className="h-4 w-4 mr-1" /> Filters</Button>
+        <Button variant="outline" size="sm" className="h-9">
+          <SlidersHorizontal className="h-4 w-4 mr-1" /> Filters
+          {activeCount > 0 && <Badge className="ml-1.5 h-5 px-1.5 text-[10px]">{activeCount}</Badge>}
+        </Button>
       </SheetTrigger>
-      <SheetContent className="w-full sm:max-w-md">
+      <SheetContent className="w-full sm:max-w-md overflow-y-auto">
         <SheetHeader><SheetTitle>Refine your search</SheetTitle></SheetHeader>
         <div className="space-y-5 mt-6">
+          <div>
+            <Label>Property type</Label>
+            <div className="grid grid-cols-4 gap-1.5 mt-2">
+              {propertyTypes.map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() => setLocal({ ...local, property_type: t })}
+                  className={`h-9 rounded-md border text-xs font-medium capitalize transition-colors ${local.property_type === t ? "bg-primary text-primary-foreground border-primary" : "bg-card hover:bg-accent/10"}`}
+                >
+                  {t === "any" ? "Any" : t}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div>
             <Label>Price range (£)</Label>
             <div className="grid grid-cols-2 gap-2 mt-2">
@@ -398,7 +434,8 @@ function FiltersSheet({ s, setSearch }: { s: SearchParams; setSearch: (patch: Pa
               <Input placeholder="Max" inputMode="numeric" value={local.max_price} onChange={(e) => setLocal({ ...local, max_price: e.target.value.replace(/[^0-9]/g, "") })} />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+
+          <div className="grid grid-cols-3 gap-3">
             <div>
               <Label>Bedrooms</Label>
               <Select value={local.beds} onValueChange={(v) => setLocal({ ...local, beds: v })}>
@@ -418,6 +455,65 @@ function FiltersSheet({ s, setSearch }: { s: SearchParams; setSearch: (patch: Pa
                   {[1,2,3,4].map((n) => <SelectItem key={n} value={String(n)}>{n}+</SelectItem>)}
                 </SelectContent>
               </Select>
+            </div>
+            <div>
+              <Label>Reception</Label>
+              <Select value={local.receptions} onValueChange={(v) => setLocal({ ...local, receptions: v })}>
+                <SelectTrigger className="mt-2"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="any">Any</SelectItem>
+                  {[1,2,3,4].map((n) => <SelectItem key={n} value={String(n)}>{n}+</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label>Min floor area (sq ft)</Label>
+              <Input className="mt-2" placeholder="e.g. 600" inputMode="numeric" value={local.min_sqft} onChange={(e) => setLocal({ ...local, min_sqft: e.target.value.replace(/[^0-9]/g, "") })} />
+            </div>
+            <div>
+              <Label>EPC rating (min)</Label>
+              <Select value={local.epc_min} onValueChange={(v) => setLocal({ ...local, epc_min: v })}>
+                <SelectTrigger className="mt-2"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="any">Any</SelectItem>
+                  {["A","B","C","D","E"].map((b) => <SelectItem key={b} value={b}>{b} or better</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div>
+            <Label>Tenure</Label>
+            <Select value={local.tenure} onValueChange={(v) => setLocal({ ...local, tenure: v })}>
+              <SelectTrigger className="mt-2"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="any">Any</SelectItem>
+                <SelectItem value="freehold">Freehold</SelectItem>
+                <SelectItem value="leasehold">Leasehold</SelectItem>
+                <SelectItem value="share_of_freehold">Share of freehold</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label>Features &amp; must-haves</Label>
+            <div className="flex flex-wrap gap-1.5 mt-2">
+              {FEATURE_OPTIONS.map((f) => {
+                const on = local.features.includes(f);
+                return (
+                  <button
+                    key={f}
+                    type="button"
+                    onClick={() => toggleFeature(f)}
+                    className={`h-8 px-3 rounded-full border text-xs font-medium transition-colors ${on ? "bg-primary text-primary-foreground border-primary" : "bg-card hover:bg-accent/10"}`}
+                  >
+                    {f}
+                  </button>
+                );
+              })}
             </div>
           </div>
           <div>
