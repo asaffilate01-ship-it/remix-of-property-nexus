@@ -225,7 +225,7 @@ export function AppSidebar() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const collapsed = state === "collapsed";
-  const { role } = useUserRole();
+  const { role, name } = useUserRole();
   const sections = sectionsFor(role);
   const [query, setQuery] = useState("");
 
@@ -261,13 +261,16 @@ export function AppSidebar() {
         {!collapsed && (
           <div className="px-2 pb-2">
             <div className="relative">
-              <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-sidebar-foreground/50" />
               <Input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Jump to…"
-                className="h-8 pl-7 text-xs bg-sidebar-accent/40 border-sidebar-border"
+                placeholder="Jump to anything…"
+                className="h-9 pl-8 pr-12 text-xs bg-sidebar-accent/40 border-sidebar-border text-sidebar-foreground placeholder:text-sidebar-foreground/40 focus-visible:ring-sidebar-ring/40"
               />
+              <kbd className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 hidden sm:inline-flex h-5 items-center gap-0.5 rounded border border-sidebar-border/60 bg-sidebar/60 px-1.5 font-mono text-[10px] font-medium text-sidebar-foreground/50">
+                ⌘K
+              </kbd>
             </div>
           </div>
         )}
@@ -329,10 +332,25 @@ export function AppSidebar() {
           <div className="px-4 py-6 text-xs text-muted-foreground">No matches for “{query}”.</div>
         )}
       </SidebarContent>
-      <SidebarFooter className="border-t border-sidebar-border">
-        <SidebarMenu>
+      <SidebarFooter className="border-t border-sidebar-border p-0">
+        {!collapsed && (
+          <div className="px-3 pt-3 pb-2">
+            <div className="flex items-center gap-3 rounded-lg p-2 hover:bg-sidebar-accent/40 transition-colors">
+              <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-sidebar-primary/20 text-sidebar-primary font-semibold text-xs ring-1 ring-sidebar-border">
+                {(name || "U").slice(0, 1).toUpperCase()}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-semibold text-sidebar-foreground truncate">{name || "Account"}</p>
+                <p className="text-[10px] uppercase tracking-wider text-sidebar-foreground/50 font-bold truncate">
+                  {role ?? "user"}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+        <SidebarMenu className="px-2 pb-2">
           <SidebarMenuItem>
-            <SidebarMenuButton onClick={signOut} tooltip="Sign out">
+            <SidebarMenuButton onClick={signOut} tooltip="Sign out" className="text-sidebar-foreground/70 hover:text-sidebar-foreground">
               <LogOut className="h-4 w-4" /> <span>Sign out</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
