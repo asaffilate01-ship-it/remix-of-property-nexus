@@ -90,10 +90,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:site", content: "@estately" },
       { name: "twitter:title", content: "Estately — Property OS" },
       { name: "twitter:description", content: "Sales, lettings, HMO and commercial in one workspace." },
+      { property: "og:image", content: "https://proptest.313test.co.uk/og-image.png" },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { property: "og:image:type", content: "image/png" },
+      { name: "twitter:image", content: "https://proptest.313test.co.uk/og-image.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
-      { rel: "icon", href: "/favicon.ico" },
+      { rel: "icon", type: "image/png", href: "/favicon.png" },
+      { rel: "apple-touch-icon", href: "/favicon.png" },
     ],
     scripts: [{
       type: "application/ld+json",
