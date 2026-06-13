@@ -849,6 +849,7 @@ export type Database = {
           branch_id: string | null
           business_rates_pa: number | null
           city: string | null
+          compliance: Json
           council_tax_band: string | null
           cover_image: string | null
           created_at: string
@@ -874,6 +875,7 @@ export type Database = {
           property_id: string | null
           purpose: Database["public"]["Enums"]["listing_purpose"]
           receptions: number | null
+          rooms: Json
           service_charge_pa: number | null
           slug: string
           status: Database["public"]["Enums"]["listing_status"]
@@ -899,6 +901,7 @@ export type Database = {
           branch_id?: string | null
           business_rates_pa?: number | null
           city?: string | null
+          compliance?: Json
           council_tax_band?: string | null
           cover_image?: string | null
           created_at?: string
@@ -926,6 +929,7 @@ export type Database = {
           property_id?: string | null
           purpose?: Database["public"]["Enums"]["listing_purpose"]
           receptions?: number | null
+          rooms?: Json
           service_charge_pa?: number | null
           slug: string
           status?: Database["public"]["Enums"]["listing_status"]
@@ -951,6 +955,7 @@ export type Database = {
           branch_id?: string | null
           business_rates_pa?: number | null
           city?: string | null
+          compliance?: Json
           council_tax_band?: string | null
           cover_image?: string | null
           created_at?: string
@@ -978,6 +983,7 @@ export type Database = {
           property_id?: string | null
           purpose?: Database["public"]["Enums"]["listing_purpose"]
           receptions?: number | null
+          rooms?: Json
           service_charge_pa?: number | null
           slug?: string
           status?: Database["public"]["Enums"]["listing_status"]

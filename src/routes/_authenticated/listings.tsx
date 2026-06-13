@@ -18,6 +18,10 @@ import {
 import { Plus, Tag, ExternalLink, Pencil, Trash2, Eye, EyeOff, Globe } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/PageHeader";
+import { PhotoUploader, type ListingPhoto } from "@/components/listings/PhotoUploader";
+import { RoomsEditor, type HmoRoom } from "@/components/listings/RoomsEditor";
+import { ComplianceEditor, type ComplianceMap } from "@/components/listings/ComplianceEditor";
+import { FeatureMultiSelect } from "@/components/properties/FeatureMultiSelect";
 
 type Listing = {
   id: string; slug: string; title: string; description: string | null;
@@ -30,6 +34,7 @@ type Listing = {
   available_from: string | null; epc_rating: string | null; tenure: string | null;
   floor_area_sqft: number | null; council_tax_band: string | null; furnished: string | null;
   agency_id: string | null; view_count: number;
+  rooms?: unknown; compliance?: unknown;
 };
 
 const empty = {
@@ -40,7 +45,12 @@ const empty = {
   price: "", price_qualifier: "none",
   bedrooms: "", bathrooms: "", receptions: "",
   address: "", city: "", postcode: "",
-  cover_image: "", photos_text: "", features_text: "",
+  cover_image: "",
+  photos: [] as ListingPhoto[],
+  cover_index: 0,
+  features: [] as string[],
+  rooms: [] as HmoRoom[],
+  compliance: {} as ComplianceMap,
   is_hmo: false, bills_included: false,
   marketplace_publish: true, publish: true,
   available_from: "", epc_rating: "", tenure: "",
@@ -49,6 +59,16 @@ const empty = {
 };
 
 const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60) + "-" + Math.random().toString(36).slice(2, 7);
+
+function normalizePhotos(raw: unknown): ListingPhoto[] {
+  if (!Array.isArray(raw)) return [];
+  const out: ListingPhoto[] = [];
+  for (const p of raw as unknown[]) {
+    if (typeof p === "string") out.push({ url: p, room: null });
+    else if (p && typeof p === "object" && "url" in (p as any)) out.push({ url: String((p as any).url), room: (p as any).room ?? null });
+  }
+  return out;
+}
 
 export const Route = createFileRoute("/_authenticated/listings")({ component: ListingsPage });
 
@@ -74,8 +94,11 @@ function ListingsPage() {
 
   const openNew = () => { setForm(empty); setOpen(true); };
   const openEdit = (l: Listing) => {
-    const photos = Array.isArray(l.photos) ? (l.photos as unknown[]).filter((p): p is string => typeof p === "string") : [];
+    const photos = normalizePhotos(l.photos);
     const features = Array.isArray(l.features) ? (l.features as unknown[]).filter((f): f is string => typeof f === "string") : [];
+    const rooms = Array.isArray(l.rooms) ? (l.rooms as HmoRoom[]) : [];
+    const compliance = (l.compliance && typeof l.compliance === "object" ? l.compliance : {}) as ComplianceMap;
+    const coverIdx = Math.max(0, photos.findIndex((p) => p.url === l.cover_image));
     setForm({
       id: l.id,
       title: l.title, description: l.description ?? "",
@@ -83,7 +106,12 @@ function ListingsPage() {
       price: l.price?.toString() ?? "", price_qualifier: l.price_qualifier ?? "none",
       bedrooms: l.bedrooms?.toString() ?? "", bathrooms: l.bathrooms?.toString() ?? "", receptions: l.receptions?.toString() ?? "",
       address: l.address ?? "", city: l.city ?? "", postcode: l.postcode ?? "",
-      cover_image: l.cover_image ?? "", photos_text: photos.join("\n"), features_text: features.join(", "),
+      cover_image: l.cover_image ?? "",
+      photos,
+      cover_index: coverIdx >= 0 ? coverIdx : 0,
+      features,
+      rooms,
+      compliance,
       is_hmo: l.is_hmo, bills_included: l.bills_included,
       marketplace_publish: l.marketplace_publish, publish: l.status === "published",
       available_from: l.available_from ?? "", epc_rating: l.epc_rating ?? "",
@@ -97,31 +125,38 @@ function ListingsPage() {
   const save = async () => {
     const { data: u } = await supabase.auth.getUser();
     if (!u.user) return;
-    const photos = form.photos_text.split(/\s*\n+\s*/).map((s) => s.trim()).filter(Boolean);
-    const features = form.features_text.split(/\s*,\s*/).map((s) => s.trim()).filter(Boolean);
-    const payload = {
+    const photos = form.photos;
+    const coverUrl = photos[form.cover_index]?.url ?? photos[0]?.url ?? form.cover_image ?? null;
+    // If HMO, infer bedrooms from rooms count
+    const bedroomsValue = form.is_hmo
+      ? (form.rooms.length || (form.bedrooms ? Number(form.bedrooms) : null))
+      : (form.bedrooms ? Number(form.bedrooms) : null);
+    // Sync epc_rating top-level if compliance has one (keep existing field too)
+    const payload: any = {
       title: form.title,
       description: form.description || null,
       listing_type: form.listing_type,
       purpose: form.purpose,
       status: (form.publish ? "published" : "draft") as "published" | "draft",
       price: form.price ? Number(form.price) : null,
-      price_qualifier: (form.price_qualifier === "none" ? null : form.price_qualifier) as "guide_price" | "offers_in_region" | "offers_over" | "poa" | null,
-      bedrooms: form.bedrooms ? Number(form.bedrooms) : null,
+      price_qualifier: (form.price_qualifier === "none" ? null : form.price_qualifier),
+      bedrooms: bedroomsValue,
       bathrooms: form.bathrooms ? Number(form.bathrooms) : null,
       receptions: form.receptions ? Number(form.receptions) : null,
       address: form.address || null,
       city: form.city || null,
       postcode: form.postcode || null,
-      cover_image: form.cover_image || (photos[0] ?? null),
-      photos,
-      features,
+      cover_image: coverUrl,
+      photos: photos as any,
+      features: form.features as any,
+      rooms: form.rooms as any,
+      compliance: form.compliance as any,
       is_hmo: form.is_hmo,
       bills_included: form.bills_included,
       marketplace_publish: form.marketplace_publish,
       available_from: form.available_from || null,
       epc_rating: form.epc_rating || null,
-      tenure: (form.tenure || null) as "freehold" | "leasehold" | "share_of_freehold" | "commonhold" | null,
+      tenure: form.tenure || null,
       floor_area_sqft: form.floor_area_sqft ? Number(form.floor_area_sqft) : null,
       council_tax_band: form.council_tax_band || null,
       furnished: form.furnished || null,
@@ -139,6 +174,7 @@ function ListingsPage() {
     }
     setOpen(false); setForm(empty); load();
   };
+
 
   const remove = async (id: string) => {
     const { error } = await supabase.from("listings").delete().eq("id", id);
@@ -262,7 +298,13 @@ function ListingForm({ form, setForm, agencies }: { form: Form; setForm: (f: For
         </div>
         <div>
           <Label>Listing type</Label>
-          <Select value={form.listing_type} onValueChange={(v) => u("listing_type", v as Form["listing_type"])}>
+          <Select
+            value={form.listing_type}
+            onValueChange={(v) => {
+              const next = v as Form["listing_type"];
+              setForm({ ...form, listing_type: next, is_hmo: next === "room" ? true : form.is_hmo });
+            }}
+          >
             <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="sale">Sale</SelectItem>
@@ -272,6 +314,7 @@ function ListingForm({ form, setForm, agencies }: { form: Form; setForm: (f: For
           </Select>
         </div>
       </div>
+
 
       <div className="grid grid-cols-3 gap-3">
         <div><Label>Price (£)</Label><Input type="number" value={form.price} onChange={(e) => u("price", e.target.value)} /></div>
@@ -290,11 +333,21 @@ function ListingForm({ form, setForm, agencies }: { form: Form; setForm: (f: For
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
-        <div><Label>Beds</Label><Input type="number" value={form.bedrooms} onChange={(e) => u("bedrooms", e.target.value)} /></div>
-        <div><Label>Baths</Label><Input type="number" value={form.bathrooms} onChange={(e) => u("bathrooms", e.target.value)} /></div>
-        <div><Label>Receptions</Label><Input type="number" value={form.receptions} onChange={(e) => u("receptions", e.target.value)} /></div>
-      </div>
+      {form.is_hmo ? (
+        <>
+          <div className="grid grid-cols-2 gap-3">
+            <div><Label>Baths</Label><Input type="number" value={form.bathrooms} onChange={(e) => u("bathrooms", e.target.value)} /></div>
+            <div><Label>Receptions</Label><Input type="number" value={form.receptions} onChange={(e) => u("receptions", e.target.value)} /></div>
+          </div>
+          <RoomsEditor rooms={form.rooms} onChange={(rooms) => u("rooms", rooms)} />
+        </>
+      ) : (
+        <div className="grid grid-cols-3 gap-3">
+          <div><Label>Beds</Label><Input type="number" value={form.bedrooms} onChange={(e) => u("bedrooms", e.target.value)} /></div>
+          <div><Label>Baths</Label><Input type="number" value={form.bathrooms} onChange={(e) => u("bathrooms", e.target.value)} /></div>
+          <div><Label>Receptions</Label><Input type="number" value={form.receptions} onChange={(e) => u("receptions", e.target.value)} /></div>
+        </div>
+      )}
 
       <div className="grid grid-cols-2 gap-3">
         <div className="col-span-2"><Label>Address</Label><Input value={form.address} onChange={(e) => u("address", e.target.value)} placeholder="12 High Street" /></div>
@@ -302,15 +355,25 @@ function ListingForm({ form, setForm, agencies }: { form: Form; setForm: (f: For
         <div><Label>Postcode</Label><Input value={form.postcode} onChange={(e) => u("postcode", e.target.value)} placeholder="SW1A 1AA" /></div>
       </div>
 
-      <div><Label>Cover image URL</Label><Input value={form.cover_image} onChange={(e) => u("cover_image", e.target.value)} placeholder="https://…" /></div>
       <div>
-        <Label>Photo gallery URLs <span className="text-muted-foreground text-xs">(one per line)</span></Label>
-        <Textarea rows={3} value={form.photos_text} onChange={(e) => u("photos_text", e.target.value)} placeholder="https://...&#10;https://..." />
+        <Label>Photos</Label>
+        <p className="text-xs text-muted-foreground mb-2">Drag & drop or upload. Click the star to set the cover image{form.is_hmo ? "; tag each shot to a room." : "."}</p>
+        <PhotoUploader
+          photos={form.photos}
+          onChange={(photos) => u("photos", photos)}
+          coverIndex={form.cover_index}
+          onCoverChange={(i) => u("cover_index", i)}
+          roomOptions={form.is_hmo ? form.rooms.map((r) => `Room ${r.room_number}${r.name ? ` – ${r.name}` : ""}`) : []}
+        />
       </div>
+
       <div>
-        <Label>Features <span className="text-muted-foreground text-xs">(comma separated)</span></Label>
-        <Input value={form.features_text} onChange={(e) => u("features_text", e.target.value)} placeholder="garden, parking, gas central heating" />
+        <Label>Features</Label>
+        <FeatureMultiSelect value={form.features} onChange={(features) => u("features", features)} />
       </div>
+
+      <ComplianceEditor value={form.compliance} onChange={(c) => u("compliance", c)} isHmo={form.is_hmo} />
+
 
       <div className="grid grid-cols-3 gap-3">
         <div><Label>EPC</Label>
