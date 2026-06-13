@@ -91,7 +91,6 @@ function AuthPage() {
                 <TabsTrigger value="signup">Create account</TabsTrigger>
               </TabsList>
 
-
               <TabsContent value="signin" className="space-y-4 mt-0">
                 <Field id="email" label="Email" type="email" value={email} onChange={setEmail} />
                 <PasswordField value={password} onChange={setPassword} show={show} setShow={setShow} />
