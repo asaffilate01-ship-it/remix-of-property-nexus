@@ -66,7 +66,7 @@ export const seedMockBankFeed = createServerFn({ method: "POST" })
       reference: "UNKNOWN PAYMENT",
       counterparty: "Bank transfer",
       source: "mock" as const,
-      raw: { mock: true },
+      raw: { mock: true, due_id: null as string | null },
     });
     if (rows.length > 0) {
       await context.supabase.from("bank_transactions").insert(rows);
