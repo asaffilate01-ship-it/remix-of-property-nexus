@@ -73,7 +73,7 @@ export function AgentDashboard({ name }: { name: string }) {
           </div>
           <div className="flex gap-2 flex-wrap">
             <Button asChild variant="outline"><Link to="/leads"><Inbox className="mr-2 h-4 w-4" /> New lead</Link></Button>
-            <Button asChild><Link to="/listings"><Plus className="mr-2 h-4 w-4" /> New listing</Link></Button>
+            <Button asChild><Link to="/listings" search={{ new: true }}><Plus className="mr-2 h-4 w-4" /> New listing</Link></Button>
           </div>
         </div>
       </div>
