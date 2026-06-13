@@ -146,7 +146,7 @@ function ListingDetail() {
         <aside className="space-y-4 lg:sticky lg:top-24 lg:self-start">
           {l.agencies && (
             <Card className="border-0 shadow-card">
-              <CardContent className="p-5 space-y-3">
+              <CardContent className="p-5 space-y-4">
                 <div className="flex items-center gap-3">
                   <div className="h-12 w-12 rounded-xl bg-muted overflow-hidden shrink-0">
                     {l.agencies.logo_url ? <img src={l.agencies.logo_url} alt="" className="h-full w-full object-cover" /> : <Building2 className="h-6 w-6 m-3 text-muted-foreground" />}
@@ -156,11 +156,18 @@ function ListingDetail() {
                     <Link to="/agencies/$slug" params={{ slug: l.agencies.slug }} className="font-semibold hover:underline">{l.agencies.name}</Link>
                   </div>
                 </div>
-                <div className="space-y-1.5 text-sm">
-                  {l.agencies.phone && <a href={`tel:${l.agencies.phone}`} className="flex items-center gap-2 hover:text-primary"><Phone className="h-4 w-4" />{l.agencies.phone}</a>}
-                  {l.agencies.email && <a href={`mailto:${l.agencies.email}`} className="flex items-center gap-2 hover:text-primary"><Mail className="h-4 w-4" />{l.agencies.email}</a>}
-                  {l.agencies.website && <a href={l.agencies.website} target="_blank" rel="noreferrer" className="flex items-center gap-2 hover:text-primary"><Globe className="h-4 w-4" />Visit website</a>}
-                </div>
+                <PhoneReveal
+                  phone={l.agencies.phone}
+                  email={l.agencies.email}
+                  whatsapp={l.agencies.phone}
+                  agencyName={l.agencies.name}
+                  context={`Enquiry about "${l.title}" on Estately.`}
+                />
+                {l.agencies.website && (
+                  <a href={l.agencies.website} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary">
+                    <Globe className="h-4 w-4" />Visit agency website
+                  </a>
+                )}
               </CardContent>
             </Card>
           )}
