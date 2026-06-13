@@ -8,7 +8,8 @@ import { ListingCard } from "@/components/ListingCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Building2, MapPin, Phone, Mail, Globe, ChevronLeft } from "lucide-react";
+import { Building2, MapPin, Mail, Globe, ChevronLeft, ShieldCheck, Wrench, Home, Users, ArrowRight, Star } from "lucide-react";
+import { PhoneReveal } from "@/components/PhoneReveal";
 import { fetchAgency } from "@/lib/public.functions";
 
 export const Route = createFileRoute("/agencies/$slug")({
