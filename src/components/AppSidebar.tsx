@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, Building2, Tag, Inbox, Kanban, ShieldCheck, Users, Settings, Home, LogOut } from "lucide-react";
+import { LayoutDashboard, Building2, Tag, Inbox, Kanban, ShieldCheck, Users, Settings, LogOut } from "lucide-react";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader, SidebarFooter, useSidebar } from "@/components/ui/sidebar";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "@tanstack/react-router";
@@ -35,9 +35,9 @@ export function AppSidebar() {
       <SidebarHeader className="border-b border-sidebar-border">
         <Link to="/" className="flex items-center gap-2 px-2 py-2">
           <span className="brand-gradient inline-flex h-8 w-8 items-center justify-center rounded-md text-white shrink-0">
-            <Home className="h-4 w-4" />
+            <Building2 className="h-4 w-4" />
           </span>
-          {!collapsed && <span className="font-bold text-sidebar-foreground">HMOFlow</span>}
+          {!collapsed && <span className="font-bold text-sidebar-foreground tracking-tight">Estately</span>}
         </Link>
       </SidebarHeader>
       <SidebarContent>
