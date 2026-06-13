@@ -1,6 +1,7 @@
 /// <reference types="google.maps" />
 import { useEffect, useRef, useState } from "react";
 import { signedUrl } from "@/lib/survey";
+import { loadGoogleMaps } from "@/lib/googleMaps";
 
 type Pin = {
   id: string;
@@ -11,27 +12,6 @@ type Pin = {
   caption: string | null;
   captured_at: string;
 };
-
-declare global {
-  interface Window { google?: typeof google; __estatelyInitMap?: () => void }
-}
-
-let loaderPromise: Promise<void> | null = null;
-function loadGoogleMaps(): Promise<void> {
-  if (window.google?.maps) return Promise.resolve();
-  if (loaderPromise) return loaderPromise;
-  const key = import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY;
-  if (!key) return Promise.reject(new Error("Google Maps key missing"));
-  loaderPromise = new Promise<void>((resolve, reject) => {
-    window.__estatelyInitMap = () => resolve();
-    const s = document.createElement("script");
-    s.src = `https://maps.googleapis.com/maps/api/js?key=${key}&loading=async&callback=__estatelyInitMap`;
-    s.async = true; s.defer = true;
-    s.onerror = () => reject(new Error("Failed to load Google Maps"));
-    document.head.appendChild(s);
-  });
-  return loaderPromise;
-}
 
 export function CapturesMap({ pins }: { pins: Pin[] }) {
   const ref = useRef<HTMLDivElement>(null);
