@@ -125,14 +125,51 @@ function ValuationPage() {
                   <Metric label="Avg. days on market" value="42" />
                   <Metric label="Local demand" value="High" tint="text-success" icon={<TrendingUp className="h-4 w-4 text-success" />} />
                 </div>
-                <div className="rounded-lg border p-4 bg-muted/30">
-                  <div className="font-semibold mb-1">Want a guaranteed sale price?</div>
-                  <p className="text-sm text-muted-foreground mb-3">Book a free in-person valuation with a local Estately partner agent — typically more accurate by 4–7%.</p>
-                  <div className="flex flex-wrap gap-2">
-                    <Button>Book free in-person valuation</Button>
-                    <Button variant="outline" asChild><Link to="/marketplace">Browse comparable properties</Link></Button>
+                {savedLead ? (
+                  <div className="rounded-lg border border-success/30 bg-success/5 p-4 flex items-start gap-3">
+                    <CheckCircle2 className="h-5 w-5 text-success shrink-0 mt-0.5" />
+                    <div>
+                      <div className="font-semibold">Booked — we'll be in touch</div>
+                      <p className="text-sm text-muted-foreground">A local Estately partner agent will contact you within one working day with a free in-person valuation.</p>
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="rounded-lg border p-4 bg-muted/30 space-y-3">
+                    <div>
+                      <div className="font-semibold">Want a guaranteed sale price?</div>
+                      <p className="text-sm text-muted-foreground">Book a free in-person valuation with a local Estately partner agent — typically more accurate by 4–7%.</p>
+                    </div>
+                    <div className="grid sm:grid-cols-3 gap-2">
+                      <Input placeholder="Your name" value={contact.name} onChange={(e) => setContact({ ...contact, name: e.target.value })} />
+                      <Input type="email" placeholder="Email" value={contact.email} onChange={(e) => setContact({ ...contact, email: e.target.value })} />
+                      <Input placeholder="Phone (optional)" value={contact.phone} onChange={(e) => setContact({ ...contact, phone: e.target.value })} />
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <Button
+                        disabled={saving}
+                        onClick={async () => {
+                          if (!contact.name.trim() || !contact.email.trim()) { toast.error("Name and email required"); return; }
+                          setSaving(true);
+                          const { error } = await supabase.from("leads").insert({
+                            name: contact.name.trim(),
+                            email: contact.email.trim(),
+                            phone: contact.phone.trim() || null,
+                            source: "valuation",
+                            message: `Valuation requested — ${form.postcode} · ${form.beds} bed ${form.type} (${form.condition}) for ${form.purpose}. Estimate: £${estimate.toLocaleString()}${form.purpose === "rent" ? "/mo" : ""}.`,
+                          });
+                          setSaving(false);
+                          if (error) { toast.error(error.message); return; }
+                          setSavedLead(true);
+                          toast.success("Valuation booked");
+                        }}
+                      >
+                        {saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                        Book free in-person valuation
+                      </Button>
+                      <Button variant="outline" asChild><Link to="/marketplace">Browse comparable properties</Link></Button>
+                    </div>
+                  </div>
+                )}
                 <Button variant="ghost" onClick={() => setStep("form")}>← Edit details</Button>
               </CardContent>
             </Card>
