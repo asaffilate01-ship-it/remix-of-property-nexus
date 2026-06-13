@@ -114,3 +114,145 @@ export const advanceTenancyStatus = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+export const bookViewing = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: {
+    tenancyId: string;
+    applicantName: string;
+    applicantEmail?: string;
+    applicantPhone?: string;
+    scheduledAt: string;
+    durationMinutes?: number;
+    notes?: string;
+  }) => input)
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { data: t, error: tErr } = await supabase
+      .from("tenancies")
+      .select("id, property_id, agency_id")
+      .eq("id", data.tenancyId)
+      .maybeSingle();
+    if (tErr) throw new Error(tErr.message);
+    if (!t) throw new Error("Tenancy not found");
+
+    const { error } = await supabase.from("viewings").insert({
+      owner_id: userId,
+      agency_id: t.agency_id,
+      property_id: t.property_id,
+      applicant_name: data.applicantName,
+      applicant_email: data.applicantEmail ?? null,
+      applicant_phone: data.applicantPhone ?? null,
+      scheduled_at: data.scheduledAt,
+      duration_minutes: data.durationMinutes ?? 30,
+      notes: data.notes ?? null,
+      status: "pending" as any,
+    });
+    if (error) throw new Error(error.message);
+
+    await supabase.from("tenancy_events").insert({
+      tenancy_id: data.tenancyId,
+      actor_user_id: userId,
+      kind: "viewing_booked" as any,
+      summary: `Viewing booked for ${data.applicantName} on ${new Date(data.scheduledAt).toLocaleString("en-GB")}`,
+      payload: {} as any,
+    });
+    return { ok: true };
+  });
+
+export const logOffer = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: {
+    tenancyId: string;
+    buyerName: string;
+    buyerEmail?: string;
+    buyerPhone?: string;
+    amount: number;
+    notes?: string;
+  }) => input)
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { data: t, error: tErr } = await supabase
+      .from("tenancies")
+      .select("id, property_id, agency_id")
+      .eq("id", data.tenancyId)
+      .maybeSingle();
+    if (tErr) throw new Error(tErr.message);
+    if (!t) throw new Error("Tenancy not found");
+
+    const { error } = await supabase.from("offers").insert({
+      owner_id: userId,
+      agency_id: t.agency_id,
+      property_id: t.property_id,
+      tenancy_id: data.tenancyId,
+      buyer_name: data.buyerName,
+      buyer_email: data.buyerEmail ?? null,
+      buyer_phone: data.buyerPhone ?? null,
+      amount: data.amount,
+      notes: data.notes ?? null,
+      status: "pending" as any,
+    });
+    if (error) throw new Error(error.message);
+
+    await supabase.from("tenancy_events").insert({
+      tenancy_id: data.tenancyId,
+      actor_user_id: userId,
+      kind: "offer_made" as any,
+      summary: `Offer of £${data.amount.toLocaleString()} from ${data.buyerName}`,
+      payload: { amount: data.amount } as any,
+    });
+    return { ok: true };
+  });
+
+export const generateRentSchedule = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { tenancyId: string; months: number; replace?: boolean }) => input)
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { data: t, error: tErr } = await supabase
+      .from("tenancies")
+      .select("id, start_date, rent_amount, rent_frequency")
+      .eq("id", data.tenancyId)
+      .maybeSingle();
+    if (tErr) throw new Error(tErr.message);
+    if (!t) throw new Error("Tenancy not found");
+    if (!t.start_date) throw new Error("Tenancy is missing a start date");
+
+    if (data.replace) {
+      await supabase.from("rent_schedule").delete().eq("tenancy_id", data.tenancyId);
+    }
+
+    const freq = (t.rent_frequency ?? "monthly") as string;
+    const stepMonths = freq === "weekly" ? 0 : freq === "quarterly" ? 3 : freq === "annually" ? 12 : 1;
+    const stepDays = freq === "weekly" ? 7 : 0;
+
+    const rows: any[] = [];
+    const start = new Date(t.start_date as string);
+    for (let i = 0; i < data.months; i++) {
+      const periodStart = new Date(start);
+      if (stepDays) periodStart.setDate(start.getDate() + i * stepDays);
+      else periodStart.setMonth(start.getMonth() + i * stepMonths);
+      const periodEnd = new Date(periodStart);
+      if (stepDays) periodEnd.setDate(periodStart.getDate() + stepDays - 1);
+      else { periodEnd.setMonth(periodStart.getMonth() + stepMonths); periodEnd.setDate(periodEnd.getDate() - 1); }
+      rows.push({
+        tenancy_id: data.tenancyId,
+        period_start: periodStart.toISOString().slice(0, 10),
+        period_end: periodEnd.toISOString().slice(0, 10),
+        due_date: periodStart.toISOString().slice(0, 10),
+        amount: t.rent_amount,
+        status: "due" as any,
+      });
+    }
+    const { error } = await supabase.from("rent_schedule").insert(rows);
+    if (error) throw new Error(error.message);
+
+    await supabase.from("tenancy_events").insert({
+      tenancy_id: data.tenancyId,
+      actor_user_id: userId,
+      kind: "rent_schedule_generated" as any,
+      summary: `Generated ${rows.length} ${freq} rent periods`,
+      payload: { count: rows.length } as any,
+    });
+    return { ok: true, count: rows.length };
+  });

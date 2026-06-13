@@ -2430,6 +2430,7 @@ export type Database = {
         | "notice_served"
         | "moved_out"
         | "deposit_returned"
+        | "rent_schedule_generated"
       tenancy_status: "draft" | "active" | "notice" | "ended"
       tenure_type: "freehold" | "leasehold" | "share_of_freehold" | "commonhold"
       viewing_feedback: "positive" | "negative" | "neutral" | "offer"
@@ -2725,6 +2726,7 @@ export const Constants = {
         "notice_served",
         "moved_out",
         "deposit_returned",
+        "rent_schedule_generated",
       ],
       tenancy_status: ["draft", "active", "notice", "ended"],
       tenure_type: ["freehold", "leasehold", "share_of_freehold", "commonhold"],
