@@ -16,7 +16,7 @@ export const listTenancyOverview = createServerFn({ method: "GET" })
 
     const [{ data: props }, { data: schedules }, { data: events }] = await Promise.all([
       propIds.length
-        ? supabase.from("properties").select("id, address_line1, city, postcode").in("id", propIds)
+        ? supabase.from("properties").select("id, address, city, postcode").in("id", propIds)
         : Promise.resolve({ data: [] as any[] }),
       ids.length
         ? supabase.from("rent_schedule").select("id, tenancy_id, due_date, amount, paid_amount, status").in("tenancy_id", ids)
@@ -39,7 +39,7 @@ export const listTenancyOverview = createServerFn({ method: "GET" })
       return {
         ...t,
         property_address: property
-          ? [property.address_line1, property.city, property.postcode].filter(Boolean).join(", ")
+          ? [property.address, property.city, property.postcode].filter(Boolean).join(", ")
           : null,
         arrears,
         next_due: tSched.find((s: any) => s.status !== "paid")?.due_date ?? null,
@@ -64,14 +64,14 @@ export const getTenancyLifecycle = createServerFn({ method: "GET" })
 
     const [{ data: property }, { data: events }, { data: schedule }, { data: offers }, { data: viewings }, { data: compliance }, { data: docs }] = await Promise.all([
       tenancy.property_id
-        ? supabase.from("properties").select("id, address_line1, city, postcode").eq("id", tenancy.property_id).maybeSingle()
+        ? supabase.from("properties").select("id, address, city, postcode").eq("id", tenancy.property_id).maybeSingle()
         : Promise.resolve({ data: null }),
       supabase.from("tenancy_events").select("*").eq("tenancy_id", tenancy.id).order("occurred_at", { ascending: false }),
       supabase.from("rent_schedule").select("*").eq("tenancy_id", tenancy.id).order("due_date", { ascending: true }),
       supabase.from("offers").select("id, amount, status, buyer_name, submitted_at").eq("tenancy_id", tenancy.id).order("submitted_at", { ascending: false }),
       supabase.from("viewings").select("id, applicant_name, scheduled_at, status, feedback").eq("property_id", tenancy.property_id ?? "00000000-0000-0000-0000-000000000000").order("scheduled_at", { ascending: false }).limit(10),
       supabase.from("compliance_records").select("id, kind, status, due_date").eq("tenancy_id", tenancy.id),
-      supabase.from("documents").select("id, name, kind, created_at").eq("tenancy_id", tenancy.id).order("created_at", { ascending: false }).limit(20),
+      supabase.from("documents").select("id, name, type, created_at").eq("tenancy_id", tenancy.id).order("created_at", { ascending: false }).limit(20),
     ]);
 
     return {
