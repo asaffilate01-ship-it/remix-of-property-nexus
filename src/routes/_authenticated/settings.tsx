@@ -102,7 +102,15 @@ function PermissionsMatrix() {
     catch (e) { toast.error(e instanceof Error ? e.message : "Save failed"); }
   };
 
-  if (loading) return <Card><CardContent className="p-6 text-sm text-muted-foreground">Loading…</CardContent></Card>;
+  if (loading) return (
+    <Card>
+      <CardContent className="p-6 space-y-4">
+        <div className="h-5 w-40 bg-muted rounded animate-pulse" />
+        <div className="h-4 w-full bg-muted rounded animate-pulse" />
+        <div className="h-4 w-5/6 bg-muted rounded animate-pulse" />
+      </CardContent>
+    </Card>
+  );
   if (!agencyId) return <Card><CardContent className="p-6 text-sm text-muted-foreground">No agency on this account.</CardContent></Card>;
 
   return (
