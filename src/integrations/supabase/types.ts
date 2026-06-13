@@ -1965,6 +1965,7 @@ export type Database = {
       tenancies: {
         Row: {
           agency_id: string | null
+          bio: Json
           created_at: string
           deposit: number | null
           deposit_reference: string | null
@@ -1978,6 +1979,7 @@ export type Database = {
           room_id: string | null
           start_date: string
           status: Database["public"]["Enums"]["tenancy_status"]
+          tenant_compliance: Json
           tenant_email: string | null
           tenant_name: string
           tenant_phone: string | null
@@ -1986,6 +1988,7 @@ export type Database = {
         }
         Insert: {
           agency_id?: string | null
+          bio?: Json
           created_at?: string
           deposit?: number | null
           deposit_reference?: string | null
@@ -1999,6 +2002,7 @@ export type Database = {
           room_id?: string | null
           start_date: string
           status?: Database["public"]["Enums"]["tenancy_status"]
+          tenant_compliance?: Json
           tenant_email?: string | null
           tenant_name: string
           tenant_phone?: string | null
@@ -2007,6 +2011,7 @@ export type Database = {
         }
         Update: {
           agency_id?: string | null
+          bio?: Json
           created_at?: string
           deposit?: number | null
           deposit_reference?: string | null
@@ -2020,6 +2025,7 @@ export type Database = {
           room_id?: string | null
           start_date?: string
           status?: Database["public"]["Enums"]["tenancy_status"]
+          tenant_compliance?: Json
           tenant_email?: string | null
           tenant_name?: string
           tenant_phone?: string | null
