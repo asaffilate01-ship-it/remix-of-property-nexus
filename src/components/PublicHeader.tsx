@@ -10,8 +10,7 @@ const nav = [
   { to: "/mortgage", label: "Mortgages" },
   { to: "/area-guides", label: "Area guides" },
   { to: "/agencies", label: "Agencies" },
-  { to: "/for-agents", label: "For Agents" },
-  { to: "/for-landlords", label: "For Landlords" },
+  { to: "/business", label: "For business" },
 ];
 
 export function PublicHeader() {

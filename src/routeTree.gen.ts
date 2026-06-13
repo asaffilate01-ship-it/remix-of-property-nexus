@@ -19,6 +19,7 @@ import { Route as ForLandlordsRouteImport } from './routes/for-landlords'
 import { Route as ForAgentsRouteImport } from './routes/for-agents'
 import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as ComplaintsRouteImport } from './routes/complaints'
+import { Route as BusinessRouteImport } from './routes/business'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AreaGuidesRouteImport } from './routes/area-guides'
 import { Route as AgenciesRouteImport } from './routes/agencies'
@@ -95,6 +96,11 @@ const CookiesRoute = CookiesRouteImport.update({
 const ComplaintsRoute = ComplaintsRouteImport.update({
   id: '/complaints',
   path: '/complaints',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BusinessRoute = BusinessRouteImport.update({
+  id: '/business',
+  path: '/business',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -238,6 +244,7 @@ export interface FileRoutesByFullPath {
   '/agencies': typeof AgenciesRouteWithChildren
   '/area-guides': typeof AreaGuidesRoute
   '/auth': typeof AuthRoute
+  '/business': typeof BusinessRoute
   '/complaints': typeof ComplaintsRoute
   '/cookies': typeof CookiesRoute
   '/for-agents': typeof ForAgentsRoute
@@ -275,6 +282,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/area-guides': typeof AreaGuidesRoute
   '/auth': typeof AuthRoute
+  '/business': typeof BusinessRoute
   '/complaints': typeof ComplaintsRoute
   '/cookies': typeof CookiesRoute
   '/for-agents': typeof ForAgentsRoute
@@ -314,6 +322,7 @@ export interface FileRoutesById {
   '/agencies': typeof AgenciesRouteWithChildren
   '/area-guides': typeof AreaGuidesRoute
   '/auth': typeof AuthRoute
+  '/business': typeof BusinessRoute
   '/complaints': typeof ComplaintsRoute
   '/cookies': typeof CookiesRoute
   '/for-agents': typeof ForAgentsRoute
@@ -354,6 +363,7 @@ export interface FileRouteTypes {
     | '/agencies'
     | '/area-guides'
     | '/auth'
+    | '/business'
     | '/complaints'
     | '/cookies'
     | '/for-agents'
@@ -391,6 +401,7 @@ export interface FileRouteTypes {
     | '/'
     | '/area-guides'
     | '/auth'
+    | '/business'
     | '/complaints'
     | '/cookies'
     | '/for-agents'
@@ -429,6 +440,7 @@ export interface FileRouteTypes {
     | '/agencies'
     | '/area-guides'
     | '/auth'
+    | '/business'
     | '/complaints'
     | '/cookies'
     | '/for-agents'
@@ -469,6 +481,7 @@ export interface RootRouteChildren {
   AgenciesRoute: typeof AgenciesRouteWithChildren
   AreaGuidesRoute: typeof AreaGuidesRoute
   AuthRoute: typeof AuthRoute
+  BusinessRoute: typeof BusinessRoute
   ComplaintsRoute: typeof ComplaintsRoute
   CookiesRoute: typeof CookiesRoute
   ForAgentsRoute: typeof ForAgentsRoute
@@ -552,6 +565,13 @@ declare module '@tanstack/react-router' {
       path: '/complaints'
       fullPath: '/complaints'
       preLoaderRoute: typeof ComplaintsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/business': {
+      id: '/business'
+      path: '/business'
+      fullPath: '/business'
+      preLoaderRoute: typeof BusinessRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -823,6 +843,7 @@ const rootRouteChildren: RootRouteChildren = {
   AgenciesRoute: AgenciesRouteWithChildren,
   AreaGuidesRoute: AreaGuidesRoute,
   AuthRoute: AuthRoute,
+  BusinessRoute: BusinessRoute,
   ComplaintsRoute: ComplaintsRoute,
   CookiesRoute: CookiesRoute,
   ForAgentsRoute: ForAgentsRoute,
