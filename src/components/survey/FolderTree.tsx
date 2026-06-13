@@ -89,7 +89,7 @@ function TreeNode({
           </button>
         ) : <span className="w-5" />}
         <button onClick={() => onSelect(node.id)} className="flex-1 flex items-center gap-2 px-1 py-1.5 text-sm text-left">
-          {open && node.children.length > 0 ? <FolderOpen className="h-4 w-4 text-primary" /> : <Folder className="h-4 w-4 text-primary" />}
+          {open && node.children.length > 0 ? <FolderOpen className="h-4 w-4 text-primary" /> : <FolderIcon className="h-4 w-4 text-primary" />}
           <span className={cn("truncate", active && "font-medium")}>{node.name}</span>
         </button>
         <button onClick={() => setCreatingFor(node.id)} className="opacity-0 group-hover:opacity-100 p-1 text-muted-foreground" title="New subfolder">
