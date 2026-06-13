@@ -8,7 +8,8 @@ import { ListingCard } from "@/components/ListingCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Building2, MapPin, Phone, Mail, Globe, ChevronLeft } from "lucide-react";
+import { Building2, MapPin, Mail, Globe, ChevronLeft, ShieldCheck, Wrench, Home, Users, ArrowRight, Star } from "lucide-react";
+import { PhoneReveal } from "@/components/PhoneReveal";
 import { fetchAgency } from "@/lib/public.functions";
 
 export const Route = createFileRoute("/agencies/$slug")({
@@ -76,11 +77,33 @@ function AgencyPage() {
               {a.city && <div className="text-muted-foreground inline-flex items-center gap-1.5 mt-1"><MapPin className="h-4 w-4" />{a.city}</div>}
             </div>
             <div className="flex flex-wrap gap-2">
-              {a.phone && <Button variant="outline" size="sm" asChild><a href={`tel:${a.phone}`}><Phone className="h-3 w-3 mr-1" /> Call</a></Button>}
               {a.email && <Button variant="outline" size="sm" asChild><a href={`mailto:${a.email}`}><Mail className="h-3 w-3 mr-1" /> Email</a></Button>}
               {a.website && <Button variant="outline" size="sm" asChild><a href={a.website} target="_blank" rel="noreferrer"><Globe className="h-3 w-3 mr-1" /> Website</a></Button>}
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Phone + portal logins */}
+      <section className="container mx-auto px-4 pb-2">
+        <div className="grid lg:grid-cols-[1fr_2fr] gap-6">
+          <Card className="border-0 shadow-card">
+            <CardContent className="p-5">
+              <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3">Get in touch</div>
+              <PhoneReveal phone={a.phone} email={a.email} whatsapp={a.phone} agencyName={a.name} context={`Enquiry via ${a.name}'s Estately page.`} />
+            </CardContent>
+          </Card>
+          <Card className="border-0 shadow-card">
+            <CardContent className="p-5">
+              <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3">Customer portals</div>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-2">
+                <PortalLink to="/auth" icon={<Home className="h-4 w-4" />} label="Tenant login" sub="Pay rent, repairs, documents" />
+                <PortalLink to="/auth" icon={<Building2 className="h-4 w-4" />} label="Landlord login" sub="Statements & performance" />
+                <PortalLink to="/auth" icon={<Wrench className="h-4 w-4" />} label="Contractor login" sub="Work orders & invoices" />
+                <PortalLink to="/auth" icon={<ShieldCheck className="h-4 w-4" />} label="Third-party login" sub="Solicitors, surveyors, utilities" />
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </section>
 
@@ -108,6 +131,25 @@ function AgencyPage() {
         </section>
       )}
 
+      {/* Why choose + team */}
+      <section className="container mx-auto px-4 py-8">
+        <div className="grid lg:grid-cols-3 gap-4">
+          {[
+            { icon: <Star className="h-5 w-5" />, t: "Local experts", d: `${a.city ?? "Local"} sales & lettings team with deep area knowledge.` },
+            { icon: <ShieldCheck className="h-5 w-5" />, t: "Regulated & insured", d: "ARLA Propertymark, redress scheme, CMP protected." },
+            { icon: <Users className="h-5 w-5" />, t: "Dedicated negotiators", d: "One point of contact from instruction to completion." },
+          ].map((b) => (
+            <Card key={b.t} className="border-0 shadow-card">
+              <CardContent className="p-5">
+                <div className="h-9 w-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-3">{b.icon}</div>
+                <div className="font-semibold">{b.t}</div>
+                <div className="text-sm text-muted-foreground mt-1">{b.d}</div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </section>
+
       <section className="container mx-auto px-4 pb-16">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold">Properties</h2>
@@ -132,4 +174,17 @@ function AgencyPage() {
 
 function Shell({ children }: { children: React.ReactNode }) {
   return <div className="min-h-screen flex flex-col"><PublicHeader /><main className="flex-1">{children}</main><PublicFooter /></div>;
+}
+
+function PortalLink({ to, icon, label, sub }: { to: string; icon: React.ReactNode; label: string; sub: string }) {
+  return (
+    <Link to={to} className="rounded-lg border p-3 hover:border-primary/40 hover:bg-primary/5 transition-colors group">
+      <div className="flex items-center justify-between">
+        <div className="h-8 w-8 rounded-md bg-primary/10 text-primary flex items-center justify-center">{icon}</div>
+        <ArrowRight className="h-3 w-3 text-muted-foreground group-hover:text-primary transition-colors" />
+      </div>
+      <div className="font-medium text-sm mt-2">{label}</div>
+      <div className="text-xs text-muted-foreground line-clamp-1">{sub}</div>
+    </Link>
+  );
 }
