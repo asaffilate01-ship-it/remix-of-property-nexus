@@ -372,7 +372,7 @@ function SearchBar({ q, setQ, where, setWhere, radius, setRadius, onSubmit }: { 
 }
 
 
-function FiltersSheet({ s, setSearch }: { s: SearchParams; setSearch: (patch: Partial<SearchParams>) => void }) {
+function FiltersSheet({ s, setSearch, category }: { s: SearchParams; setSearch: (patch: Partial<SearchParams>) => void; category: Category }) {
   const [open, setOpen] = useState(false);
   const initial = () => ({
     min_price: s.min_price?.toString() ?? "",
