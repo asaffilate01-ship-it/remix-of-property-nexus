@@ -11,9 +11,9 @@ import { IsoIcon, type IsoIconName } from "@/components/iso/IsoIcon";
 export const Route = createFileRoute("/platform")({
   head: () => ({
     meta: [
-      { title: "Estately — The complete OS for estate & letting agents" },
-      { name: "description", content: "Sales, lettings, HMO and commercial in one premium workspace. Marketplace, CRM and compliance for modern agencies and landlords." },
-      { property: "og:title", content: "Estately — Property OS for agents and landlords" },
+      { title: "Estately for agencies — The complete property OS" },
+      { name: "description", content: "Sales, lettings, HMO and commercial in one premium workspace for modern UK agencies and landlords." },
+      { property: "og:title", content: "Estately for agencies — The complete property OS" },
       { property: "og:description", content: "Sales, lettings, HMO and commercial in one workspace." },
       { property: "og:image", content: heroHome },
     ],
