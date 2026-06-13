@@ -271,6 +271,66 @@ export type Database = {
           },
         ]
       }
+      cleaning_jobs: {
+        Row: {
+          assignee_name: string | null
+          assignee_user_id: string | null
+          created_at: string
+          created_by: string
+          duration_minutes: number
+          id: string
+          notes: string | null
+          property_id: string
+          room_id: string | null
+          scheduled_at: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          assignee_name?: string | null
+          assignee_user_id?: string | null
+          created_at?: string
+          created_by?: string
+          duration_minutes?: number
+          id?: string
+          notes?: string | null
+          property_id: string
+          room_id?: string | null
+          scheduled_at: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          assignee_name?: string | null
+          assignee_user_id?: string | null
+          created_at?: string
+          created_by?: string
+          duration_minutes?: number
+          id?: string
+          notes?: string | null
+          property_id?: string
+          room_id?: string | null
+          scheduled_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cleaning_jobs_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cleaning_jobs_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       compliance_records: {
         Row: {
           agency_id: string | null
@@ -1102,12 +1162,16 @@ export type Database = {
           bedrooms: number | null
           branch_id: string | null
           city: string | null
+          cleaning_fee: number | null
           created_at: string
+          features: string[]
           hmo_licence_expires: string | null
           hmo_licence_number: string | null
           id: string
           is_hmo: boolean
           listing_purpose: Database["public"]["Enums"]["listing_purpose"]
+          min_stay_nights: number | null
+          nightly_rate: number | null
           notes: string | null
           owner_id: string
           postcode: string | null
@@ -1122,12 +1186,16 @@ export type Database = {
           bedrooms?: number | null
           branch_id?: string | null
           city?: string | null
+          cleaning_fee?: number | null
           created_at?: string
+          features?: string[]
           hmo_licence_expires?: string | null
           hmo_licence_number?: string | null
           id?: string
           is_hmo?: boolean
           listing_purpose?: Database["public"]["Enums"]["listing_purpose"]
+          min_stay_nights?: number | null
+          nightly_rate?: number | null
           notes?: string | null
           owner_id: string
           postcode?: string | null
@@ -1142,12 +1210,16 @@ export type Database = {
           bedrooms?: number | null
           branch_id?: string | null
           city?: string | null
+          cleaning_fee?: number | null
           created_at?: string
+          features?: string[]
           hmo_licence_expires?: string | null
           hmo_licence_number?: string | null
           id?: string
           is_hmo?: boolean
           listing_purpose?: Database["public"]["Enums"]["listing_purpose"]
+          min_stay_nights?: number | null
+          nightly_rate?: number | null
           notes?: string | null
           owner_id?: string
           postcode?: string | null
@@ -1452,6 +1524,7 @@ export type Database = {
           photos: Json | null
           property_id: string
           rent_pcm: number | null
+          room_number: string | null
           size_sqm: number | null
           status: string
           updated_at: string
@@ -1469,6 +1542,7 @@ export type Database = {
           photos?: Json | null
           property_id: string
           rent_pcm?: number | null
+          room_number?: string | null
           size_sqm?: number | null
           status?: string
           updated_at?: string
@@ -1486,6 +1560,7 @@ export type Database = {
           photos?: Json | null
           property_id?: string
           rent_pcm?: number | null
+          room_number?: string | null
           size_sqm?: number | null
           status?: string
           updated_at?: string
@@ -2381,7 +2456,7 @@ export type Database = {
         | "offer"
         | "closed_won"
         | "closed_lost"
-      listing_purpose: "sale" | "rent"
+      listing_purpose: "sale" | "rent" | "both" | "short_let"
       listing_status:
         | "draft"
         | "published"
@@ -2673,7 +2748,7 @@ export const Constants = {
         "closed_won",
         "closed_lost",
       ],
-      listing_purpose: ["sale", "rent"],
+      listing_purpose: ["sale", "rent", "both", "short_let"],
       listing_status: [
         "draft",
         "published",
