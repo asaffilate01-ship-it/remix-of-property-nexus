@@ -64,6 +64,10 @@ export function ListingCard({ l }: { l: ListingCardData }) {
           </div>
         </CardContent>
       </Card>
-    </Link>
+      </Link>
+      <div className="absolute top-3 right-3 z-10">
+        <SaveListingButton listingId={l.id} variant="ghost" size="icon" />
+      </div>
+    </div>
   );
 }
