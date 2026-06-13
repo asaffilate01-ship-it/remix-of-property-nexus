@@ -37,6 +37,37 @@ function ArrearsPage() {
   const [rows] = useState(SEED);
   const [reconciled, setReconciled] = useState(false);
 
+  const fetchTxn = useServerFn(listBankTransactions);
+  const runReconcile = useServerFn(reconcileTransactions);
+  const seed = useServerFn(seedMockBankFeed);
+  const [txns, setTxns] = useState<Array<{ id: string; posted_at: string; amount: number; reference: string | null; counterparty: string | null; matched_rent_schedule_id: string | null }>>([]);
+  const [busy, setBusy] = useState(false);
+
+  const refresh = async () => {
+    try { const r = await fetchTxn({}); setTxns(r.transactions as never); } catch { /* noop */ }
+  };
+  useEffect(() => { refresh(); }, []);
+
+  const connect = async () => {
+    setBusy(true);
+    try {
+      await seed({});
+      setReconciled(true);
+      await refresh();
+      toast.success("Sandbox bank feed connected");
+    } catch (e) { toast.error(e instanceof Error ? e.message : "Failed"); }
+    finally { setBusy(false); }
+  };
+  const doReconcile = async () => {
+    setBusy(true);
+    try {
+      const r = await runReconcile({});
+      await refresh();
+      toast.success(`${r.matched} of ${r.scanned} transactions matched to rent due`);
+    } catch (e) { toast.error(e instanceof Error ? e.message : "Failed"); }
+    finally { setBusy(false); }
+  };
+
   const total = rows.reduce((a, r) => a + r.balance, 0);
   const buckets = (["1_to_7","8_to_30","31_to_60","60_plus"] as Stage[]).map(s => ({ s, total: rows.filter(r => r.stage === s).reduce((a, r) => a + r.balance, 0) }));
 
@@ -47,9 +78,17 @@ function ArrearsPage() {
           <h1 className="font-display text-2xl md:text-3xl font-bold tracking-tight">Arrears & rent reconciliation</h1>
           <p className="text-muted-foreground mt-1">Connect a bank feed via Open Banking (FCA‑regulated) — rents auto‑match against the schedule.</p>
         </div>
-        <Button variant={reconciled ? "outline" : "default"} onClick={() => { setReconciled(true); toast.success("Bank feed connected — 47 transactions matched"); }}>
-          <Link2 className="h-4 w-4 mr-2" /> {reconciled ? "Connected: Barclays Business" : "Connect bank (Open Banking)"}
-        </Button>
+        <div className="flex gap-2">
+          <Button variant={reconciled ? "outline" : "default"} onClick={connect} disabled={busy}>
+            <Link2 className="h-4 w-4 mr-2" /> {reconciled ? "Connected: Sandbox feed" : "Connect bank (sandbox)"}
+          </Button>
+          {reconciled && (
+            <Button variant="secondary" onClick={doReconcile} disabled={busy}>
+              {busy ? <RefreshCw className="h-4 w-4 mr-2 animate-spin" /> : <Sparkles className="h-4 w-4 mr-2" />}
+              Auto-reconcile
+            </Button>
+          )}
+        </div>
       </div>
 
       <div className="grid sm:grid-cols-5 gap-3">
