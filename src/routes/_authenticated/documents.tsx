@@ -63,8 +63,8 @@ function DocumentsPage() {
   const agencies = data?.agencies ?? [];
   const tenancies = data?.tenancies ?? [];
   const profiles = data?.profiles ?? [];
-  const landlords = profiles.filter((p: { primary_role: string }) => p.primary_role === "landlord");
-  const tenants = profiles.filter((p: { primary_role: string }) => p.primary_role === "tenant");
+  const landlords = profiles.filter((p) => p.primary_role === "landlord");
+  const tenants = profiles.filter((p) => p.primary_role === "tenant");
 
   const scopeOptions = useMemo(() => {
     switch (form.scope) {
