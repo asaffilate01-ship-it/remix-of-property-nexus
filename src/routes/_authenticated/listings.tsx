@@ -298,7 +298,13 @@ function ListingForm({ form, setForm, agencies }: { form: Form; setForm: (f: For
         </div>
         <div>
           <Label>Listing type</Label>
-          <Select value={form.listing_type} onValueChange={(v) => u("listing_type", v as Form["listing_type"])}>
+          <Select
+            value={form.listing_type}
+            onValueChange={(v) => {
+              const next = v as Form["listing_type"];
+              setForm({ ...form, listing_type: next, is_hmo: next === "room" ? true : form.is_hmo });
+            }}
+          >
             <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="sale">Sale</SelectItem>
@@ -308,6 +314,7 @@ function ListingForm({ form, setForm, agencies }: { form: Form; setForm: (f: For
           </Select>
         </div>
       </div>
+
 
       <div className="grid grid-cols-3 gap-3">
         <div><Label>Price (£)</Label><Input type="number" value={form.price} onChange={(e) => u("price", e.target.value)} /></div>
