@@ -42,13 +42,13 @@ export const Route = createFileRoute("/api/public/referencing-webhook")({
         }
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-        const update: Record<string, unknown> = {
+        const update = {
           status: parsed.status,
           completed_at: ["passed", "failed", "expired"].includes(parsed.status) ? new Date().toISOString() : null,
+          ...(parsed.score !== undefined ? { score: parsed.score } : {}),
+          ...(parsed.result ? { result: parsed.result } : {}),
+          ...(parsed.provider ? { provider: parsed.provider } : {}),
         };
-        if (parsed.score !== undefined) update.score = parsed.score;
-        if (parsed.result) update.result = parsed.result;
-        if (parsed.provider) update.provider = parsed.provider;
 
         const { error } = await supabaseAdmin
           .from("referencing_checks")

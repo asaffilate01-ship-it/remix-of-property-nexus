@@ -69,6 +69,7 @@ import { Route as AuthenticatedBranchesRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedArrearsRouteImport } from './routes/_authenticated/arrears'
 import { Route as AuthenticatedAiCopyRouteImport } from './routes/_authenticated/ai-copy'
 import { Route as AuthenticatedAgencyRouteImport } from './routes/_authenticated/agency'
+import { Route as ApiPublicReferencingWebhookRouteImport } from './routes/api/public/referencing-webhook'
 
 const ValuationRoute = ValuationRouteImport.update({
   id: '/valuation',
@@ -375,6 +376,12 @@ const AuthenticatedAgencyRoute = AuthenticatedAgencyRouteImport.update({
   path: '/agency',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiPublicReferencingWebhookRoute =
+  ApiPublicReferencingWebhookRouteImport.update({
+    id: '/api/public/referencing-webhook',
+    path: '/api/public/referencing-webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -436,6 +443,7 @@ export interface FileRoutesByFullPath {
   '/agencies/': typeof AgenciesIndexRoute
   '/blog/': typeof BlogIndexRoute
   '/marketplace/': typeof MarketplaceIndexRoute
+  '/api/public/referencing-webhook': typeof ApiPublicReferencingWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -495,6 +503,7 @@ export interface FileRoutesByTo {
   '/agencies': typeof AgenciesIndexRoute
   '/blog': typeof BlogIndexRoute
   '/marketplace': typeof MarketplaceIndexRoute
+  '/api/public/referencing-webhook': typeof ApiPublicReferencingWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -558,6 +567,7 @@ export interface FileRoutesById {
   '/agencies/': typeof AgenciesIndexRoute
   '/blog/': typeof BlogIndexRoute
   '/marketplace/': typeof MarketplaceIndexRoute
+  '/api/public/referencing-webhook': typeof ApiPublicReferencingWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -621,6 +631,7 @@ export interface FileRouteTypes {
     | '/agencies/'
     | '/blog/'
     | '/marketplace/'
+    | '/api/public/referencing-webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -680,6 +691,7 @@ export interface FileRouteTypes {
     | '/agencies'
     | '/blog'
     | '/marketplace'
+    | '/api/public/referencing-webhook'
   id:
     | '__root__'
     | '/'
@@ -742,6 +754,7 @@ export interface FileRouteTypes {
     | '/agencies/'
     | '/blog/'
     | '/marketplace/'
+    | '/api/public/referencing-webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -766,6 +779,7 @@ export interface RootRouteChildren {
   BlogSlugRoute: typeof BlogSlugRoute
   ModulesSlugRoute: typeof ModulesSlugRoute
   BlogIndexRoute: typeof BlogIndexRoute
+  ApiPublicReferencingWebhookRoute: typeof ApiPublicReferencingWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1190,6 +1204,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAgencyRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/referencing-webhook': {
+      id: '/api/public/referencing-webhook'
+      path: '/api/public/referencing-webhook'
+      fullPath: '/api/public/referencing-webhook'
+      preLoaderRoute: typeof ApiPublicReferencingWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -1323,6 +1344,7 @@ const rootRouteChildren: RootRouteChildren = {
   BlogSlugRoute: BlogSlugRoute,
   ModulesSlugRoute: ModulesSlugRoute,
   BlogIndexRoute: BlogIndexRoute,
+  ApiPublicReferencingWebhookRoute: ApiPublicReferencingWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
