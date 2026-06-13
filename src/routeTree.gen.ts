@@ -26,6 +26,7 @@ import { Route as AuthenticatedPropertiesRouteImport } from './routes/_authentic
 import { Route as AuthenticatedPipelineRouteImport } from './routes/_authenticated/pipeline'
 import { Route as AuthenticatedListingsRouteImport } from './routes/_authenticated/listings'
 import { Route as AuthenticatedLeadsRouteImport } from './routes/_authenticated/leads'
+import { Route as AuthenticatedHmoRouteImport } from './routes/_authenticated/hmo'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedComplianceRouteImport } from './routes/_authenticated/compliance'
 import { Route as AuthenticatedAgencyRouteImport } from './routes/_authenticated/agency'
@@ -114,6 +115,11 @@ const AuthenticatedLeadsRoute = AuthenticatedLeadsRouteImport.update({
   path: '/leads',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedHmoRoute = AuthenticatedHmoRouteImport.update({
+  id: '/hmo',
+  path: '/hmo',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -140,6 +146,7 @@ export interface FileRoutesByFullPath {
   '/agency': typeof AuthenticatedAgencyRoute
   '/compliance': typeof AuthenticatedComplianceRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/hmo': typeof AuthenticatedHmoRoute
   '/leads': typeof AuthenticatedLeadsRoute
   '/listings': typeof AuthenticatedListingsRoute
   '/pipeline': typeof AuthenticatedPipelineRoute
@@ -159,6 +166,7 @@ export interface FileRoutesByTo {
   '/agency': typeof AuthenticatedAgencyRoute
   '/compliance': typeof AuthenticatedComplianceRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/hmo': typeof AuthenticatedHmoRoute
   '/leads': typeof AuthenticatedLeadsRoute
   '/listings': typeof AuthenticatedListingsRoute
   '/pipeline': typeof AuthenticatedPipelineRoute
@@ -182,6 +190,7 @@ export interface FileRoutesById {
   '/_authenticated/agency': typeof AuthenticatedAgencyRoute
   '/_authenticated/compliance': typeof AuthenticatedComplianceRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/hmo': typeof AuthenticatedHmoRoute
   '/_authenticated/leads': typeof AuthenticatedLeadsRoute
   '/_authenticated/listings': typeof AuthenticatedListingsRoute
   '/_authenticated/pipeline': typeof AuthenticatedPipelineRoute
@@ -205,6 +214,7 @@ export interface FileRouteTypes {
     | '/agency'
     | '/compliance'
     | '/dashboard'
+    | '/hmo'
     | '/leads'
     | '/listings'
     | '/pipeline'
@@ -224,6 +234,7 @@ export interface FileRouteTypes {
     | '/agency'
     | '/compliance'
     | '/dashboard'
+    | '/hmo'
     | '/leads'
     | '/listings'
     | '/pipeline'
@@ -246,6 +257,7 @@ export interface FileRouteTypes {
     | '/_authenticated/agency'
     | '/_authenticated/compliance'
     | '/_authenticated/dashboard'
+    | '/_authenticated/hmo'
     | '/_authenticated/leads'
     | '/_authenticated/listings'
     | '/_authenticated/pipeline'
@@ -390,6 +402,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLeadsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/hmo': {
+      id: '/_authenticated/hmo'
+      path: '/hmo'
+      fullPath: '/hmo'
+      preLoaderRoute: typeof AuthenticatedHmoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -418,6 +437,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAgencyRoute: typeof AuthenticatedAgencyRoute
   AuthenticatedComplianceRoute: typeof AuthenticatedComplianceRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedHmoRoute: typeof AuthenticatedHmoRoute
   AuthenticatedLeadsRoute: typeof AuthenticatedLeadsRoute
   AuthenticatedListingsRoute: typeof AuthenticatedListingsRoute
   AuthenticatedPipelineRoute: typeof AuthenticatedPipelineRoute
@@ -429,6 +449,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAgencyRoute: AuthenticatedAgencyRoute,
   AuthenticatedComplianceRoute: AuthenticatedComplianceRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedHmoRoute: AuthenticatedHmoRoute,
   AuthenticatedLeadsRoute: AuthenticatedLeadsRoute,
   AuthenticatedListingsRoute: AuthenticatedListingsRoute,
   AuthenticatedPipelineRoute: AuthenticatedPipelineRoute,
@@ -480,3 +501,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

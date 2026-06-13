@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, Building2, Tag, Inbox, Kanban, ShieldCheck, Users, Settings, LogOut } from "lucide-react";
+import { LayoutDashboard, Building2, Tag, Inbox, Kanban, ShieldCheck, Users, Settings, LogOut, BedDouble } from "lucide-react";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader, SidebarFooter, useSidebar } from "@/components/ui/sidebar";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "@tanstack/react-router";
@@ -11,6 +11,7 @@ const items = [
   { to: "/listings", label: "Listings", icon: Tag },
   { to: "/leads", label: "Leads", icon: Inbox },
   { to: "/pipeline", label: "Pipeline", icon: Kanban },
+  { to: "/hmo", label: "HMO", icon: BedDouble },
   { to: "/compliance", label: "Compliance", icon: ShieldCheck },
   { to: "/agency", label: "Agency", icon: Users },
   { to: "/settings", label: "Settings", icon: Settings },
