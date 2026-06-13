@@ -62,6 +62,7 @@ import { Route as AuthenticatedContractorMarketplaceRouteImport } from './routes
 import { Route as AuthenticatedContactsRouteImport } from './routes/_authenticated/contacts'
 import { Route as AuthenticatedComplianceRouteImport } from './routes/_authenticated/compliance'
 import { Route as AuthenticatedCommercialRouteImport } from './routes/_authenticated/commercial'
+import { Route as AuthenticatedBranchesRouteImport } from './routes/_authenticated/branches'
 import { Route as AuthenticatedArrearsRouteImport } from './routes/_authenticated/arrears'
 import { Route as AuthenticatedAiCopyRouteImport } from './routes/_authenticated/ai-copy'
 import { Route as AuthenticatedAgencyRouteImport } from './routes/_authenticated/agency'
@@ -335,6 +336,11 @@ const AuthenticatedCommercialRoute = AuthenticatedCommercialRouteImport.update({
   path: '/commercial',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedBranchesRoute = AuthenticatedBranchesRouteImport.update({
+  id: '/branches',
+  path: '/branches',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedArrearsRoute = AuthenticatedArrearsRouteImport.update({
   id: '/arrears',
   path: '/arrears',
@@ -372,6 +378,7 @@ export interface FileRoutesByFullPath {
   '/agency': typeof AuthenticatedAgencyRoute
   '/ai-copy': typeof AuthenticatedAiCopyRoute
   '/arrears': typeof AuthenticatedArrearsRoute
+  '/branches': typeof AuthenticatedBranchesRoute
   '/commercial': typeof AuthenticatedCommercialRoute
   '/compliance': typeof AuthenticatedComplianceRoute
   '/contacts': typeof AuthenticatedContactsRoute
@@ -427,6 +434,7 @@ export interface FileRoutesByTo {
   '/agency': typeof AuthenticatedAgencyRoute
   '/ai-copy': typeof AuthenticatedAiCopyRoute
   '/arrears': typeof AuthenticatedArrearsRoute
+  '/branches': typeof AuthenticatedBranchesRoute
   '/commercial': typeof AuthenticatedCommercialRoute
   '/compliance': typeof AuthenticatedComplianceRoute
   '/contacts': typeof AuthenticatedContactsRoute
@@ -486,6 +494,7 @@ export interface FileRoutesById {
   '/_authenticated/agency': typeof AuthenticatedAgencyRoute
   '/_authenticated/ai-copy': typeof AuthenticatedAiCopyRoute
   '/_authenticated/arrears': typeof AuthenticatedArrearsRoute
+  '/_authenticated/branches': typeof AuthenticatedBranchesRoute
   '/_authenticated/commercial': typeof AuthenticatedCommercialRoute
   '/_authenticated/compliance': typeof AuthenticatedComplianceRoute
   '/_authenticated/contacts': typeof AuthenticatedContactsRoute
@@ -545,6 +554,7 @@ export interface FileRouteTypes {
     | '/agency'
     | '/ai-copy'
     | '/arrears'
+    | '/branches'
     | '/commercial'
     | '/compliance'
     | '/contacts'
@@ -600,6 +610,7 @@ export interface FileRouteTypes {
     | '/agency'
     | '/ai-copy'
     | '/arrears'
+    | '/branches'
     | '/commercial'
     | '/compliance'
     | '/contacts'
@@ -658,6 +669,7 @@ export interface FileRouteTypes {
     | '/_authenticated/agency'
     | '/_authenticated/ai-copy'
     | '/_authenticated/arrears'
+    | '/_authenticated/branches'
     | '/_authenticated/commercial'
     | '/_authenticated/compliance'
     | '/_authenticated/contacts'
@@ -1090,6 +1102,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCommercialRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/branches': {
+      id: '/_authenticated/branches'
+      path: '/branches'
+      fullPath: '/branches'
+      preLoaderRoute: typeof AuthenticatedBranchesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/arrears': {
       id: '/_authenticated/arrears'
       path: '/arrears'
@@ -1118,6 +1137,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAgencyRoute: typeof AuthenticatedAgencyRoute
   AuthenticatedAiCopyRoute: typeof AuthenticatedAiCopyRoute
   AuthenticatedArrearsRoute: typeof AuthenticatedArrearsRoute
+  AuthenticatedBranchesRoute: typeof AuthenticatedBranchesRoute
   AuthenticatedCommercialRoute: typeof AuthenticatedCommercialRoute
   AuthenticatedComplianceRoute: typeof AuthenticatedComplianceRoute
   AuthenticatedContactsRoute: typeof AuthenticatedContactsRoute
@@ -1154,6 +1174,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAgencyRoute: AuthenticatedAgencyRoute,
   AuthenticatedAiCopyRoute: AuthenticatedAiCopyRoute,
   AuthenticatedArrearsRoute: AuthenticatedArrearsRoute,
+  AuthenticatedBranchesRoute: AuthenticatedBranchesRoute,
   AuthenticatedCommercialRoute: AuthenticatedCommercialRoute,
   AuthenticatedComplianceRoute: AuthenticatedComplianceRoute,
   AuthenticatedContactsRoute: AuthenticatedContactsRoute,
@@ -1242,13 +1263,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

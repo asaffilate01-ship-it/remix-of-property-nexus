@@ -1,75 +1,95 @@
-## Goal
-Bring Estately up to Rightmove / Bayut / Arthur quality across visuals, marketplace, HMO workflow, and UK (England & Wales) compliance — done in calm, sequenced phases so nothing breaks.
+## P1 Phase Plan — Power Features
 
-## Phase 1 — Isometric 3D icon system
-Generate a cohesive set of isometric icons (transparent PNG, brand-tinted) used across modules, features, dashboards and empty states.
+Billing is parked. Four feature areas, sequenced for safe delivery. Each ships UI + minimal backend so it works end-to-end with seeded data.
 
-Icons (12, all consistent style):
-- House (sale), Key (lettings), Door-room (HMO), Storefront (commercial)
-- Shield-check (compliance), Flame (gas safety), Bolt (EICR), Leaf (EPC)
-- People (tenants), Briefcase (agents), Chart (pipeline), Wrench (maintenance)
+---
 
-Wire a `<IsoIcon name="..." />` component that swaps Lucide on landing, module pages, dashboard tiles, and empty states.
+### 1. Saved searches + alerts + draw-on-map polygon search
 
-## Phase 2 — UK (E&W) Compliance hub
-Database (one migration):
+What you'll see:
+- Marketplace gets a list ↔ map toggle. Map shows listing pins (Google Maps). A "Draw area" button lets buyers lasso a polygon; results filter to listings inside it.
+- "Save this search" on the marketplace persists to the database (not localStorage). Logged-out users get an inline "Sign in to save" CTA.
+- `/saved-searches` lists DB-backed searches per user with email/push toggles and instant/daily/weekly frequency.
+- A scheduled job (pg_cron + `/api/public/hooks/match-saved-searches`) finds new matching listings and queues alerts; daily/weekly digests batched. Email send uses Lovable AI Gateway template + transactional email infra (existing).
 
-```text
-compliance_item_type   enum  gas_safety, eicr, epc, pat, legionella,
-                              hmo_licence, selective_licence, fire_risk_assessment,
-                              emergency_lighting, fire_door_check,
-                              right_to_rent, ast, how_to_rent, deposit_protection,
-                              inventory, cmp, redress, aml, pi_insurance, ico
+Backend:
+- New table `saved_searches` (user_id, name, criteria jsonb, polygon jsonb, alert_email bool, alert_push bool, frequency enum, last_notified_at).
+- New table `saved_search_matches` (saved_search_id, listing_id, notified_at) — idempotency.
+- Server fns: `listSavedSearches`, `saveSearch`, `deleteSavedSearch`, `updateAlertSettings`.
+- Public route `/api/public/hooks/match-saved-searches` (apikey-guarded) for pg_cron.
 
-compliance_records   add:  item_type, reference, issued_at, expires_at,
-                            document_url, status (valid/expiring/expired/missing),
-                            scope (property/tenancy/agency/tenant), scope_id
+---
 
-agency_compliance    table for agent-level items (CMP, redress, AML, PI, ICO)
-tenancy_compliance   table for tenancy items (RtR, AST, deposit, HtR, inventory)
-```
+### 2. Tenant referencing flow (Goodlord-style) + open-banking arrears auto-reconcile
 
-Logic:
-- Server fn computes status from `expires_at` (≤30 days = expiring).
-- Renewal rules table seeded with UK cadences (Gas 12mo, EICR 60mo, EPC 120mo, PAT 12mo, Legionella 24mo, HMO licence 60mo, FRA 12mo).
-- Dashboard widget per role: Landlord/Agent see property+agency items; Tenant sees their tenancy docs.
+What you'll see:
+- `/referencing` rebuilt as multi-step wizard: ID upload → employment → income → previous landlord → credit consent → review. Persists per applicant.
+- Agent view `/_authenticated/referencing-cases` (new): kanban of pending/in-review/approved/declined, document viewer, decision notes.
+- `/_authenticated/arrears` gets an "Auto-reconcile" panel: connect a sandbox open-banking source, view recent inbound payments, auto-match to `rent_schedule` by amount + reference, mark paid.
 
-UI:
-- `/_authenticated/compliance` overhauled: filters (role, status, type), expiring-soon bar, upload doc, set expiry.
-- Empty-state CTA with isometric shield icon.
+Backend:
+- Table `referencing_cases` (tenant_id, status, applicant jsonb, employment jsonb, income_monthly, credit_consent, decision, decided_at, notes).
+- Table `referencing_documents` (case_id, doc_type, storage_path).
+- Storage bucket `referencing-docs` (private; RLS to tenant + agency members).
+- Table `bank_transactions` (agency_id, posted_at, amount, reference, raw jsonb, matched_rent_schedule_id) — seeded with realistic mock feed; real OB integration is stubbed behind a "Connect bank" button.
+- Server fns: `submitReferencingStep`, `decideReferencing`, `reconcileTransactions`.
 
-## Phase 3 — HMO workflow add-on
-- `rooms` extended: weekly_rent, deposit, available_from, photos[], size_sqm, en_suite, bills_included.
-- `tenancies` table: room_id/property_id, tenant_id, start/end, rent, frequency, deposit_scheme, deposit_ref, status.
-- `rent_schedule` table generated from tenancy (period_start, due_date, amount, paid_at, status).
-- Page `/_authenticated/hmo`: room board (Available / Reserved / Let / Notice), tenancy drawer, rent ledger, arrears badge.
-- Gated by `agencies.hmo_module_enabled` (already exists).
+---
 
-## Phase 4 — Marketplace polish (Rightmove/Bayut feel)
-- Filters: price min/max, beds, type tabs (already), radius (text postcode for now), keyword, sort.
-- Listing card: photo carousel (first 3), price prominence, agency badge, "Added today" pill, save heart.
-- Listing detail `/marketplace/$slug`: full gallery grid, key features, EPC badge, floor plan placeholder, similar listings, sticky agent contact card with "Request viewing" lead form (writes to `leads`).
-- Map view stub (list ↔ map toggle; map = placeholder with pins from lat/lng if present, else hidden).
+### 3. AI listing description generator + 360° tour / floorplan upload
 
-## Phase 5 — Cross-cutting polish
-- Tighter responsive grid (header uses `grid-cols-[minmax(0,1fr)_auto]` pattern).
-- Skeleton loaders on marketplace + dashboard.
-- Refined module landing pages with isometric icon hero badges.
-- Animated subtle hover/scale on cards.
+What you'll see:
+- `/_authenticated/ai-copy` upgraded: pick a listing, photos + facts auto-fill, "Generate" calls Lovable AI Gateway (Gemini 3 flash) and streams 4 outputs (short summary, full description, 5 bullet highlights, social caption). One-click apply to listing.
+- Listing edit drawer gets new tabs: **Floorplan** (PDF/PNG upload, preview) and **360° tour** (URL to Matterport/Kuula/Cupix + uploaded equirectangular JPG, simple `pannellum` viewer on listing detail page).
+- Public `/marketplace/$slug` shows floorplan thumbnail and "Take 360° tour" button when present.
 
-## Out of scope (next turn if you want)
-- Live UK postcode autocomplete (needs postcodes.io key)
-- Stripe rent collection
-- DocuSign-style e-sign for AST
-- Tenant portal sign-up flow (auth already supports tenants)
+Backend:
+- Columns added to `listings`: `floorplan_url text`, `tour_url text`, `tour_image_path text`, `ai_copy_short text`, `ai_copy_long text`, `ai_copy_highlights jsonb`, `ai_copy_caption text`, `ai_copy_generated_at timestamptz`.
+- Storage buckets `listing-floorplans`, `listing-tours` (public read, agency-write RLS).
+- Server fn `generateListingCopy(listingId)` — uses LOVABLE_API_KEY, returns structured output.
+- Server fn `saveListingAssets(listingId, floorplan_url?, tour_url?, tour_image_path?)`.
 
-## Order of execution
-1. Migration: compliance + tenancies + rent_schedule + room fields
-2. Generate 12 isometric icons in parallel
-3. `IsoIcon` component + replace key icons on landing/modules/dashboard
-4. Compliance hub UI + server fns
-5. HMO workflow UI + server fns
-6. Marketplace filters + listing detail + lead form
-7. Visual polish pass + skeletons + responsive audit
+---
 
-I'll execute phases sequentially, validating after each so the preview stays green throughout.
+### 4. Vendor login portal + branch switcher + role permissions matrix
+
+What you'll see:
+- `/_authenticated/vendor-portal` rebuilt for sellers: list of their sales deals, timeline (memo of sale → searches → enquiries → mortgage offer → exchange → completion), chain visualisation, messages to agent, document downloads.
+- `BranchSwitcher` (currently a stub) becomes a working header dropdown for users with multiple branches; selection persisted in localStorage + applied as a filter context across listings/leads/pipeline.
+- `/_authenticated/settings` gets a **Roles & permissions** matrix: rows = roles (owner, manager, agent, accounts, viewer), columns = capabilities (manage listings, view financials, edit compliance, invite users, manage branches). Owner-only edit.
+
+Backend:
+- Table `branches` (agency_id, name, address, postcode, is_primary).
+- Table `agency_member_branches` (member_id, branch_id) — many-to-many.
+- Column on `listings`, `leads`, `properties`, `sales_deals`: `branch_id` (nullable, backfilled to agency primary).
+- Table `role_permissions` (agency_id, role text, capability text, allowed bool); seeded defaults.
+- `has_capability(_user, _agency, _capability)` security-definer function for RLS gates.
+- Server fns: `listBranches`, `saveBranch`, `assignMemberToBranches`, `updatePermission`, `listMyVendorDeals`, `messageAgent`.
+
+---
+
+### Execution order
+
+1. Branches + role permissions schema (foundation for the rest).
+2. Saved searches schema + cron hook.
+3. Referencing + bank reconciliation schema.
+4. Listing assets + AI copy schema.
+5. UI for each, in the same order, behind the existing routes.
+6. Smoke-test in preview after every chunk.
+
+### Technical notes
+
+- Maps: Google Maps Platform connector (`VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY`) for marketplace map + polygon draw. Geocoding via gateway.
+- AI: Lovable AI Gateway, `google/gemini-3-flash-preview`, structured output for listing copy.
+- 360° viewer: `pannellum` (CDN script) — lightweight, no native deps.
+- Open banking: stubbed feed table with realistic mock data; integration point clearly marked so a real provider (Plaid/TrueLayer) can be slotted in later via connector.
+- Every new public table follows the GRANT → RLS → POLICY pattern.
+
+### Out of scope (next pass)
+
+- Real Plaid/TrueLayer integration (kept as stub).
+- Stripe billing for per-branch subscriptions (parked at user request).
+- Mobile inspection offline-first app.
+- White-label microsites.
+
+Approve to start with #1 (branches + permissions schema).

@@ -15,6 +15,8 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { fetchListings, fetchMarketplaceMeta } from "@/lib/public.functions";
+import { saveSearch as saveSearchRemoteFn } from "@/lib/saved-searches.functions";
+import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import { Search, SlidersHorizontal, MapPin, Building2, Sparkles, X, ArrowUpDown, Bookmark, LayoutGrid, Map as MapIcon } from "lucide-react";
 import { toast } from "sonner";
@@ -138,12 +140,25 @@ function MarketplacePage() {
   if (s.bills_included) activeFilters.push("bills included");
   if (s.furnished) activeFilters.push(s.furnished);
 
-  const saveSearch = () => {
+  const saveSearchRemote = useServerFn(saveSearchRemoteFn);
+  const saveSearch = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await saveSearchRemote({ data: {
+          name: q || where || undefined,
+          criteria: { ...s, q, city: where || s.city } as Record<string, unknown>,
+          alert_email: true, alert_push: false, frequency: "daily",
+        } });
+        toast.success("Search saved to your account");
+        return;
+      }
+    } catch { /* fall through to local */ }
     try {
       const saved = JSON.parse(localStorage.getItem("estately:saved-searches") ?? "[]");
       saved.unshift({ when: new Date().toISOString(), search: s, q, where });
       localStorage.setItem("estately:saved-searches", JSON.stringify(saved.slice(0, 20)));
-      toast.success("Search saved");
+      toast.success("Search saved on this device — sign in to sync");
     } catch { toast.error("Could not save"); }
   };
 

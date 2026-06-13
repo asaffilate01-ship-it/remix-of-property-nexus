@@ -41,6 +41,7 @@ const FULL: NavItem[] = [
   { to: "/reports", label: "Reports", icon: BarChart3 },
   { to: "/ai-copy", label: "AI listing copy", icon: Sparkles },
   { to: "/agency", label: "Agency", icon: Users },
+  { to: "/branches", label: "Branches", icon: Building2 },
   { to: "/settings", label: "Settings", icon: Settings },
 ];
 

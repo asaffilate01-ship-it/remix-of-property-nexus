@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Sparkles, Copy, RefreshCw, Wand2 } from "lucide-react";
 import { toast } from "sonner";
+import { generateListingCopy } from "@/lib/ai-copy.functions";
 
 export const Route = createFileRoute("/_authenticated/ai-copy")({
   head: () => ({ meta: [{ title: "AI listing copy — Estately" }] }),
@@ -16,18 +18,39 @@ export const Route = createFileRoute("/_authenticated/ai-copy")({
 });
 
 type Tone = "professional" | "warm" | "luxury" | "concise";
+type Output = { headline: string; short: string; long: string; bullets: string[]; caption: string };
 
 function AiCopyPage() {
-  const [form, setForm] = useState({ title: "", type: "house", beds: "3", baths: "2", area: "", features: "garden, off-street parking, modern kitchen", tone: "professional" as Tone });
-  const [out, setOut] = useState<{ headline: string; summary: string; long: string; bullets: string[] } | null>(null);
+  const gen = useServerFn(generateListingCopy);
+  const [form, setForm] = useState({
+    title: "",
+    property_type: "house",
+    beds: "3",
+    baths: "2",
+    area: "",
+    features: "garden, off-street parking, modern kitchen",
+    tone: "professional" as Tone,
+  });
+  const [out, setOut] = useState<Output | null>(null);
   const [busy, setBusy] = useState(false);
 
-  const generate = () => {
+  const generate = async () => {
     setBusy(true);
-    setTimeout(() => {
-      setOut(synth(form));
-      setBusy(false);
-    }, 500);
+    try {
+      const r = await gen({ data: {
+        title: form.title,
+        property_type: form.property_type,
+        beds: Number(form.beds) || 0,
+        baths: Number(form.baths) || 0,
+        area: form.area,
+        features: form.features,
+        tone: form.tone,
+      } });
+      setOut({ headline: r.headline, short: r.short, long: r.long, bullets: r.bullets, caption: r.caption });
+      toast.success("Copy generated");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Generation failed");
+    } finally { setBusy(false); }
   };
 
   const copy = (text: string) => { navigator.clipboard.writeText(text); toast.success("Copied"); };
@@ -36,7 +59,7 @@ function AiCopyPage() {
     <div className="space-y-6">
       <div>
         <h1 className="font-display text-2xl md:text-3xl font-bold tracking-tight">AI listing copy</h1>
-        <p className="text-muted-foreground mt-1">Generate Rightmove-ready descriptions, summaries and feature bullets in seconds.</p>
+        <p className="text-muted-foreground mt-1">Powered by Lovable AI. Rightmove-ready descriptions, summaries, bullets and social captions in seconds.</p>
       </div>
 
       <div className="grid lg:grid-cols-[1fr_1.4fr] gap-5">
@@ -46,7 +69,7 @@ function AiCopyPage() {
             <Field label="Property title / address"><Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="2 bed flat, Salford Quays" /></Field>
             <div className="grid grid-cols-3 gap-2">
               <Field label="Type">
-                <select className="w-full h-10 rounded-md border bg-background px-2 text-sm" value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}>
+                <select className="w-full h-10 rounded-md border bg-background px-2 text-sm" value={form.property_type} onChange={(e) => setForm({ ...form, property_type: e.target.value })}>
                   {["flat","house","bungalow","studio","hmo","commercial"].map((t) => <option key={t} value={t}>{t}</option>)}
                 </select>
               </Field>
@@ -77,7 +100,7 @@ function AiCopyPage() {
               <div className="h-full min-h-[400px] flex flex-col items-center justify-center text-center text-muted-foreground">
                 <div className="h-12 w-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-3"><Sparkles className="h-5 w-5" /></div>
                 <p className="font-medium text-foreground">Output appears here</p>
-                <p className="text-sm mt-1">Fill the form and tap Generate. You'll get a headline, summary, full description and feature bullets — ready to copy into Rightmove, Zoopla or your CRM.</p>
+                <p className="text-sm mt-1">Fill the form and tap Generate. You'll get a headline, summary, full description, bullets and a social caption — ready to copy into Rightmove, Zoopla or your CRM.</p>
               </div>
             ) : (
               <Tabs defaultValue="long">
@@ -86,20 +109,20 @@ function AiCopyPage() {
                   <TabsTrigger value="summary">Summary</TabsTrigger>
                   <TabsTrigger value="headline">Headline</TabsTrigger>
                   <TabsTrigger value="bullets">Bullets</TabsTrigger>
+                  <TabsTrigger value="caption">Social</TabsTrigger>
                 </TabsList>
-                <TabsContent value="long" className="space-y-3">
-                  <CopyBlock text={out.long} onCopy={() => copy(out.long)} />
-                </TabsContent>
-                <TabsContent value="summary"><CopyBlock text={out.summary} onCopy={() => copy(out.summary)} /></TabsContent>
+                <TabsContent value="long"><CopyBlock text={out.long} onCopy={() => copy(out.long)} /></TabsContent>
+                <TabsContent value="summary"><CopyBlock text={out.short} onCopy={() => copy(out.short)} /></TabsContent>
                 <TabsContent value="headline"><CopyBlock text={out.headline} onCopy={() => copy(out.headline)} /></TabsContent>
                 <TabsContent value="bullets" className="space-y-2">
                   <ul className="list-disc pl-5 space-y-1 text-sm">{out.bullets.map((b, i) => <li key={i}>{b}</li>)}</ul>
                   <Button variant="outline" size="sm" onClick={() => copy(out.bullets.map(b => `• ${b}`).join("\n"))}><Copy className="h-3.5 w-3.5 mr-1" /> Copy bullets</Button>
                 </TabsContent>
+                <TabsContent value="caption"><CopyBlock text={out.caption} onCopy={() => copy(out.caption)} /></TabsContent>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <Badge variant="secondary">Tone: {form.tone}</Badge>
                   <Badge variant="secondary">{form.beds} bed · {form.baths} bath</Badge>
-                  <Badge variant="secondary">{form.type}</Badge>
+                  <Badge variant="secondary">{form.property_type}</Badge>
                 </div>
               </Tabs>
             )}
@@ -120,20 +143,4 @@ function CopyBlock({ text, onCopy }: { text: string; onCopy: () => void }) {
       <Button size="sm" variant="outline" onClick={onCopy} className="absolute top-2 right-2"><Copy className="h-3.5 w-3.5 mr-1" /> Copy</Button>
     </div>
   );
-}
-
-function synth(f: { title: string; type: string; beds: string; baths: string; area: string; features: string; tone: Tone }) {
-  const feats = f.features.split(",").map((s) => s.trim()).filter(Boolean);
-  const area = f.area || "the area";
-  const opener = {
-    professional: `An impressive ${f.beds}-bedroom ${f.type} situated in the sought-after location of ${area}.`,
-    warm: `Welcome home — this beautifully presented ${f.beds}-bed ${f.type} in ${area} is ready to fall in love with.`,
-    luxury: `A rare opportunity to acquire an exceptional ${f.beds}-bedroom ${f.type} in the prestigious enclave of ${area}.`,
-    concise: `${f.beds}-bed ${f.type} in ${area}.`,
-  }[f.tone];
-  const headline = `${f.beds} bed ${f.type} ${f.title ? `— ${f.title}` : ""} in ${area}`.trim();
-  const summary = `${opener} Boasting ${f.baths} bathroom${f.baths === "1" ? "" : "s"} and standout features including ${feats.slice(0, 3).join(", ") || "a host of modern fittings"}.`;
-  const long = `${opener}\n\nArranged over generous living space, the property offers ${f.beds} well-proportioned bedrooms and ${f.baths} bathroom${f.baths === "1" ? "" : "s"}. Notable features include ${feats.join(", ") || "tasteful modern finishes throughout"}.\n\n${area} is renowned for its excellent transport links, schools and local amenities, making this an ideal home for families and professionals alike.\n\nViewing is highly recommended to fully appreciate everything on offer.`;
-  const bullets = [`${f.beds} bedrooms, ${f.baths} bathroom${f.baths === "1" ? "" : "s"}`, `Located in ${area}`, ...feats, "Energy-efficient features", "Early viewing advised"];
-  return { headline, summary, long, bullets };
 }

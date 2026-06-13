@@ -1,10 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Banknote, TrendingDown, AlertTriangle, Mail, Phone, FileText, Link2 } from "lucide-react";
+import { Banknote, Mail, Phone, FileText, Link2, Sparkles, RefreshCw, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
+import { listBankTransactions, reconcileTransactions, seedMockBankFeed } from "@/lib/banking.functions";
 
 export const Route = createFileRoute("/_authenticated/arrears")({
   head: () => ({ meta: [{ title: "Arrears & rent reconciliation — Estately" }] }),
@@ -35,6 +37,37 @@ function ArrearsPage() {
   const [rows] = useState(SEED);
   const [reconciled, setReconciled] = useState(false);
 
+  const fetchTxn = useServerFn(listBankTransactions);
+  const runReconcile = useServerFn(reconcileTransactions);
+  const seed = useServerFn(seedMockBankFeed);
+  const [txns, setTxns] = useState<Array<{ id: string; posted_at: string; amount: number; reference: string | null; counterparty: string | null; matched_rent_schedule_id: string | null }>>([]);
+  const [busy, setBusy] = useState(false);
+
+  const refresh = async () => {
+    try { const r = await fetchTxn({}); setTxns(r.transactions as never); } catch { /* noop */ }
+  };
+  useEffect(() => { refresh(); }, []);
+
+  const connect = async () => {
+    setBusy(true);
+    try {
+      await seed({});
+      setReconciled(true);
+      await refresh();
+      toast.success("Sandbox bank feed connected");
+    } catch (e) { toast.error(e instanceof Error ? e.message : "Failed"); }
+    finally { setBusy(false); }
+  };
+  const doReconcile = async () => {
+    setBusy(true);
+    try {
+      const r = await runReconcile({});
+      await refresh();
+      toast.success(`${r.matched} of ${r.scanned} transactions matched to rent due`);
+    } catch (e) { toast.error(e instanceof Error ? e.message : "Failed"); }
+    finally { setBusy(false); }
+  };
+
   const total = rows.reduce((a, r) => a + r.balance, 0);
   const buckets = (["1_to_7","8_to_30","31_to_60","60_plus"] as Stage[]).map(s => ({ s, total: rows.filter(r => r.stage === s).reduce((a, r) => a + r.balance, 0) }));
 
@@ -45,9 +78,17 @@ function ArrearsPage() {
           <h1 className="font-display text-2xl md:text-3xl font-bold tracking-tight">Arrears & rent reconciliation</h1>
           <p className="text-muted-foreground mt-1">Connect a bank feed via Open Banking (FCA‑regulated) — rents auto‑match against the schedule.</p>
         </div>
-        <Button variant={reconciled ? "outline" : "default"} onClick={() => { setReconciled(true); toast.success("Bank feed connected — 47 transactions matched"); }}>
-          <Link2 className="h-4 w-4 mr-2" /> {reconciled ? "Connected: Barclays Business" : "Connect bank (Open Banking)"}
-        </Button>
+        <div className="flex gap-2">
+          <Button variant={reconciled ? "outline" : "default"} onClick={connect} disabled={busy}>
+            <Link2 className="h-4 w-4 mr-2" /> {reconciled ? "Connected: Sandbox feed" : "Connect bank (sandbox)"}
+          </Button>
+          {reconciled && (
+            <Button variant="secondary" onClick={doReconcile} disabled={busy}>
+              {busy ? <RefreshCw className="h-4 w-4 mr-2 animate-spin" /> : <Sparkles className="h-4 w-4 mr-2" />}
+              Auto-reconcile
+            </Button>
+          )}
+        </div>
       </div>
 
       <div className="grid sm:grid-cols-5 gap-3">
@@ -105,12 +146,54 @@ function ArrearsPage() {
         </CardContent>
       </Card>
 
+      {txns.length > 0 && (
+        <Card className="border-0 shadow-card">
+          <CardContent className="p-5">
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <h2 className="font-semibold">Bank transactions</h2>
+                <p className="text-xs text-muted-foreground">{txns.filter((t) => t.matched_rent_schedule_id).length} of {txns.length} matched to rent due</p>
+              </div>
+              <Badge variant="secondary">{txns.length} cleared</Badge>
+            </div>
+            <div className="overflow-x-auto -mx-5 px-5">
+              <table className="w-full text-sm">
+                <thead className="text-xs uppercase tracking-wide text-muted-foreground">
+                  <tr>
+                    <th className="text-left py-2">Posted</th>
+                    <th className="text-left py-2">Counterparty</th>
+                    <th className="text-left py-2">Reference</th>
+                    <th className="text-right py-2">Amount</th>
+                    <th className="text-right py-2">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {txns.slice(0, 20).map((t) => (
+                    <tr key={t.id} className="border-t">
+                      <td className="py-2 text-xs text-muted-foreground">{new Date(t.posted_at).toLocaleDateString()}</td>
+                      <td className="py-2">{t.counterparty ?? "—"}</td>
+                      <td className="py-2 text-xs text-muted-foreground">{t.reference ?? "—"}</td>
+                      <td className="py-2 text-right tabular-nums">£{Number(t.amount).toLocaleString()}</td>
+                      <td className="py-2 text-right">
+                        {t.matched_rent_schedule_id
+                          ? <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200"><CheckCircle2 className="h-3 w-3 mr-1" />Matched</Badge>
+                          : <Badge variant="outline">Unmatched</Badge>}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <Card className="border-0 shadow-card">
         <CardContent className="p-5 flex items-start gap-3">
           <div className="h-10 w-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center"><Banknote className="h-5 w-5" /></div>
           <div className="text-sm">
             <div className="font-semibold">How reconciliation works</div>
-            <div className="text-muted-foreground mt-1">Open Banking feeds (TrueLayer/Plaid) pull cleared transactions every 4 hours. We match by tenancy reference, amount and payer name — anything ambiguous lands in a review queue.</div>
+            <div className="text-muted-foreground mt-1">A sandbox feed is currently in use. Switch to a live Open Banking provider (TrueLayer/Plaid) to pull cleared transactions every 4 hours. We match by tenancy reference and amount — anything ambiguous lands in a review queue.</div>
           </div>
         </CardContent>
       </Card>
