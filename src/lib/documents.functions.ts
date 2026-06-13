@@ -54,8 +54,8 @@ export const createDocument = createServerFn({ method: "POST" })
       notes: data.notes || null,
       uploaded_by: context.userId,
       property_id: data.scope === "property" ? data.scope_id : null,
-      landlord_contact_id: data.scope === "landlord" ? data.scope_id : null,
-      tenant_contact_id: data.scope === "tenant" ? data.scope_id : null,
+      landlord_user_id: data.scope === "landlord" ? data.scope_id : null,
+      tenant_user_id: data.scope === "tenant" ? data.scope_id : null,
       tenancy_id: data.scope === "tenancy" ? data.scope_id : null,
       agency_id: data.scope === "agency" ? data.scope_id : data.agency_id ?? null,
     };
