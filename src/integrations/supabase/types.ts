@@ -83,6 +83,42 @@ export type Database = {
         }
         Relationships: []
       }
+      agency_member_branches: {
+        Row: {
+          branch_id: string
+          created_at: string
+          id: string
+          member_id: string
+        }
+        Insert: {
+          branch_id: string
+          created_at?: string
+          id?: string
+          member_id: string
+        }
+        Update: {
+          branch_id?: string
+          created_at?: string
+          id?: string
+          member_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agency_member_branches_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agency_member_branches_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "agency_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       agency_members: {
         Row: {
           agency_id: string
@@ -108,6 +144,126 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "agency_members_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bank_transactions: {
+        Row: {
+          agency_id: string
+          amount: number
+          counterparty: string | null
+          created_at: string
+          currency: string
+          id: string
+          matched_at: string | null
+          matched_rent_schedule_id: string | null
+          matched_tenancy_id: string | null
+          posted_at: string
+          raw: Json | null
+          reference: string | null
+          source: string
+        }
+        Insert: {
+          agency_id: string
+          amount: number
+          counterparty?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          matched_at?: string | null
+          matched_rent_schedule_id?: string | null
+          matched_tenancy_id?: string | null
+          posted_at?: string
+          raw?: Json | null
+          reference?: string | null
+          source?: string
+        }
+        Update: {
+          agency_id?: string
+          amount?: number
+          counterparty?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          matched_at?: string | null
+          matched_rent_schedule_id?: string | null
+          matched_tenancy_id?: string | null
+          posted_at?: string
+          raw?: Json | null
+          reference?: string | null
+          source?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bank_transactions_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bank_transactions_matched_rent_schedule_id_fkey"
+            columns: ["matched_rent_schedule_id"]
+            isOneToOne: false
+            referencedRelation: "rent_schedule"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bank_transactions_matched_tenancy_id_fkey"
+            columns: ["matched_tenancy_id"]
+            isOneToOne: false
+            referencedRelation: "tenancies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      branches: {
+        Row: {
+          address: string | null
+          agency_id: string
+          city: string | null
+          created_at: string
+          email: string | null
+          id: string
+          is_primary: boolean
+          name: string
+          phone: string | null
+          postcode: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          agency_id: string
+          city?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_primary?: boolean
+          name: string
+          phone?: string | null
+          postcode?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          agency_id?: string
+          city?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_primary?: boolean
+          name?: string
+          phone?: string | null
+          postcode?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "branches_agency_id_fkey"
             columns: ["agency_id"]
             isOneToOne: false
             referencedRelation: "agencies"
@@ -459,6 +615,7 @@ export type Database = {
       leads: {
         Row: {
           agency_id: string | null
+          branch_id: string | null
           created_at: string
           email: string | null
           id: string
@@ -473,6 +630,7 @@ export type Database = {
         }
         Insert: {
           agency_id?: string | null
+          branch_id?: string | null
           created_at?: string
           email?: string | null
           id?: string
@@ -487,6 +645,7 @@ export type Database = {
         }
         Update: {
           agency_id?: string | null
+          branch_id?: string | null
           created_at?: string
           email?: string | null
           id?: string
@@ -508,6 +667,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "leads_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "leads_listing_id_fkey"
             columns: ["listing_id"]
             isOneToOne: false
@@ -520,10 +686,16 @@ export type Database = {
         Row: {
           address: string | null
           agency_id: string | null
+          ai_copy_caption: string | null
+          ai_copy_generated_at: string | null
+          ai_copy_highlights: Json | null
+          ai_copy_long: string | null
+          ai_copy_short: string | null
           available_from: string | null
           bathrooms: number | null
           bedrooms: number | null
           bills_included: boolean
+          branch_id: string | null
           business_rates_pa: number | null
           city: string | null
           council_tax_band: string | null
@@ -534,6 +706,7 @@ export type Database = {
           epc_rating: string | null
           features: Json
           floor_area_sqft: number | null
+          floorplan_url: string | null
           furnished: string | null
           id: string
           is_hmo: boolean
@@ -555,16 +728,24 @@ export type Database = {
           status: Database["public"]["Enums"]["listing_status"]
           tenure: Database["public"]["Enums"]["tenure_type"] | null
           title: string
+          tour_image_path: string | null
+          tour_url: string | null
           updated_at: string
           view_count: number
         }
         Insert: {
           address?: string | null
           agency_id?: string | null
+          ai_copy_caption?: string | null
+          ai_copy_generated_at?: string | null
+          ai_copy_highlights?: Json | null
+          ai_copy_long?: string | null
+          ai_copy_short?: string | null
           available_from?: string | null
           bathrooms?: number | null
           bedrooms?: number | null
           bills_included?: boolean
+          branch_id?: string | null
           business_rates_pa?: number | null
           city?: string | null
           council_tax_band?: string | null
@@ -575,6 +756,7 @@ export type Database = {
           epc_rating?: string | null
           features?: Json
           floor_area_sqft?: number | null
+          floorplan_url?: string | null
           furnished?: string | null
           id?: string
           is_hmo?: boolean
@@ -598,16 +780,24 @@ export type Database = {
           status?: Database["public"]["Enums"]["listing_status"]
           tenure?: Database["public"]["Enums"]["tenure_type"] | null
           title: string
+          tour_image_path?: string | null
+          tour_url?: string | null
           updated_at?: string
           view_count?: number
         }
         Update: {
           address?: string | null
           agency_id?: string | null
+          ai_copy_caption?: string | null
+          ai_copy_generated_at?: string | null
+          ai_copy_highlights?: Json | null
+          ai_copy_long?: string | null
+          ai_copy_short?: string | null
           available_from?: string | null
           bathrooms?: number | null
           bedrooms?: number | null
           bills_included?: boolean
+          branch_id?: string | null
           business_rates_pa?: number | null
           city?: string | null
           council_tax_band?: string | null
@@ -618,6 +808,7 @@ export type Database = {
           epc_rating?: string | null
           features?: Json
           floor_area_sqft?: number | null
+          floorplan_url?: string | null
           furnished?: string | null
           id?: string
           is_hmo?: boolean
@@ -641,6 +832,8 @@ export type Database = {
           status?: Database["public"]["Enums"]["listing_status"]
           tenure?: Database["public"]["Enums"]["tenure_type"] | null
           title?: string
+          tour_image_path?: string | null
+          tour_url?: string | null
           updated_at?: string
           view_count?: number
         }
@@ -650,6 +843,13 @@ export type Database = {
             columns: ["agency_id"]
             isOneToOne: false
             referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listings_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
             referencedColumns: ["id"]
           },
           {
@@ -697,6 +897,7 @@ export type Database = {
           agency_id: string | null
           bathrooms: number | null
           bedrooms: number | null
+          branch_id: string | null
           city: string | null
           created_at: string
           hmo_licence_expires: string | null
@@ -716,6 +917,7 @@ export type Database = {
           agency_id?: string | null
           bathrooms?: number | null
           bedrooms?: number | null
+          branch_id?: string | null
           city?: string | null
           created_at?: string
           hmo_licence_expires?: string | null
@@ -735,6 +937,7 @@ export type Database = {
           agency_id?: string | null
           bathrooms?: number | null
           bedrooms?: number | null
+          branch_id?: string | null
           city?: string | null
           created_at?: string
           hmo_licence_expires?: string | null
@@ -755,6 +958,129 @@ export type Database = {
             columns: ["agency_id"]
             isOneToOne: false
             referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "properties_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      referencing_cases: {
+        Row: {
+          agency_id: string | null
+          applicant: Json
+          created_at: string
+          credit_consent: boolean
+          current_step: number
+          decided_at: string | null
+          decided_by: string | null
+          decision: string | null
+          employment: Json
+          id: string
+          income_monthly: number | null
+          notes: string | null
+          previous_landlord: Json
+          property_id: string | null
+          status: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          agency_id?: string | null
+          applicant?: Json
+          created_at?: string
+          credit_consent?: boolean
+          current_step?: number
+          decided_at?: string | null
+          decided_by?: string | null
+          decision?: string | null
+          employment?: Json
+          id?: string
+          income_monthly?: number | null
+          notes?: string | null
+          previous_landlord?: Json
+          property_id?: string | null
+          status?: string
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          agency_id?: string | null
+          applicant?: Json
+          created_at?: string
+          credit_consent?: boolean
+          current_step?: number
+          decided_at?: string | null
+          decided_by?: string | null
+          decision?: string | null
+          employment?: Json
+          id?: string
+          income_monthly?: number | null
+          notes?: string | null
+          previous_landlord?: Json
+          property_id?: string | null
+          status?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referencing_cases_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referencing_cases_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      referencing_documents: {
+        Row: {
+          case_id: string
+          created_at: string
+          doc_type: string
+          file_size: number | null
+          id: string
+          mime_type: string | null
+          storage_path: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          case_id: string
+          created_at?: string
+          doc_type: string
+          file_size?: number | null
+          id?: string
+          mime_type?: string | null
+          storage_path: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          case_id?: string
+          created_at?: string
+          doc_type?: string
+          file_size?: number | null
+          id?: string
+          mime_type?: string | null
+          storage_path?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referencing_documents_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "referencing_cases"
             referencedColumns: ["id"]
           },
         ]
@@ -808,6 +1134,44 @@ export type Database = {
             columns: ["tenancy_id"]
             isOneToOne: false
             referencedRelation: "tenancies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      role_permissions: {
+        Row: {
+          agency_id: string
+          allowed: boolean
+          capability: string
+          created_at: string
+          id: string
+          role: string
+          updated_at: string
+        }
+        Insert: {
+          agency_id: string
+          allowed?: boolean
+          capability: string
+          created_at?: string
+          id?: string
+          role: string
+          updated_at?: string
+        }
+        Update: {
+          agency_id?: string
+          allowed?: boolean
+          capability?: string
+          created_at?: string
+          id?: string
+          role?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "role_permissions_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
             referencedColumns: ["id"]
           },
         ]
@@ -878,6 +1242,7 @@ export type Database = {
         Row: {
           agency_id: string
           agreed_price: number | null
+          branch_id: string | null
           buyer_conveyancer_id: string | null
           buyer_lead_id: string | null
           chain_position: string | null
@@ -901,6 +1266,7 @@ export type Database = {
         Insert: {
           agency_id: string
           agreed_price?: number | null
+          branch_id?: string | null
           buyer_conveyancer_id?: string | null
           buyer_lead_id?: string | null
           chain_position?: string | null
@@ -924,6 +1290,7 @@ export type Database = {
         Update: {
           agency_id?: string
           agreed_price?: number | null
+          branch_id?: string | null
           buyer_conveyancer_id?: string | null
           buyer_lead_id?: string | null
           chain_position?: string | null
@@ -950,6 +1317,13 @@ export type Database = {
             columns: ["agency_id"]
             isOneToOne: false
             referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_deals_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
             referencedColumns: ["id"]
           },
           {
@@ -988,6 +1362,84 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      saved_search_matches: {
+        Row: {
+          id: string
+          listing_id: string
+          notified_at: string
+          saved_search_id: string
+        }
+        Insert: {
+          id?: string
+          listing_id: string
+          notified_at?: string
+          saved_search_id: string
+        }
+        Update: {
+          id?: string
+          listing_id?: string
+          notified_at?: string
+          saved_search_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_search_matches_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "saved_search_matches_saved_search_id_fkey"
+            columns: ["saved_search_id"]
+            isOneToOne: false
+            referencedRelation: "saved_searches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      saved_searches: {
+        Row: {
+          alert_email: boolean
+          alert_push: boolean
+          created_at: string
+          criteria: Json
+          frequency: string
+          id: string
+          last_notified_at: string | null
+          name: string | null
+          polygon: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          alert_email?: boolean
+          alert_push?: boolean
+          created_at?: string
+          criteria?: Json
+          frequency?: string
+          id?: string
+          last_notified_at?: string | null
+          name?: string | null
+          polygon?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          alert_email?: boolean
+          alert_push?: boolean
+          created_at?: string
+          criteria?: Json
+          frequency?: string
+          id?: string
+          last_notified_at?: string | null
+          name?: string | null
+          polygon?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       tenancies: {
         Row: {
@@ -1245,6 +1697,10 @@ export type Database = {
     }
     Functions: {
       current_user_contact_ids: { Args: never; Returns: string[] }
+      has_capability: {
+        Args: { _agency: string; _capability: string; _user: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
