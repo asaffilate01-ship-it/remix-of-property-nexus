@@ -62,15 +62,15 @@ function DocumentsPage() {
   const properties = data?.properties ?? [];
   const agencies = data?.agencies ?? [];
   const tenancies = data?.tenancies ?? [];
-  const contacts = data?.contacts ?? [];
-  const landlords = contacts.filter((c) => c.contact_type === "landlord");
-  const tenants = contacts.filter((c) => c.contact_type === "tenant");
+  const profiles = data?.profiles ?? [];
+  const landlords = profiles.filter((p: { primary_role: string }) => p.primary_role === "landlord");
+  const tenants = profiles.filter((p: { primary_role: string }) => p.primary_role === "tenant");
 
   const scopeOptions = useMemo(() => {
     switch (form.scope) {
       case "property": return properties.map((p) => ({ value: p.id, label: p.title }));
-      case "landlord": return landlords.map((c) => ({ value: c.id, label: c.full_name }));
-      case "tenant": return tenants.map((c) => ({ value: c.id, label: c.full_name }));
+      case "landlord": return landlords.map((c: { id: string; full_name: string | null }) => ({ value: c.id, label: c.full_name ?? c.id }));
+      case "tenant": return tenants.map((c: { id: string; full_name: string | null }) => ({ value: c.id, label: c.full_name ?? c.id }));
       case "tenancy": return tenancies.map((t) => ({ value: t.id, label: t.tenant_name }));
       case "agency": return agencies.map((a) => ({ value: a.id, label: a.name }));
     }
@@ -85,8 +85,8 @@ function DocumentsPage() {
 
   function scopeLabel(d: typeof docs[number]) {
     if (d.scope === "property") return properties.find((p) => p.id === d.property_id)?.title;
-    if (d.scope === "landlord") return landlords.find((c) => c.id === d.landlord_contact_id)?.full_name;
-    if (d.scope === "tenant") return tenants.find((c) => c.id === d.tenant_contact_id)?.full_name;
+    if (d.scope === "landlord") return landlords.find((c: { id: string }) => c.id === d.landlord_user_id)?.full_name;
+    if (d.scope === "tenant") return tenants.find((c: { id: string }) => c.id === d.tenant_user_id)?.full_name;
     if (d.scope === "tenancy") return tenancies.find((t) => t.id === d.tenancy_id)?.tenant_name;
     if (d.scope === "agency") return agencies.find((a) => a.id === d.agency_id)?.name;
     return null;
