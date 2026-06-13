@@ -132,8 +132,9 @@ export const fetchListings = createServerFn({ method: "GET" })
 
     // Distance filter + annotation
     let resolvedCentroid: { lat: number; lng: number; label: string } | null = centroid;
+    let withDistance: (typeof listings[number] & { distance_miles: number | null })[] = listings.map((l) => ({ ...l, distance_miles: null }));
     if (centroid && radius > 0) {
-      listings = listings
+      withDistance = listings
         .map((l) => {
           const lat = l.latitude != null ? Number(l.latitude) : null;
           const lng = l.longitude != null ? Number(l.longitude) : null;
@@ -142,12 +143,12 @@ export const fetchListings = createServerFn({ method: "GET" })
         })
         .filter((l) => l.distance_miles != null && (l.distance_miles as number) <= radius);
       if (sort === "distance") {
-        listings.sort((a, b) => (a.distance_miles ?? 1e9) - (b.distance_miles ?? 1e9));
+        withDistance.sort((a, b) => (a.distance_miles ?? 1e9) - (b.distance_miles ?? 1e9));
       }
     }
-    if (listings.length > 120) listings = listings.slice(0, 120);
+    const final = withDistance.length > 120 ? withDistance.slice(0, 120) : withDistance;
 
-    return { listings, centroid: resolvedCentroid };
+    return { listings: final, centroid: resolvedCentroid };
   });
 
 export const fetchMarketplaceMeta = createServerFn({ method: "GET" }).handler(async () => {
