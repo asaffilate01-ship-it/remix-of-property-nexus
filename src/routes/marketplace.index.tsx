@@ -514,18 +514,21 @@ function FiltersSheet({ s, setSearch, category }: { s: SearchParams; setSearch: 
             </div>
           </div>
 
-          <div>
-            <Label>Tenure</Label>
-            <Select value={local.tenure} onValueChange={(v) => setLocal({ ...local, tenure: v })}>
-              <SelectTrigger className="mt-2"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="any">Any</SelectItem>
-                <SelectItem value="freehold">Freehold</SelectItem>
-                <SelectItem value="leasehold">Leasehold</SelectItem>
-                <SelectItem value="share_of_freehold">Share of freehold</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          {(category === "all" || category === "sale") && (
+            <div>
+              <Label>Tenure</Label>
+              <Select value={local.tenure} onValueChange={(v) => setLocal({ ...local, tenure: v })}>
+                <SelectTrigger className="mt-2"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="any">Any</SelectItem>
+                  <SelectItem value="freehold">Freehold</SelectItem>
+                  <SelectItem value="leasehold">Leasehold</SelectItem>
+                  <SelectItem value="share_of_freehold">Share of freehold</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
 
           <div>
             <Label>Features &amp; must-haves</Label>
