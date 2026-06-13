@@ -131,6 +131,25 @@ function AgencyPage() {
         </section>
       )}
 
+      {/* Why choose + team */}
+      <section className="container mx-auto px-4 py-8">
+        <div className="grid lg:grid-cols-3 gap-4">
+          {[
+            { icon: <Star className="h-5 w-5" />, t: "Local experts", d: `${a.city ?? "Local"} sales & lettings team with deep area knowledge.` },
+            { icon: <ShieldCheck className="h-5 w-5" />, t: "Regulated & insured", d: "ARLA Propertymark, redress scheme, CMP protected." },
+            { icon: <Users className="h-5 w-5" />, t: "Dedicated negotiators", d: "One point of contact from instruction to completion." },
+          ].map((b) => (
+            <Card key={b.t} className="border-0 shadow-card">
+              <CardContent className="p-5">
+                <div className="h-9 w-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-3">{b.icon}</div>
+                <div className="font-semibold">{b.t}</div>
+                <div className="text-sm text-muted-foreground mt-1">{b.d}</div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </section>
+
       <section className="container mx-auto px-4 pb-16">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold">Properties</h2>
