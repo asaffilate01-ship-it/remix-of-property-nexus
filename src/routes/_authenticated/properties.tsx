@@ -1,92 +1,522 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Building2 } from "lucide-react";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
+import { Plus, Building2, Pencil, Trash2, BedDouble, Users, PoundSterling, Search } from "lucide-react";
 import { toast } from "sonner";
-
-type Property = { id: string; title: string; address: string | null; city: string | null; postcode: string | null; bedrooms: number | null; is_hmo: boolean; hmo_licence_expires: string | null };
 
 export const Route = createFileRoute("/_authenticated/properties")({ component: PropertiesPage });
 
+type Property = {
+  id: string; title: string; address: string | null; city: string | null; postcode: string | null;
+  property_type: string | null; bedrooms: number | null; bathrooms: number | null;
+  is_hmo: boolean; hmo_licence_number: string | null; hmo_licence_expires: string | null;
+  listing_purpose: "rent" | "sale" | "both"; notes: string | null;
+};
+type Room = { id: string; property_id: string; name: string; rent_pcm: number | null; status: string; en_suite: boolean | null; bills_included: boolean | null; available_from: string | null };
+type Tenancy = { id: string; property_id: string; room_id: string | null; tenant_name: string; tenant_email: string | null; tenant_phone: string | null; start_date: string; end_date: string | null; rent_amount: number; rent_frequency: "weekly" | "monthly"; deposit: number | null; status: string };
+
+const PURPOSES = ["rent", "sale", "both"] as const;
+const PROPERTY_TYPES = ["house", "flat", "studio", "hmo", "bungalow", "commercial", "land"] as const;
+
+const emptyProp = { id: "", title: "", address: "", city: "", postcode: "", property_type: "", bedrooms: "", bathrooms: "", is_hmo: false, hmo_licence_number: "", hmo_licence_expires: "", listing_purpose: "rent" as Property["listing_purpose"], notes: "" };
+const emptyRoom = { id: "", name: "", rent_pcm: "", status: "vacant", en_suite: false, bills_included: true, available_from: "" };
+const emptyTenancy = { id: "", room_id: "", tenant_name: "", tenant_email: "", tenant_phone: "", start_date: "", end_date: "", rent_amount: "", rent_frequency: "monthly" as "weekly" | "monthly", deposit: "", status: "draft" };
+
 function PropertiesPage() {
   const [rows, setRows] = useState<Property[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [q, setQ] = useState("");
+  const [filterPurpose, setFilterPurpose] = useState<string>("all");
+  const [filterHmo, setFilterHmo] = useState<string>("all");
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ title: "", address: "", city: "", postcode: "", bedrooms: "", is_hmo: false });
+  const [form, setForm] = useState(emptyProp);
+  const [active, setActive] = useState<Property | null>(null);
 
   const load = async () => {
-    const { data } = await supabase.from("properties").select("*").order("created_at", { ascending: false });
+    setLoading(true);
+    const { data, error } = await supabase.from("properties").select("*").order("created_at", { ascending: false });
+    if (error) toast.error(error.message);
     setRows((data as Property[]) ?? []);
+    setLoading(false);
   };
   useEffect(() => { load(); }, []);
 
-  const save = async () => {
-    const { data: u } = await supabase.auth.getUser();
-    if (!u.user) return;
-    const { error } = await supabase.from("properties").insert({
-      owner_id: u.user.id,
-      title: form.title,
-      address: form.address || null,
-      city: form.city || null,
-      postcode: form.postcode || null,
-      bedrooms: form.bedrooms ? Number(form.bedrooms) : null,
-      is_hmo: form.is_hmo,
+  const filtered = useMemo(() => rows.filter((p) => {
+    if (filterPurpose !== "all" && p.listing_purpose !== filterPurpose) return false;
+    if (filterHmo === "hmo" && !p.is_hmo) return false;
+    if (filterHmo === "std" && p.is_hmo) return false;
+    if (q) {
+      const t = `${p.title} ${p.address ?? ""} ${p.city ?? ""} ${p.postcode ?? ""}`.toLowerCase();
+      if (!t.includes(q.toLowerCase())) return false;
+    }
+    return true;
+  }), [rows, q, filterPurpose, filterHmo]);
+
+  const startNew = () => { setForm(emptyProp); setOpen(true); };
+  const startEdit = (p: Property) => {
+    setForm({
+      id: p.id, title: p.title, address: p.address ?? "", city: p.city ?? "", postcode: p.postcode ?? "",
+      property_type: p.property_type ?? "", bedrooms: p.bedrooms?.toString() ?? "", bathrooms: p.bathrooms?.toString() ?? "",
+      is_hmo: p.is_hmo, hmo_licence_number: p.hmo_licence_number ?? "", hmo_licence_expires: p.hmo_licence_expires ?? "",
+      listing_purpose: p.listing_purpose, notes: p.notes ?? "",
     });
-    if (error) toast.error(error.message);
-    else { toast.success("Property added"); setOpen(false); setForm({ title: "", address: "", city: "", postcode: "", bedrooms: "", is_hmo: false }); load(); }
+    setOpen(true);
+  };
+
+  const save = async () => {
+    if (!form.title.trim()) return toast.error("Title required");
+    const payload: any = {
+      title: form.title, address: form.address || null, city: form.city || null, postcode: form.postcode || null,
+      property_type: form.property_type || null,
+      bedrooms: form.bedrooms ? Number(form.bedrooms) : null,
+      bathrooms: form.bathrooms ? Number(form.bathrooms) : null,
+      is_hmo: form.is_hmo,
+      hmo_licence_number: form.hmo_licence_number || null,
+      hmo_licence_expires: form.hmo_licence_expires || null,
+      listing_purpose: form.listing_purpose,
+      notes: form.notes || null,
+    };
+    if (form.id) {
+      const { error } = await supabase.from("properties").update(payload).eq("id", form.id);
+      if (error) return toast.error(error.message);
+      toast.success("Updated");
+    } else {
+      const { data: u } = await supabase.auth.getUser();
+      if (!u.user) return;
+      payload.owner_id = u.user.id;
+      const { error } = await supabase.from("properties").insert(payload);
+      if (error) return toast.error(error.message);
+      toast.success("Added");
+    }
+    setOpen(false); setForm(emptyProp); load();
+  };
+
+  const remove = async (id: string) => {
+    const { error } = await supabase.from("properties").delete().eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success("Deleted");
+    setActive(null);
+    load();
   };
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div><h1 className="text-2xl font-bold">Properties</h1><p className="text-muted-foreground text-sm">Your portfolio.</p></div>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild><Button><Plus className="mr-2 h-4 w-4" /> Add property</Button></DialogTrigger>
-          <DialogContent>
-            <DialogHeader><DialogTitle>Add property</DialogTitle></DialogHeader>
-            <div className="space-y-3">
-              <div><Label>Title</Label><Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></div>
-              <div><Label>Address</Label><Input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} /></div>
-              <div className="grid grid-cols-2 gap-3">
-                <div><Label>City</Label><Input value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} /></div>
-                <div><Label>Postcode</Label><Input value={form.postcode} onChange={(e) => setForm({ ...form, postcode: e.target.value })} /></div>
-              </div>
-              <div><Label>Bedrooms</Label><Input type="number" value={form.bedrooms} onChange={(e) => setForm({ ...form, bedrooms: e.target.value })} /></div>
-              <div className="flex items-center gap-2"><Switch checked={form.is_hmo} onCheckedChange={(v) => setForm({ ...form, is_hmo: v })} /><Label>HMO property</Label></div>
-            </div>
-            <DialogFooter><Button onClick={save} disabled={!form.title}>Save</Button></DialogFooter>
-          </DialogContent>
-        </Dialog>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Properties</h1>
+          <p className="text-muted-foreground text-sm">Your portfolio — units, rooms, tenancies & rent</p>
+        </div>
+        <Button onClick={startNew}><Plus className="mr-2 h-4 w-4" /> Add property</Button>
       </div>
-      {rows.length === 0 ? (
+
+      <div className="flex flex-wrap gap-2 items-center">
+        <div className="relative flex-1 min-w-[200px]">
+          <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search title, city, postcode..." className="pl-9" />
+        </div>
+        <Select value={filterPurpose} onValueChange={setFilterPurpose}>
+          <SelectTrigger className="w-[140px]"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All purposes</SelectItem>
+            <SelectItem value="rent">For rent</SelectItem>
+            <SelectItem value="sale">For sale</SelectItem>
+            <SelectItem value="both">Both</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={filterHmo} onValueChange={setFilterHmo}>
+          <SelectTrigger className="w-[140px]"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All types</SelectItem>
+            <SelectItem value="hmo">HMO only</SelectItem>
+            <SelectItem value="std">Standard only</SelectItem>
+          </SelectContent>
+        </Select>
+        <div className="text-xs text-muted-foreground ml-auto">{filtered.length} of {rows.length}</div>
+      </div>
+
+      {loading ? (
+        <div className="text-muted-foreground text-sm">Loading…</div>
+      ) : filtered.length === 0 ? (
         <Card className="border-dashed border-2 bg-transparent">
           <CardContent className="p-12 text-center text-muted-foreground">
             <Building2 className="mx-auto h-10 w-10 mb-3 opacity-40" />
-            <div>No properties yet. Add your first one above.</div>
+            <div>{rows.length === 0 ? "No properties yet. Add your first one above." : "No matches for current filters."}</div>
           </CardContent>
         </Card>
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {rows.map((p) => (
-            <Card key={p.id} className="border-0 shadow-card">
+          {filtered.map((p) => (
+            <Card key={p.id} className="border-0 shadow-card hover:shadow-md transition-shadow cursor-pointer" onClick={() => setActive(p)}>
               <CardContent className="p-5">
-                <div className="flex justify-between items-start mb-2">
-                  <div className="font-semibold">{p.title}</div>
-                  {p.is_hmo && <Badge className="bg-accent text-accent-foreground">HMO</Badge>}
+                <div className="flex justify-between items-start mb-2 gap-2">
+                  <div className="font-semibold truncate">{p.title}</div>
+                  <div className="flex gap-1 shrink-0">
+                    {p.is_hmo && <Badge className="bg-accent text-accent-foreground">HMO</Badge>}
+                    <Badge variant="outline" className="capitalize">{p.listing_purpose}</Badge>
+                  </div>
                 </div>
-                <div className="text-sm text-muted-foreground">{[p.address, p.city, p.postcode].filter(Boolean).join(", ") || "No address"}</div>
-                {p.bedrooms != null && <div className="text-xs text-muted-foreground mt-1">{p.bedrooms} bedrooms</div>}
+                <div className="text-sm text-muted-foreground truncate">{[p.address, p.city, p.postcode].filter(Boolean).join(", ") || "No address"}</div>
+                <div className="text-xs text-muted-foreground mt-2 flex gap-3">
+                  {p.bedrooms != null && <span>{p.bedrooms} bed</span>}
+                  {p.bathrooms != null && <span>{p.bathrooms} bath</span>}
+                  {p.property_type && <span className="capitalize">{p.property_type}</span>}
+                </div>
               </CardContent>
             </Card>
           ))}
         </div>
       )}
+
+      {/* Create / edit dialog */}
+      <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) setForm(emptyProp); }}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader><DialogTitle>{form.id ? "Edit property" : "Add property"}</DialogTitle></DialogHeader>
+          <div className="grid sm:grid-cols-2 gap-3">
+            <div className="sm:col-span-2"><Label>Title *</Label><Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></div>
+            <div className="sm:col-span-2"><Label>Address</Label><Input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} /></div>
+            <div><Label>City</Label><Input value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} /></div>
+            <div><Label>Postcode</Label><Input value={form.postcode} onChange={(e) => setForm({ ...form, postcode: e.target.value })} /></div>
+            <div><Label>Type</Label>
+              <Select value={form.property_type} onValueChange={(v) => setForm({ ...form, property_type: v })}>
+                <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                <SelectContent>{PROPERTY_TYPES.map((t) => <SelectItem key={t} value={t} className="capitalize">{t}</SelectItem>)}</SelectContent>
+              </Select>
+            </div>
+            <div><Label>Purpose</Label>
+              <Select value={form.listing_purpose} onValueChange={(v: any) => setForm({ ...form, listing_purpose: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>{PURPOSES.map((t) => <SelectItem key={t} value={t} className="capitalize">{t}</SelectItem>)}</SelectContent>
+              </Select>
+            </div>
+            <div><Label>Bedrooms</Label><Input type="number" value={form.bedrooms} onChange={(e) => setForm({ ...form, bedrooms: e.target.value })} /></div>
+            <div><Label>Bathrooms</Label><Input type="number" value={form.bathrooms} onChange={(e) => setForm({ ...form, bathrooms: e.target.value })} /></div>
+            <div className="sm:col-span-2 flex items-center gap-3 pt-2 border-t">
+              <Switch checked={form.is_hmo} onCheckedChange={(v) => setForm({ ...form, is_hmo: v })} />
+              <Label>HMO property</Label>
+            </div>
+            {form.is_hmo && (<>
+              <div><Label>HMO licence #</Label><Input value={form.hmo_licence_number} onChange={(e) => setForm({ ...form, hmo_licence_number: e.target.value })} /></div>
+              <div><Label>HMO licence expires</Label><Input type="date" value={form.hmo_licence_expires} onChange={(e) => setForm({ ...form, hmo_licence_expires: e.target.value })} /></div>
+            </>)}
+            <div className="sm:col-span-2"><Label>Notes</Label><Textarea rows={3} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} /></div>
+          </div>
+          <DialogFooter><Button onClick={save} disabled={!form.title.trim()}>Save</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Detail drawer */}
+      <Sheet open={!!active} onOpenChange={(o) => !o && setActive(null)}>
+        <SheetContent className="w-full sm:max-w-2xl overflow-y-auto">
+          {active && (
+            <>
+              <SheetHeader>
+                <SheetTitle className="flex items-center gap-2 flex-wrap">
+                  {active.title}
+                  {active.is_hmo && <Badge className="bg-accent text-accent-foreground">HMO</Badge>}
+                  <Badge variant="outline" className="capitalize">{active.listing_purpose}</Badge>
+                </SheetTitle>
+                <div className="text-sm text-muted-foreground">{[active.address, active.city, active.postcode].filter(Boolean).join(", ")}</div>
+              </SheetHeader>
+              <div className="flex gap-2 mt-4">
+                <Button variant="outline" size="sm" onClick={() => { setActive(null); startEdit(active); }}><Pencil className="h-3 w-3 mr-1" /> Edit</Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild><Button variant="outline" size="sm" className="text-destructive"><Trash2 className="h-3 w-3 mr-1" /> Delete</Button></AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete this property?</AlertDialogTitle>
+                      <AlertDialogDescription>This removes rooms, tenancies and rent schedule. This cannot be undone.</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => remove(active.id)}>Delete</AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+              <Tabs defaultValue="rooms" className="mt-6">
+                <TabsList>
+                  <TabsTrigger value="rooms"><BedDouble className="h-3 w-3 mr-1" /> Rooms</TabsTrigger>
+                  <TabsTrigger value="tenancies"><Users className="h-3 w-3 mr-1" /> Tenancies</TabsTrigger>
+                  <TabsTrigger value="rent"><PoundSterling className="h-3 w-3 mr-1" /> Rent</TabsTrigger>
+                </TabsList>
+                <TabsContent value="rooms" className="mt-4"><RoomsPanel propertyId={active.id} /></TabsContent>
+                <TabsContent value="tenancies" className="mt-4"><TenanciesPanel propertyId={active.id} /></TabsContent>
+                <TabsContent value="rent" className="mt-4"><RentPanel propertyId={active.id} /></TabsContent>
+              </Tabs>
+            </>
+          )}
+        </SheetContent>
+      </Sheet>
+    </div>
+  );
+}
+
+// ---------- Rooms ----------
+function RoomsPanel({ propertyId }: { propertyId: string }) {
+  const [rooms, setRooms] = useState<Room[]>([]);
+  const [editing, setEditing] = useState<typeof emptyRoom | null>(null);
+
+  const load = async () => {
+    const { data } = await supabase.from("rooms").select("*").eq("property_id", propertyId).order("name");
+    setRooms((data as Room[]) ?? []);
+  };
+  useEffect(() => { load(); }, [propertyId]);
+
+  const save = async () => {
+    if (!editing || !editing.name.trim()) return toast.error("Name required");
+    const payload: any = {
+      property_id: propertyId, name: editing.name, status: editing.status,
+      rent_pcm: editing.rent_pcm ? Number(editing.rent_pcm) : null,
+      en_suite: editing.en_suite, bills_included: editing.bills_included,
+      available_from: editing.available_from || null,
+    };
+    const { error } = editing.id
+      ? await supabase.from("rooms").update(payload).eq("id", editing.id)
+      : await supabase.from("rooms").insert(payload);
+    if (error) return toast.error(error.message);
+    toast.success("Saved"); setEditing(null); load();
+  };
+  const del = async (id: string) => {
+    const { error } = await supabase.from("rooms").delete().eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success("Deleted"); load();
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="flex justify-between items-center">
+        <div className="text-sm text-muted-foreground">{rooms.length} rooms</div>
+        <Button size="sm" onClick={() => setEditing(emptyRoom)}><Plus className="h-3 w-3 mr-1" /> Add room</Button>
+      </div>
+      {rooms.map((r) => (
+        <Card key={r.id}><CardContent className="p-3 flex items-center justify-between gap-2">
+          <div className="min-w-0">
+            <div className="font-medium flex items-center gap-2"><span className="truncate">{r.name}</span><Badge variant="outline" className="capitalize text-[10px]">{r.status}</Badge></div>
+            <div className="text-xs text-muted-foreground">{r.rent_pcm ? `£${Number(r.rent_pcm).toLocaleString()} pcm` : "no rent set"} {r.en_suite && "• en-suite"} {r.bills_included && "• bills inc."}</div>
+          </div>
+          <div className="flex gap-1">
+            <Button size="icon" variant="ghost" onClick={() => setEditing({ id: r.id, name: r.name, rent_pcm: r.rent_pcm?.toString() ?? "", status: r.status, en_suite: !!r.en_suite, bills_included: !!r.bills_included, available_from: r.available_from ?? "" })}><Pencil className="h-3 w-3" /></Button>
+            <Button size="icon" variant="ghost" className="text-destructive" onClick={() => del(r.id)}><Trash2 className="h-3 w-3" /></Button>
+          </div>
+        </CardContent></Card>
+      ))}
+      {rooms.length === 0 && <div className="text-sm text-muted-foreground text-center py-6 border border-dashed rounded-md">No rooms yet</div>}
+
+      <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>{editing?.id ? "Edit room" : "Add room"}</DialogTitle></DialogHeader>
+          {editing && (<div className="grid grid-cols-2 gap-3">
+            <div className="col-span-2"><Label>Name *</Label><Input value={editing.name} onChange={(e) => setEditing({ ...editing, name: e.target.value })} /></div>
+            <div><Label>Rent £ pcm</Label><Input type="number" value={editing.rent_pcm} onChange={(e) => setEditing({ ...editing, rent_pcm: e.target.value })} /></div>
+            <div><Label>Status</Label>
+              <Select value={editing.status} onValueChange={(v) => setEditing({ ...editing, status: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>{["vacant", "reserved", "let", "off_market"].map((s) => <SelectItem key={s} value={s} className="capitalize">{s.replace("_", " ")}</SelectItem>)}</SelectContent>
+              </Select>
+            </div>
+            <div><Label>Available from</Label><Input type="date" value={editing.available_from} onChange={(e) => setEditing({ ...editing, available_from: e.target.value })} /></div>
+            <div className="flex items-center gap-2 pt-6"><Switch checked={editing.en_suite} onCheckedChange={(v) => setEditing({ ...editing, en_suite: v })} /><Label>En-suite</Label></div>
+            <div className="flex items-center gap-2 pt-6"><Switch checked={editing.bills_included} onCheckedChange={(v) => setEditing({ ...editing, bills_included: v })} /><Label>Bills inc.</Label></div>
+          </div>)}
+          <DialogFooter><Button onClick={save}>Save</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+// ---------- Tenancies ----------
+function TenanciesPanel({ propertyId }: { propertyId: string }) {
+  const [tenancies, setTenancies] = useState<Tenancy[]>([]);
+  const [rooms, setRooms] = useState<Room[]>([]);
+  const [editing, setEditing] = useState<typeof emptyTenancy | null>(null);
+
+  const load = async () => {
+    const [t, r] = await Promise.all([
+      supabase.from("tenancies").select("*").eq("property_id", propertyId).order("start_date", { ascending: false }),
+      supabase.from("rooms").select("id, property_id, name, rent_pcm, status, en_suite, bills_included, available_from").eq("property_id", propertyId),
+    ]);
+    setTenancies((t.data as Tenancy[]) ?? []);
+    setRooms((r.data as Room[]) ?? []);
+  };
+  useEffect(() => { load(); }, [propertyId]);
+
+  const save = async () => {
+    if (!editing || !editing.tenant_name.trim() || !editing.start_date || !editing.rent_amount) return toast.error("Name, start date and rent required");
+    const payload: any = {
+      property_id: propertyId,
+      room_id: editing.room_id || null,
+      tenant_name: editing.tenant_name,
+      tenant_email: editing.tenant_email || null,
+      tenant_phone: editing.tenant_phone || null,
+      start_date: editing.start_date,
+      end_date: editing.end_date || null,
+      rent_amount: Number(editing.rent_amount),
+      rent_frequency: editing.rent_frequency,
+      deposit: editing.deposit ? Number(editing.deposit) : 0,
+      status: editing.status,
+    };
+    const { error } = editing.id
+      ? await supabase.from("tenancies").update(payload).eq("id", editing.id)
+      : await supabase.from("tenancies").insert(payload);
+    if (error) return toast.error(error.message);
+    toast.success("Saved"); setEditing(null); load();
+  };
+  const del = async (id: string) => {
+    const { error } = await supabase.from("tenancies").delete().eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success("Deleted"); load();
+  };
+
+  // Generate 12 months of rent schedule
+  const generate = async (t: Tenancy) => {
+    const start = new Date(t.start_date);
+    const stepDays = t.rent_frequency === "weekly" ? 7 : 0;
+    const rows: any[] = [];
+    const count = t.rent_frequency === "weekly" ? 52 : 12;
+    for (let i = 0; i < count; i++) {
+      const s = new Date(start);
+      if (stepDays) s.setDate(s.getDate() + i * stepDays);
+      else s.setMonth(s.getMonth() + i);
+      const e = new Date(s);
+      if (stepDays) e.setDate(e.getDate() + 6);
+      else { e.setMonth(e.getMonth() + 1); e.setDate(e.getDate() - 1); }
+      rows.push({
+        tenancy_id: t.id,
+        period_start: s.toISOString().slice(0, 10),
+        period_end: e.toISOString().slice(0, 10),
+        due_date: s.toISOString().slice(0, 10),
+        amount: t.rent_amount,
+        status: "due",
+      });
+    }
+    const { error } = await supabase.from("rent_schedule").insert(rows);
+    if (error) return toast.error(error.message);
+    toast.success(`Generated ${rows.length} rent periods`);
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="flex justify-between items-center">
+        <div className="text-sm text-muted-foreground">{tenancies.length} tenancies</div>
+        <Button size="sm" onClick={() => setEditing(emptyTenancy)}><Plus className="h-3 w-3 mr-1" /> Add tenancy</Button>
+      </div>
+      {tenancies.map((t) => (
+        <Card key={t.id}><CardContent className="p-3 space-y-1">
+          <div className="flex items-center justify-between gap-2">
+            <div className="font-medium flex items-center gap-2"><span className="truncate">{t.tenant_name}</span><Badge variant="outline" className="capitalize text-[10px]">{t.status}</Badge></div>
+            <div className="flex gap-1">
+              <Button size="icon" variant="ghost" onClick={() => generate(t)} title="Generate rent schedule"><PoundSterling className="h-3 w-3" /></Button>
+              <Button size="icon" variant="ghost" onClick={() => setEditing({ id: t.id, room_id: t.room_id ?? "", tenant_name: t.tenant_name, tenant_email: t.tenant_email ?? "", tenant_phone: t.tenant_phone ?? "", start_date: t.start_date, end_date: t.end_date ?? "", rent_amount: t.rent_amount.toString(), rent_frequency: t.rent_frequency, deposit: t.deposit?.toString() ?? "", status: t.status })}><Pencil className="h-3 w-3" /></Button>
+              <Button size="icon" variant="ghost" className="text-destructive" onClick={() => del(t.id)}><Trash2 className="h-3 w-3" /></Button>
+            </div>
+          </div>
+          <div className="text-xs text-muted-foreground">£{Number(t.rent_amount).toLocaleString()} {t.rent_frequency} • {t.start_date}{t.end_date ? ` → ${t.end_date}` : ""} {t.room_id && `• ${rooms.find((r) => r.id === t.room_id)?.name ?? ""}`}</div>
+        </CardContent></Card>
+      ))}
+      {tenancies.length === 0 && <div className="text-sm text-muted-foreground text-center py-6 border border-dashed rounded-md">No tenancies yet</div>}
+
+      <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto">
+          <DialogHeader><DialogTitle>{editing?.id ? "Edit tenancy" : "Add tenancy"}</DialogTitle></DialogHeader>
+          {editing && (<div className="grid grid-cols-2 gap-3">
+            <div className="col-span-2"><Label>Tenant name *</Label><Input value={editing.tenant_name} onChange={(e) => setEditing({ ...editing, tenant_name: e.target.value })} /></div>
+            <div><Label>Email</Label><Input type="email" value={editing.tenant_email} onChange={(e) => setEditing({ ...editing, tenant_email: e.target.value })} /></div>
+            <div><Label>Phone</Label><Input value={editing.tenant_phone} onChange={(e) => setEditing({ ...editing, tenant_phone: e.target.value })} /></div>
+            {rooms.length > 0 && (
+              <div className="col-span-2"><Label>Room</Label>
+                <Select value={editing.room_id} onValueChange={(v) => setEditing({ ...editing, room_id: v })}>
+                  <SelectTrigger><SelectValue placeholder="Whole property" /></SelectTrigger>
+                  <SelectContent>{rooms.map((r) => <SelectItem key={r.id} value={r.id}>{r.name}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
+            )}
+            <div><Label>Start date *</Label><Input type="date" value={editing.start_date} onChange={(e) => setEditing({ ...editing, start_date: e.target.value })} /></div>
+            <div><Label>End date</Label><Input type="date" value={editing.end_date} onChange={(e) => setEditing({ ...editing, end_date: e.target.value })} /></div>
+            <div><Label>Rent £ *</Label><Input type="number" value={editing.rent_amount} onChange={(e) => setEditing({ ...editing, rent_amount: e.target.value })} /></div>
+            <div><Label>Frequency</Label>
+              <Select value={editing.rent_frequency} onValueChange={(v: any) => setEditing({ ...editing, rent_frequency: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent><SelectItem value="monthly">Monthly</SelectItem><SelectItem value="weekly">Weekly</SelectItem></SelectContent>
+              </Select>
+            </div>
+            <div><Label>Deposit £</Label><Input type="number" value={editing.deposit} onChange={(e) => setEditing({ ...editing, deposit: e.target.value })} /></div>
+            <div><Label>Status</Label>
+              <Select value={editing.status} onValueChange={(v) => setEditing({ ...editing, status: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>{["draft", "active", "notice", "ended"].map((s) => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}</SelectContent>
+              </Select>
+            </div>
+          </div>)}
+          <DialogFooter><Button onClick={save}>Save</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+// ---------- Rent schedule ----------
+function RentPanel({ propertyId }: { propertyId: string }) {
+  const [rows, setRows] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const load = async () => {
+    setLoading(true);
+    const { data: ts } = await supabase.from("tenancies").select("id, tenant_name").eq("property_id", propertyId);
+    const ids = (ts ?? []).map((t) => t.id);
+    if (!ids.length) { setRows([]); setLoading(false); return; }
+    const { data } = await supabase.from("rent_schedule").select("*").in("tenancy_id", ids).order("due_date", { ascending: true });
+    const nameMap = Object.fromEntries((ts ?? []).map((t) => [t.id, t.tenant_name]));
+    setRows((data ?? []).map((r) => ({ ...r, tenant_name: nameMap[r.tenancy_id] })));
+    setLoading(false);
+  };
+  useEffect(() => { load(); }, [propertyId]);
+
+  const markPaid = async (r: any) => {
+    const { error } = await supabase.from("rent_schedule").update({ status: "paid", paid_amount: r.amount, paid_at: new Date().toISOString() }).eq("id", r.id);
+    if (error) return toast.error(error.message);
+    toast.success("Marked paid"); load();
+  };
+  const del = async (id: string) => {
+    const { error } = await supabase.from("rent_schedule").delete().eq("id", id);
+    if (error) return toast.error(error.message);
+    load();
+  };
+
+  if (loading) return <div className="text-sm text-muted-foreground">Loading…</div>;
+  if (!rows.length) return <div className="text-sm text-muted-foreground text-center py-6 border border-dashed rounded-md">No rent schedule. Use the £ button on a tenancy to generate one.</div>;
+
+  const today = new Date().toISOString().slice(0, 10);
+  return (
+    <div className="space-y-2">
+      {rows.map((r) => {
+        const overdue = r.status !== "paid" && r.due_date < today;
+        return (
+          <div key={r.id} className="flex items-center justify-between gap-2 p-2 rounded-md border bg-card text-sm">
+            <div className="min-w-0">
+              <div className="font-medium truncate">{r.tenant_name} • £{Number(r.amount).toLocaleString()}</div>
+              <div className="text-xs text-muted-foreground">Due {r.due_date} {overdue && <span className="text-red-600 font-medium">overdue</span>}</div>
+            </div>
+            <div className="flex gap-1 items-center">
+              <Badge variant={r.status === "paid" ? "default" : "outline"} className="capitalize text-[10px]">{r.status}</Badge>
+              {r.status !== "paid" && <Button size="sm" variant="outline" onClick={() => markPaid(r)}>Mark paid</Button>}
+              <Button size="icon" variant="ghost" className="text-destructive" onClick={() => del(r.id)}><Trash2 className="h-3 w-3" /></Button>
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }
