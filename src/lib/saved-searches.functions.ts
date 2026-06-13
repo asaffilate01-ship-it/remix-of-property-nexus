@@ -57,7 +57,12 @@ export const updateSavedSearch = createServerFn({ method: "POST" })
     }).parse(d),
   )
   .handler(async ({ data, context }) => {
-    const patch: Record<string, unknown> = {};
+    const patch: {
+      alert_email?: boolean;
+      alert_push?: boolean;
+      frequency?: "instant" | "daily" | "weekly";
+      name?: string | null;
+    } = {};
     if (data.alert_email !== undefined) patch.alert_email = data.alert_email;
     if (data.alert_push !== undefined) patch.alert_push = data.alert_push;
     if (data.frequency !== undefined) patch.frequency = data.frequency;
