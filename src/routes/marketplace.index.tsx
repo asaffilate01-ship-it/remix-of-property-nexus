@@ -134,14 +134,14 @@ function MarketplacePage() {
   if (s.min_sqft) activeFilters.push(`${s.min_sqft}+ sq ft`);
   if (s.epc_min) activeFilters.push(`EPC ${s.epc_min}+`);
   if (s.tenure) activeFilters.push(s.tenure.replace("_", " "));
-  if (s.features?.length) s.features.forEach(f => activeFilters.push(f));
+  if (s.features?.length) s.features.forEach((f: string) => activeFilters.push(f));
   if (s.bills_included) activeFilters.push("bills included");
   if (s.furnished) activeFilters.push(s.furnished);
 
   const saveSearch = () => {
     try {
       const saved = JSON.parse(localStorage.getItem("estately:saved-searches") ?? "[]");
-      saved.unshift({ when: new Date().toISOString(), search: s, q, city });
+      saved.unshift({ when: new Date().toISOString(), search: s, q, where });
       localStorage.setItem("estately:saved-searches", JSON.stringify(saved.slice(0, 20)));
       toast.success("Search saved");
     } catch { toast.error("Could not save"); }
@@ -165,9 +165,16 @@ function MarketplacePage() {
             </p>
 
             <SearchBar
-              q={q} setQ={setQ} city={city} setCity={setCity}
-              onSubmit={() => setSearch({ q: q || undefined, city: city || undefined })}
+              q={q} setQ={setQ}
+              where={where} setWhere={setWhere}
+              radius={s.radius ?? 0} setRadius={(r) => setSearch({ radius: r || undefined })}
+              onSubmit={() => { setSearch({ q: q || undefined }); onSubmitWhere(); }}
             />
+            {data?.centroid && s.radius ? (
+              <div className="mt-3 text-xs text-white/80">
+                Showing properties within {s.radius} miles of <strong>{data.centroid.label}</strong>
+              </div>
+            ) : null}
 
             {meta.data && (
               <div className="mt-5 sm:mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs sm:text-sm text-white/90">
