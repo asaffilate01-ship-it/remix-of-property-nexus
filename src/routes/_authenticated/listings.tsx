@@ -18,6 +18,10 @@ import {
 import { Plus, Tag, ExternalLink, Pencil, Trash2, Eye, EyeOff, Globe } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/PageHeader";
+import { PhotoUploader, type ListingPhoto } from "@/components/listings/PhotoUploader";
+import { RoomsEditor, type HmoRoom } from "@/components/listings/RoomsEditor";
+import { ComplianceEditor, type ComplianceMap } from "@/components/listings/ComplianceEditor";
+import { FeatureMultiSelect } from "@/components/properties/FeatureMultiSelect";
 
 type Listing = {
   id: string; slug: string; title: string; description: string | null;
@@ -30,6 +34,7 @@ type Listing = {
   available_from: string | null; epc_rating: string | null; tenure: string | null;
   floor_area_sqft: number | null; council_tax_band: string | null; furnished: string | null;
   agency_id: string | null; view_count: number;
+  rooms?: unknown; compliance?: unknown;
 };
 
 const empty = {
@@ -40,7 +45,12 @@ const empty = {
   price: "", price_qualifier: "none",
   bedrooms: "", bathrooms: "", receptions: "",
   address: "", city: "", postcode: "",
-  cover_image: "", photos_text: "", features_text: "",
+  cover_image: "",
+  photos: [] as ListingPhoto[],
+  cover_index: 0,
+  features: [] as string[],
+  rooms: [] as HmoRoom[],
+  compliance: {} as ComplianceMap,
   is_hmo: false, bills_included: false,
   marketplace_publish: true, publish: true,
   available_from: "", epc_rating: "", tenure: "",
@@ -49,6 +59,15 @@ const empty = {
 };
 
 const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60) + "-" + Math.random().toString(36).slice(2, 7);
+
+function normalizePhotos(raw: unknown): ListingPhoto[] {
+  if (!Array.isArray(raw)) return [];
+  return (raw as unknown[]).map((p) => {
+    if (typeof p === "string") return { url: p, room: null };
+    if (p && typeof p === "object" && "url" in p) return { url: String((p as any).url), room: (p as any).room ?? null };
+    return null;
+  }).filter((p): p is ListingPhoto => !!p && !!p.url);
+}
 
 export const Route = createFileRoute("/_authenticated/listings")({ component: ListingsPage });
 
