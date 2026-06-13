@@ -459,38 +459,43 @@ function FiltersSheet({ s, setSearch, category }: { s: SearchParams; setSearch: 
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
-            <div>
-              <Label>Bedrooms</Label>
-              <Select value={local.beds} onValueChange={(v) => setLocal({ ...local, beds: v })}>
-                <SelectTrigger className="mt-2"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="any">Any</SelectItem>
-                  {[1,2,3,4,5,6].map((n) => <SelectItem key={n} value={String(n)}>{n}+</SelectItem>)}
-                </SelectContent>
-              </Select>
+          {category !== "commercial" && (
+            <div className="grid grid-cols-3 gap-3">
+              <div>
+                <Label>{category === "hmo" ? "Rooms" : "Bedrooms"}</Label>
+                <Select value={local.beds} onValueChange={(v) => setLocal({ ...local, beds: v })}>
+                  <SelectTrigger className="mt-2"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="any">Any</SelectItem>
+                    {[1,2,3,4,5,6].map((n) => <SelectItem key={n} value={String(n)}>{n}+</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Bathrooms</Label>
+                <Select value={local.baths} onValueChange={(v) => setLocal({ ...local, baths: v })}>
+                  <SelectTrigger className="mt-2"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="any">Any</SelectItem>
+                    {[1,2,3,4].map((n) => <SelectItem key={n} value={String(n)}>{n}+</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              {category !== "hmo" && (
+                <div>
+                  <Label>Reception</Label>
+                  <Select value={local.receptions} onValueChange={(v) => setLocal({ ...local, receptions: v })}>
+                    <SelectTrigger className="mt-2"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="any">Any</SelectItem>
+                      {[1,2,3,4].map((n) => <SelectItem key={n} value={String(n)}>{n}+</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
             </div>
-            <div>
-              <Label>Bathrooms</Label>
-              <Select value={local.baths} onValueChange={(v) => setLocal({ ...local, baths: v })}>
-                <SelectTrigger className="mt-2"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="any">Any</SelectItem>
-                  {[1,2,3,4].map((n) => <SelectItem key={n} value={String(n)}>{n}+</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>Reception</Label>
-              <Select value={local.receptions} onValueChange={(v) => setLocal({ ...local, receptions: v })}>
-                <SelectTrigger className="mt-2"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="any">Any</SelectItem>
-                  {[1,2,3,4].map((n) => <SelectItem key={n} value={String(n)}>{n}+</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
+          )}
+
 
           <div className="grid grid-cols-2 gap-3">
             <div>
