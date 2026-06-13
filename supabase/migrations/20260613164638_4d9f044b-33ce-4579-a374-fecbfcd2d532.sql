@@ -1,0 +1,1 @@
+ALTER TYPE public.tenancy_event_kind ADD VALUE IF NOT EXISTS 'rent_schedule_generated';
