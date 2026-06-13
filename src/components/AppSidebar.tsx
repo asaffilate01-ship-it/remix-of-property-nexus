@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, Building2, Tag, Inbox, Kanban, ShieldCheck, Users, Settings, LogOut, BedDouble, Wrench, Contact, Handshake, Search, Heart, Home, Scale, ClipboardCheck, ClipboardList, CalendarDays, Gavel, Receipt, BarChart3, Sparkles, Eye, Bookmark, RefreshCcw, Vault, UserCheck, FilePenLine, Hammer, Banknote, Image, Landmark, Briefcase, Smartphone, PackageOpen, FolderLock, Camera } from "lucide-react";
+import { LayoutDashboard, Building2, Tag, Inbox, Kanban, ShieldCheck, Users, Settings, LogOut, BedDouble, Wrench, Contact, Handshake, Search, Heart, Home, Scale, ClipboardCheck, ClipboardList, CalendarDays, Gavel, Receipt, BarChart3, Sparkles, Eye, Bookmark, RefreshCcw, Vault, UserCheck, FilePenLine, Hammer, Banknote, Image, Landmark, Briefcase, Smartphone, PackageOpen, FolderLock, Camera, ScrollText } from "lucide-react";
 import { BranchSwitcher } from "@/components/BranchSwitcher";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader, SidebarFooter, useSidebar } from "@/components/ui/sidebar";
 import { supabase } from "@/integrations/supabase/client";
@@ -31,6 +31,7 @@ const FULL: NavItem[] = [
   { to: "/arrears", label: "Arrears", icon: Banknote },
   { to: "/work-orders", label: "Work orders", icon: Wrench },
   { to: "/contractor-marketplace", label: "Find a contractor", icon: Hammer },
+  { to: "/templates", label: "Document templates", icon: ScrollText },
   { to: "/e-sign", label: "E‑signatures", icon: FilePenLine },
   { to: "/statements", label: "Owner statements", icon: Receipt },
   { to: "/contacts", label: "Contacts", icon: Contact },
