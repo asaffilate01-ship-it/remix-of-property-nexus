@@ -47,6 +47,7 @@ const TENANT: NavItem[] = [
 const CONTRACTOR: NavItem[] = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/work-orders", label: "My jobs", icon: Wrench },
+  { to: "/contractor-marketplace", label: "Bid on jobs", icon: Hammer },
   { to: "/settings", label: "Settings", icon: Settings },
 ];
 
