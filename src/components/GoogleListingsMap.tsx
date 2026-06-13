@@ -1,4 +1,6 @@
+/// <reference types="google.maps" />
 import { useEffect, useRef, useState } from "react";
+
 
 type Listing = {
   id: string;
