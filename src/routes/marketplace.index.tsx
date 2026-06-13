@@ -255,7 +255,7 @@ function MarketplacePage() {
                   <MapIcon className="h-3.5 w-3.5 sm:mr-1" /><span className="hidden md:inline">Map</span>
                 </button>
               </div>
-              <FiltersSheet s={s} setSearch={setSearch} />
+              <FiltersSheet s={s} setSearch={setSearch} category={category} />
               <Select value={sort} onValueChange={(v) => setSearch({ sort: v as SortKey })}>
                 <SelectTrigger className="h-9 w-auto min-w-0 px-3 sm:w-[180px]">
                   <ArrowUpDown className="h-3.5 w-3.5 mr-1 shrink-0" />
