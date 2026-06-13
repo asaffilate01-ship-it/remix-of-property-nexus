@@ -21,13 +21,16 @@ import { Route as AgenciesIndexRouteImport } from './routes/agencies.index'
 import { Route as ModulesSlugRouteImport } from './routes/modules.$slug'
 import { Route as MarketplaceSlugRouteImport } from './routes/marketplace.$slug'
 import { Route as AgenciesSlugRouteImport } from './routes/agencies.$slug'
+import { Route as AuthenticatedWorkOrdersRouteImport } from './routes/_authenticated/work-orders'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
+import { Route as AuthenticatedSalesRouteImport } from './routes/_authenticated/sales'
 import { Route as AuthenticatedPropertiesRouteImport } from './routes/_authenticated/properties'
 import { Route as AuthenticatedPipelineRouteImport } from './routes/_authenticated/pipeline'
 import { Route as AuthenticatedListingsRouteImport } from './routes/_authenticated/listings'
 import { Route as AuthenticatedLeadsRouteImport } from './routes/_authenticated/leads'
 import { Route as AuthenticatedHmoRouteImport } from './routes/_authenticated/hmo'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedContactsRouteImport } from './routes/_authenticated/contacts'
 import { Route as AuthenticatedComplianceRouteImport } from './routes/_authenticated/compliance'
 import { Route as AuthenticatedAgencyRouteImport } from './routes/_authenticated/agency'
 
@@ -90,9 +93,19 @@ const AgenciesSlugRoute = AgenciesSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => AgenciesRoute,
 } as any)
+const AuthenticatedWorkOrdersRoute = AuthenticatedWorkOrdersRouteImport.update({
+  id: '/work-orders',
+  path: '/work-orders',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSalesRoute = AuthenticatedSalesRouteImport.update({
+  id: '/sales',
+  path: '/sales',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedPropertiesRoute = AuthenticatedPropertiesRouteImport.update({
@@ -125,6 +138,11 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedContactsRoute = AuthenticatedContactsRouteImport.update({
+  id: '/contacts',
+  path: '/contacts',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedComplianceRoute = AuthenticatedComplianceRouteImport.update({
   id: '/compliance',
   path: '/compliance',
@@ -145,13 +163,16 @@ export interface FileRoutesByFullPath {
   '/marketplace': typeof MarketplaceRouteWithChildren
   '/agency': typeof AuthenticatedAgencyRoute
   '/compliance': typeof AuthenticatedComplianceRoute
+  '/contacts': typeof AuthenticatedContactsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/hmo': typeof AuthenticatedHmoRoute
   '/leads': typeof AuthenticatedLeadsRoute
   '/listings': typeof AuthenticatedListingsRoute
   '/pipeline': typeof AuthenticatedPipelineRoute
   '/properties': typeof AuthenticatedPropertiesRoute
+  '/sales': typeof AuthenticatedSalesRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/work-orders': typeof AuthenticatedWorkOrdersRoute
   '/agencies/$slug': typeof AgenciesSlugRoute
   '/marketplace/$slug': typeof MarketplaceSlugRoute
   '/modules/$slug': typeof ModulesSlugRoute
@@ -165,13 +186,16 @@ export interface FileRoutesByTo {
   '/for-landlords': typeof ForLandlordsRoute
   '/agency': typeof AuthenticatedAgencyRoute
   '/compliance': typeof AuthenticatedComplianceRoute
+  '/contacts': typeof AuthenticatedContactsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/hmo': typeof AuthenticatedHmoRoute
   '/leads': typeof AuthenticatedLeadsRoute
   '/listings': typeof AuthenticatedListingsRoute
   '/pipeline': typeof AuthenticatedPipelineRoute
   '/properties': typeof AuthenticatedPropertiesRoute
+  '/sales': typeof AuthenticatedSalesRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/work-orders': typeof AuthenticatedWorkOrdersRoute
   '/agencies/$slug': typeof AgenciesSlugRoute
   '/marketplace/$slug': typeof MarketplaceSlugRoute
   '/modules/$slug': typeof ModulesSlugRoute
@@ -189,13 +213,16 @@ export interface FileRoutesById {
   '/marketplace': typeof MarketplaceRouteWithChildren
   '/_authenticated/agency': typeof AuthenticatedAgencyRoute
   '/_authenticated/compliance': typeof AuthenticatedComplianceRoute
+  '/_authenticated/contacts': typeof AuthenticatedContactsRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/hmo': typeof AuthenticatedHmoRoute
   '/_authenticated/leads': typeof AuthenticatedLeadsRoute
   '/_authenticated/listings': typeof AuthenticatedListingsRoute
   '/_authenticated/pipeline': typeof AuthenticatedPipelineRoute
   '/_authenticated/properties': typeof AuthenticatedPropertiesRoute
+  '/_authenticated/sales': typeof AuthenticatedSalesRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
+  '/_authenticated/work-orders': typeof AuthenticatedWorkOrdersRoute
   '/agencies/$slug': typeof AgenciesSlugRoute
   '/marketplace/$slug': typeof MarketplaceSlugRoute
   '/modules/$slug': typeof ModulesSlugRoute
@@ -213,13 +240,16 @@ export interface FileRouteTypes {
     | '/marketplace'
     | '/agency'
     | '/compliance'
+    | '/contacts'
     | '/dashboard'
     | '/hmo'
     | '/leads'
     | '/listings'
     | '/pipeline'
     | '/properties'
+    | '/sales'
     | '/settings'
+    | '/work-orders'
     | '/agencies/$slug'
     | '/marketplace/$slug'
     | '/modules/$slug'
@@ -233,13 +263,16 @@ export interface FileRouteTypes {
     | '/for-landlords'
     | '/agency'
     | '/compliance'
+    | '/contacts'
     | '/dashboard'
     | '/hmo'
     | '/leads'
     | '/listings'
     | '/pipeline'
     | '/properties'
+    | '/sales'
     | '/settings'
+    | '/work-orders'
     | '/agencies/$slug'
     | '/marketplace/$slug'
     | '/modules/$slug'
@@ -256,13 +289,16 @@ export interface FileRouteTypes {
     | '/marketplace'
     | '/_authenticated/agency'
     | '/_authenticated/compliance'
+    | '/_authenticated/contacts'
     | '/_authenticated/dashboard'
     | '/_authenticated/hmo'
     | '/_authenticated/leads'
     | '/_authenticated/listings'
     | '/_authenticated/pipeline'
     | '/_authenticated/properties'
+    | '/_authenticated/sales'
     | '/_authenticated/settings'
+    | '/_authenticated/work-orders'
     | '/agencies/$slug'
     | '/marketplace/$slug'
     | '/modules/$slug'
@@ -367,11 +403,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AgenciesSlugRouteImport
       parentRoute: typeof AgenciesRoute
     }
+    '/_authenticated/work-orders': {
+      id: '/_authenticated/work-orders'
+      path: '/work-orders'
+      fullPath: '/work-orders'
+      preLoaderRoute: typeof AuthenticatedWorkOrdersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/settings': {
       id: '/_authenticated/settings'
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof AuthenticatedSettingsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/sales': {
+      id: '/_authenticated/sales'
+      path: '/sales'
+      fullPath: '/sales'
+      preLoaderRoute: typeof AuthenticatedSalesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/properties': {
@@ -416,6 +466,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/contacts': {
+      id: '/_authenticated/contacts'
+      path: '/contacts'
+      fullPath: '/contacts'
+      preLoaderRoute: typeof AuthenticatedContactsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/compliance': {
       id: '/_authenticated/compliance'
       path: '/compliance'
@@ -436,25 +493,31 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAgencyRoute: typeof AuthenticatedAgencyRoute
   AuthenticatedComplianceRoute: typeof AuthenticatedComplianceRoute
+  AuthenticatedContactsRoute: typeof AuthenticatedContactsRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedHmoRoute: typeof AuthenticatedHmoRoute
   AuthenticatedLeadsRoute: typeof AuthenticatedLeadsRoute
   AuthenticatedListingsRoute: typeof AuthenticatedListingsRoute
   AuthenticatedPipelineRoute: typeof AuthenticatedPipelineRoute
   AuthenticatedPropertiesRoute: typeof AuthenticatedPropertiesRoute
+  AuthenticatedSalesRoute: typeof AuthenticatedSalesRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
+  AuthenticatedWorkOrdersRoute: typeof AuthenticatedWorkOrdersRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAgencyRoute: AuthenticatedAgencyRoute,
   AuthenticatedComplianceRoute: AuthenticatedComplianceRoute,
+  AuthenticatedContactsRoute: AuthenticatedContactsRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedHmoRoute: AuthenticatedHmoRoute,
   AuthenticatedLeadsRoute: AuthenticatedLeadsRoute,
   AuthenticatedListingsRoute: AuthenticatedListingsRoute,
   AuthenticatedPipelineRoute: AuthenticatedPipelineRoute,
   AuthenticatedPropertiesRoute: AuthenticatedPropertiesRoute,
+  AuthenticatedSalesRoute: AuthenticatedSalesRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
+  AuthenticatedWorkOrdersRoute: AuthenticatedWorkOrdersRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -501,3 +564,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
