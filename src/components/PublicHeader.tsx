@@ -15,6 +15,7 @@ const groups: Group[] = [
       { to: "/marketplace", label: "Marketplace", desc: "Sales, lettings, HMO & commercial", icon: Search },
       { to: "/saved-searches", label: "Saved searches", desc: "Alerts when new homes match", icon: Bookmark },
       { to: "/area-guides", label: "Area guides", desc: "Schools, transport, prices", icon: MapPin },
+      { to: "/blog", label: "Blog & insight", desc: "Market data, compliance, product news", icon: BookOpen },
     ],
   },
   {
