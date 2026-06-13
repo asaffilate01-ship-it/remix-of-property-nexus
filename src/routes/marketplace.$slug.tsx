@@ -108,7 +108,7 @@ function ListingDetail() {
               </div>
               <div className="text-right">
                 <div className="text-3xl md:text-4xl font-bold text-primary">{price}{!isSale && <span className="text-base font-normal text-muted-foreground"> pcm</span>}</div>
-                {l.price_qualifier && l.price_qualifier !== "none" && <div className="text-xs text-muted-foreground capitalize">{l.price_qualifier.replace(/_/g, " ")}</div>}
+                {l.price_qualifier && <div className="text-xs text-muted-foreground capitalize">{l.price_qualifier.replace(/_/g, " ")}</div>}
               </div>
             </div>
           </header>

@@ -103,9 +103,9 @@ function ListingsPage() {
       description: form.description || null,
       listing_type: form.listing_type,
       purpose: form.purpose,
-      status: form.publish ? "published" : "draft",
+      status: (form.publish ? "published" : "draft") as "published" | "draft",
       price: form.price ? Number(form.price) : null,
-      price_qualifier: form.price_qualifier === "none" ? null : form.price_qualifier,
+      price_qualifier: (form.price_qualifier === "none" ? null : form.price_qualifier) as "asking" | "fixed" | "guide_price" | "offers_in_region" | "offers_over" | "poa" | null,
       bedrooms: form.bedrooms ? Number(form.bedrooms) : null,
       bathrooms: form.bathrooms ? Number(form.bathrooms) : null,
       receptions: form.receptions ? Number(form.receptions) : null,
@@ -279,10 +279,11 @@ function ListingForm({ form, setForm, agencies }: { form: Form; setForm: (f: For
             <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="none">No qualifier</SelectItem>
-              <SelectItem value="offers_in_excess_of">Offers in excess of</SelectItem>
-              <SelectItem value="offers_over">Offers over</SelectItem>
+              <SelectItem value="asking">Asking price</SelectItem>
+              <SelectItem value="fixed">Fixed price</SelectItem>
               <SelectItem value="guide_price">Guide price</SelectItem>
-              <SelectItem value="from">From</SelectItem>
+              <SelectItem value="offers_over">Offers over</SelectItem>
+              <SelectItem value="offers_in_region">Offers in region of</SelectItem>
               <SelectItem value="poa">POA</SelectItem>
             </SelectContent>
           </Select>
