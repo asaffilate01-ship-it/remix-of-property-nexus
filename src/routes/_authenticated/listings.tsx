@@ -97,6 +97,17 @@ function ListingsPage() {
   };
   useEffect(() => { load(); loadAgencies(); }, []);
 
+  useEffect(() => {
+    const channel = supabase
+      .channel(`listings-${Math.random().toString(36).slice(2, 8)}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "listings" }, () => void load())
+      .subscribe();
+
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, []);
+
   const openNew = () => { setForm(empty); setOpen(true); };
   const openEdit = (l: Listing) => {
     const photos = normalizePhotos(l.photos);

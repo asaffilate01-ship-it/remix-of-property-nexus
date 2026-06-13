@@ -19,6 +19,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { useUserRole, type AppRole } from "@/hooks/useUserRole";
 import { useMemo, useState } from "react";
+import { toast } from "sonner";
 
 type NavItem = { to: string; label: string; icon: typeof LayoutDashboard };
 type NavSection = { label: string; items: NavItem[]; defaultOpen?: boolean };
@@ -240,10 +241,15 @@ export function AppSidebar() {
   const isActive = (to: string) => path === to || path.startsWith(to + "/");
 
   const signOut = async () => {
-    await qc.cancelQueries();
-    qc.clear();
-    await supabase.auth.signOut();
-    navigate({ to: "/auth", replace: true });
+    try {
+      await qc.cancelQueries();
+      qc.clear();
+      const { error } = await supabase.auth.signOut({ scope: "local" });
+      if (error) throw error;
+      navigate({ to: "/auth", replace: true });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Sign out failed");
+    }
   };
 
   return (
