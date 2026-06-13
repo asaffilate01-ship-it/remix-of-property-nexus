@@ -72,6 +72,16 @@ function AuthedLayout() {
             </nav>
             <div className="flex-1" />
             <Button
+              variant="outline"
+              size="sm"
+              onClick={() => window.dispatchEvent(new Event("open-command-palette"))}
+              className="hidden md:inline-flex items-center gap-2 h-9 text-muted-foreground"
+            >
+              <Search className="h-3.5 w-3.5" />
+              <span>Search…</span>
+              <kbd className="ml-2 text-[10px] font-mono bg-muted px-1.5 py-0.5 rounded">⌘K</kbd>
+            </Button>
+            <Button
               variant="ghost"
               size="icon"
               className="relative h-9 w-9 text-muted-foreground hover:text-foreground"
@@ -89,6 +99,7 @@ function AuthedLayout() {
           </main>
         </div>
         <MobileTabBar />
+        <CommandPalette />
       </div>
     </SidebarProvider>
   );
