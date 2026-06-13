@@ -18,6 +18,89 @@ import { PhoneReveal } from "@/components/PhoneReveal";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
+function ListingError({ error, reset }: { error: Error; reset: () => void }) {
+  const router = useRouter();
+  return (
+    <Shell>
+      <div className="container mx-auto px-4 py-20 text-center">
+        <h1 className="text-xl font-semibold tracking-tight">This listing didn't load</h1>
+        <p className="mt-2 text-sm text-muted-foreground">Something went wrong. Try refreshing or browse other listings.</p>
+        <div className="mt-6 flex flex-wrap justify-center gap-2">
+          <button onClick={() => { router.invalidate(); reset(); }} className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90">Try again</button>
+          <Link to="/marketplace" className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent">Browse marketplace</Link>
+        </div>
+      </div>
+    </Shell>
+  );
+}
+
+function ListingNotFound() {
+  return (
+    <Shell>
+      <div className="container mx-auto px-4 py-20 text-center">
+        <h1 className="text-xl font-semibold tracking-tight">Listing not found</h1>
+        <p className="mt-2 text-sm text-muted-foreground">We couldn't find that property. It may have been removed or the link might be incorrect.</p>
+        <div className="mt-6">
+          <Link to="/marketplace" className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90">Browse marketplace</Link>
+        </div>
+      </div>
+    </Shell>
+  );
+}
+
+function ListingSkeleton() {
+  return (
+    <Shell>
+      <div className="container mx-auto px-4 pt-6">
+        <div className="h-4 w-32 bg-muted rounded animate-pulse" />
+      </div>
+      <div className="container mx-auto px-4 mt-4">
+        <div className="aspect-[16/9] rounded-2xl bg-muted animate-pulse" />
+      </div>
+      <div className="container mx-auto px-4 py-8 grid lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 space-y-8">
+          <div className="space-y-3">
+            <div className="h-8 w-3/4 bg-muted rounded animate-pulse" />
+            <div className="h-5 w-1/2 bg-muted rounded animate-pulse" />
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="rounded-xl border bg-card p-3 space-y-2">
+                <div className="h-4 w-4 bg-muted rounded animate-pulse" />
+                <div className="h-3 w-12 bg-muted rounded animate-pulse" />
+                <div className="h-5 w-16 bg-muted rounded animate-pulse" />
+              </div>
+            ))}
+          </div>
+          <div className="space-y-2">
+            <div className="h-4 w-full bg-muted rounded animate-pulse" />
+            <div className="h-4 w-5/6 bg-muted rounded animate-pulse" />
+            <div className="h-4 w-4/5 bg-muted rounded animate-pulse" />
+          </div>
+        </div>
+        <aside className="space-y-4">
+          <div className="rounded-xl border bg-card p-5 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="h-12 w-12 rounded-xl bg-muted animate-pulse" />
+              <div className="space-y-2 flex-1">
+                <div className="h-4 w-24 bg-muted rounded animate-pulse" />
+                <div className="h-3 w-32 bg-muted rounded animate-pulse" />
+              </div>
+            </div>
+          </div>
+          <div className="rounded-xl border bg-card p-5 space-y-3">
+            <div className="h-5 w-32 bg-muted rounded animate-pulse" />
+            <div className="h-9 w-full bg-muted rounded animate-pulse" />
+            <div className="h-9 w-full bg-muted rounded animate-pulse" />
+            <div className="h-20 w-full bg-muted rounded animate-pulse" />
+            <div className="h-10 w-full bg-muted rounded animate-pulse" />
+          </div>
+        </aside>
+      </div>
+    </Shell>
+  );
+}
+
 export const Route = createFileRoute("/marketplace/$slug")({
   loader: async ({ params }) => {
     try { return await fetchListing({ data: { slug: params.slug } }); }
@@ -57,6 +140,8 @@ export const Route = createFileRoute("/marketplace/$slug")({
       }] : [],
     };
   },
+  errorComponent: ListingError,
+  notFoundComponent: ListingNotFound,
   component: ListingDetail,
 });
 
@@ -70,9 +155,9 @@ function ListingDetail() {
   const fn = useServerFn(fetchListing);
   const { data, isLoading } = useQuery({ queryKey: ["listing", slug], queryFn: () => fn({ data: { slug } }) });
 
-  if (isLoading) return <Shell><div className="container mx-auto p-8">Loading…</div></Shell>;
+  if (isLoading) return <ListingSkeleton />;
   const l = data?.listing;
-  if (!l) return <Shell><div className="container mx-auto p-8 text-center"><p>Listing not found.</p><Button asChild className="mt-4"><Link to="/marketplace">Back to marketplace</Link></Button></div></Shell>;
+  if (!l) return <ListingNotFound />;
 
   const photos: string[] = Array.isArray(l.photos) ? (l.photos as unknown[]).filter((p): p is string => typeof p === "string") : [];
   const allPhotos = [l.cover_image, ...photos].filter((p): p is string => !!p);
