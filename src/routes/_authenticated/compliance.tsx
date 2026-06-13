@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Plus, AlertTriangle, FileText, Trash2 } from "lucide-react";
+import { Plus, AlertTriangle, FileText, Trash2, BookOpen, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { IsoIcon } from "@/components/iso/IsoIcon";
 import {
@@ -63,7 +63,8 @@ function CompliancePage() {
     document_url: "",
     notes: "",
   });
-  const [scopeTab, setScopeTab] = useState<"all" | "property" | "tenancy" | "agency">("all");
+  const [scopeTab, setScopeTab] = useState<"all" | "property" | "tenancy" | "agency" | "library">("all");
+  const [libAudience, setLibAudience] = useState<"all" | "landlord" | "agent" | "hmo" | "tenant">("all");
 
   const rules = (data?.rules ?? []) as Rule[];
   const records = (data?.records ?? []) as Record_[];
@@ -208,11 +209,15 @@ function CompliancePage() {
 
       <Tabs value={scopeTab} onValueChange={(v) => setScopeTab(v as typeof scopeTab)}>
         <TabsList>
-          <TabsTrigger value="all">All</TabsTrigger>
+          <TabsTrigger value="all">All records</TabsTrigger>
           <TabsTrigger value="property">Property</TabsTrigger>
           <TabsTrigger value="tenancy">Tenancy</TabsTrigger>
           <TabsTrigger value="agency">Agency</TabsTrigger>
+          <TabsTrigger value="library"><BookOpen className="h-3 w-3 mr-1" /> Knowledge library</TabsTrigger>
         </TabsList>
+        <TabsContent value="library" className="mt-4">
+          <ComplianceLibrary rules={rules} audience={libAudience} setAudience={setLibAudience} onAdd={(type) => { onTypeChange(type); setOpen(true); }} />
+        </TabsContent>
         <TabsContent value={scopeTab} className="mt-4">
           {isLoading ? (
             <div className="text-muted-foreground">Loading…</div>
