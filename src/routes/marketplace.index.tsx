@@ -84,7 +84,7 @@ function MarketplacePage() {
   const s = useSearch({ from: "/marketplace/" });
   const navigate = useNavigate({ from: "/marketplace/" });
   const [q, setQ] = useState(s.q ?? "");
-  const [city, setCity] = useState(s.city ?? "");
+  const [where, setWhere] = useState(s.postcode ?? s.city ?? "");
   const category: Category = s.category ?? "all";
   const sort: SortKey = s.sort ?? "newest";
   const [view, setView] = useState<"grid" | "map">("grid");
@@ -93,21 +93,48 @@ function MarketplacePage() {
 
   const meta = useQuery({ queryKey: ["mp-meta"], queryFn: useServerFn(fetchMarketplaceMeta) });
 
+  // Detect postcode-ish input vs town name
+  const isPostcode = (v: string) => /^[A-Z]{1,2}\d[A-Z\d]?( ?\d[A-Z]{2})?$/i.test(v.trim());
+  const onSubmitWhere = () => {
+    const v = where.trim();
+    if (!v) { setSearch({ postcode: undefined, city: undefined }); return; }
+    if (isPostcode(v)) setSearch({ postcode: v.toUpperCase(), city: undefined });
+    else setSearch({ city: v, postcode: undefined });
+  };
+
   const fn = useServerFn(fetchListings);
   const { data, isLoading, isFetching } = useQuery({
-    queryKey: ["listings", s, q, city],
+    queryKey: ["listings", s, q],
     queryFn: () => fn({ data: {
-      q: q || undefined, city: city || undefined, category,
-      min_price: s.min_price, max_price: s.max_price, beds: s.beds, baths: s.baths,
-      bills_included: s.bills_included, furnished: s.furnished, sort,
+      q: q || undefined,
+      city: s.city || undefined,
+      postcode: s.postcode || undefined,
+      radius_miles: s.radius,
+      property_type: s.property_type,
+      features: s.features,
+      epc_min: s.epc_min,
+      tenure: s.tenure,
+      category,
+      min_price: s.min_price, max_price: s.max_price,
+      beds: s.beds, baths: s.baths, receptions: s.receptions, min_sqft: s.min_sqft,
+      bills_included: s.bills_included, furnished: s.furnished,
+      sort,
     } }),
   });
 
   const activeFilters: string[] = [];
+  if (s.postcode) activeFilters.push(`📍 ${s.postcode}${s.radius ? ` · ${s.radius} mi` : ""}`);
+  else if (s.city && s.radius) activeFilters.push(`📍 ${s.city} · ${s.radius} mi`);
+  if (s.property_type && s.property_type !== "any") activeFilters.push(s.property_type);
   if (s.min_price) activeFilters.push(`from £${s.min_price.toLocaleString()}`);
   if (s.max_price) activeFilters.push(`to £${s.max_price.toLocaleString()}`);
   if (s.beds) activeFilters.push(`${s.beds}+ beds`);
   if (s.baths) activeFilters.push(`${s.baths}+ baths`);
+  if (s.receptions) activeFilters.push(`${s.receptions}+ reception`);
+  if (s.min_sqft) activeFilters.push(`${s.min_sqft}+ sq ft`);
+  if (s.epc_min) activeFilters.push(`EPC ${s.epc_min}+`);
+  if (s.tenure) activeFilters.push(s.tenure.replace("_", " "));
+  if (s.features?.length) s.features.forEach(f => activeFilters.push(f));
   if (s.bills_included) activeFilters.push("bills included");
   if (s.furnished) activeFilters.push(s.furnished);
 
