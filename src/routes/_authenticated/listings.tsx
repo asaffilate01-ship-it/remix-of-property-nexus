@@ -24,7 +24,7 @@ import { ComplianceEditor, type ComplianceMap } from "@/components/listings/Comp
 import { FeatureMultiSelect } from "@/components/properties/FeatureMultiSelect";
 
 type Listing = {
-  id: string; slug: string; title: string; description: string | null;
+  id: string; owner_id: string; slug: string; title: string; description: string | null;
   listing_type: "sale" | "rent" | "room"; purpose: "sale" | "rent";
   status: string; price: number | null; price_qualifier: string | null;
   bedrooms: number | null; bathrooms: number | null; receptions: number | null;
