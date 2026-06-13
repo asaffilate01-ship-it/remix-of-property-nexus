@@ -16,7 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { fetchListings, fetchMarketplaceMeta } from "@/lib/public.functions";
 import { useEffect, useState } from "react";
-import { Search, SlidersHorizontal, MapPin, Building2, Sparkles, X, ArrowUpDown, Bookmark } from "lucide-react";
+import { Search, SlidersHorizontal, MapPin, Building2, Sparkles, X, ArrowUpDown, Bookmark, LayoutGrid, Map as MapIcon } from "lucide-react";
 import { toast } from "sonner";
 
 const categories = ["all", "sale", "rent", "hmo", "commercial"] as const;
@@ -75,6 +75,7 @@ function MarketplacePage() {
   const [city, setCity] = useState(s.city ?? "");
   const category: Category = s.category ?? "all";
   const sort: SortKey = s.sort ?? "newest";
+  const [view, setView] = useState<"grid" | "map">("grid");
 
   const setSearch = (patch: Partial<SearchParams>) => navigate({ search: (prev: SearchParams) => ({ ...prev, ...patch }) });
 
@@ -170,6 +171,24 @@ function MarketplacePage() {
             </Tabs>
 
             <div className="flex items-center gap-2">
+              <div className="hidden sm:inline-flex rounded-md border bg-card p-0.5">
+                <button
+                  type="button"
+                  onClick={() => setView("grid")}
+                  className={`h-8 px-2.5 rounded inline-flex items-center text-xs font-medium transition-colors ${view === "grid" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                  aria-label="Grid view"
+                >
+                  <LayoutGrid className="h-3.5 w-3.5 sm:mr-1" /><span className="hidden md:inline">Grid</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setView("map")}
+                  className={`h-8 px-2.5 rounded inline-flex items-center text-xs font-medium transition-colors ${view === "map" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                  aria-label="Map view"
+                >
+                  <MapIcon className="h-3.5 w-3.5 sm:mr-1" /><span className="hidden md:inline">Map</span>
+                </button>
+              </div>
               <FiltersSheet s={s} setSearch={setSearch} />
               <Select value={sort} onValueChange={(v) => setSearch({ sort: v as SortKey })}>
                 <SelectTrigger className="h-9 w-auto min-w-0 px-3 sm:w-[180px]">
@@ -217,9 +236,13 @@ function MarketplacePage() {
               <div className="text-xs sm:text-sm text-muted-foreground mb-4">
                 {data.listings.length} listing{data.listings.length === 1 ? "" : "s"}{isFetching ? " · updating…" : ""}
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                {data.listings.map((l) => <ListingCard key={l.id} l={l} />)}
-              </div>
+              {view === "map" ? (
+                <MapView listings={data.listings} />
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                  {data.listings.map((l) => <ListingCard key={l.id} l={l} />)}
+                </div>
+              )}
             </>
           ) : (
             <div className="text-center py-16 sm:py-20">
@@ -349,5 +372,50 @@ function FiltersSheet({ s, setSearch }: { s: SearchParams; setSearch: (patch: Pa
         </SheetFooter>
       </SheetContent>
     </Sheet>
+  );
+}
+
+type MapListing = { id: string; slug: string; title: string; city: string | null; price: number | null; currency: string; listing_type: string; latitude?: number | null; longitude?: number | null; postcode?: string | null };
+
+function MapView({ listings }: { listings: MapListing[] }) {
+  const withGeo = listings.filter((l) => (l.latitude && l.longitude) || l.postcode);
+  const first = withGeo[0];
+  const query = first
+    ? first.latitude && first.longitude
+      ? `${first.latitude},${first.longitude}`
+      : first.postcode ?? ""
+    : "United Kingdom";
+  const src = `https://www.google.com/maps?q=${encodeURIComponent(query)}&z=12&output=embed`;
+
+  return (
+    <div className="grid lg:grid-cols-[1fr_360px] gap-4">
+      <div className="rounded-2xl overflow-hidden border aspect-[4/3] lg:aspect-auto lg:h-[600px] bg-muted">
+        <iframe src={src} loading="lazy" referrerPolicy="no-referrer-when-downgrade" className="w-full h-full" title="Listings map" />
+      </div>
+      <div className="space-y-2 lg:max-h-[600px] lg:overflow-y-auto pr-1">
+        {withGeo.length === 0 && (
+          <Card className="border-dashed">
+            <CardContent className="p-4 text-sm text-muted-foreground">
+              No precise locations on these listings yet. Agents will see their pins here once coordinates or postcodes are added.
+            </CardContent>
+          </Card>
+        )}
+        {listings.map((l) => (
+          <Link key={l.id} to="/marketplace/$slug" params={{ slug: l.slug }} className="block">
+            <Card className="border hover:shadow-card transition-shadow">
+              <CardContent className="p-3 flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="text-sm font-medium truncate">{l.title}</div>
+                  <div className="text-xs text-muted-foreground inline-flex items-center gap-1"><MapPin className="h-3 w-3" />{l.city ?? "—"}</div>
+                </div>
+                <div className="text-sm font-bold text-primary shrink-0">
+                  {l.price ? new Intl.NumberFormat("en-GB", { style: "currency", currency: l.currency || "GBP", maximumFractionDigits: 0 }).format(Number(l.price)) : "POA"}
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+        ))}
+      </div>
+    </div>
   );
 }
