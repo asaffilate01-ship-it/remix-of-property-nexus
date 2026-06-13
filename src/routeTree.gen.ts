@@ -44,7 +44,11 @@ import { Route as AuthenticatedRenewalsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedPropertiesRouteImport } from './routes/_authenticated/properties'
 import { Route as AuthenticatedPipelineRouteImport } from './routes/_authenticated/pipeline'
 import { Route as AuthenticatedOffersRouteImport } from './routes/_authenticated/offers'
+import { Route as AuthenticatedMoveRouteImport } from './routes/_authenticated/move'
+import { Route as AuthenticatedMobileInspectionRouteImport } from './routes/_authenticated/mobile-inspection'
+import { Route as AuthenticatedMediaRouteImport } from './routes/_authenticated/media'
 import { Route as AuthenticatedListingsRouteImport } from './routes/_authenticated/listings'
+import { Route as AuthenticatedLeaseholdRouteImport } from './routes/_authenticated/leasehold'
 import { Route as AuthenticatedLeadsRouteImport } from './routes/_authenticated/leads'
 import { Route as AuthenticatedInspectionsRouteImport } from './routes/_authenticated/inspections'
 import { Route as AuthenticatedHmoRouteImport } from './routes/_authenticated/hmo'
@@ -54,6 +58,7 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedContractorMarketplaceRouteImport } from './routes/_authenticated/contractor-marketplace'
 import { Route as AuthenticatedContactsRouteImport } from './routes/_authenticated/contacts'
 import { Route as AuthenticatedComplianceRouteImport } from './routes/_authenticated/compliance'
+import { Route as AuthenticatedCommercialRouteImport } from './routes/_authenticated/commercial'
 import { Route as AuthenticatedArrearsRouteImport } from './routes/_authenticated/arrears'
 import { Route as AuthenticatedAiCopyRouteImport } from './routes/_authenticated/ai-copy'
 import { Route as AuthenticatedAgencyRouteImport } from './routes/_authenticated/agency'
@@ -234,9 +239,30 @@ const AuthenticatedOffersRoute = AuthenticatedOffersRouteImport.update({
   path: '/offers',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedMoveRoute = AuthenticatedMoveRouteImport.update({
+  id: '/move',
+  path: '/move',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMobileInspectionRoute =
+  AuthenticatedMobileInspectionRouteImport.update({
+    id: '/mobile-inspection',
+    path: '/mobile-inspection',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMediaRoute = AuthenticatedMediaRouteImport.update({
+  id: '/media',
+  path: '/media',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedListingsRoute = AuthenticatedListingsRouteImport.update({
   id: '/listings',
   path: '/listings',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedLeaseholdRoute = AuthenticatedLeaseholdRouteImport.update({
+  id: '/leasehold',
+  path: '/leasehold',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedLeadsRoute = AuthenticatedLeadsRouteImport.update({
@@ -286,6 +312,11 @@ const AuthenticatedComplianceRoute = AuthenticatedComplianceRouteImport.update({
   path: '/compliance',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCommercialRoute = AuthenticatedCommercialRouteImport.update({
+  id: '/commercial',
+  path: '/commercial',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedArrearsRoute = AuthenticatedArrearsRouteImport.update({
   id: '/arrears',
   path: '/arrears',
@@ -323,6 +354,7 @@ export interface FileRoutesByFullPath {
   '/agency': typeof AuthenticatedAgencyRoute
   '/ai-copy': typeof AuthenticatedAiCopyRoute
   '/arrears': typeof AuthenticatedArrearsRoute
+  '/commercial': typeof AuthenticatedCommercialRoute
   '/compliance': typeof AuthenticatedComplianceRoute
   '/contacts': typeof AuthenticatedContactsRoute
   '/contractor-marketplace': typeof AuthenticatedContractorMarketplaceRoute
@@ -332,7 +364,11 @@ export interface FileRoutesByFullPath {
   '/hmo': typeof AuthenticatedHmoRoute
   '/inspections': typeof AuthenticatedInspectionsRoute
   '/leads': typeof AuthenticatedLeadsRoute
+  '/leasehold': typeof AuthenticatedLeaseholdRoute
   '/listings': typeof AuthenticatedListingsRoute
+  '/media': typeof AuthenticatedMediaRoute
+  '/mobile-inspection': typeof AuthenticatedMobileInspectionRoute
+  '/move': typeof AuthenticatedMoveRoute
   '/offers': typeof AuthenticatedOffersRoute
   '/pipeline': typeof AuthenticatedPipelineRoute
   '/properties': typeof AuthenticatedPropertiesRoute
@@ -370,6 +406,7 @@ export interface FileRoutesByTo {
   '/agency': typeof AuthenticatedAgencyRoute
   '/ai-copy': typeof AuthenticatedAiCopyRoute
   '/arrears': typeof AuthenticatedArrearsRoute
+  '/commercial': typeof AuthenticatedCommercialRoute
   '/compliance': typeof AuthenticatedComplianceRoute
   '/contacts': typeof AuthenticatedContactsRoute
   '/contractor-marketplace': typeof AuthenticatedContractorMarketplaceRoute
@@ -379,7 +416,11 @@ export interface FileRoutesByTo {
   '/hmo': typeof AuthenticatedHmoRoute
   '/inspections': typeof AuthenticatedInspectionsRoute
   '/leads': typeof AuthenticatedLeadsRoute
+  '/leasehold': typeof AuthenticatedLeaseholdRoute
   '/listings': typeof AuthenticatedListingsRoute
+  '/media': typeof AuthenticatedMediaRoute
+  '/mobile-inspection': typeof AuthenticatedMobileInspectionRoute
+  '/move': typeof AuthenticatedMoveRoute
   '/offers': typeof AuthenticatedOffersRoute
   '/pipeline': typeof AuthenticatedPipelineRoute
   '/properties': typeof AuthenticatedPropertiesRoute
@@ -421,6 +462,7 @@ export interface FileRoutesById {
   '/_authenticated/agency': typeof AuthenticatedAgencyRoute
   '/_authenticated/ai-copy': typeof AuthenticatedAiCopyRoute
   '/_authenticated/arrears': typeof AuthenticatedArrearsRoute
+  '/_authenticated/commercial': typeof AuthenticatedCommercialRoute
   '/_authenticated/compliance': typeof AuthenticatedComplianceRoute
   '/_authenticated/contacts': typeof AuthenticatedContactsRoute
   '/_authenticated/contractor-marketplace': typeof AuthenticatedContractorMarketplaceRoute
@@ -430,7 +472,11 @@ export interface FileRoutesById {
   '/_authenticated/hmo': typeof AuthenticatedHmoRoute
   '/_authenticated/inspections': typeof AuthenticatedInspectionsRoute
   '/_authenticated/leads': typeof AuthenticatedLeadsRoute
+  '/_authenticated/leasehold': typeof AuthenticatedLeaseholdRoute
   '/_authenticated/listings': typeof AuthenticatedListingsRoute
+  '/_authenticated/media': typeof AuthenticatedMediaRoute
+  '/_authenticated/mobile-inspection': typeof AuthenticatedMobileInspectionRoute
+  '/_authenticated/move': typeof AuthenticatedMoveRoute
   '/_authenticated/offers': typeof AuthenticatedOffersRoute
   '/_authenticated/pipeline': typeof AuthenticatedPipelineRoute
   '/_authenticated/properties': typeof AuthenticatedPropertiesRoute
@@ -472,6 +518,7 @@ export interface FileRouteTypes {
     | '/agency'
     | '/ai-copy'
     | '/arrears'
+    | '/commercial'
     | '/compliance'
     | '/contacts'
     | '/contractor-marketplace'
@@ -481,7 +528,11 @@ export interface FileRouteTypes {
     | '/hmo'
     | '/inspections'
     | '/leads'
+    | '/leasehold'
     | '/listings'
+    | '/media'
+    | '/mobile-inspection'
+    | '/move'
     | '/offers'
     | '/pipeline'
     | '/properties'
@@ -519,6 +570,7 @@ export interface FileRouteTypes {
     | '/agency'
     | '/ai-copy'
     | '/arrears'
+    | '/commercial'
     | '/compliance'
     | '/contacts'
     | '/contractor-marketplace'
@@ -528,7 +580,11 @@ export interface FileRouteTypes {
     | '/hmo'
     | '/inspections'
     | '/leads'
+    | '/leasehold'
     | '/listings'
+    | '/media'
+    | '/mobile-inspection'
+    | '/move'
     | '/offers'
     | '/pipeline'
     | '/properties'
@@ -569,6 +625,7 @@ export interface FileRouteTypes {
     | '/_authenticated/agency'
     | '/_authenticated/ai-copy'
     | '/_authenticated/arrears'
+    | '/_authenticated/commercial'
     | '/_authenticated/compliance'
     | '/_authenticated/contacts'
     | '/_authenticated/contractor-marketplace'
@@ -578,7 +635,11 @@ export interface FileRouteTypes {
     | '/_authenticated/hmo'
     | '/_authenticated/inspections'
     | '/_authenticated/leads'
+    | '/_authenticated/leasehold'
     | '/_authenticated/listings'
+    | '/_authenticated/media'
+    | '/_authenticated/mobile-inspection'
+    | '/_authenticated/move'
     | '/_authenticated/offers'
     | '/_authenticated/pipeline'
     | '/_authenticated/properties'
@@ -867,11 +928,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOffersRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/move': {
+      id: '/_authenticated/move'
+      path: '/move'
+      fullPath: '/move'
+      preLoaderRoute: typeof AuthenticatedMoveRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/mobile-inspection': {
+      id: '/_authenticated/mobile-inspection'
+      path: '/mobile-inspection'
+      fullPath: '/mobile-inspection'
+      preLoaderRoute: typeof AuthenticatedMobileInspectionRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/media': {
+      id: '/_authenticated/media'
+      path: '/media'
+      fullPath: '/media'
+      preLoaderRoute: typeof AuthenticatedMediaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/listings': {
       id: '/_authenticated/listings'
       path: '/listings'
       fullPath: '/listings'
       preLoaderRoute: typeof AuthenticatedListingsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/leasehold': {
+      id: '/_authenticated/leasehold'
+      path: '/leasehold'
+      fullPath: '/leasehold'
+      preLoaderRoute: typeof AuthenticatedLeaseholdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/leads': {
@@ -937,6 +1026,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedComplianceRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/commercial': {
+      id: '/_authenticated/commercial'
+      path: '/commercial'
+      fullPath: '/commercial'
+      preLoaderRoute: typeof AuthenticatedCommercialRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/arrears': {
       id: '/_authenticated/arrears'
       path: '/arrears'
@@ -965,6 +1061,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAgencyRoute: typeof AuthenticatedAgencyRoute
   AuthenticatedAiCopyRoute: typeof AuthenticatedAiCopyRoute
   AuthenticatedArrearsRoute: typeof AuthenticatedArrearsRoute
+  AuthenticatedCommercialRoute: typeof AuthenticatedCommercialRoute
   AuthenticatedComplianceRoute: typeof AuthenticatedComplianceRoute
   AuthenticatedContactsRoute: typeof AuthenticatedContactsRoute
   AuthenticatedContractorMarketplaceRoute: typeof AuthenticatedContractorMarketplaceRoute
@@ -974,7 +1071,11 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedHmoRoute: typeof AuthenticatedHmoRoute
   AuthenticatedInspectionsRoute: typeof AuthenticatedInspectionsRoute
   AuthenticatedLeadsRoute: typeof AuthenticatedLeadsRoute
+  AuthenticatedLeaseholdRoute: typeof AuthenticatedLeaseholdRoute
   AuthenticatedListingsRoute: typeof AuthenticatedListingsRoute
+  AuthenticatedMediaRoute: typeof AuthenticatedMediaRoute
+  AuthenticatedMobileInspectionRoute: typeof AuthenticatedMobileInspectionRoute
+  AuthenticatedMoveRoute: typeof AuthenticatedMoveRoute
   AuthenticatedOffersRoute: typeof AuthenticatedOffersRoute
   AuthenticatedPipelineRoute: typeof AuthenticatedPipelineRoute
   AuthenticatedPropertiesRoute: typeof AuthenticatedPropertiesRoute
@@ -993,6 +1094,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAgencyRoute: AuthenticatedAgencyRoute,
   AuthenticatedAiCopyRoute: AuthenticatedAiCopyRoute,
   AuthenticatedArrearsRoute: AuthenticatedArrearsRoute,
+  AuthenticatedCommercialRoute: AuthenticatedCommercialRoute,
   AuthenticatedComplianceRoute: AuthenticatedComplianceRoute,
   AuthenticatedContactsRoute: AuthenticatedContactsRoute,
   AuthenticatedContractorMarketplaceRoute:
@@ -1003,7 +1105,11 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedHmoRoute: AuthenticatedHmoRoute,
   AuthenticatedInspectionsRoute: AuthenticatedInspectionsRoute,
   AuthenticatedLeadsRoute: AuthenticatedLeadsRoute,
+  AuthenticatedLeaseholdRoute: AuthenticatedLeaseholdRoute,
   AuthenticatedListingsRoute: AuthenticatedListingsRoute,
+  AuthenticatedMediaRoute: AuthenticatedMediaRoute,
+  AuthenticatedMobileInspectionRoute: AuthenticatedMobileInspectionRoute,
+  AuthenticatedMoveRoute: AuthenticatedMoveRoute,
   AuthenticatedOffersRoute: AuthenticatedOffersRoute,
   AuthenticatedPipelineRoute: AuthenticatedPipelineRoute,
   AuthenticatedPropertiesRoute: AuthenticatedPropertiesRoute,

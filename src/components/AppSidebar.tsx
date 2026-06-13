@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, Building2, Tag, Inbox, Kanban, ShieldCheck, Users, Settings, LogOut, BedDouble, Wrench, Contact, Handshake, Search, Heart, Home, Scale, ClipboardCheck, ClipboardList, CalendarDays, Gavel, Receipt, BarChart3, Sparkles, Eye, Bookmark, RefreshCcw, Vault, UserCheck, FilePenLine, Hammer, Banknote } from "lucide-react";
+import { LayoutDashboard, Building2, Tag, Inbox, Kanban, ShieldCheck, Users, Settings, LogOut, BedDouble, Wrench, Contact, Handshake, Search, Heart, Home, Scale, ClipboardCheck, ClipboardList, CalendarDays, Gavel, Receipt, BarChart3, Sparkles, Eye, Bookmark, RefreshCcw, Vault, UserCheck, FilePenLine, Hammer, Banknote, Image, Landmark, Briefcase, Smartphone, PackageOpen } from "lucide-react";
 import { BranchSwitcher } from "@/components/BranchSwitcher";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader, SidebarFooter, useSidebar } from "@/components/ui/sidebar";
 import { supabase } from "@/integrations/supabase/client";
@@ -20,6 +20,11 @@ const FULL: NavItem[] = [
   { to: "/offers", label: "Offers & chains", icon: Gavel },
   { to: "/hmo", label: "HMO", icon: BedDouble },
   { to: "/inspections", label: "Inspections", icon: ClipboardList },
+  { to: "/mobile-inspection", label: "On‑site inspection", icon: Smartphone },
+  { to: "/move", label: "Move in / out", icon: PackageOpen },
+  { to: "/media", label: "Floorplans & EPC", icon: Image },
+  { to: "/leasehold", label: "Leasehold register", icon: Landmark },
+  { to: "/commercial", label: "Commercial lettings", icon: Briefcase },
   { to: "/renewals", label: "Renewals", icon: RefreshCcw },
   { to: "/deposits", label: "Deposits", icon: Vault },
   { to: "/right-to-rent", label: "Right to Rent", icon: UserCheck },
