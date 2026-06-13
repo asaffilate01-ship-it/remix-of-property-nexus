@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Building2, Menu, ChevronDown, Search, Bookmark, Calculator, Banknote, MapPin, ClipboardCheck, Briefcase, Users } from "lucide-react";
+import { Building2, Menu, ChevronDown, Search, Bookmark, Calculator, Banknote, MapPin, ClipboardCheck, Briefcase, Users, BookOpen } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -15,6 +15,7 @@ const groups: Group[] = [
       { to: "/marketplace", label: "Marketplace", desc: "Sales, lettings, HMO & commercial", icon: Search },
       { to: "/saved-searches", label: "Saved searches", desc: "Alerts when new homes match", icon: Bookmark },
       { to: "/area-guides", label: "Area guides", desc: "Schools, transport, prices", icon: MapPin },
+      { to: "/blog", label: "Blog & insight", desc: "Market data, compliance, product news", icon: BookOpen },
     ],
   },
   {
