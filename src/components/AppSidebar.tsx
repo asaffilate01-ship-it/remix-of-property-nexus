@@ -225,7 +225,7 @@ export function AppSidebar() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const collapsed = state === "collapsed";
-  const { role } = useUserRole();
+  const { role, name } = useUserRole();
   const sections = sectionsFor(role);
   const [query, setQuery] = useState("");
 
