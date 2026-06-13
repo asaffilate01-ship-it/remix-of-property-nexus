@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { GraduationCap, Train, ShieldCheck, TrendingUp, MapPin, ArrowLeft, Home } from "lucide-react";
-import { findArea, AREAS } from "@/content/areas";
+import { findArea, AREAS, type Area } from "@/content/areas";
 
 export const Route = createFileRoute("/area-guides/$slug")({
   loader: ({ params }) => {
@@ -37,7 +37,7 @@ export const Route = createFileRoute("/area-guides/$slug")({
 });
 
 function AreaGuideDetail() {
-  const a = Route.useLoaderData();
+  const a = Route.useLoaderData() as Area;
   const peak = Math.max(...a.priceTrend.map((p) => p.value));
   const related = AREAS.filter((x) => x.slug !== a.slug).slice(0, 3);
 
