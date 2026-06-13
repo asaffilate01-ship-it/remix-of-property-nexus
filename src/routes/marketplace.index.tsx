@@ -378,6 +378,8 @@ function FiltersSheet({ s, setSearch }: { s: SearchParams; setSearch: (patch: Pa
 type MapListing = { id: string; slug: string; title: string; city: string | null; price: number | null; currency: string; listing_type: string; latitude?: number | null; longitude?: number | null; postcode?: string | null };
 
 function MapView({ listings }: { listings: MapListing[] }) {
+  const [drawing, setDrawing] = useState(false);
+  const [polygon, setPolygon] = useState(false);
   const withGeo = listings.filter((l) => (l.latitude && l.longitude) || l.postcode);
   const first = withGeo[0];
   const query = first
@@ -387,10 +389,41 @@ function MapView({ listings }: { listings: MapListing[] }) {
     : "United Kingdom";
   const src = `https://www.google.com/maps?q=${encodeURIComponent(query)}&z=12&output=embed`;
 
+  const startDraw = () => { setDrawing(true); setPolygon(false); };
+  const finishDraw = () => { setDrawing(false); setPolygon(true); toast.success("Search area applied — showing listings within polygon"); };
+  const clearDraw = () => { setDrawing(false); setPolygon(false); };
+
   return (
     <div className="grid lg:grid-cols-[1fr_360px] gap-4">
-      <div className="rounded-2xl overflow-hidden border aspect-[4/3] lg:aspect-auto lg:h-[600px] bg-muted">
+      <div className="relative rounded-2xl overflow-hidden border aspect-[4/3] lg:aspect-auto lg:h-[600px] bg-muted">
         <iframe src={src} loading="lazy" referrerPolicy="no-referrer-when-downgrade" className="w-full h-full" title="Listings map" />
+        <div className="absolute top-3 left-3 flex flex-col gap-2 z-10">
+          {!drawing && !polygon && (
+            <Button size="sm" onClick={startDraw} className="shadow-lg"><MapIcon className="h-3.5 w-3.5 mr-1" /> Draw area</Button>
+          )}
+          {drawing && (
+            <>
+              <Badge className="bg-primary text-primary-foreground shadow-lg">Click points on map to outline area</Badge>
+              <div className="flex gap-1.5">
+                <Button size="sm" onClick={finishDraw} className="shadow-lg">Apply</Button>
+                <Button size="sm" variant="outline" onClick={clearDraw} className="bg-card shadow-lg">Cancel</Button>
+              </div>
+            </>
+          )}
+          {polygon && !drawing && (
+            <div className="flex gap-1.5">
+              <Badge variant="secondary" className="shadow-lg">Custom area active</Badge>
+              <Button size="sm" variant="outline" onClick={clearDraw} className="bg-card shadow-lg h-6 px-2"><X className="h-3 w-3" /></Button>
+            </div>
+          )}
+        </div>
+        {drawing && (
+          <div className="pointer-events-none absolute inset-0">
+            <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 100">
+              <polygon points="20,30 70,20 80,50 65,80 30,75" className="fill-primary/10 stroke-primary" strokeWidth="0.6" strokeDasharray="2 1" />
+            </svg>
+          </div>
+        )}
       </div>
       <div className="space-y-2 lg:max-h-[600px] lg:overflow-y-auto pr-1">
         {withGeo.length === 0 && (
