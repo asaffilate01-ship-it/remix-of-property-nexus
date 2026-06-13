@@ -122,11 +122,11 @@ function BusinessPage() {
                 Estately replaces your CRM, portal subscription, compliance tracker and landlord portal with a single, modern system your team will actually use.
               </p>
               <div className="flex flex-col sm:flex-row gap-3">
-                <Button asChild size="lg" className="h-12 px-6"><Link to="/auth" search={{ mode: "signup" } as never}>Start free 14-day trial <ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
+                <Button asChild size="lg" className="h-12 px-6"><Link to="/auth" search={{ mode: "signup" } as never}>Start 30-day free trial <ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
                 <Button asChild size="lg" variant="outline" className="h-12 px-6"><a href="mailto:sales@estately.test">Book a demo</a></Button>
               </div>
               <div className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground">
-                {["No setup fee", "Free migration from Reapit/Alto/Arthur", "Cancel any time", "UK-hosted, GDPR-compliant"].map((f) => (
+                {["30 days free, no card required", "Free migration from Reapit/Alto/Arthur", "Cancel any time", "UK-hosted, GDPR-compliant"].map((f) => (
                   <span key={f} className="inline-flex items-center gap-1.5"><Check className="h-4 w-4 text-success" />{f}</span>
                 ))}
               </div>
