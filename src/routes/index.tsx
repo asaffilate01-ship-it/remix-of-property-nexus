@@ -3,9 +3,10 @@ import { PublicHeader } from "@/components/PublicHeader";
 import { PublicFooter } from "@/components/PublicFooter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Building2, ShieldCheck, Kanban, Inbox, Search, Sparkles, Check, Home, Store, BedDouble, ArrowRight, Star } from "lucide-react";
+import { Building2, ShieldCheck, Kanban, Inbox, Search, Sparkles, Check, ArrowRight, Star } from "lucide-react";
 import heroHome from "@/assets/hero-home.jpg";
 import heroPattern from "@/assets/hero-pattern.jpg";
+import { IsoIcon, type IsoIconName } from "@/components/iso/IsoIcon";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -20,11 +21,11 @@ export const Route = createFileRoute("/")({
   component: Landing,
 });
 
-const modules = [
-  { icon: Home, title: "Sales", body: "Vendor onboarding, valuations, offers, chains and completions.", href: "/modules/sales" },
-  { icon: Building2, title: "Lettings", body: "Tenancies, viewings, references, deposits and renewals.", href: "/modules/lettings" },
-  { icon: BedDouble, title: "HMO", body: "Room-by-room, licensing, gas/EICR/EPC alerts and rent-to-rent.", href: "/modules/hmo", badge: "Add-on" },
-  { icon: Store, title: "Commercial", body: "Leases, service charges, business rates and renewals.", href: "/modules/commercial" },
+const modules: { icon: IsoIconName; title: string; body: string; href: string; badge?: string }[] = [
+  { icon: "house", title: "Sales", body: "Vendor onboarding, valuations, offers, chains and completions.", href: "/modules/sales" },
+  { icon: "key", title: "Lettings", body: "Tenancies, viewings, references, deposits and renewals.", href: "/modules/lettings" },
+  { icon: "hmo", title: "HMO", body: "Room-by-room, licensing, gas/EICR/EPC alerts and rent-to-rent.", href: "/modules/hmo", badge: "Add-on" },
+  { icon: "commercial", title: "Commercial", body: "Leases, service charges, business rates and renewals.", href: "/modules/commercial" },
 ];
 
 function Landing() {
