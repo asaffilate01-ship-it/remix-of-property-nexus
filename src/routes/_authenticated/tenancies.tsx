@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ChevronRight, Home, Users, Plus } from "lucide-react";
 import { listTenancyOverview } from "@/lib/tenancy-lifecycle.functions";
+import { PageHeader } from "@/components/PageHeader";
 
 const tenanciesQueryOptions = () =>
   queryOptions({
@@ -39,19 +40,18 @@ function TenanciesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="font-display text-2xl md:text-3xl font-bold tracking-tight">Tenancies</h1>
-          <p className="text-muted-foreground mt-1">
-            End-to-end lifecycle: lead → viewing → offer → tenancy → deposit → rent → renewal.
-          </p>
-        </div>
-        <Button asChild>
-          <Link to="/pipeline">
-            <Plus className="mr-2 h-4 w-4" /> Start from pipeline
-          </Link>
-        </Button>
-      </div>
+      <PageHeader
+        title="Tenancies"
+        description="End-to-end lifecycle: lead → viewing → offer → tenancy → deposit → rent → renewal."
+        actions={
+          <Button asChild>
+            <Link to="/pipeline">
+              <Plus className="mr-2 h-4 w-4" /> Start from pipeline
+            </Link>
+          </Button>
+        }
+      />
+
 
       <div className="grid sm:grid-cols-4 gap-3">
         <Stat label="Active" value={String(active)} />
