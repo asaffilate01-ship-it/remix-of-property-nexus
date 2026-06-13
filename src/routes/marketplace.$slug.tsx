@@ -19,6 +19,8 @@ import { GoogleListingsMap } from "@/components/GoogleListingsMap";
 
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
+import { SaveListingButton } from "@/components/marketplace/SaveListingButton";
+import { OfferDialog } from "@/components/marketplace/OfferDialog";
 
 function ListingError({ error, reset }: { error: Error; reset: () => void }) {
   const router = useRouter();
@@ -289,6 +291,12 @@ function ListingDetail() {
               </CardContent>
             </Card>
           )}
+          <Card className="border-0 shadow-card">
+            <CardContent className="p-4 grid grid-cols-2 gap-2">
+              <SaveListingButton listingId={l.id} />
+              <OfferDialog listingId={l.id} ownerId={l.owner_id} agencyId={l.agency_id} guidePrice={l.price} purpose={l.purpose} />
+            </CardContent>
+          </Card>
           <LeadForm listingId={l.id} agencyId={l.agency_id} ownerId={l.owner_id} />
           <ShareCard slug={slug} title={l.title} />
         </aside>

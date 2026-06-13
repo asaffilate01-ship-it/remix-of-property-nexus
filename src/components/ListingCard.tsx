@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Bed, Bath, MapPin } from "lucide-react";
+import { SaveListingButton } from "@/components/marketplace/SaveListingButton";
 
 export type ListingCardData = {
   id: string;
@@ -33,7 +34,8 @@ export function ListingCard({ l }: { l: ListingCardData }) {
   const qualifier = l.price_qualifier && l.price_qualifier !== "none" ? l.price_qualifier.replace(/_/g, " ") : null;
 
   return (
-    <Link to="/marketplace/$slug" params={{ slug: l.slug }} className="group">
+    <div className="group relative">
+      <Link to="/marketplace/$slug" params={{ slug: l.slug }} className="block">
       <Card className="overflow-hidden border-0 shadow-card hover:shadow-xl hover:-translate-y-0.5 transition-all">
         <div className="aspect-[4/3] bg-muted relative overflow-hidden">
           {l.cover_image ? (
@@ -62,6 +64,10 @@ export function ListingCard({ l }: { l: ListingCardData }) {
           </div>
         </CardContent>
       </Card>
-    </Link>
+      </Link>
+      <div className="absolute top-3 right-3 z-10 rounded-full bg-card/95 backdrop-blur shadow-sm">
+        <SaveListingButton listingId={l.id} variant="ghost" size="icon" />
+      </div>
+    </div>
   );
 }

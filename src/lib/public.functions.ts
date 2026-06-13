@@ -235,3 +235,23 @@ export const submitLead = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+export const submitOffer = createServerFn({ method: "POST" })
+  .inputValidator(z.object({
+    listing_id: z.string().uuid(),
+    owner_id: z.string().uuid(),
+    agency_id: z.string().uuid().optional(),
+    buyer_name: z.string().min(1).max(199),
+    buyer_email: z.string().email().max(199).optional(),
+    buyer_phone: z.string().max(49).optional(),
+    amount: z.number().positive().max(999_999_999),
+    financing: z.string().max(99).optional(),
+    position_in_chain: z.number().int().min(0).max(20).optional(),
+    notes: z.string().max(4999).optional(),
+  }))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("offers").insert(data);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
