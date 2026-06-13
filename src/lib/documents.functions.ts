@@ -41,7 +41,7 @@ export const createDocument = createServerFn({ method: "POST" })
     agency_id?: string | null;
   }) => d)
   .handler(async ({ data, context }) => {
-    const row: Record<string, unknown> = {
+    const row = {
       name: data.name,
       folder: data.folder || "General",
       scope: data.scope,
