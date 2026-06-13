@@ -1591,6 +1591,184 @@ export type Database = {
         }
         Relationships: []
       }
+      survey_captures: {
+        Row: {
+          accuracy_m: number | null
+          agency_id: string | null
+          altitude: number | null
+          bytes: number | null
+          caption: string | null
+          captured_at: string
+          created_at: string
+          duration_ms: number | null
+          folder_id: string | null
+          heading: number | null
+          height: number | null
+          id: string
+          kind: string
+          lat: number | null
+          lng: number | null
+          mime_type: string | null
+          property_id: string | null
+          storage_path: string
+          tags: string[]
+          thumb_path: string | null
+          updated_at: string
+          user_id: string
+          width: number | null
+          work_order_id: string | null
+        }
+        Insert: {
+          accuracy_m?: number | null
+          agency_id?: string | null
+          altitude?: number | null
+          bytes?: number | null
+          caption?: string | null
+          captured_at?: string
+          created_at?: string
+          duration_ms?: number | null
+          folder_id?: string | null
+          heading?: number | null
+          height?: number | null
+          id?: string
+          kind: string
+          lat?: number | null
+          lng?: number | null
+          mime_type?: string | null
+          property_id?: string | null
+          storage_path: string
+          tags?: string[]
+          thumb_path?: string | null
+          updated_at?: string
+          user_id: string
+          width?: number | null
+          work_order_id?: string | null
+        }
+        Update: {
+          accuracy_m?: number | null
+          agency_id?: string | null
+          altitude?: number | null
+          bytes?: number | null
+          caption?: string | null
+          captured_at?: string
+          created_at?: string
+          duration_ms?: number | null
+          folder_id?: string | null
+          heading?: number | null
+          height?: number | null
+          id?: string
+          kind?: string
+          lat?: number | null
+          lng?: number | null
+          mime_type?: string | null
+          property_id?: string | null
+          storage_path?: string
+          tags?: string[]
+          thumb_path?: string | null
+          updated_at?: string
+          user_id?: string
+          width?: number | null
+          work_order_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "survey_captures_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "survey_captures_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "survey_folders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "survey_captures_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "survey_captures_work_order_id_fkey"
+            columns: ["work_order_id"]
+            isOneToOne: false
+            referencedRelation: "work_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      survey_folders: {
+        Row: {
+          agency_id: string | null
+          color: string | null
+          created_at: string
+          id: string
+          name: string
+          parent_id: string | null
+          property_id: string | null
+          updated_at: string
+          user_id: string
+          work_order_id: string | null
+        }
+        Insert: {
+          agency_id?: string | null
+          color?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          parent_id?: string | null
+          property_id?: string | null
+          updated_at?: string
+          user_id: string
+          work_order_id?: string | null
+        }
+        Update: {
+          agency_id?: string | null
+          color?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          parent_id?: string | null
+          property_id?: string | null
+          updated_at?: string
+          user_id?: string
+          work_order_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "survey_folders_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "survey_folders_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "survey_folders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "survey_folders_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "survey_folders_work_order_id_fkey"
+            columns: ["work_order_id"]
+            isOneToOne: false
+            referencedRelation: "work_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tenancies: {
         Row: {
           agency_id: string | null
