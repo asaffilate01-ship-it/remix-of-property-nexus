@@ -137,6 +137,23 @@ function AuthPage() {
                 </Button>
               </TabsContent>
             </Tabs>
+
+            <div className="mt-6 pt-6 border-t">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
+                <Sparkles className="h-3.5 w-3.5 text-accent" />
+                <span className="font-medium">Try a demo account</span>
+                <span className="ml-auto text-[10px] uppercase tracking-wide bg-accent/10 text-accent px-2 py-0.5 rounded-full">Dev</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {DEMO_ACCOUNTS.map((a) => (
+                  <Button key={a.email} variant="outline" size="sm" disabled={busy} onClick={() => demoLogin(a)} className="justify-start text-xs">
+                    {busy ? <Loader2 className="mr-1.5 h-3 w-3 animate-spin" /> : null}
+                    {a.name.replace("Demo ", "")}
+                  </Button>
+                ))}
+              </div>
+              <p className="text-[11px] text-muted-foreground mt-2">First click seeds the accounts. Password: <code className="font-mono">demo1234</code></p>
+            </div>
           </CardContent>
         </Card>
       </div>
