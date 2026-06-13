@@ -548,22 +548,33 @@ function FiltersSheet({ s, setSearch, category }: { s: SearchParams; setSearch: 
               })}
             </div>
           </div>
-          <div>
-            <Label>Furnished</Label>
-            <Select value={local.furnished} onValueChange={(v) => setLocal({ ...local, furnished: v })}>
-              <SelectTrigger className="mt-2"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="any">Any</SelectItem>
-                <SelectItem value="furnished">Furnished</SelectItem>
-                <SelectItem value="part_furnished">Part furnished</SelectItem>
-                <SelectItem value="unfurnished">Unfurnished</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="flex items-center justify-between rounded-lg border p-3">
-            <Label htmlFor="bills" className="cursor-pointer">Bills included</Label>
-            <Switch id="bills" checked={local.bills_included} onCheckedChange={(v) => setLocal({ ...local, bills_included: v })} />
-          </div>
+          {(category === "rent" || category === "hmo" || category === "all") && (
+            <>
+              <div>
+                <Label>Furnished</Label>
+                <Select value={local.furnished} onValueChange={(v) => setLocal({ ...local, furnished: v })}>
+                  <SelectTrigger className="mt-2"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="any">Any</SelectItem>
+                    <SelectItem value="furnished">Furnished</SelectItem>
+                    <SelectItem value="part_furnished">Part furnished</SelectItem>
+                    <SelectItem value="unfurnished">Unfurnished</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex items-center justify-between rounded-lg border p-3">
+                <Label htmlFor="bills" className="cursor-pointer">Bills included</Label>
+                <Switch id="bills" checked={local.bills_included} onCheckedChange={(v) => setLocal({ ...local, bills_included: v })} />
+              </div>
+            </>
+          )}
+          {category !== "sale" && (
+            <div>
+              <Label>Available from</Label>
+              <Input type="date" className="mt-2" value={local.available_from} onChange={(e) => setLocal({ ...local, available_from: e.target.value })} />
+            </div>
+          )}
+
         </div>
         <SheetFooter className="mt-6 flex-row gap-2">
           <Button variant="outline" className="flex-1" onClick={() => { setLocal({ min_price: "", max_price: "", beds: "any", baths: "any", receptions: "any", min_sqft: "", bills_included: false, furnished: "any", property_type: "any", epc_min: "any", tenure: "any", features: [], available_from: "" }); }}>Reset</Button>
