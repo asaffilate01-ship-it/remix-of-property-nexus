@@ -18,14 +18,7 @@ export const Route = createFileRoute("/area-guides")({
   component: AreaGuidesPage,
 });
 
-const AREAS = [
-  { slug: "marylebone-w1", name: "Marylebone, W1", price: "£1.92M", rent: "£3,400", yield: "2.1%", schools: 92, transport: 98, safety: 84, trend: +6.2 },
-  { slug: "chorlton-m21", name: "Chorlton, M21", price: "£452K", rent: "£1,650", yield: "4.4%", schools: 88, transport: 76, safety: 78, trend: +4.1 },
-  { slug: "clifton-bs8", name: "Clifton, BS8", price: "£685K", rent: "£2,100", yield: "3.7%", schools: 91, transport: 82, safety: 86, trend: +5.0 },
-  { slug: "jesmond-ne2", name: "Jesmond, NE2", price: "£385K", rent: "£1,450", yield: "4.5%", schools: 86, transport: 79, safety: 81, trend: +3.4 },
-  { slug: "kelvinbridge-g12", name: "Kelvinbridge, G12", price: "£298K", rent: "£1,250", yield: "5.0%", schools: 84, transport: 88, safety: 75, trend: +4.8 },
-  { slug: "didsbury-m20", name: "Didsbury, M20", price: "£525K", rent: "£1,750", yield: "4.0%", schools: 90, transport: 80, safety: 82, trend: +4.5 },
-];
+import { AREAS } from "@/content/areas";
 
 function AreaGuidesPage() {
   return (
@@ -55,7 +48,7 @@ function AreaGuidesPage() {
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {AREAS.map((a) => (
-            <Link key={a.slug} to="/area-guides" className="group">
+            <Link key={a.slug} to="/area-guides/$slug" params={{ slug: a.slug }} className="group">
               <Card className="border-0 shadow-card h-full transition-shadow group-hover:shadow-elevated">
                 <CardContent className="p-5 space-y-4">
                   <div className="flex items-start justify-between">
