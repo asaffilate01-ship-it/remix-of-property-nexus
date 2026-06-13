@@ -124,7 +124,7 @@ function PostPage() {
         </div>
 
         <div className="prose prose-lg max-w-none space-y-5 text-foreground/90 leading-relaxed">
-          {p.body.map((para, i) => <p key={i} className="text-base md:text-lg">{para}</p>)}
+          {p.body.map((para: string, i: number) => <p key={i} className="text-base md:text-lg">{para}</p>)}
         </div>
 
         <ShareBar title={p.title} slug={p.slug} />
