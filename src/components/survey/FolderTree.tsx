@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Folder, FolderOpen, Plus, ChevronRight, ChevronDown, Inbox } from "lucide-react";
+import { Folder as FolderIcon, FolderOpen, Plus, ChevronRight, ChevronDown, Inbox } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
