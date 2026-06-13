@@ -3,19 +3,26 @@ import { PublicHeader } from "@/components/PublicHeader";
 import { PublicFooter } from "@/components/PublicFooter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Building2, ShieldCheck, Kanban, Inbox, Search, Sparkles, Check } from "lucide-react";
+import { Building2, ShieldCheck, Kanban, Inbox, Search, Sparkles, Check, Home, Store, BedDouble } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "HMOFlow — HMO compliance, marketplace and agency CRM" },
-      { name: "description", content: "The all-in-one platform for HMO landlords, letting agents and property professionals. Compliance, marketplace and CRM in one place." },
-      { property: "og:title", content: "HMOFlow — All-in-one HMO platform" },
-      { property: "og:description", content: "Compliance, marketplace and agency CRM, built for HMO operators." },
+      { title: "PropOS — The complete OS for estate & letting agents" },
+      { name: "description", content: "One platform for sales, lettings, HMO and commercial. CRM, marketplace, compliance — built for modern agencies and landlords." },
+      { property: "og:title", content: "PropOS — Property OS for agents and landlords" },
+      { property: "og:description", content: "Sales, lettings, HMO and commercial in one workspace." },
     ],
   }),
   component: Landing,
 });
+
+const modules = [
+  { icon: Home, title: "Sales", body: "Vendor onboarding, valuations, offers, chains and completion tracking.", href: "/modules/sales" },
+  { icon: Building2, title: "Lettings", body: "Tenancies, viewings, references, deposits and renewals.", href: "/modules/lettings" },
+  { icon: BedDouble, title: "HMO", body: "Room-by-room, licensing, gas/EICR/EPC alerts and rent-to-rent.", href: "/modules/hmo", badge: "Premium add-on" },
+  { icon: Store, title: "Commercial", body: "Leases, service charges, business rates and renewals.", href: "/modules/commercial" },
+];
 
 function Landing() {
   return (
@@ -28,21 +35,21 @@ function Landing() {
           <div className="container relative mx-auto px-4 py-20 md:py-28 grid lg:grid-cols-2 gap-12 items-center">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full bg-accent/10 text-accent px-3 py-1 text-xs font-medium mb-4">
-                <Sparkles className="h-3 w-3" /> Built for HMO operators
+                <Sparkles className="h-3 w-3" /> Built for modern agencies
               </div>
               <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6">
-                The all-in-one HMO platform.
-                <span className="block bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Compliance, marketplace, CRM.</span>
+                The complete OS for
+                <span className="block bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">estate & letting agents.</span>
               </h1>
               <p className="text-lg text-muted-foreground mb-8 max-w-xl">
-                List properties to the public marketplace, manage HMO licensing and gas/EICR/EPC compliance, and run your full sales & lettings pipeline — one workspace.
+                Sales, lettings, HMO and commercial — one CRM, one marketplace, one compliance engine. Replace Reapit, Alto and a stack of spreadsheets.
               </p>
               <div className="flex flex-wrap gap-3">
                 <Button asChild size="lg"><Link to="/auth">Start free</Link></Button>
-                <Button asChild size="lg" variant="outline"><Link to="/marketplace"><Search className="mr-2 h-4 w-4" /> Browse listings</Link></Button>
+                <Button asChild size="lg" variant="outline"><Link to="/marketplace"><Search className="mr-2 h-4 w-4" /> Browse marketplace</Link></Button>
               </div>
               <div className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground">
-                {["HMO licence tracking", "Gas / EICR / EPC alerts", "Public marketplace", "Agent CRM"].map((f) => (
+                {["Sales pipeline", "Lettings workflow", "HMO compliance", "Commercial leases"].map((f) => (
                   <span key={f} className="inline-flex items-center gap-1.5"><Check className="h-4 w-4 text-success" />{f}</span>
                 ))}
               </div>
@@ -68,13 +75,36 @@ function Landing() {
           </div>
         </section>
 
-        {/* Three pillars */}
+        {/* Modules */}
         <section className="container mx-auto px-4 py-16">
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-3">One platform. Every property type.</h2>
+            <p className="text-muted-foreground">Turn on the modules you need — pay for the rest only when you grow into them.</p>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {modules.map((m) => (
+              <Card key={m.title} className="shadow-card border-0">
+                <CardContent className="p-6">
+                  <div className="brand-gradient inline-flex h-10 w-10 items-center justify-center rounded-lg text-white mb-4"><m.icon className="h-5 w-5" /></div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <h3 className="font-semibold text-lg">{m.title}</h3>
+                    {m.badge && <span className="text-[10px] uppercase tracking-wide bg-accent/10 text-accent px-2 py-0.5 rounded-full">{m.badge}</span>}
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-4">{m.body}</p>
+                  <Link to={m.href} className="text-sm font-medium text-primary hover:underline">Learn more →</Link>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </section>
+
+        {/* Three pillars */}
+        <section className="bg-muted/40 py-16">
+          <div className="container mx-auto px-4 grid md:grid-cols-3 gap-6">
             {[
-              { icon: Search, title: "Public marketplace", body: "Publish rooms, lets and sales to a clean, SEO-friendly portal. Lead capture wired to your CRM." , href: "/marketplace"},
-              { icon: ShieldCheck, title: "Compliance engine", body: "HMO licences, gas safety, EICR, EPC, fire and more — tracked, alerted, evidenced.", href: "/for-landlords"},
-              { icon: Kanban, title: "Agent CRM", body: "Leads → viewings → offers → completion. Built for sales and lettings, branch-friendly.", href: "/for-agents"},
+              { icon: Search, title: "Public marketplace", body: "Publish across all property types to a fast, SEO-friendly portal. Leads flow straight into your CRM.", href: "/marketplace" },
+              { icon: Kanban, title: "Unified CRM", body: "One pipeline for vendors, applicants, tenants and landlords. Branch and team friendly.", href: "/for-agents" },
+              { icon: ShieldCheck, title: "Compliance engine", body: "Gas, EICR, EPC, fire, deposits — plus full HMO licensing when you switch the module on.", href: "/for-landlords" },
             ].map((p) => (
               <Card key={p.title} className="shadow-card border-0">
                 <CardContent className="p-6">
@@ -91,8 +121,8 @@ function Landing() {
         {/* CTA */}
         <section className="container mx-auto px-4 py-16">
           <div className="brand-gradient rounded-3xl p-10 md:p-16 text-center text-primary-foreground shadow-card">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Stop juggling spreadsheets, inboxes and portals.</h2>
-            <p className="text-primary-foreground/80 max-w-2xl mx-auto mb-8">Get your portfolio, your team and your tenants all in one place.</p>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Run your whole agency from one screen.</h2>
+            <p className="text-primary-foreground/80 max-w-2xl mx-auto mb-8">Sales, lettings, HMO, commercial — your portfolio, your team and your tenants in one workspace.</p>
             <Button asChild size="lg" variant="secondary"><Link to="/auth">Create your workspace</Link></Button>
           </div>
         </section>
