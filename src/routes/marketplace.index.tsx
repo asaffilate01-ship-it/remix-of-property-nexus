@@ -15,6 +15,8 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { fetchListings, fetchMarketplaceMeta } from "@/lib/public.functions";
+import { saveSearch as saveSearchRemoteFn } from "@/lib/saved-searches.functions";
+import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import { Search, SlidersHorizontal, MapPin, Building2, Sparkles, X, ArrowUpDown, Bookmark, LayoutGrid, Map as MapIcon } from "lucide-react";
 import { toast } from "sonner";
