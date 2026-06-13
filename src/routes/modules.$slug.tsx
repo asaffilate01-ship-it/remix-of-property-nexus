@@ -3,14 +3,15 @@ import { PublicHeader } from "@/components/PublicHeader";
 import { PublicFooter } from "@/components/PublicFooter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Check, Home, Building2, BedDouble, Store } from "lucide-react";
+import { Check } from "lucide-react";
+import { IsoIcon, type IsoIconName } from "@/components/iso/IsoIcon";
 
 type Module = {
   slug: string;
   title: string;
   tagline: string;
   description: string;
-  icon: typeof Home;
+  icon: IsoIconName;
   features: string[];
   badge?: string;
 };
@@ -21,7 +22,7 @@ const MODULES: Record<string, Module> = {
     title: "Sales",
     tagline: "Win instructions. Close chains. Get paid.",
     description: "From valuation to completion — the modern sales workflow for residential agents.",
-    icon: Home,
+    icon: "house",
     features: [
       "Valuation requests & vendor onboarding",
       "Offer management with chain tracking",
@@ -35,7 +36,7 @@ const MODULES: Record<string, Module> = {
     title: "Lettings",
     tagline: "Single-let, end-to-end.",
     description: "Applicants, viewings, references, tenancies and renewals in one tidy workflow.",
-    icon: Building2,
+    icon: "key",
     features: [
       "Applicant matching & viewings",
       "Referencing & Right to Rent",
@@ -49,7 +50,7 @@ const MODULES: Record<string, Module> = {
     title: "HMO",
     tagline: "Built for room-by-room operators.",
     description: "Everything in Lettings, plus deep HMO compliance, licensing and rent-to-rent tools.",
-    icon: BedDouble,
+    icon: "hmo",
     badge: "Premium add-on",
     features: [
       "Room-level rent ledgers & vacancies",
@@ -64,7 +65,7 @@ const MODULES: Record<string, Module> = {
     title: "Commercial",
     tagline: "Leases without the spreadsheet.",
     description: "Track tenants, service charges, business rates and lease events for commercial property.",
-    icon: Store,
+    icon: "commercial",
     features: [
       "Lease term & break clauses",
       "Service charge & rates apportionment",
@@ -109,26 +110,29 @@ function ModulePage() {
     );
   }
 
-  const Icon = m.icon;
   return (
     <div className="min-h-screen flex flex-col">
       <PublicHeader />
       <main className="flex-1">
         <section className="relative overflow-hidden">
           <div className="absolute inset-0 brand-gradient opacity-10" />
-          <div className="container relative mx-auto px-4 py-20 grid lg:grid-cols-2 gap-12 items-center">
+          <div className="container relative mx-auto px-4 py-16 sm:py-20 grid lg:grid-cols-2 gap-10 lg:gap-12 items-center">
             <div>
-              <div className="brand-gradient inline-flex h-12 w-12 items-center justify-center rounded-xl text-white mb-4"><Icon className="h-6 w-6" /></div>
-              {m.badge && <div className="inline-block text-xs uppercase tracking-wide bg-accent/10 text-accent px-2 py-0.5 rounded-full mb-3 ml-2">{m.badge}</div>}
-              <h1 className="text-4xl md:text-5xl font-bold mb-4">{m.tagline}</h1>
-              <p className="text-lg text-muted-foreground mb-8">{m.description}</p>
+              <div className="inline-flex items-center gap-3 mb-5">
+                <div className="rounded-2xl bg-card/70 backdrop-blur border shadow-card p-2">
+                  <IsoIcon name={m.icon} size={72} />
+                </div>
+                {m.badge && <span className="text-[11px] uppercase tracking-wide bg-accent/10 text-accent px-2 py-1 rounded-full font-semibold">{m.badge}</span>}
+              </div>
+              <h1 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold mb-4 tracking-tight">{m.tagline}</h1>
+              <p className="text-base sm:text-lg text-muted-foreground mb-8">{m.description}</p>
               <div className="flex flex-wrap gap-3">
                 <Button asChild size="lg"><Link to="/auth">Start free</Link></Button>
                 <Button asChild size="lg" variant="outline"><Link to="/marketplace">See live listings</Link></Button>
               </div>
             </div>
-            <Card className="shadow-card border-0">
-              <CardContent className="p-8">
+            <Card className="shadow-prestige border-0">
+              <CardContent className="p-6 sm:p-8">
                 <h2 className="font-semibold text-lg mb-4">What's included</h2>
                 <ul className="space-y-3">
                   {m.features.map((f) => (
@@ -146,10 +150,12 @@ function ModulePage() {
           <div className="text-sm text-muted-foreground mb-3">Other modules</div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {Object.values(MODULES).filter((x) => x.slug !== m.slug).map((x) => (
-              <Link key={x.slug} to="/modules/$slug" params={{ slug: x.slug }} className="rounded-xl border p-4 hover:bg-muted/40 transition">
-                <x.icon className="h-5 w-5 text-accent mb-2" />
-                <div className="font-medium">{x.title}</div>
-                <div className="text-xs text-muted-foreground">{x.tagline}</div>
+              <Link key={x.slug} to="/modules/$slug" params={{ slug: x.slug }} className="rounded-xl border p-4 hover:bg-muted/40 hover:-translate-y-0.5 transition-all flex items-center gap-3">
+                <IsoIcon name={x.icon} size={44} />
+                <div className="min-w-0">
+                  <div className="font-medium">{x.title}</div>
+                  <div className="text-xs text-muted-foreground line-clamp-1">{x.tagline}</div>
+                </div>
               </Link>
             ))}
           </div>
