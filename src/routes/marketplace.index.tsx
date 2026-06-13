@@ -21,17 +21,28 @@ import { toast } from "sonner";
 
 const categories = ["all", "sale", "rent", "hmo", "commercial"] as const;
 type Category = (typeof categories)[number];
-const sorts = ["newest", "price_asc", "price_desc", "beds_desc"] as const;
+const sorts = ["newest", "distance", "price_asc", "price_desc", "beds_desc"] as const;
 type SortKey = (typeof sorts)[number];
+const propertyTypes = ["any", "house", "flat", "bungalow", "studio", "room", "commercial", "land"] as const;
+type PropertyType = (typeof propertyTypes)[number];
+const FEATURE_OPTIONS = ["Garden", "Parking", "Garage", "Balcony", "Lift", "Gym", "Concierge", "Pets allowed", "Students welcome", "New build", "Wheelchair access", "Conservatory", "EV charging"] as const;
 
 const search = z.object({
   category: z.enum(categories).optional(),
   city: z.string().optional(),
+  postcode: z.string().optional(),
+  radius: z.number().optional(),
+  property_type: z.enum(propertyTypes).optional(),
+  features: z.array(z.string()).optional(),
+  epc_min: z.enum(["A", "B", "C", "D", "E"]).optional(),
+  tenure: z.enum(["freehold", "leasehold", "share_of_freehold"]).optional(),
   q: z.string().optional(),
   min_price: z.number().optional(),
   max_price: z.number().optional(),
   beds: z.number().optional(),
   baths: z.number().optional(),
+  receptions: z.number().optional(),
+  min_sqft: z.number().optional(),
   bills_included: z.boolean().optional(),
   furnished: z.string().optional(),
   sort: z.enum(sorts).optional(),
@@ -63,6 +74,7 @@ const tabs: { value: Category; label: string }[] = [
 
 const SORT_LABEL: Record<SortKey, string> = {
   newest: "Newest first",
+  distance: "Distance: nearest",
   price_asc: "Price: low to high",
   price_desc: "Price: high to low",
   beds_desc: "Most bedrooms",
