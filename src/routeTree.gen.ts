@@ -28,9 +28,11 @@ import { Route as AgenciesRouteImport } from './routes/agencies'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as MarketplaceIndexRouteImport } from './routes/marketplace.index'
+import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as AgenciesIndexRouteImport } from './routes/agencies.index'
 import { Route as ModulesSlugRouteImport } from './routes/modules.$slug'
 import { Route as MarketplaceSlugRouteImport } from './routes/marketplace.$slug'
+import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AgenciesSlugRouteImport } from './routes/agencies.$slug'
 import { Route as AuthenticatedWorkOrdersRouteImport } from './routes/_authenticated/work-orders'
 import { Route as AuthenticatedViewingsRouteImport } from './routes/_authenticated/viewings'
@@ -162,6 +164,11 @@ const MarketplaceIndexRoute = MarketplaceIndexRouteImport.update({
   path: '/',
   getParentRoute: () => MarketplaceRoute,
 } as any)
+const BlogIndexRoute = BlogIndexRouteImport.update({
+  id: '/blog/',
+  path: '/blog/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AgenciesIndexRoute = AgenciesIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -176,6 +183,11 @@ const MarketplaceSlugRoute = MarketplaceSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
   getParentRoute: () => MarketplaceRoute,
+} as any)
+const BlogSlugRoute = BlogSlugRouteImport.update({
+  id: '/blog/$slug',
+  path: '/blog/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AgenciesSlugRoute = AgenciesSlugRouteImport.update({
   id: '/$slug',
@@ -418,9 +430,11 @@ export interface FileRoutesByFullPath {
   '/viewings': typeof AuthenticatedViewingsRoute
   '/work-orders': typeof AuthenticatedWorkOrdersRoute
   '/agencies/$slug': typeof AgenciesSlugRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/marketplace/$slug': typeof MarketplaceSlugRoute
   '/modules/$slug': typeof ModulesSlugRoute
   '/agencies/': typeof AgenciesIndexRoute
+  '/blog/': typeof BlogIndexRoute
   '/marketplace/': typeof MarketplaceIndexRoute
 }
 export interface FileRoutesByTo {
@@ -475,9 +489,11 @@ export interface FileRoutesByTo {
   '/viewings': typeof AuthenticatedViewingsRoute
   '/work-orders': typeof AuthenticatedWorkOrdersRoute
   '/agencies/$slug': typeof AgenciesSlugRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/marketplace/$slug': typeof MarketplaceSlugRoute
   '/modules/$slug': typeof ModulesSlugRoute
   '/agencies': typeof AgenciesIndexRoute
+  '/blog': typeof BlogIndexRoute
   '/marketplace': typeof MarketplaceIndexRoute
 }
 export interface FileRoutesById {
@@ -536,9 +552,11 @@ export interface FileRoutesById {
   '/_authenticated/viewings': typeof AuthenticatedViewingsRoute
   '/_authenticated/work-orders': typeof AuthenticatedWorkOrdersRoute
   '/agencies/$slug': typeof AgenciesSlugRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/marketplace/$slug': typeof MarketplaceSlugRoute
   '/modules/$slug': typeof ModulesSlugRoute
   '/agencies/': typeof AgenciesIndexRoute
+  '/blog/': typeof BlogIndexRoute
   '/marketplace/': typeof MarketplaceIndexRoute
 }
 export interface FileRouteTypes {
@@ -597,9 +615,11 @@ export interface FileRouteTypes {
     | '/viewings'
     | '/work-orders'
     | '/agencies/$slug'
+    | '/blog/$slug'
     | '/marketplace/$slug'
     | '/modules/$slug'
     | '/agencies/'
+    | '/blog/'
     | '/marketplace/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -654,9 +674,11 @@ export interface FileRouteTypes {
     | '/viewings'
     | '/work-orders'
     | '/agencies/$slug'
+    | '/blog/$slug'
     | '/marketplace/$slug'
     | '/modules/$slug'
     | '/agencies'
+    | '/blog'
     | '/marketplace'
   id:
     | '__root__'
@@ -714,9 +736,11 @@ export interface FileRouteTypes {
     | '/_authenticated/viewings'
     | '/_authenticated/work-orders'
     | '/agencies/$slug'
+    | '/blog/$slug'
     | '/marketplace/$slug'
     | '/modules/$slug'
     | '/agencies/'
+    | '/blog/'
     | '/marketplace/'
   fileRoutesById: FileRoutesById
 }
@@ -739,7 +763,9 @@ export interface RootRouteChildren {
   SavedSearchesRoute: typeof SavedSearchesRoute
   TermsRoute: typeof TermsRoute
   ValuationRoute: typeof ValuationRoute
+  BlogSlugRoute: typeof BlogSlugRoute
   ModulesSlugRoute: typeof ModulesSlugRoute
+  BlogIndexRoute: typeof BlogIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -877,6 +903,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MarketplaceIndexRouteImport
       parentRoute: typeof MarketplaceRoute
     }
+    '/blog/': {
+      id: '/blog/'
+      path: '/blog'
+      fullPath: '/blog/'
+      preLoaderRoute: typeof BlogIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/agencies/': {
       id: '/agencies/'
       path: '/'
@@ -897,6 +930,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/marketplace/$slug'
       preLoaderRoute: typeof MarketplaceSlugRouteImport
       parentRoute: typeof MarketplaceRoute
+    }
+    '/blog/$slug': {
+      id: '/blog/$slug'
+      path: '/blog/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof BlogSlugRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/agencies/$slug': {
       id: '/agencies/$slug'
@@ -1280,8 +1320,20 @@ const rootRouteChildren: RootRouteChildren = {
   SavedSearchesRoute: SavedSearchesRoute,
   TermsRoute: TermsRoute,
   ValuationRoute: ValuationRoute,
+  BlogSlugRoute: BlogSlugRoute,
   ModulesSlugRoute: ModulesSlugRoute,
+  BlogIndexRoute: BlogIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
