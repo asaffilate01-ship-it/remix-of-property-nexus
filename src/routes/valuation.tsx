@@ -6,8 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Sparkles, TrendingUp, MapPin } from "lucide-react";
+import { ArrowRight, Sparkles, TrendingUp, MapPin, Loader2, CheckCircle2 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/valuation")({
   head: () => ({
@@ -25,6 +27,11 @@ export const Route = createFileRoute("/valuation")({
 function ValuationPage() {
   const [step, setStep] = useState<"form" | "result">("form");
   const [form, setForm] = useState({ postcode: "W1U 6QH", beds: "2", type: "flat", condition: "good", purpose: "sale" });
+  const [contact, setContact] = useState({ name: "", email: "", phone: "" });
+  const [saving, setSaving] = useState(false);
+  const [savedLead, setSavedLead] = useState(false);
+
+
 
   const base = form.purpose === "sale" ? 720000 : 3200;
   const beds = Number(form.beds);
