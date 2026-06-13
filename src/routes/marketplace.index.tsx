@@ -142,6 +142,8 @@ function MarketplacePage() {
   if (s.features?.length) s.features.forEach((f: string) => activeFilters.push(f));
   if (s.bills_included) activeFilters.push("bills included");
   if (s.furnished) activeFilters.push(s.furnished);
+  if (s.available_from) activeFilters.push(`from ${new Date(s.available_from).toLocaleDateString("en-GB")}`);
+
 
   const saveSearchRemote = useServerFn(saveSearchRemoteFn);
   const saveSearch = async () => {
