@@ -15,6 +15,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { fetchListing, submitLead } from "@/lib/public.functions";
 import { Bed, Bath, MapPin, Calendar, Ruler, Zap, Shield, ChevronLeft, Share2, Mail, Globe, Calculator, Sparkles, Home, Building2 } from "lucide-react";
 import { PhoneReveal } from "@/components/PhoneReveal";
+import { GoogleListingsMap } from "@/components/GoogleListingsMap";
+
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -413,15 +415,22 @@ function MortgageEstimator({ price }: { price: number }) {
 }
 
 function AreaMap({ lat, lng, postcode }: { lat: number | null; lng: number | null; postcode: string | null }) {
-  const query = lat && lng ? `${lat},${lng}` : postcode ?? "";
-  if (!query) return <p className="text-muted-foreground">Map will appear once the agent shares a location.</p>;
-  const src = `https://www.google.com/maps?q=${encodeURIComponent(query)}&z=15&output=embed`;
+  if (lat == null || lng == null) {
+    if (!postcode) return <p className="text-muted-foreground">Map will appear once the agent shares a location.</p>;
+    const src = `https://www.google.com/maps?q=${encodeURIComponent(postcode)}&z=15&output=embed`;
+    return (
+      <div className="rounded-xl overflow-hidden border aspect-[16/10]">
+        <iframe src={src} loading="lazy" referrerPolicy="no-referrer-when-downgrade" className="w-full h-full" title="Property location" />
+      </div>
+    );
+  }
   return (
     <div className="rounded-xl overflow-hidden border aspect-[16/10]">
-      <iframe src={src} loading="lazy" referrerPolicy="no-referrer-when-downgrade" className="w-full h-full" title="Property location" />
+      <GoogleListingsMap listings={[{ id: "this", slug: "", title: "Property", city: null, price: null, currency: "GBP", latitude: lat, longitude: lng }]} />
     </div>
   );
 }
+
 
 function ShareCard({ slug, title }: { slug: string; title: string }) {
   const share = async () => {
