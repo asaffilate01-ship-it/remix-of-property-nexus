@@ -121,8 +121,8 @@ function AgencyPage() {
   const { data, isLoading } = useQuery({ queryKey: ["agency", slug], queryFn: () => fn({ data: { slug } }) });
   const [tab, setTab] = useState<Filter>("all");
 
-  if (isLoading) return <Shell><div className="container mx-auto p-8">Loading…</div></Shell>;
-  if (!data?.agency) return <Shell><div className="container mx-auto p-8 text-center"><p>Agency not found.</p><Button asChild className="mt-4"><Link to="/agencies">All agencies</Link></Button></div></Shell>;
+  if (isLoading) return <AgencySkeleton />;
+  if (!data?.agency) return <AgencyNotFound />;
 
   const a = data.agency;
   const filtered = data.listings.filter((l) => {
