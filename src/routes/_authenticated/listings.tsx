@@ -20,7 +20,7 @@ import { toast } from "sonner";
 
 type Listing = {
   id: string; slug: string; title: string; description: string | null;
-  listing_type: "sale" | "rent" | "room"; purpose: "sale" | "rent" | "commercial";
+  listing_type: "sale" | "rent" | "room"; purpose: "sale" | "rent";
   status: string; price: number | null; price_qualifier: string | null;
   bedrooms: number | null; bathrooms: number | null; receptions: number | null;
   city: string | null; postcode: string | null; address: string | null;
@@ -35,7 +35,7 @@ const empty = {
   id: undefined as string | undefined,
   title: "", description: "",
   listing_type: "rent" as "sale" | "rent" | "room",
-  purpose: "rent" as "sale" | "rent" | "commercial",
+  purpose: "rent" as "sale" | "rent",
   price: "", price_qualifier: "none",
   bedrooms: "", bathrooms: "", receptions: "",
   address: "", city: "", postcode: "",
