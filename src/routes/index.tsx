@@ -3,9 +3,10 @@ import { PublicHeader } from "@/components/PublicHeader";
 import { PublicFooter } from "@/components/PublicFooter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Building2, ShieldCheck, Kanban, Inbox, Search, Sparkles, Check, Home, Store, BedDouble, ArrowRight, Star } from "lucide-react";
+import { Building2, ShieldCheck, Kanban, Inbox, Search, Sparkles, Check, ArrowRight, Star } from "lucide-react";
 import heroHome from "@/assets/hero-home.jpg";
 import heroPattern from "@/assets/hero-pattern.jpg";
+import { IsoIcon, type IsoIconName } from "@/components/iso/IsoIcon";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -20,11 +21,11 @@ export const Route = createFileRoute("/")({
   component: Landing,
 });
 
-const modules = [
-  { icon: Home, title: "Sales", body: "Vendor onboarding, valuations, offers, chains and completions.", href: "/modules/sales" },
-  { icon: Building2, title: "Lettings", body: "Tenancies, viewings, references, deposits and renewals.", href: "/modules/lettings" },
-  { icon: BedDouble, title: "HMO", body: "Room-by-room, licensing, gas/EICR/EPC alerts and rent-to-rent.", href: "/modules/hmo", badge: "Add-on" },
-  { icon: Store, title: "Commercial", body: "Leases, service charges, business rates and renewals.", href: "/modules/commercial" },
+const modules: { icon: IsoIconName; title: string; body: string; href: string; badge?: string }[] = [
+  { icon: "house", title: "Sales", body: "Vendor onboarding, valuations, offers, chains and completions.", href: "/modules/sales" },
+  { icon: "key", title: "Lettings", body: "Tenancies, viewings, references, deposits and renewals.", href: "/modules/lettings" },
+  { icon: "hmo", title: "HMO", body: "Room-by-room, licensing, gas/EICR/EPC alerts and rent-to-rent.", href: "/modules/hmo", badge: "Add-on" },
+  { icon: "commercial", title: "Commercial", body: "Leases, service charges, business rates and renewals.", href: "/modules/commercial" },
 ];
 
 function Landing() {
@@ -110,9 +111,9 @@ function Landing() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {modules.map((m) => (
               <Link key={m.title} to={m.href} className="group">
-                <Card className="shadow-card border-0 h-full transition hover:shadow-xl hover:-translate-y-0.5">
+                <Card className="shadow-card border-0 h-full transition hover:shadow-xl hover:-translate-y-1">
                   <CardContent className="p-6">
-                    <div className="brand-gradient inline-flex h-11 w-11 items-center justify-center rounded-xl text-white mb-4 shadow-md"><m.icon className="h-5 w-5" /></div>
+                    <IsoIcon name={m.icon} size={72} className="mb-4 group-hover:scale-110 transition-transform" />
                     <div className="flex items-center gap-2 mb-2">
                       <h3 className="font-semibold text-lg">{m.title}</h3>
                       {m.badge && <span className="text-[10px] uppercase tracking-wide bg-accent/10 text-accent px-2 py-0.5 rounded-full font-semibold">{m.badge}</span>}
@@ -134,14 +135,14 @@ function Landing() {
               <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Three surfaces. Zero busywork.</h2>
             </div>
             <div className="grid md:grid-cols-3 gap-5">
-              {[
-                { icon: Search, title: "Public marketplace", body: "Publish across all property types to a fast, SEO-friendly portal. Leads flow straight into your CRM.", href: "/marketplace" },
-                { icon: Kanban, title: "Unified CRM", body: "One pipeline for vendors, applicants, tenants and landlords. Branch and team friendly.", href: "/for-agents" },
-                { icon: ShieldCheck, title: "Compliance engine", body: "Gas, EICR, EPC, fire, deposits — plus full HMO licensing when you switch the module on.", href: "/for-landlords" },
-              ].map((p) => (
+              {([
+                { iso: "tenants" as const, icon: Search, title: "Public marketplace", body: "Publish across all property types to a fast, SEO-friendly portal. Leads flow straight into your CRM.", href: "/marketplace" },
+                { iso: "agent" as const, icon: Kanban, title: "Unified CRM", body: "One pipeline for vendors, applicants, tenants and landlords. Branch and team friendly.", href: "/for-agents" },
+                { iso: "shield" as const, icon: ShieldCheck, title: "Compliance engine", body: "Gas, EICR, EPC, fire, deposits — plus full HMO licensing when you switch the module on.", href: "/for-landlords" },
+              ]).map((p) => (
                 <Card key={p.title} className="shadow-card border-0 h-full">
                   <CardContent className="p-6">
-                    <div className="brand-gradient inline-flex h-11 w-11 items-center justify-center rounded-xl text-white mb-4 shadow-md"><p.icon className="h-5 w-5" /></div>
+                    <IsoIcon name={p.iso} size={72} className="mb-4" />
                     <h3 className="font-semibold text-lg mb-2">{p.title}</h3>
                     <p className="text-sm text-muted-foreground mb-4">{p.body}</p>
                     <Link to={p.href} className="text-sm font-medium text-primary inline-flex items-center gap-1">Learn more <ArrowRight className="h-3.5 w-3.5" /></Link>

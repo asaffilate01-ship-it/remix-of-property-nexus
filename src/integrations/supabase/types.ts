@@ -114,42 +114,58 @@ export type Database = {
       }
       compliance_records: {
         Row: {
+          agency_id: string | null
           created_at: string
           document_url: string | null
           expires_on: string | null
           id: string
           issued_on: string | null
           notes: string | null
-          property_id: string
+          property_id: string | null
+          reference: string | null
           status: Database["public"]["Enums"]["compliance_status"]
+          tenancy_id: string | null
           type: Database["public"]["Enums"]["compliance_type"]
           updated_at: string
         }
         Insert: {
+          agency_id?: string | null
           created_at?: string
           document_url?: string | null
           expires_on?: string | null
           id?: string
           issued_on?: string | null
           notes?: string | null
-          property_id: string
+          property_id?: string | null
+          reference?: string | null
           status?: Database["public"]["Enums"]["compliance_status"]
+          tenancy_id?: string | null
           type: Database["public"]["Enums"]["compliance_type"]
           updated_at?: string
         }
         Update: {
+          agency_id?: string | null
           created_at?: string
           document_url?: string | null
           expires_on?: string | null
           id?: string
           issued_on?: string | null
           notes?: string | null
-          property_id?: string
+          property_id?: string | null
+          reference?: string | null
           status?: Database["public"]["Enums"]["compliance_status"]
+          tenancy_id?: string | null
           type?: Database["public"]["Enums"]["compliance_type"]
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "compliance_records_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "compliance_records_property_id_fkey"
             columns: ["property_id"]
@@ -157,7 +173,41 @@ export type Database = {
             referencedRelation: "properties"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "compliance_records_tenancy_id_fkey"
+            columns: ["tenancy_id"]
+            isOneToOne: false
+            referencedRelation: "tenancies"
+            referencedColumns: ["id"]
+          },
         ]
+      }
+      compliance_rules: {
+        Row: {
+          authority: string | null
+          description: string | null
+          label: string
+          renewal_months: number | null
+          scope: string
+          type: Database["public"]["Enums"]["compliance_type"]
+        }
+        Insert: {
+          authority?: string | null
+          description?: string | null
+          label: string
+          renewal_months?: number | null
+          scope: string
+          type: Database["public"]["Enums"]["compliance_type"]
+        }
+        Update: {
+          authority?: string | null
+          description?: string | null
+          label?: string
+          renewal_months?: number | null
+          scope?: string
+          type?: Database["public"]["Enums"]["compliance_type"]
+        }
+        Relationships: []
       }
       deals: {
         Row: {
@@ -520,37 +570,108 @@ export type Database = {
           },
         ]
       }
+      rent_schedule: {
+        Row: {
+          amount: number
+          created_at: string
+          due_date: string
+          id: string
+          notes: string | null
+          paid_amount: number | null
+          paid_at: string | null
+          period_end: string
+          period_start: string
+          status: Database["public"]["Enums"]["rent_status"]
+          tenancy_id: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          due_date: string
+          id?: string
+          notes?: string | null
+          paid_amount?: number | null
+          paid_at?: string | null
+          period_end: string
+          period_start: string
+          status?: Database["public"]["Enums"]["rent_status"]
+          tenancy_id: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          due_date?: string
+          id?: string
+          notes?: string | null
+          paid_amount?: number | null
+          paid_at?: string | null
+          period_end?: string
+          period_start?: string
+          status?: Database["public"]["Enums"]["rent_status"]
+          tenancy_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rent_schedule_tenancy_id_fkey"
+            columns: ["tenancy_id"]
+            isOneToOne: false
+            referencedRelation: "tenancies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rooms: {
         Row: {
+          available_from: string | null
+          bills_included: boolean | null
           created_at: string
           deposit: number | null
+          description: string | null
+          en_suite: boolean | null
           id: string
           name: string
           notes: string | null
+          photos: Json | null
           property_id: string
           rent_pcm: number | null
+          size_sqm: number | null
           status: string
           updated_at: string
         }
         Insert: {
+          available_from?: string | null
+          bills_included?: boolean | null
           created_at?: string
           deposit?: number | null
+          description?: string | null
+          en_suite?: boolean | null
           id?: string
           name: string
           notes?: string | null
+          photos?: Json | null
           property_id: string
           rent_pcm?: number | null
+          size_sqm?: number | null
           status?: string
           updated_at?: string
         }
         Update: {
+          available_from?: string | null
+          bills_included?: boolean | null
           created_at?: string
           deposit?: number | null
+          description?: string | null
+          en_suite?: boolean | null
           id?: string
           name?: string
           notes?: string | null
+          photos?: Json | null
           property_id?: string
           rent_pcm?: number | null
+          size_sqm?: number | null
           status?: string
           updated_at?: string
         }
@@ -560,6 +681,94 @@ export type Database = {
             columns: ["property_id"]
             isOneToOne: false
             referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tenancies: {
+        Row: {
+          agency_id: string | null
+          created_at: string
+          deposit: number | null
+          deposit_reference: string | null
+          deposit_scheme: string | null
+          end_date: string | null
+          id: string
+          notes: string | null
+          property_id: string
+          rent_amount: number
+          rent_frequency: Database["public"]["Enums"]["rent_frequency"]
+          room_id: string | null
+          start_date: string
+          status: Database["public"]["Enums"]["tenancy_status"]
+          tenant_email: string | null
+          tenant_name: string
+          tenant_phone: string | null
+          tenant_user_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          agency_id?: string | null
+          created_at?: string
+          deposit?: number | null
+          deposit_reference?: string | null
+          deposit_scheme?: string | null
+          end_date?: string | null
+          id?: string
+          notes?: string | null
+          property_id: string
+          rent_amount: number
+          rent_frequency?: Database["public"]["Enums"]["rent_frequency"]
+          room_id?: string | null
+          start_date: string
+          status?: Database["public"]["Enums"]["tenancy_status"]
+          tenant_email?: string | null
+          tenant_name: string
+          tenant_phone?: string | null
+          tenant_user_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          agency_id?: string | null
+          created_at?: string
+          deposit?: number | null
+          deposit_reference?: string | null
+          deposit_scheme?: string | null
+          end_date?: string | null
+          id?: string
+          notes?: string | null
+          property_id?: string
+          rent_amount?: number
+          rent_frequency?: Database["public"]["Enums"]["rent_frequency"]
+          room_id?: string | null
+          start_date?: string
+          status?: Database["public"]["Enums"]["tenancy_status"]
+          tenant_email?: string | null
+          tenant_name?: string
+          tenant_phone?: string | null
+          tenant_user_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenancies_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tenancies_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tenancies_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
             referencedColumns: ["id"]
           },
         ]
@@ -615,6 +824,19 @@ export type Database = {
         | "pat"
         | "insurance"
         | "deposit_protection"
+        | "selective_licence"
+        | "fire_risk_assessment"
+        | "emergency_lighting"
+        | "fire_door_check"
+        | "right_to_rent"
+        | "ast"
+        | "how_to_rent"
+        | "inventory"
+        | "cmp"
+        | "redress"
+        | "aml"
+        | "pi_insurance"
+        | "ico"
       deal_stage:
         | "lead"
         | "contacted"
@@ -653,6 +875,9 @@ export type Database = {
         | "residential_let"
         | "hmo"
         | "commercial"
+      rent_frequency: "weekly" | "monthly"
+      rent_status: "due" | "paid" | "overdue" | "waived"
+      tenancy_status: "draft" | "active" | "notice" | "ended"
       tenure_type: "freehold" | "leasehold" | "share_of_freehold" | "commonhold"
     }
     CompositeTypes: {
@@ -793,6 +1018,19 @@ export const Constants = {
         "pat",
         "insurance",
         "deposit_protection",
+        "selective_licence",
+        "fire_risk_assessment",
+        "emergency_lighting",
+        "fire_door_check",
+        "right_to_rent",
+        "ast",
+        "how_to_rent",
+        "inventory",
+        "cmp",
+        "redress",
+        "aml",
+        "pi_insurance",
+        "ico",
       ],
       deal_stage: [
         "lead",
@@ -837,6 +1075,9 @@ export const Constants = {
         "hmo",
         "commercial",
       ],
+      rent_frequency: ["weekly", "monthly"],
+      rent_status: ["due", "paid", "overdue", "waived"],
+      tenancy_status: ["draft", "active", "notice", "ended"],
       tenure_type: ["freehold", "leasehold", "share_of_freehold", "commonhold"],
     },
   },
