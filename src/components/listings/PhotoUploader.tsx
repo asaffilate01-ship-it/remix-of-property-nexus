@@ -30,10 +30,11 @@ export function PhotoUploader({ photos, onChange, coverIndex, onCoverChange, roo
       const next: ListingPhoto[] = [...photos];
       for (const file of Array.from(files)) {
         if (!file.type.startsWith("image/")) continue;
-        const path = `listings/${u.user.id}/${Date.now()}-${Math.random().toString(36).slice(2, 7)}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
-        const { error: upErr } = await supabase.storage.from("documents").upload(path, file, { upsert: false, contentType: file.type });
+        const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+        const path = `${u.user.id}/${Date.now()}-${Math.random().toString(36).slice(2, 7)}-${safe}`;
+        const { error: upErr } = await supabase.storage.from("listing-photos").upload(path, file, { upsert: false, contentType: file.type });
         if (upErr) throw upErr;
-        const { data: signed, error: sErr } = await supabase.storage.from("documents").createSignedUrl(path, LONG_TTL);
+        const { data: signed, error: sErr } = await supabase.storage.from("listing-photos").createSignedUrl(path, LONG_TTL);
         if (sErr) throw sErr;
         next.push({ url: signed.signedUrl, room: null });
       }
