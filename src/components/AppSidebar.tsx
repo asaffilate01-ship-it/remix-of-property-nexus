@@ -332,10 +332,25 @@ export function AppSidebar() {
           <div className="px-4 py-6 text-xs text-muted-foreground">No matches for “{query}”.</div>
         )}
       </SidebarContent>
-      <SidebarFooter className="border-t border-sidebar-border">
-        <SidebarMenu>
+      <SidebarFooter className="border-t border-sidebar-border p-0">
+        {!collapsed && (
+          <div className="px-3 pt-3 pb-2">
+            <div className="flex items-center gap-3 rounded-lg p-2 hover:bg-sidebar-accent/40 transition-colors">
+              <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-sidebar-primary/20 text-sidebar-primary font-semibold text-xs ring-1 ring-sidebar-border">
+                {(name || "U").slice(0, 1).toUpperCase()}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-semibold text-sidebar-foreground truncate">{name || "Account"}</p>
+                <p className="text-[10px] uppercase tracking-wider text-sidebar-foreground/50 font-bold truncate">
+                  {role ?? "user"}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+        <SidebarMenu className="px-2 pb-2">
           <SidebarMenuItem>
-            <SidebarMenuButton onClick={signOut} tooltip="Sign out">
+            <SidebarMenuButton onClick={signOut} tooltip="Sign out" className="text-sidebar-foreground/70 hover:text-sidebar-foreground">
               <LogOut className="h-4 w-4" /> <span>Sign out</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
