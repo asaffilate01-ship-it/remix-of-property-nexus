@@ -1,12 +1,16 @@
 import { Link } from "@tanstack/react-router";
+import { Building2 } from "lucide-react";
 
 export function PublicFooter() {
   return (
     <footer className="border-t bg-muted/40 mt-16">
       <div className="container mx-auto px-4 py-12 grid gap-8 md:grid-cols-4 text-sm">
-        <div>
-          <div className="font-bold text-base mb-2">HMOFlow</div>
-          <p className="text-muted-foreground">The all-in-one HMO compliance, marketplace and agency CRM platform.</p>
+        <div className="md:col-span-1">
+          <div className="flex items-center gap-2 font-bold text-base mb-2">
+            <span className="brand-gradient inline-flex h-7 w-7 items-center justify-center rounded-md text-white"><Building2 className="h-3.5 w-3.5" /></span>
+            Estately
+          </div>
+          <p className="text-muted-foreground">The complete property OS for modern estate and letting agencies.</p>
         </div>
         <div>
           <div className="font-medium mb-3">Marketplace</div>
@@ -16,21 +20,24 @@ export function PublicFooter() {
           </ul>
         </div>
         <div>
-          <div className="font-medium mb-3">For pros</div>
+          <div className="font-medium mb-3">Platform</div>
           <ul className="space-y-2 text-muted-foreground">
-            <li><Link to="/for-agents" className="hover:text-foreground">For agents</Link></li>
-            <li><Link to="/for-landlords" className="hover:text-foreground">For landlords</Link></li>
+            <li><Link to="/modules/sales" className="hover:text-foreground">Sales</Link></li>
+            <li><Link to="/modules/lettings" className="hover:text-foreground">Lettings</Link></li>
+            <li><Link to="/modules/hmo" className="hover:text-foreground">HMO</Link></li>
+            <li><Link to="/modules/commercial" className="hover:text-foreground">Commercial</Link></li>
           </ul>
         </div>
         <div>
           <div className="font-medium mb-3">Account</div>
           <ul className="space-y-2 text-muted-foreground">
+            <li><Link to="/for-agents" className="hover:text-foreground">For agents</Link></li>
+            <li><Link to="/for-landlords" className="hover:text-foreground">For landlords</Link></li>
             <li><Link to="/auth" className="hover:text-foreground">Sign in</Link></li>
-            <li><Link to="/auth" className="hover:text-foreground">Create account</Link></li>
           </ul>
         </div>
       </div>
-      <div className="border-t py-6 text-center text-xs text-muted-foreground">© {new Date().getFullYear()} HMOFlow. Built on Lovable Cloud.</div>
+      <div className="border-t py-6 text-center text-xs text-muted-foreground">© {new Date().getFullYear()} Estately. All rights reserved.</div>
     </footer>
   );
 }

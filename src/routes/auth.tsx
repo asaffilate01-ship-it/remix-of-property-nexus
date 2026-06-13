@@ -1,22 +1,24 @@
 import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useState } from "react";
 import { z } from "zod";
+import { useServerFn } from "@tanstack/react-start";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
-import { Eye, EyeOff, Home, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Building2, Loader2, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { toast } from "sonner";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { DEMO_ACCOUNTS, ensureDemoUsers } from "@/lib/dev.functions";
 
 const searchSchema = z.object({ mode: z.enum(["signin", "signup"]).optional() });
 
 export const Route = createFileRoute("/auth")({
   validateSearch: searchSchema,
-  head: () => ({ meta: [{ title: "Sign in — HMOFlow" }] }),
+  head: () => ({ meta: [{ title: "Sign in — Estately" }] }),
   component: AuthPage,
 });
 
@@ -30,6 +32,20 @@ function AuthPage() {
   const [role, setRole] = useState<"landlord" | "agent" | "tenant" | "buyer">("landlord");
   const [show, setShow] = useState(false);
   const [busy, setBusy] = useState(false);
+  const ensureDemo = useServerFn(ensureDemoUsers);
+
+  const demoLogin = async (acct: typeof DEMO_ACCOUNTS[number]) => {
+    setBusy(true);
+    try {
+      await ensureDemo({ data: undefined as never });
+      const { error } = await supabase.auth.signInWithPassword({ email: acct.email, password: acct.password });
+      if (error) throw error;
+      toast.success(`Signed in as ${acct.name}`);
+      navigate({ to: "/dashboard" });
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : "Demo sign-in failed");
+    } finally { setBusy(false); }
+  };
 
   const handle = async () => {
     setBusy(true);
@@ -64,16 +80,16 @@ function AuthPage() {
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
-      <div className="hidden lg:flex brand-gradient text-white p-12 flex-col justify-between">
-        <Link to="/" className="flex items-center gap-2 font-bold text-xl">
-          <span className="bg-white/20 inline-flex h-9 w-9 items-center justify-center rounded-md"><Home className="h-5 w-5" /></span>
-          HMOFlow
+      <div className="hidden lg:flex brand-gradient text-white p-12 flex-col justify-between relative overflow-hidden">
+        <Link to="/" className="flex items-center gap-2 font-bold text-xl relative z-10">
+          <span className="bg-white/20 backdrop-blur inline-flex h-10 w-10 items-center justify-center rounded-lg"><Building2 className="h-5 w-5" /></span>
+          Estately
         </Link>
-        <div className="max-w-md">
-          <h2 className="text-4xl font-bold tracking-tight mb-4">Your portfolio, your team, one platform.</h2>
-          <p className="text-white/80">Marketplace, compliance, and CRM — all in HMOFlow.</p>
+        <div className="max-w-md relative z-10">
+          <h2 className="text-4xl xl:text-5xl font-bold tracking-tight mb-4 leading-[1.1]">Your portfolio, your team — one calm workspace.</h2>
+          <p className="text-white/80 text-lg">Marketplace, compliance and CRM. Estately is built for modern estate and letting agencies.</p>
         </div>
-        <div className="text-sm text-white/60">© {new Date().getFullYear()} HMOFlow</div>
+        <div className="text-sm text-white/60 relative z-10">© {new Date().getFullYear()} Estately</div>
       </div>
       <div className="flex items-center justify-center p-6 md:p-12">
         <Card className="w-full max-w-md shadow-card border-0">
@@ -121,6 +137,23 @@ function AuthPage() {
                 </Button>
               </TabsContent>
             </Tabs>
+
+            <div className="mt-6 pt-6 border-t">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
+                <Sparkles className="h-3.5 w-3.5 text-accent" />
+                <span className="font-medium">Try a demo account</span>
+                <span className="ml-auto text-[10px] uppercase tracking-wide bg-accent/10 text-accent px-2 py-0.5 rounded-full">Dev</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {DEMO_ACCOUNTS.map((a) => (
+                  <Button key={a.email} variant="outline" size="sm" disabled={busy} onClick={() => demoLogin(a)} className="justify-start text-xs">
+                    {busy ? <Loader2 className="mr-1.5 h-3 w-3 animate-spin" /> : null}
+                    {a.name.replace("Demo ", "")}
+                  </Button>
+                ))}
+              </div>
+              <p className="text-[11px] text-muted-foreground mt-2">First click seeds the accounts. Password: <code className="font-mono">demo1234</code></p>
+            </div>
           </CardContent>
         </Card>
       </div>

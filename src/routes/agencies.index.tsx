@@ -7,7 +7,7 @@ import { fetchAgencies } from "@/lib/public.functions";
 import { Card, CardContent } from "@/components/ui/card";
 
 export const Route = createFileRoute("/agencies/")({
-  head: () => ({ meta: [{ title: "Agencies — HMOFlow" }, { name: "description", content: "Find letting and sales agents on HMOFlow." }] }),
+  head: () => ({ meta: [{ title: "Agencies — Estately" }, { name: "description", content: "Find letting and sales agents on Estately." }] }),
   component: AgenciesPage,
 });
 
@@ -18,7 +18,7 @@ function AgenciesPage() {
     <div className="min-h-screen flex flex-col">
       <PublicHeader />
       <main className="flex-1 container mx-auto px-4 py-12">
-        <h1 className="text-3xl font-bold mb-2">Agencies on HMOFlow</h1>
+        <h1 className="text-3xl font-bold mb-2">Agencies on Estately</h1>
         <p className="text-muted-foreground mb-8">Browse letting and sales agents.</p>
         {isLoading ? <div>Loading…</div> : !data?.agencies.length ? (
           <div className="text-muted-foreground">No agencies yet — be the first.</div>

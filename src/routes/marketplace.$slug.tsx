@@ -15,7 +15,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/marketplace/$slug")({
-  head: () => ({ meta: [{ title: "Listing — HMOFlow" }] }),
+  head: () => ({ meta: [{ title: "Listing — Estately" }] }),
   component: ListingDetail,
 });
 

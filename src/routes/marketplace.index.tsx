@@ -58,17 +58,17 @@ function MarketplacePage() {
     <div className="min-h-screen flex flex-col">
       <PublicHeader />
       <main className="flex-1">
-        <section className="brand-gradient text-white">
-          <div className="container mx-auto px-4 py-12">
-            <h1 className="text-3xl md:text-4xl font-bold mb-2">Find property that fits.</h1>
-            <p className="text-white/80 mb-6">Sales, lettings, HMO rooms and commercial — from verified agents and landlords.</p>
-            <div className="bg-card text-foreground rounded-2xl p-4 grid md:grid-cols-12 gap-3 shadow-card">
+        <section className="brand-gradient text-white relative overflow-hidden">
+          <div className="container mx-auto px-4 py-12 md:py-16 relative">
+            <h1 className="text-3xl md:text-5xl font-bold mb-3 tracking-tight max-w-3xl">Find property that fits.</h1>
+            <p className="text-white/80 mb-6 md:mb-8 text-base md:text-lg max-w-2xl">Sales, lettings, HMO rooms and commercial — from verified agents and landlords across the UK.</p>
+            <div className="bg-card text-foreground rounded-2xl p-3 md:p-4 grid md:grid-cols-12 gap-3 shadow-2xl ring-1 ring-border/50">
               <div className="md:col-span-7 relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input placeholder="Search by title or keyword…" value={q} onChange={(e) => setQ(e.target.value)} className="pl-9" />
+                <Input placeholder="Search by title or keyword…" value={q} onChange={(e) => setQ(e.target.value)} className="pl-9 h-11" />
               </div>
               <div className="md:col-span-5">
-                <Input placeholder="City or postcode" value={city} onChange={(e) => setCity(e.target.value)} />
+                <Input placeholder="City or postcode" value={city} onChange={(e) => setCity(e.target.value)} className="h-11" />
               </div>
             </div>
           </div>
