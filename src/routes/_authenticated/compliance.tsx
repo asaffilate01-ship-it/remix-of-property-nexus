@@ -216,7 +216,7 @@ function CompliancePage() {
           <TabsTrigger value="library"><BookOpen className="h-3 w-3 mr-1" /> Knowledge library</TabsTrigger>
         </TabsList>
         <TabsContent value="library" className="mt-4">
-          <ComplianceLibrary rules={rules} audience={libAudience} setAudience={setLibAudience} onAdd={(type) => { onTypeChange(type); setOpen(true); }} />
+          <ComplianceLibrary rules={rules} audience={libAudience} setAudience={setLibAudience} onAdd={(type: string) => { onTypeChange(type); setOpen(true); }} />
         </TabsContent>
         <TabsContent value={scopeTab} className="mt-4">
           {isLoading ? (
