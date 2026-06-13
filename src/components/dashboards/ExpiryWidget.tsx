@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AlertTriangle, CalendarClock, ArrowRight, UserCheck, FileWarning } from "lucide-react";
+import { toast } from "sonner";
 
 type Item = {
   kind: "property_compliance" | "hmo" | "tenant_compliance" | "tenant_doc";
@@ -28,7 +29,8 @@ export function ExpiryWidget() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    (async () => {
+    const load = async () => {
+      setLoading(true);
       const horizon = new Date(Date.now() + HORIZON_DAYS * 86400000).toISOString().slice(0, 10);
 
       const [comp, hmo, tenancies, docs] = await Promise.all([
@@ -58,6 +60,15 @@ export function ExpiryWidget() {
           .not("tenancy_id", "is", null)
           .limit(50),
       ]);
+
+      const firstError = comp.error ?? hmo.error ?? tenancies.error ?? docs.error;
+      if (firstError) {
+        toast.error(firstError.message);
+        setItems([]);
+        setMissing([]);
+        setLoading(false);
+        return;
+      }
 
       const list: Item[] = [];
       const missingList: string[] = [];
@@ -115,7 +126,21 @@ export function ExpiryWidget() {
       setItems(list);
       setMissing(missingList.slice(0, 5));
       setLoading(false);
-    })();
+    };
+
+    void load();
+
+    const channel = supabase
+      .channel(`expiry-widget-${Math.random().toString(36).slice(2, 8)}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "compliance_records" }, () => void load())
+      .on("postgres_changes", { event: "*", schema: "public", table: "properties" }, () => void load())
+      .on("postgres_changes", { event: "*", schema: "public", table: "tenancies" }, () => void load())
+      .on("postgres_changes", { event: "*", schema: "public", table: "documents" }, () => void load())
+      .subscribe();
+
+    return () => {
+      void supabase.removeChannel(channel);
+    };
   }, []);
 
   const overdue = items.filter((i) => i.days < 0).length;
