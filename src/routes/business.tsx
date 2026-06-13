@@ -165,8 +165,59 @@ function BusinessPage() {
           <div className="container mx-auto px-4 py-16 md:py-20">
             <div className="text-center max-w-2xl mx-auto mb-10">
               <h2 className="font-display text-3xl md:text-4xl font-bold">Honest pricing</h2>
-              <p className="text-muted-foreground mt-3">No per-lead fees. No portal upsells. Cancel anytime.</p>
+              <p className="text-muted-foreground mt-3">Start with 30 days free. No per-lead fees. No portal upsells. Cancel anytime.</p>
             </div>
+            <div className="grid md:grid-cols-3 gap-5 max-w-5xl mx-auto">
+              {PLANS.map((p) => (
+                <Card key={p.name} className={`border-0 shadow-card relative h-full ${p.highlight ? "ring-2 ring-primary shadow-elevated" : ""}`}>
+                  {p.highlight && <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground">Most popular</Badge>}
+                  <CardContent className="p-6 flex flex-col h-full">
+                    <div className="font-semibold">{p.name}</div>
+                    <div className="mt-3 flex items-baseline gap-1">
+                      <div className="text-4xl font-bold font-display">{p.price}</div>
+                      <div className="text-sm text-muted-foreground">{p.suffix}</div>
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-1">{p.note}</div>
+                    <Button className="mt-5" variant={p.highlight ? "default" : "outline"} asChild>
+                      <Link to="/auth" search={{ mode: "signup" } as never}>{p.cta}</Link>
+                    </Button>
+                    <ul className="mt-6 space-y-2.5 text-sm">
+                      {p.features.map((f) => (
+                        <li key={f} className="flex items-start gap-2">
+                          <Check className="h-4 w-4 text-success shrink-0 mt-0.5" />
+                          <span>{f}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {/* Add-ons */}
+            <div className="mt-16 max-w-5xl mx-auto">
+              <div className="text-center max-w-2xl mx-auto mb-8">
+                <Badge variant="outline" className="mb-3"><Sparkles className="h-3 w-3 mr-1.5" /> Optional add-ons</Badge>
+                <h3 className="font-display text-2xl md:text-3xl font-bold">AI & power features — add only what you need</h3>
+                <p className="text-muted-foreground mt-3 text-sm">Available on every plan. Turn on or off any month — no contract.</p>
+              </div>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {ADDONS.map((a) => (
+                  <Card key={a.name} className="border-0 shadow-card h-full">
+                    <CardContent className="p-5">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="h-10 w-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center">{a.icon}</div>
+                        <div className="text-sm font-semibold text-primary whitespace-nowrap">{a.price}</div>
+                      </div>
+                      <div className="font-semibold mt-3">{a.name}</div>
+                      <div className="text-sm text-muted-foreground mt-1.5">{a.desc}</div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
             <div className="grid md:grid-cols-3 gap-5 max-w-5xl mx-auto">
               {PLANS.map((p) => (
                 <Card key={p.name} className={`border-0 shadow-card relative h-full ${p.highlight ? "ring-2 ring-primary shadow-elevated" : ""}`}>
