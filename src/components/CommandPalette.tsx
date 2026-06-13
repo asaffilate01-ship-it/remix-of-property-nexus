@@ -68,21 +68,18 @@ export function CommandPalette() {
   const search = useCallback(async (term: string) => {
     if (!term || term.length < 2) { setHits([]); return; }
     const like = `%${term}%`;
-    const [p, c, l, t] = await Promise.all([
-      supabase.from("properties").select("id,address_line1,city").or(`address_line1.ilike.${like},city.ilike.${like}`).limit(5),
+    const [p, c, l] = await Promise.all([
+      supabase.from("properties").select("id,title,address,city").or(`title.ilike.${like},address.ilike.${like},city.ilike.${like}`).limit(5),
       supabase.from("contacts").select("id,full_name,email").or(`full_name.ilike.${like},email.ilike.${like}`).limit(5),
       supabase.from("listings").select("id,title,city").or(`title.ilike.${like},city.ilike.${like}`).limit(5),
-      supabase.from("tenancies").select("id,property_id").ilike("id", like).limit(3),
     ]);
     const out: Hit[] = [];
-    (p.data ?? []).forEach((r: { id: string; address_line1: string | null; city: string | null }) =>
-      out.push({ id: "p" + r.id, label: r.address_line1 ?? "Property", sub: r.city ?? "Property", to: "/properties", icon: Building2 }));
-    (l.data ?? []).forEach((r: { id: string; title: string | null; city: string | null }) =>
+    (p.data ?? []).forEach((r) =>
+      out.push({ id: "p" + r.id, label: r.title ?? r.address ?? "Property", sub: r.city ?? "Property", to: "/properties", icon: Building2 }));
+    (l.data ?? []).forEach((r) =>
       out.push({ id: "l" + r.id, label: r.title ?? "Listing", sub: r.city ?? "Listing", to: "/listings", icon: FileText }));
-    (c.data ?? []).forEach((r: { id: string; full_name: string | null; email: string | null }) =>
+    (c.data ?? []).forEach((r) =>
       out.push({ id: "c" + r.id, label: r.full_name ?? r.email ?? "Contact", sub: r.email ?? "Contact", to: "/contacts", icon: Users }));
-    (t.data ?? []).forEach((r: { id: string }) =>
-      out.push({ id: "t" + r.id, label: `Tenancy ${r.id.slice(0, 8)}`, to: "/tenancies/$id", params: { id: r.id }, icon: Users }));
     setHits(out);
   }, []);
 
