@@ -254,7 +254,7 @@ function ListingForm({ form, setForm, agencies }: { form: Form; setForm: (f: For
             <SelectContent>
               <SelectItem value="sale">For sale</SelectItem>
               <SelectItem value="rent">To let</SelectItem>
-              <SelectItem value="commercial">Commercial</SelectItem>
+              
             </SelectContent>
           </Select>
         </div>
