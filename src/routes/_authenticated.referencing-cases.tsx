@@ -361,7 +361,9 @@ function ChecksPanel({ caseId }: { caseId: string }) {
         <p className="text-xs text-muted-foreground">No checks run yet.</p>
       ) : (
         <div className="divide-y border rounded">
-          {checks.map((c: { id: string; check_type: string; provider: string; status: string; score: number | null; result: Record<string, unknown>; completed_at: string | null; requested_at: string }) => (
+          {checks.map((c) => {
+            const result = (c.result && typeof c.result === "object" && !Array.isArray(c.result) ? c.result : {}) as Record<string, unknown>;
+            return (
             <div key={c.id} className="p-3 flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <div className="text-sm font-medium flex items-center gap-2">
@@ -372,12 +374,13 @@ function ChecksPanel({ caseId }: { caseId: string }) {
                 <div className="text-xs text-muted-foreground">
                   {c.provider} · {new Date(c.completed_at ?? c.requested_at).toLocaleString("en-GB")}
                 </div>
-                {c.result && Object.keys(c.result).length > 0 && (
-                  <pre className="text-[10px] text-muted-foreground mt-1 whitespace-pre-wrap">{JSON.stringify(c.result, null, 0)}</pre>
+                {Object.keys(result).length > 0 && (
+                  <pre className="text-[10px] text-muted-foreground mt-1 whitespace-pre-wrap">{JSON.stringify(result, null, 0)}</pre>
                 )}
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
