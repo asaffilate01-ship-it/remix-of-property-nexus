@@ -255,6 +255,9 @@ function ReferencingCasesPage() {
                 </div>
               )}
 
+              <ChecksPanel caseId={selected.id} />
+
+
               <div className="pt-2 border-t space-y-3">
                 <p className="text-sm font-medium">Update decision</p>
                 <Select value={decisionStatus} onValueChange={setDecisionStatus}>
