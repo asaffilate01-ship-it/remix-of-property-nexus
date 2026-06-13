@@ -18,16 +18,20 @@ export type Database = {
         Row: {
           address: string | null
           city: string | null
+          commercial_module_enabled: boolean
           created_at: string
           description: string | null
           email: string | null
+          hmo_module_enabled: boolean
           id: string
           is_published: boolean
+          lettings_module_enabled: boolean
           logo_url: string | null
           name: string
           owner_id: string
           phone: string | null
           postcode: string | null
+          sales_module_enabled: boolean
           slug: string
           updated_at: string
           website: string | null
@@ -35,16 +39,20 @@ export type Database = {
         Insert: {
           address?: string | null
           city?: string | null
+          commercial_module_enabled?: boolean
           created_at?: string
           description?: string | null
           email?: string | null
+          hmo_module_enabled?: boolean
           id?: string
           is_published?: boolean
+          lettings_module_enabled?: boolean
           logo_url?: string | null
           name: string
           owner_id: string
           phone?: string | null
           postcode?: string | null
+          sales_module_enabled?: boolean
           slug: string
           updated_at?: string
           website?: string | null
@@ -52,16 +60,20 @@ export type Database = {
         Update: {
           address?: string | null
           city?: string | null
+          commercial_module_enabled?: boolean
           created_at?: string
           description?: string | null
           email?: string | null
+          hmo_module_enabled?: boolean
           id?: string
           is_published?: boolean
+          lettings_module_enabled?: boolean
           logo_url?: string | null
           name?: string
           owner_id?: string
           phone?: string | null
           postcode?: string | null
+          sales_module_enabled?: boolean
           slug?: string
           updated_at?: string
           website?: string | null
@@ -288,22 +300,31 @@ export type Database = {
           bathrooms: number | null
           bedrooms: number | null
           bills_included: boolean
+          business_rates_pa: number | null
           city: string | null
           cover_image: string | null
           created_at: string
           currency: string
           description: string | null
+          epc_rating: string | null
           features: Json
+          floor_area_sqft: number | null
           id: string
           is_hmo: boolean
+          lease_term_months: number | null
           listing_type: Database["public"]["Enums"]["listing_type"]
           owner_id: string
           photos: Json
           postcode: string | null
           price: number | null
+          price_qualifier: Database["public"]["Enums"]["price_qualifier"] | null
           property_id: string | null
+          purpose: Database["public"]["Enums"]["listing_purpose"]
+          receptions: number | null
+          service_charge_pa: number | null
           slug: string
           status: Database["public"]["Enums"]["listing_status"]
+          tenure: Database["public"]["Enums"]["tenure_type"] | null
           title: string
           updated_at: string
           view_count: number
@@ -315,22 +336,33 @@ export type Database = {
           bathrooms?: number | null
           bedrooms?: number | null
           bills_included?: boolean
+          business_rates_pa?: number | null
           city?: string | null
           cover_image?: string | null
           created_at?: string
           currency?: string
           description?: string | null
+          epc_rating?: string | null
           features?: Json
+          floor_area_sqft?: number | null
           id?: string
           is_hmo?: boolean
+          lease_term_months?: number | null
           listing_type: Database["public"]["Enums"]["listing_type"]
           owner_id: string
           photos?: Json
           postcode?: string | null
           price?: number | null
+          price_qualifier?:
+            | Database["public"]["Enums"]["price_qualifier"]
+            | null
           property_id?: string | null
+          purpose?: Database["public"]["Enums"]["listing_purpose"]
+          receptions?: number | null
+          service_charge_pa?: number | null
           slug: string
           status?: Database["public"]["Enums"]["listing_status"]
+          tenure?: Database["public"]["Enums"]["tenure_type"] | null
           title: string
           updated_at?: string
           view_count?: number
@@ -342,22 +374,33 @@ export type Database = {
           bathrooms?: number | null
           bedrooms?: number | null
           bills_included?: boolean
+          business_rates_pa?: number | null
           city?: string | null
           cover_image?: string | null
           created_at?: string
           currency?: string
           description?: string | null
+          epc_rating?: string | null
           features?: Json
+          floor_area_sqft?: number | null
           id?: string
           is_hmo?: boolean
+          lease_term_months?: number | null
           listing_type?: Database["public"]["Enums"]["listing_type"]
           owner_id?: string
           photos?: Json
           postcode?: string | null
           price?: number | null
+          price_qualifier?:
+            | Database["public"]["Enums"]["price_qualifier"]
+            | null
           property_id?: string | null
+          purpose?: Database["public"]["Enums"]["listing_purpose"]
+          receptions?: number | null
+          service_charge_pa?: number | null
           slug?: string
           status?: Database["public"]["Enums"]["listing_status"]
+          tenure?: Database["public"]["Enums"]["tenure_type"] | null
           title?: string
           updated_at?: string
           view_count?: number
@@ -421,6 +464,7 @@ export type Database = {
           hmo_licence_number: string | null
           id: string
           is_hmo: boolean
+          listing_purpose: Database["public"]["Enums"]["listing_purpose"]
           notes: string | null
           owner_id: string
           postcode: string | null
@@ -439,6 +483,7 @@ export type Database = {
           hmo_licence_number?: string | null
           id?: string
           is_hmo?: boolean
+          listing_purpose?: Database["public"]["Enums"]["listing_purpose"]
           notes?: string | null
           owner_id: string
           postcode?: string | null
@@ -457,6 +502,7 @@ export type Database = {
           hmo_licence_number?: string | null
           id?: string
           is_hmo?: boolean
+          listing_purpose?: Database["public"]["Enums"]["listing_purpose"]
           notes?: string | null
           owner_id?: string
           postcode?: string | null
@@ -586,6 +632,7 @@ export type Database = {
         | "offer"
         | "closed_won"
         | "closed_lost"
+      listing_purpose: "sale" | "rent"
       listing_status:
         | "draft"
         | "published"
@@ -594,6 +641,19 @@ export type Database = {
         | "sold"
         | "withdrawn"
       listing_type: "sale" | "rent" | "room"
+      price_qualifier:
+        | "asking"
+        | "offers_over"
+        | "offers_in_region"
+        | "guide_price"
+        | "poa"
+        | "fixed"
+      property_type:
+        | "residential_sale"
+        | "residential_let"
+        | "hmo"
+        | "commercial"
+      tenure_type: "freehold" | "leasehold" | "share_of_freehold" | "commonhold"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -753,6 +813,7 @@ export const Constants = {
         "closed_won",
         "closed_lost",
       ],
+      listing_purpose: ["sale", "rent"],
       listing_status: [
         "draft",
         "published",
@@ -762,6 +823,21 @@ export const Constants = {
         "withdrawn",
       ],
       listing_type: ["sale", "rent", "room"],
+      price_qualifier: [
+        "asking",
+        "offers_over",
+        "offers_in_region",
+        "guide_price",
+        "poa",
+        "fixed",
+      ],
+      property_type: [
+        "residential_sale",
+        "residential_let",
+        "hmo",
+        "commercial",
+      ],
+      tenure_type: ["freehold", "leasehold", "share_of_freehold", "commonhold"],
     },
   },
 } as const
