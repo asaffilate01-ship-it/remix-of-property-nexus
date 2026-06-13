@@ -8,19 +8,19 @@ export const fetchDocumentsData = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase } = context;
-    const [docs, properties, agencies, tenancies, contacts] = await Promise.all([
+    const [docs, properties, agencies, tenancies, profiles] = await Promise.all([
       supabase.from("documents").select("*").order("created_at", { ascending: false }),
       supabase.from("properties").select("id, title, address, city"),
       supabase.from("agencies").select("id, name"),
-      supabase.from("tenancies").select("id, tenant_name, property_id"),
-      supabase.from("contacts").select("id, full_name, contact_type, agency_id"),
+      supabase.from("tenancies").select("id, tenant_name, property_id, tenant_user_id"),
+      supabase.from("profiles").select("id, full_name, primary_role"),
     ]);
     return {
       documents: docs.data ?? [],
       properties: properties.data ?? [],
       agencies: agencies.data ?? [],
       tenancies: tenancies.data ?? [],
-      contacts: contacts.data ?? [],
+      profiles: profiles.data ?? [],
     };
   });
 
