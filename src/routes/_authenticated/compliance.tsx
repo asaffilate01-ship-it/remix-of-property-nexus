@@ -220,7 +220,11 @@ function CompliancePage() {
         </TabsContent>
         <TabsContent value={scopeTab} className="mt-4">
           {isLoading ? (
-            <div className="text-muted-foreground">Loading…</div>
+            <div className="space-y-2">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="h-12 bg-muted rounded animate-pulse" />
+              ))}
+            </div>
           ) : visible.length === 0 ? (
             <Card className="border-dashed border-2 bg-transparent">
               <CardContent className="p-12 text-center">
