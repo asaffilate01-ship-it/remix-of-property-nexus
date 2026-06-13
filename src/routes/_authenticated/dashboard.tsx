@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useUserRole } from "@/hooks/useUserRole";
+import { AdminDashboard } from "@/components/dashboards/AdminDashboard";
+import { AgentDashboard } from "@/components/dashboards/AgentDashboard";
 import { LandlordDashboard } from "@/components/dashboards/LandlordDashboard";
 import { TenantDashboard } from "@/components/dashboards/TenantDashboard";
 import { ContractorDashboard } from "@/components/dashboards/ContractorDashboard";
@@ -27,6 +29,8 @@ function Dashboard() {
   }
 
   switch (role) {
+    case "admin": return <AdminDashboard name={name} />;
+    case "agent": return <AgentDashboard name={name} />;
     case "tenant": return <TenantDashboard name={name} userId={userId} />;
     case "contractor": return <ContractorDashboard name={name} />;
     case "conveyancer": return <ConveyancerDashboard name={name} />;
@@ -34,11 +38,9 @@ function Dashboard() {
     case "inventory_clerk":
     case "utility_provider":
       return <SimpleRoleDashboard role={role} name={name} />;
-    case "agent":
-      return <LandlordDashboard name={name} agentMode />;
-    case "admin":
     case "landlord":
     default:
       return <LandlordDashboard name={name} />;
   }
 }
+
