@@ -519,7 +519,7 @@ export type Database = {
           expires_on: string | null
           folder: string
           id: string
-          landlord_contact_id: string | null
+          landlord_user_id: string | null
           locked: boolean
           mime_type: string | null
           name: string
@@ -531,7 +531,7 @@ export type Database = {
           storage_path: string
           tags: string[]
           tenancy_id: string | null
-          tenant_contact_id: string | null
+          tenant_user_id: string | null
           updated_at: string
           uploaded_by: string | null
         }
@@ -541,7 +541,7 @@ export type Database = {
           expires_on?: string | null
           folder?: string
           id?: string
-          landlord_contact_id?: string | null
+          landlord_user_id?: string | null
           locked?: boolean
           mime_type?: string | null
           name: string
@@ -553,7 +553,7 @@ export type Database = {
           storage_path: string
           tags?: string[]
           tenancy_id?: string | null
-          tenant_contact_id?: string | null
+          tenant_user_id?: string | null
           updated_at?: string
           uploaded_by?: string | null
         }
@@ -563,7 +563,7 @@ export type Database = {
           expires_on?: string | null
           folder?: string
           id?: string
-          landlord_contact_id?: string | null
+          landlord_user_id?: string | null
           locked?: boolean
           mime_type?: string | null
           name?: string
@@ -575,7 +575,7 @@ export type Database = {
           storage_path?: string
           tags?: string[]
           tenancy_id?: string | null
-          tenant_contact_id?: string | null
+          tenant_user_id?: string | null
           updated_at?: string
           uploaded_by?: string | null
         }
@@ -585,13 +585,6 @@ export type Database = {
             columns: ["agency_id"]
             isOneToOne: false
             referencedRelation: "agencies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "documents_landlord_contact_id_fkey"
-            columns: ["landlord_contact_id"]
-            isOneToOne: false
-            referencedRelation: "contacts"
             referencedColumns: ["id"]
           },
           {
@@ -606,13 +599,6 @@ export type Database = {
             columns: ["tenancy_id"]
             isOneToOne: false
             referencedRelation: "tenancies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "documents_tenant_contact_id_fkey"
-            columns: ["tenant_contact_id"]
-            isOneToOne: false
-            referencedRelation: "contacts"
             referencedColumns: ["id"]
           },
         ]
