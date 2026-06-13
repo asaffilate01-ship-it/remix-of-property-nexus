@@ -15,6 +15,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { fetchListing, submitLead } from "@/lib/public.functions";
 import { Bed, Bath, MapPin, Calendar, Ruler, Zap, Shield, ChevronLeft, Share2, Mail, Globe, Calculator, Sparkles, Home, Building2 } from "lucide-react";
 import { PhoneReveal } from "@/components/PhoneReveal";
+import { GoogleListingsMap } from "@/components/GoogleListingsMap";
+
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
