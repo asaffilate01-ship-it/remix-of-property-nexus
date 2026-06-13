@@ -1135,6 +1135,65 @@ export type Database = {
           },
         ]
       }
+      referencing_checks: {
+        Row: {
+          case_id: string
+          check_type: string
+          completed_at: string | null
+          created_at: string
+          expires_at: string | null
+          external_ref: string | null
+          id: string
+          provider: string
+          requested_at: string
+          requested_by: string | null
+          result: Json
+          score: number | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          case_id: string
+          check_type: string
+          completed_at?: string | null
+          created_at?: string
+          expires_at?: string | null
+          external_ref?: string | null
+          id?: string
+          provider?: string
+          requested_at?: string
+          requested_by?: string | null
+          result?: Json
+          score?: number | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          case_id?: string
+          check_type?: string
+          completed_at?: string | null
+          created_at?: string
+          expires_at?: string | null
+          external_ref?: string | null
+          id?: string
+          provider?: string
+          requested_at?: string
+          requested_by?: string | null
+          result?: Json
+          score?: number | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referencing_checks_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "referencing_cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       referencing_documents: {
         Row: {
           case_id: string
