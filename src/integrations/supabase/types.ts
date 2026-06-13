@@ -1292,6 +1292,27 @@ export type Database = {
         | "aml"
         | "pi_insurance"
         | "ico"
+        | "smoke_co_alarms"
+        | "mees_epc_upgrade"
+        | "awaabs_law"
+        | "building_safety"
+        | "asbestos_register"
+        | "water_safety"
+        | "right_to_rent_followup"
+        | "tenant_fees_act"
+        | "prescribed_info"
+        | "renters_rights_readiness"
+        | "gdpr_privacy_notice"
+        | "complaints_procedure"
+        | "material_information"
+        | "public_liability"
+        | "landlord_insurance"
+        | "mtd_itsa"
+        | "hhsrs_assessment"
+        | "tenancy_deposit_scheme"
+        | "gas_appliance_servicing"
+        | "window_restrictors"
+        | "blind_cord_safety"
       contact_type:
         | "conveyancer"
         | "solicitor"
@@ -1524,6 +1545,27 @@ export const Constants = {
         "aml",
         "pi_insurance",
         "ico",
+        "smoke_co_alarms",
+        "mees_epc_upgrade",
+        "awaabs_law",
+        "building_safety",
+        "asbestos_register",
+        "water_safety",
+        "right_to_rent_followup",
+        "tenant_fees_act",
+        "prescribed_info",
+        "renters_rights_readiness",
+        "gdpr_privacy_notice",
+        "complaints_procedure",
+        "material_information",
+        "public_liability",
+        "landlord_insurance",
+        "mtd_itsa",
+        "hhsrs_assessment",
+        "tenancy_deposit_scheme",
+        "gas_appliance_servicing",
+        "window_restrictors",
+        "blind_cord_safety",
       ],
       contact_type: [
         "conveyancer",
