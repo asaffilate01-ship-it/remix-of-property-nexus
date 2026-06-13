@@ -13,17 +13,19 @@ type Props = {
   coverIndex: number;
   onCoverChange: (idx: number) => void;
   roomOptions?: string[];
+  onUploadingChange?: (uploading: boolean) => void;
 };
 
 const LONG_TTL = 60 * 60 * 24 * 365 * 10; // 10y signed URL
 
-export function PhotoUploader({ photos, onChange, coverIndex, onCoverChange, roomOptions = [] }: Props) {
+export function PhotoUploader({ photos, onChange, coverIndex, onCoverChange, roomOptions = [], onUploadingChange }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
   const [busy, setBusy] = useState(false);
 
   const upload = async (files: FileList | File[]) => {
     setBusy(true);
+    onUploadingChange?.(true);
     try {
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) throw new Error("Not signed in");
@@ -43,6 +45,7 @@ export function PhotoUploader({ photos, onChange, coverIndex, onCoverChange, roo
       toast.error(e.message);
     } finally {
       setBusy(false);
+      onUploadingChange?.(false);
       if (fileRef.current) fileRef.current.value = "";
     }
   };
