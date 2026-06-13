@@ -31,8 +31,8 @@ export function AgentDashboard({ name }: { name: string }) {
       const weekStart = new Date(); weekStart.setDate(weekStart.getDate() - 7);
       const [ld, lst, dl, recentLeads] = await Promise.all([
         supabase.from("leads").select("id", { count: "exact", head: true }).eq("status", "new"),
-        supabase.from("listings").select("id", { count: "exact", head: true }).eq("status", "live"),
-        supabase.from("deals").select("id", { count: "exact", head: true }).neq("status", "won").neq("status", "lost"),
+        supabase.from("listings").select("id", { count: "exact", head: true }).eq("status", "published"),
+        supabase.from("deals").select("id", { count: "exact", head: true }).not("stage", "in", '("won","lost")'),
         supabase.from("leads").select("id,name,created_at").order("created_at", { ascending: false }).limit(6),
       ]);
       setStats((s) => ({
