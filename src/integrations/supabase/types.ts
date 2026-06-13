@@ -952,6 +952,118 @@ export type Database = {
           },
         ]
       }
+      offers: {
+        Row: {
+          agency_id: string | null
+          amount: number
+          buyer_email: string | null
+          buyer_name: string
+          buyer_phone: string | null
+          created_at: string
+          deal_id: string | null
+          financing: string | null
+          id: string
+          lead_id: string | null
+          listing_id: string | null
+          notes: string | null
+          owner_id: string
+          position_in_chain: number | null
+          property_id: string | null
+          responded_at: string | null
+          status: Database["public"]["Enums"]["offer_status"]
+          submitted_at: string
+          tenancy_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          agency_id?: string | null
+          amount: number
+          buyer_email?: string | null
+          buyer_name: string
+          buyer_phone?: string | null
+          created_at?: string
+          deal_id?: string | null
+          financing?: string | null
+          id?: string
+          lead_id?: string | null
+          listing_id?: string | null
+          notes?: string | null
+          owner_id: string
+          position_in_chain?: number | null
+          property_id?: string | null
+          responded_at?: string | null
+          status?: Database["public"]["Enums"]["offer_status"]
+          submitted_at?: string
+          tenancy_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          agency_id?: string | null
+          amount?: number
+          buyer_email?: string | null
+          buyer_name?: string
+          buyer_phone?: string | null
+          created_at?: string
+          deal_id?: string | null
+          financing?: string | null
+          id?: string
+          lead_id?: string | null
+          listing_id?: string | null
+          notes?: string | null
+          owner_id?: string
+          position_in_chain?: number | null
+          property_id?: string | null
+          responded_at?: string | null
+          status?: Database["public"]["Enums"]["offer_status"]
+          submitted_at?: string
+          tenancy_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "offers_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "offers_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "offers_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "offers_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "offers_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "offers_tenancy_id_fkey"
+            columns: ["tenancy_id"]
+            isOneToOne: false
+            referencedRelation: "tenancies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -1857,6 +1969,47 @@ export type Database = {
           },
         ]
       }
+      tenancy_events: {
+        Row: {
+          actor_user_id: string | null
+          created_at: string
+          id: string
+          kind: Database["public"]["Enums"]["tenancy_event_kind"]
+          occurred_at: string
+          payload: Json
+          summary: string | null
+          tenancy_id: string
+        }
+        Insert: {
+          actor_user_id?: string | null
+          created_at?: string
+          id?: string
+          kind: Database["public"]["Enums"]["tenancy_event_kind"]
+          occurred_at?: string
+          payload?: Json
+          summary?: string | null
+          tenancy_id: string
+        }
+        Update: {
+          actor_user_id?: string | null
+          created_at?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["tenancy_event_kind"]
+          occurred_at?: string
+          payload?: Json
+          summary?: string | null
+          tenancy_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenancy_events_tenancy_id_fkey"
+            columns: ["tenancy_id"]
+            isOneToOne: false
+            referencedRelation: "tenancies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -1877,6 +2030,98 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      viewings: {
+        Row: {
+          agency_id: string | null
+          agent_name: string | null
+          agent_user_id: string | null
+          applicant_email: string | null
+          applicant_name: string
+          applicant_phone: string | null
+          created_at: string
+          duration_minutes: number
+          feedback: Database["public"]["Enums"]["viewing_feedback"] | null
+          id: string
+          lead_id: string | null
+          listing_id: string | null
+          notes: string | null
+          owner_id: string
+          property_id: string | null
+          scheduled_at: string
+          status: Database["public"]["Enums"]["viewing_status"]
+          updated_at: string
+        }
+        Insert: {
+          agency_id?: string | null
+          agent_name?: string | null
+          agent_user_id?: string | null
+          applicant_email?: string | null
+          applicant_name: string
+          applicant_phone?: string | null
+          created_at?: string
+          duration_minutes?: number
+          feedback?: Database["public"]["Enums"]["viewing_feedback"] | null
+          id?: string
+          lead_id?: string | null
+          listing_id?: string | null
+          notes?: string | null
+          owner_id: string
+          property_id?: string | null
+          scheduled_at: string
+          status?: Database["public"]["Enums"]["viewing_status"]
+          updated_at?: string
+        }
+        Update: {
+          agency_id?: string | null
+          agent_name?: string | null
+          agent_user_id?: string | null
+          applicant_email?: string | null
+          applicant_name?: string
+          applicant_phone?: string | null
+          created_at?: string
+          duration_minutes?: number
+          feedback?: Database["public"]["Enums"]["viewing_feedback"] | null
+          id?: string
+          lead_id?: string | null
+          listing_id?: string | null
+          notes?: string | null
+          owner_id?: string
+          property_id?: string | null
+          scheduled_at?: string
+          status?: Database["public"]["Enums"]["viewing_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "viewings_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "viewings_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "viewings_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "viewings_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       work_order_updates: {
         Row: {
@@ -2145,6 +2390,12 @@ export type Database = {
         | "sold"
         | "withdrawn"
       listing_type: "sale" | "rent" | "room"
+      offer_status:
+        | "pending"
+        | "accepted"
+        | "rejected"
+        | "withdrawn"
+        | "countered"
       price_qualifier:
         | "asking"
         | "offers_over"
@@ -2159,8 +2410,35 @@ export type Database = {
         | "commercial"
       rent_frequency: "weekly" | "monthly"
       rent_status: "due" | "paid" | "overdue" | "waived"
+      tenancy_event_kind:
+        | "lead_captured"
+        | "viewing_booked"
+        | "viewing_completed"
+        | "offer_made"
+        | "offer_accepted"
+        | "references_requested"
+        | "references_passed"
+        | "tenancy_drafted"
+        | "ast_signed"
+        | "deposit_received"
+        | "deposit_protected"
+        | "prescribed_info_served"
+        | "moved_in"
+        | "rent_paid"
+        | "renewal_offered"
+        | "renewed"
+        | "notice_served"
+        | "moved_out"
+        | "deposit_returned"
       tenancy_status: "draft" | "active" | "notice" | "ended"
       tenure_type: "freehold" | "leasehold" | "share_of_freehold" | "commonhold"
+      viewing_feedback: "positive" | "negative" | "neutral" | "offer"
+      viewing_status:
+        | "pending"
+        | "confirmed"
+        | "completed"
+        | "no_show"
+        | "cancelled"
       work_order_priority: "low" | "medium" | "high" | "emergency"
       work_order_status:
         | "open"
@@ -2404,6 +2682,13 @@ export const Constants = {
         "withdrawn",
       ],
       listing_type: ["sale", "rent", "room"],
+      offer_status: [
+        "pending",
+        "accepted",
+        "rejected",
+        "withdrawn",
+        "countered",
+      ],
       price_qualifier: [
         "asking",
         "offers_over",
@@ -2420,8 +2705,37 @@ export const Constants = {
       ],
       rent_frequency: ["weekly", "monthly"],
       rent_status: ["due", "paid", "overdue", "waived"],
+      tenancy_event_kind: [
+        "lead_captured",
+        "viewing_booked",
+        "viewing_completed",
+        "offer_made",
+        "offer_accepted",
+        "references_requested",
+        "references_passed",
+        "tenancy_drafted",
+        "ast_signed",
+        "deposit_received",
+        "deposit_protected",
+        "prescribed_info_served",
+        "moved_in",
+        "rent_paid",
+        "renewal_offered",
+        "renewed",
+        "notice_served",
+        "moved_out",
+        "deposit_returned",
+      ],
       tenancy_status: ["draft", "active", "notice", "ended"],
       tenure_type: ["freehold", "leasehold", "share_of_freehold", "commonhold"],
+      viewing_feedback: ["positive", "negative", "neutral", "offer"],
+      viewing_status: [
+        "pending",
+        "confirmed",
+        "completed",
+        "no_show",
+        "cancelled",
+      ],
       work_order_priority: ["low", "medium", "high", "emergency"],
       work_order_status: [
         "open",
