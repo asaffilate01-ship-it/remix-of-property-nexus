@@ -93,8 +93,11 @@ function ListingsPage() {
 
   const openNew = () => { setForm(empty); setOpen(true); };
   const openEdit = (l: Listing) => {
-    const photos = Array.isArray(l.photos) ? (l.photos as unknown[]).filter((p): p is string => typeof p === "string") : [];
+    const photos = normalizePhotos(l.photos);
     const features = Array.isArray(l.features) ? (l.features as unknown[]).filter((f): f is string => typeof f === "string") : [];
+    const rooms = Array.isArray(l.rooms) ? (l.rooms as HmoRoom[]) : [];
+    const compliance = (l.compliance && typeof l.compliance === "object" ? l.compliance : {}) as ComplianceMap;
+    const coverIdx = Math.max(0, photos.findIndex((p) => p.url === l.cover_image));
     setForm({
       id: l.id,
       title: l.title, description: l.description ?? "",
@@ -102,7 +105,12 @@ function ListingsPage() {
       price: l.price?.toString() ?? "", price_qualifier: l.price_qualifier ?? "none",
       bedrooms: l.bedrooms?.toString() ?? "", bathrooms: l.bathrooms?.toString() ?? "", receptions: l.receptions?.toString() ?? "",
       address: l.address ?? "", city: l.city ?? "", postcode: l.postcode ?? "",
-      cover_image: l.cover_image ?? "", photos_text: photos.join("\n"), features_text: features.join(", "),
+      cover_image: l.cover_image ?? "",
+      photos,
+      cover_index: coverIdx >= 0 ? coverIdx : 0,
+      features,
+      rooms,
+      compliance,
       is_hmo: l.is_hmo, bills_included: l.bills_included,
       marketplace_publish: l.marketplace_publish, publish: l.status === "published",
       available_from: l.available_from ?? "", epc_rating: l.epc_rating ?? "",
@@ -116,31 +124,38 @@ function ListingsPage() {
   const save = async () => {
     const { data: u } = await supabase.auth.getUser();
     if (!u.user) return;
-    const photos = form.photos_text.split(/\s*\n+\s*/).map((s) => s.trim()).filter(Boolean);
-    const features = form.features_text.split(/\s*,\s*/).map((s) => s.trim()).filter(Boolean);
-    const payload = {
+    const photos = form.photos;
+    const coverUrl = photos[form.cover_index]?.url ?? photos[0]?.url ?? form.cover_image ?? null;
+    // If HMO, infer bedrooms from rooms count
+    const bedroomsValue = form.is_hmo
+      ? (form.rooms.length || (form.bedrooms ? Number(form.bedrooms) : null))
+      : (form.bedrooms ? Number(form.bedrooms) : null);
+    // Sync epc_rating top-level if compliance has one (keep existing field too)
+    const payload: any = {
       title: form.title,
       description: form.description || null,
       listing_type: form.listing_type,
       purpose: form.purpose,
       status: (form.publish ? "published" : "draft") as "published" | "draft",
       price: form.price ? Number(form.price) : null,
-      price_qualifier: (form.price_qualifier === "none" ? null : form.price_qualifier) as "guide_price" | "offers_in_region" | "offers_over" | "poa" | null,
-      bedrooms: form.bedrooms ? Number(form.bedrooms) : null,
+      price_qualifier: (form.price_qualifier === "none" ? null : form.price_qualifier),
+      bedrooms: bedroomsValue,
       bathrooms: form.bathrooms ? Number(form.bathrooms) : null,
       receptions: form.receptions ? Number(form.receptions) : null,
       address: form.address || null,
       city: form.city || null,
       postcode: form.postcode || null,
-      cover_image: form.cover_image || (photos[0] ?? null),
-      photos,
-      features,
+      cover_image: coverUrl,
+      photos: photos as any,
+      features: form.features as any,
+      rooms: form.rooms as any,
+      compliance: form.compliance as any,
       is_hmo: form.is_hmo,
       bills_included: form.bills_included,
       marketplace_publish: form.marketplace_publish,
       available_from: form.available_from || null,
       epc_rating: form.epc_rating || null,
-      tenure: (form.tenure || null) as "freehold" | "leasehold" | "share_of_freehold" | "commonhold" | null,
+      tenure: form.tenure || null,
       floor_area_sqft: form.floor_area_sqft ? Number(form.floor_area_sqft) : null,
       council_tax_band: form.council_tax_band || null,
       furnished: form.furnished || null,
@@ -158,6 +173,7 @@ function ListingsPage() {
     }
     setOpen(false); setForm(empty); load();
   };
+
 
   const remove = async (id: string) => {
     const { error } = await supabase.from("listings").delete().eq("id", id);
