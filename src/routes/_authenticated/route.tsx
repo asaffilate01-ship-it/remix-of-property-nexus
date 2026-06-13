@@ -94,8 +94,10 @@ function AuthedLayout() {
               <LifeBuoy className="h-4 w-4" /> Support
             </Button>
           </header>
-          <main className="flex-1 pb-20 md:pb-6">
-            <Outlet />
+          <main className="flex-1 pb-24 md:pb-10">
+            <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8">
+              <Outlet />
+            </div>
           </main>
         </div>
         <MobileTabBar />

@@ -11,22 +11,20 @@ type PageHeaderProps = {
 
 export function PageHeader({ title, description, actions, tabs, className }: PageHeaderProps) {
   return (
-    <div className={cn("border-b border-border/60 bg-card/40 backdrop-blur-sm", className)}>
-      <div className="px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8">
-        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4 pb-5 sm:flex sm:flex-wrap sm:justify-between">
-          <div className="min-w-0 space-y-1">
-            <h1 className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-foreground truncate">
-              {title}
-            </h1>
-            {description && (
-              <p className="text-sm text-muted-foreground max-w-prose">{description}</p>
-            )}
-          </div>
-          {actions && <div className="flex items-center gap-2 shrink-0">{actions}</div>}
+    <header className={cn("mb-6 sm:mb-8", className)}>
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4 sm:flex sm:flex-wrap sm:justify-between">
+        <div className="min-w-0 space-y-1.5">
+          <h1 className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-foreground truncate">
+            {title}
+          </h1>
+          {description && (
+            <p className="text-sm text-muted-foreground max-w-prose">{description}</p>
+          )}
         </div>
-        {tabs && <div className="-mx-1 overflow-x-auto no-scrollbar">{tabs}</div>}
+        {actions && <div className="flex flex-wrap items-center gap-2 shrink-0">{actions}</div>}
       </div>
-    </div>
+      {tabs && <div className="mt-4 -mx-1 overflow-x-auto no-scrollbar">{tabs}</div>}
+    </header>
   );
 }
 
