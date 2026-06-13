@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -13,9 +13,14 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
-import { Plus, Building2, Pencil, Trash2, BedDouble, Users, PoundSterling, Search } from "lucide-react";
+import { Plus, Building2, Pencil, Trash2, BedDouble, Users, PoundSterling, Calendar, FileText, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/PageHeader";
+import { FeatureMultiSelect } from "@/components/properties/FeatureMultiSelect";
+import { PostcodeAutocomplete } from "@/components/properties/PostcodeAutocomplete";
+import { PropertyScheduleGantt } from "@/components/properties/PropertyScheduleGantt";
+import { PropertyDocsPanel } from "@/components/properties/PropertyDocsPanel";
+import { PropertyCompliancePanel } from "@/components/properties/PropertyCompliancePanel";
 
 export const Route = createFileRoute("/_authenticated/properties")({ component: PropertiesPage });
 
@@ -23,16 +28,29 @@ type Property = {
   id: string; title: string; address: string | null; city: string | null; postcode: string | null;
   property_type: string | null; bedrooms: number | null; bathrooms: number | null;
   is_hmo: boolean; hmo_licence_number: string | null; hmo_licence_expires: string | null;
-  listing_purpose: "rent" | "sale" | "both"; notes: string | null;
+  listing_purpose: "rent" | "sale" | "both" | "short_let"; notes: string | null;
+  features: string[] | null;
+  nightly_rate: number | null; min_stay_nights: number | null; cleaning_fee: number | null;
 };
-type Room = { id: string; property_id: string; name: string; rent_pcm: number | null; status: string; en_suite: boolean | null; bills_included: boolean | null; available_from: string | null };
+type Room = { id: string; property_id: string; name: string; room_number: string | null; rent_pcm: number | null; status: string; en_suite: boolean | null; bills_included: boolean | null; available_from: string | null };
 type Tenancy = { id: string; property_id: string; room_id: string | null; tenant_name: string; tenant_email: string | null; tenant_phone: string | null; start_date: string; end_date: string | null; rent_amount: number; rent_frequency: "weekly" | "monthly"; deposit: number | null; status: string };
 
-const PURPOSES = ["rent", "sale", "both"] as const;
+const PURPOSES = [
+  { v: "rent", l: "Long-let (Rent)" },
+  { v: "sale", l: "For sale" },
+  { v: "both", l: "Sale & rent" },
+  { v: "short_let", l: "Short-let (Airbnb-style)" },
+] as const;
 const PROPERTY_TYPES = ["house", "flat", "studio", "hmo", "bungalow", "commercial", "land"] as const;
 
-const emptyProp = { id: "", title: "", address: "", city: "", postcode: "", property_type: "", bedrooms: "", bathrooms: "", is_hmo: false, hmo_licence_number: "", hmo_licence_expires: "", listing_purpose: "rent" as Property["listing_purpose"], notes: "" };
-const emptyRoom = { id: "", name: "", rent_pcm: "", status: "vacant", en_suite: false, bills_included: true, available_from: "" };
+const emptyProp = {
+  id: "", title: "", address: "", city: "", postcode: "", property_type: "",
+  bedrooms: "", bathrooms: "", is_hmo: false, hmo_licence_number: "", hmo_licence_expires: "",
+  listing_purpose: "rent" as Property["listing_purpose"], notes: "",
+  features: [] as string[],
+  nightly_rate: "", min_stay_nights: "", cleaning_fee: "",
+};
+const emptyRoom = { id: "", name: "", room_number: "", rent_pcm: "", status: "vacant", en_suite: false, bills_included: true, available_from: "" };
 const emptyTenancy = { id: "", room_id: "", tenant_name: "", tenant_email: "", tenant_phone: "", start_date: "", end_date: "", rent_amount: "", rent_frequency: "monthly" as "weekly" | "monthly", deposit: "", status: "draft" };
 
 function PropertiesPage() {
@@ -72,6 +90,10 @@ function PropertiesPage() {
       property_type: p.property_type ?? "", bedrooms: p.bedrooms?.toString() ?? "", bathrooms: p.bathrooms?.toString() ?? "",
       is_hmo: p.is_hmo, hmo_licence_number: p.hmo_licence_number ?? "", hmo_licence_expires: p.hmo_licence_expires ?? "",
       listing_purpose: p.listing_purpose, notes: p.notes ?? "",
+      features: p.features ?? [],
+      nightly_rate: p.nightly_rate?.toString() ?? "",
+      min_stay_nights: p.min_stay_nights?.toString() ?? "",
+      cleaning_fee: p.cleaning_fee?.toString() ?? "",
     });
     setOpen(true);
   };
@@ -79,7 +101,10 @@ function PropertiesPage() {
   const save = async () => {
     if (!form.title.trim()) return toast.error("Title required");
     const payload: any = {
-      title: form.title, address: form.address || null, city: form.city || null, postcode: form.postcode || null,
+      title: form.title.trim(),
+      address: form.address || null,
+      city: form.city || null,
+      postcode: form.postcode || null,
       property_type: form.property_type || null,
       bedrooms: form.bedrooms ? Number(form.bedrooms) : null,
       bathrooms: form.bathrooms ? Number(form.bathrooms) : null,
@@ -88,20 +113,30 @@ function PropertiesPage() {
       hmo_licence_expires: form.hmo_licence_expires || null,
       listing_purpose: form.listing_purpose,
       notes: form.notes || null,
+      features: form.features ?? [],
+      nightly_rate: form.listing_purpose === "short_let" && form.nightly_rate ? Number(form.nightly_rate) : null,
+      min_stay_nights: form.listing_purpose === "short_let" && form.min_stay_nights ? Number(form.min_stay_nights) : null,
+      cleaning_fee: form.listing_purpose === "short_let" && form.cleaning_fee ? Number(form.cleaning_fee) : null,
     };
-    if (form.id) {
-      const { error } = await supabase.from("properties").update(payload).eq("id", form.id);
-      if (error) return toast.error(error.message);
-      toast.success("Updated");
-    } else {
-      const { data: u } = await supabase.auth.getUser();
-      if (!u.user) return;
-      payload.owner_id = u.user.id;
-      const { error } = await supabase.from("properties").insert(payload);
-      if (error) return toast.error(error.message);
-      toast.success("Added");
+    try {
+      if (form.id) {
+        const { error } = await supabase.from("properties").update(payload).eq("id", form.id);
+        if (error) throw error;
+        toast.success("Updated");
+      } else {
+        const { data: u, error: authErr } = await supabase.auth.getUser();
+        if (authErr) throw authErr;
+        if (!u.user) return toast.error("Sign in required");
+        payload.owner_id = u.user.id;
+        const { error } = await supabase.from("properties").insert(payload);
+        if (error) throw error;
+        toast.success("Property added");
+      }
+      setOpen(false); setForm(emptyProp); load();
+    } catch (e: any) {
+      console.error("[properties.save]", e);
+      toast.error(e.message ?? "Failed to save property");
     }
-    setOpen(false); setForm(emptyProp); load();
   };
 
   const remove = async (id: string) => {
@@ -112,28 +147,25 @@ function PropertiesPage() {
     load();
   };
 
+  const allPostcodes = useMemo(() => rows.map((r) => r.postcode ?? "").filter(Boolean), [rows]);
+
   return (
     <div className="space-y-6">
       <PageHeader
         title="Properties"
-        description="Your portfolio — units, rooms, tenancies & rent"
+        description="Your portfolio — units, rooms, tenancies, short-lets, schedule, docs & compliance"
         actions={<Button onClick={startNew}><Plus className="mr-2 h-4 w-4" /> Add property</Button>}
       />
 
-
-
       <div className="flex flex-wrap gap-2 items-center">
-        <div className="relative flex-1 min-w-[200px]">
-          <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search title, city, postcode..." className="pl-9" />
+        <div className="flex-1 min-w-[220px]">
+          <PostcodeAutocomplete value={q} onChange={setQ} postcodes={allPostcodes} />
         </div>
         <Select value={filterPurpose} onValueChange={setFilterPurpose}>
-          <SelectTrigger className="w-[140px]"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-[160px]"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All purposes</SelectItem>
-            <SelectItem value="rent">For rent</SelectItem>
-            <SelectItem value="sale">For sale</SelectItem>
-            <SelectItem value="both">Both</SelectItem>
+            {PURPOSES.map((p) => <SelectItem key={p.v} value={p.v}>{p.l}</SelectItem>)}
           </SelectContent>
         </Select>
         <Select value={filterHmo} onValueChange={setFilterHmo}>
@@ -174,17 +206,26 @@ function PropertiesPage() {
               <CardContent className="p-5">
                 <div className="flex justify-between items-start mb-2 gap-2">
                   <div className="font-semibold truncate">{p.title}</div>
-                  <div className="flex gap-1 shrink-0">
+                  <div className="flex gap-1 shrink-0 flex-wrap justify-end">
                     {p.is_hmo && <Badge className="bg-accent text-accent-foreground">HMO</Badge>}
-                    <Badge variant="outline" className="capitalize">{p.listing_purpose}</Badge>
+                    <Badge variant="outline" className="capitalize">{p.listing_purpose.replace("_", " ")}</Badge>
                   </div>
                 </div>
                 <div className="text-sm text-muted-foreground truncate">{[p.address, p.city, p.postcode].filter(Boolean).join(", ") || "No address"}</div>
-                <div className="text-xs text-muted-foreground mt-2 flex gap-3">
+                <div className="text-xs text-muted-foreground mt-2 flex gap-3 flex-wrap">
                   {p.bedrooms != null && <span>{p.bedrooms} bed</span>}
                   {p.bathrooms != null && <span>{p.bathrooms} bath</span>}
                   {p.property_type && <span className="capitalize">{p.property_type}</span>}
+                  {p.listing_purpose === "short_let" && p.nightly_rate && <span>£{p.nightly_rate}/night</span>}
                 </div>
+                {p.features && p.features.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {p.features.slice(0, 4).map((f) => (
+                      <Badge key={f} variant="secondary" className="text-[10px]">{f}</Badge>
+                    ))}
+                    {p.features.length > 4 && <Badge variant="secondary" className="text-[10px]">+{p.features.length - 4}</Badge>}
+                  </div>
+                )}
               </CardContent>
             </Card>
           ))}
@@ -196,10 +237,10 @@ function PropertiesPage() {
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{form.id ? "Edit property" : "Add property"}</DialogTitle></DialogHeader>
           <div className="grid sm:grid-cols-2 gap-3">
-            <div className="sm:col-span-2"><Label>Title *</Label><Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></div>
+            <div className="sm:col-span-2"><Label>Title *</Label><Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="e.g. 12 Oak Avenue" /></div>
             <div className="sm:col-span-2"><Label>Address</Label><Input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} /></div>
             <div><Label>City</Label><Input value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} /></div>
-            <div><Label>Postcode</Label><Input value={form.postcode} onChange={(e) => setForm({ ...form, postcode: e.target.value })} /></div>
+            <div><Label>Postcode</Label><Input value={form.postcode} onChange={(e) => setForm({ ...form, postcode: e.target.value.toUpperCase() })} /></div>
             <div><Label>Type</Label>
               <Select value={form.property_type} onValueChange={(v) => setForm({ ...form, property_type: v })}>
                 <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
@@ -209,11 +250,25 @@ function PropertiesPage() {
             <div><Label>Purpose</Label>
               <Select value={form.listing_purpose} onValueChange={(v: any) => setForm({ ...form, listing_purpose: v })}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>{PURPOSES.map((t) => <SelectItem key={t} value={t} className="capitalize">{t}</SelectItem>)}</SelectContent>
+                <SelectContent>{PURPOSES.map((t) => <SelectItem key={t.v} value={t.v}>{t.l}</SelectItem>)}</SelectContent>
               </Select>
             </div>
             <div><Label>Bedrooms</Label><Input type="number" value={form.bedrooms} onChange={(e) => setForm({ ...form, bedrooms: e.target.value })} /></div>
             <div><Label>Bathrooms</Label><Input type="number" value={form.bathrooms} onChange={(e) => setForm({ ...form, bathrooms: e.target.value })} /></div>
+
+            <div className="sm:col-span-2"><Label>Features</Label>
+              <FeatureMultiSelect value={form.features} onChange={(v) => setForm({ ...form, features: v })} />
+            </div>
+
+            {form.listing_purpose === "short_let" && (
+              <>
+                <div className="sm:col-span-2 pt-2 border-t text-xs font-medium text-muted-foreground uppercase tracking-wide">Short-let / Airbnb settings</div>
+                <div><Label>Nightly rate (£)</Label><Input type="number" value={form.nightly_rate} onChange={(e) => setForm({ ...form, nightly_rate: e.target.value })} /></div>
+                <div><Label>Min stay (nights)</Label><Input type="number" value={form.min_stay_nights} onChange={(e) => setForm({ ...form, min_stay_nights: e.target.value })} /></div>
+                <div><Label>Cleaning fee (£)</Label><Input type="number" value={form.cleaning_fee} onChange={(e) => setForm({ ...form, cleaning_fee: e.target.value })} /></div>
+              </>
+            )}
+
             <div className="sm:col-span-2 flex items-center gap-3 pt-2 border-t">
               <Switch checked={form.is_hmo} onCheckedChange={(v) => setForm({ ...form, is_hmo: v })} />
               <Label>HMO property</Label>
@@ -230,14 +285,14 @@ function PropertiesPage() {
 
       {/* Detail drawer */}
       <Sheet open={!!active} onOpenChange={(o) => !o && setActive(null)}>
-        <SheetContent className="w-full sm:max-w-2xl overflow-y-auto">
+        <SheetContent className="w-full sm:max-w-3xl overflow-y-auto">
           {active && (
             <>
               <SheetHeader>
                 <SheetTitle className="flex items-center gap-2 flex-wrap">
                   {active.title}
                   {active.is_hmo && <Badge className="bg-accent text-accent-foreground">HMO</Badge>}
-                  <Badge variant="outline" className="capitalize">{active.listing_purpose}</Badge>
+                  <Badge variant="outline" className="capitalize">{active.listing_purpose.replace("_", " ")}</Badge>
                 </SheetTitle>
                 <div className="text-sm text-muted-foreground">{[active.address, active.city, active.postcode].filter(Boolean).join(", ")}</div>
               </SheetHeader>
@@ -257,15 +312,26 @@ function PropertiesPage() {
                   </AlertDialogContent>
                 </AlertDialog>
               </div>
+              {active.features && active.features.length > 0 && (
+                <div className="flex flex-wrap gap-1 mt-3">
+                  {active.features.map((f) => <Badge key={f} variant="secondary" className="text-[10px]">{f}</Badge>)}
+                </div>
+              )}
               <Tabs defaultValue="rooms" className="mt-6">
-                <TabsList>
+                <TabsList className="flex-wrap h-auto">
                   <TabsTrigger value="rooms"><BedDouble className="h-3 w-3 mr-1" /> Rooms</TabsTrigger>
-                  <TabsTrigger value="tenancies"><Users className="h-3 w-3 mr-1" /> Tenancies</TabsTrigger>
+                  <TabsTrigger value="tenancies"><Users className="h-3 w-3 mr-1" /> Tenants</TabsTrigger>
                   <TabsTrigger value="rent"><PoundSterling className="h-3 w-3 mr-1" /> Rent</TabsTrigger>
+                  <TabsTrigger value="schedule"><Calendar className="h-3 w-3 mr-1" /> Schedule</TabsTrigger>
+                  <TabsTrigger value="docs"><FileText className="h-3 w-3 mr-1" /> Docs</TabsTrigger>
+                  <TabsTrigger value="compliance"><ShieldCheck className="h-3 w-3 mr-1" /> Compliance</TabsTrigger>
                 </TabsList>
-                <TabsContent value="rooms" className="mt-4"><RoomsPanel propertyId={active.id} /></TabsContent>
-                <TabsContent value="tenancies" className="mt-4"><TenanciesPanel propertyId={active.id} /></TabsContent>
+                <TabsContent value="rooms" className="mt-4"><RoomsPanel propertyId={active.id} isHmo={active.is_hmo} /></TabsContent>
+                <TabsContent value="tenancies" className="mt-4"><TenanciesPanel propertyId={active.id} isHmo={active.is_hmo} /></TabsContent>
                 <TabsContent value="rent" className="mt-4"><RentPanel propertyId={active.id} /></TabsContent>
+                <TabsContent value="schedule" className="mt-4"><PropertyScheduleGantt propertyId={active.id} /></TabsContent>
+                <TabsContent value="docs" className="mt-4"><PropertyDocsPanel propertyId={active.id} /></TabsContent>
+                <TabsContent value="compliance" className="mt-4"><PropertyCompliancePanel propertyId={active.id} /></TabsContent>
               </Tabs>
             </>
           )}
@@ -276,12 +342,12 @@ function PropertiesPage() {
 }
 
 // ---------- Rooms ----------
-function RoomsPanel({ propertyId }: { propertyId: string }) {
+function RoomsPanel({ propertyId, isHmo }: { propertyId: string; isHmo: boolean }) {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [editing, setEditing] = useState<typeof emptyRoom | null>(null);
 
   const load = async () => {
-    const { data } = await supabase.from("rooms").select("*").eq("property_id", propertyId).order("name");
+    const { data } = await supabase.from("rooms").select("*").eq("property_id", propertyId).order("room_number", { nullsFirst: false }).order("name");
     setRooms((data as Room[]) ?? []);
   };
   useEffect(() => { load(); }, [propertyId]);
@@ -289,9 +355,13 @@ function RoomsPanel({ propertyId }: { propertyId: string }) {
   const save = async () => {
     if (!editing || !editing.name.trim()) return toast.error("Name required");
     const payload: any = {
-      property_id: propertyId, name: editing.name, status: editing.status,
+      property_id: propertyId,
+      name: editing.name,
+      room_number: editing.room_number || null,
+      status: editing.status,
       rent_pcm: editing.rent_pcm ? Number(editing.rent_pcm) : null,
-      en_suite: editing.en_suite, bills_included: editing.bills_included,
+      en_suite: editing.en_suite,
+      bills_included: editing.bills_included,
       available_from: editing.available_from || null,
     };
     const { error } = editing.id
@@ -301,6 +371,7 @@ function RoomsPanel({ propertyId }: { propertyId: string }) {
     toast.success("Saved"); setEditing(null); load();
   };
   const del = async (id: string) => {
+    if (!confirm("Delete this room?")) return;
     const { error } = await supabase.from("rooms").delete().eq("id", id);
     if (error) return toast.error(error.message);
     toast.success("Deleted"); load();
@@ -309,28 +380,35 @@ function RoomsPanel({ propertyId }: { propertyId: string }) {
   return (
     <div className="space-y-3">
       <div className="flex justify-between items-center">
-        <div className="text-sm text-muted-foreground">{rooms.length} rooms</div>
+        <div className="text-sm text-muted-foreground">{rooms.length} rooms {isHmo && "• HMO"}</div>
         <Button size="sm" onClick={() => setEditing(emptyRoom)}><Plus className="h-3 w-3 mr-1" /> Add room</Button>
       </div>
       {rooms.map((r) => (
         <Card key={r.id}><CardContent className="p-3 flex items-center justify-between gap-2">
           <div className="min-w-0">
-            <div className="font-medium flex items-center gap-2"><span className="truncate">{r.name}</span><Badge variant="outline" className="capitalize text-[10px]">{r.status}</Badge></div>
+            <div className="font-medium flex items-center gap-2">
+              {r.room_number && <Badge variant="outline" className="text-[10px]">#{r.room_number}</Badge>}
+              <span className="truncate">{r.name}</span>
+              <Badge variant="outline" className="capitalize text-[10px]">{r.status}</Badge>
+            </div>
             <div className="text-xs text-muted-foreground">{r.rent_pcm ? `£${Number(r.rent_pcm).toLocaleString()} pcm` : "no rent set"} {r.en_suite && "• en-suite"} {r.bills_included && "• bills inc."}</div>
           </div>
           <div className="flex gap-1">
-            <Button size="icon" variant="ghost" onClick={() => setEditing({ id: r.id, name: r.name, rent_pcm: r.rent_pcm?.toString() ?? "", status: r.status, en_suite: !!r.en_suite, bills_included: !!r.bills_included, available_from: r.available_from ?? "" })}><Pencil className="h-3 w-3" /></Button>
+            <Button size="icon" variant="ghost" onClick={() => setEditing({ id: r.id, name: r.name, room_number: r.room_number ?? "", rent_pcm: r.rent_pcm?.toString() ?? "", status: r.status, en_suite: !!r.en_suite, bills_included: !!r.bills_included, available_from: r.available_from ?? "" })}><Pencil className="h-3 w-3" /></Button>
             <Button size="icon" variant="ghost" className="text-destructive" onClick={() => del(r.id)}><Trash2 className="h-3 w-3" /></Button>
           </div>
         </CardContent></Card>
       ))}
-      {rooms.length === 0 && <div className="text-sm text-muted-foreground text-center py-6 border border-dashed rounded-md">No rooms yet</div>}
+      {rooms.length === 0 && <div className="text-sm text-muted-foreground text-center py-6 border border-dashed rounded-md">No rooms yet{isHmo && " — HMOs typically need one room per let"}</div>}
 
       <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
         <DialogContent>
           <DialogHeader><DialogTitle>{editing?.id ? "Edit room" : "Add room"}</DialogTitle></DialogHeader>
           {editing && (<div className="grid grid-cols-2 gap-3">
-            <div className="col-span-2"><Label>Name *</Label><Input value={editing.name} onChange={(e) => setEditing({ ...editing, name: e.target.value })} /></div>
+            {isHmo && (
+              <div><Label>Room number</Label><Input value={editing.room_number} onChange={(e) => setEditing({ ...editing, room_number: e.target.value })} placeholder="e.g. 1, 2A" /></div>
+            )}
+            <div className={isHmo ? "" : "col-span-2"}><Label>Name *</Label><Input value={editing.name} onChange={(e) => setEditing({ ...editing, name: e.target.value })} placeholder={isHmo ? "Master bedroom" : "Whole property"} /></div>
             <div><Label>Rent £ pcm</Label><Input type="number" value={editing.rent_pcm} onChange={(e) => setEditing({ ...editing, rent_pcm: e.target.value })} /></div>
             <div><Label>Status</Label>
               <Select value={editing.status} onValueChange={(v) => setEditing({ ...editing, status: v })}>
@@ -350,7 +428,7 @@ function RoomsPanel({ propertyId }: { propertyId: string }) {
 }
 
 // ---------- Tenancies ----------
-function TenanciesPanel({ propertyId }: { propertyId: string }) {
+function TenanciesPanel({ propertyId, isHmo }: { propertyId: string; isHmo: boolean }) {
   const [tenancies, setTenancies] = useState<Tenancy[]>([]);
   const [rooms, setRooms] = useState<Room[]>([]);
   const [editing, setEditing] = useState<typeof emptyTenancy | null>(null);
@@ -358,7 +436,7 @@ function TenanciesPanel({ propertyId }: { propertyId: string }) {
   const load = async () => {
     const [t, r] = await Promise.all([
       supabase.from("tenancies").select("*").eq("property_id", propertyId).order("start_date", { ascending: false }),
-      supabase.from("rooms").select("id, property_id, name, rent_pcm, status, en_suite, bills_included, available_from").eq("property_id", propertyId),
+      supabase.from("rooms").select("*").eq("property_id", propertyId),
     ]);
     setTenancies((t.data as Tenancy[]) ?? []);
     setRooms((r.data as Room[]) ?? []);
@@ -367,6 +445,7 @@ function TenanciesPanel({ propertyId }: { propertyId: string }) {
 
   const save = async () => {
     if (!editing || !editing.tenant_name.trim() || !editing.start_date || !editing.rent_amount) return toast.error("Name, start date and rent required");
+    if (isHmo && rooms.length > 0 && !editing.room_id) return toast.error("Pick a room for this HMO tenant");
     const payload: any = {
       property_id: propertyId,
       room_id: editing.room_id || null,
@@ -384,15 +463,15 @@ function TenanciesPanel({ propertyId }: { propertyId: string }) {
       ? await supabase.from("tenancies").update(payload).eq("id", editing.id)
       : await supabase.from("tenancies").insert(payload);
     if (error) return toast.error(error.message);
-    toast.success("Saved"); setEditing(null); load();
+    toast.success("Tenant assigned"); setEditing(null); load();
   };
   const del = async (id: string) => {
+    if (!confirm("Delete this tenancy?")) return;
     const { error } = await supabase.from("tenancies").delete().eq("id", id);
     if (error) return toast.error(error.message);
     toast.success("Deleted"); load();
   };
 
-  // Generate 12 months of rent schedule
   const generate = async (t: Tenancy) => {
     const start = new Date(t.start_date);
     const stepDays = t.rent_frequency === "weekly" ? 7 : 0;
@@ -422,8 +501,8 @@ function TenanciesPanel({ propertyId }: { propertyId: string }) {
   return (
     <div className="space-y-3">
       <div className="flex justify-between items-center">
-        <div className="text-sm text-muted-foreground">{tenancies.length} tenancies</div>
-        <Button size="sm" onClick={() => setEditing(emptyTenancy)}><Plus className="h-3 w-3 mr-1" /> Add tenancy</Button>
+        <div className="text-sm text-muted-foreground">{tenancies.length} tenants</div>
+        <Button size="sm" onClick={() => setEditing(emptyTenancy)}><Plus className="h-3 w-3 mr-1" /> Add tenant</Button>
       </div>
       {tenancies.map((t) => (
         <Card key={t.id}><CardContent className="p-3 space-y-1">
@@ -438,20 +517,20 @@ function TenanciesPanel({ propertyId }: { propertyId: string }) {
           <div className="text-xs text-muted-foreground">£{Number(t.rent_amount).toLocaleString()} {t.rent_frequency} • {t.start_date}{t.end_date ? ` → ${t.end_date}` : ""} {t.room_id && `• ${rooms.find((r) => r.id === t.room_id)?.name ?? ""}`}</div>
         </CardContent></Card>
       ))}
-      {tenancies.length === 0 && <div className="text-sm text-muted-foreground text-center py-6 border border-dashed rounded-md">No tenancies yet</div>}
+      {tenancies.length === 0 && <div className="text-sm text-muted-foreground text-center py-6 border border-dashed rounded-md">No tenants yet — click "Add tenant" above</div>}
 
       <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
         <DialogContent className="max-h-[90vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>{editing?.id ? "Edit tenancy" : "Add tenancy"}</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{editing?.id ? "Edit tenant" : "Add tenant"}</DialogTitle></DialogHeader>
           {editing && (<div className="grid grid-cols-2 gap-3">
             <div className="col-span-2"><Label>Tenant name *</Label><Input value={editing.tenant_name} onChange={(e) => setEditing({ ...editing, tenant_name: e.target.value })} /></div>
             <div><Label>Email</Label><Input type="email" value={editing.tenant_email} onChange={(e) => setEditing({ ...editing, tenant_email: e.target.value })} /></div>
             <div><Label>Phone</Label><Input value={editing.tenant_phone} onChange={(e) => setEditing({ ...editing, tenant_phone: e.target.value })} /></div>
             {rooms.length > 0 && (
-              <div className="col-span-2"><Label>Room</Label>
+              <div className="col-span-2"><Label>Room {isHmo && "*"}</Label>
                 <Select value={editing.room_id} onValueChange={(v) => setEditing({ ...editing, room_id: v })}>
-                  <SelectTrigger><SelectValue placeholder="Whole property" /></SelectTrigger>
-                  <SelectContent>{rooms.map((r) => <SelectItem key={r.id} value={r.id}>{r.name}</SelectItem>)}</SelectContent>
+                  <SelectTrigger><SelectValue placeholder={isHmo ? "Pick a room" : "Whole property"} /></SelectTrigger>
+                  <SelectContent>{rooms.map((r) => <SelectItem key={r.id} value={r.id}>{r.room_number ? `#${r.room_number} — ${r.name}` : r.name}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
             )}
