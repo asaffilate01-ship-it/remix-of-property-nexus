@@ -42,6 +42,7 @@ import { Route as AuthenticatedSalesRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedRightToRentRouteImport } from './routes/_authenticated/right-to-rent'
 import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
 import { Route as AuthenticatedRenewalsRouteImport } from './routes/_authenticated/renewals'
+import { Route as AuthenticatedReferencingCasesRouteImport } from './routes/_authenticated.referencing-cases'
 import { Route as AuthenticatedPropertiesRouteImport } from './routes/_authenticated/properties'
 import { Route as AuthenticatedPipelineRouteImport } from './routes/_authenticated/pipeline'
 import { Route as AuthenticatedOffersRouteImport } from './routes/_authenticated/offers'
@@ -233,6 +234,12 @@ const AuthenticatedRenewalsRoute = AuthenticatedRenewalsRouteImport.update({
   path: '/renewals',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedReferencingCasesRoute =
+  AuthenticatedReferencingCasesRouteImport.update({
+    id: '/referencing-cases',
+    path: '/referencing-cases',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedPropertiesRoute = AuthenticatedPropertiesRouteImport.update({
   id: '/properties',
   path: '/properties',
@@ -399,6 +406,7 @@ export interface FileRoutesByFullPath {
   '/offers': typeof AuthenticatedOffersRoute
   '/pipeline': typeof AuthenticatedPipelineRoute
   '/properties': typeof AuthenticatedPropertiesRoute
+  '/referencing-cases': typeof AuthenticatedReferencingCasesRoute
   '/renewals': typeof AuthenticatedRenewalsRoute
   '/reports': typeof AuthenticatedReportsRoute
   '/right-to-rent': typeof AuthenticatedRightToRentRoute
@@ -455,6 +463,7 @@ export interface FileRoutesByTo {
   '/offers': typeof AuthenticatedOffersRoute
   '/pipeline': typeof AuthenticatedPipelineRoute
   '/properties': typeof AuthenticatedPropertiesRoute
+  '/referencing-cases': typeof AuthenticatedReferencingCasesRoute
   '/renewals': typeof AuthenticatedRenewalsRoute
   '/reports': typeof AuthenticatedReportsRoute
   '/right-to-rent': typeof AuthenticatedRightToRentRoute
@@ -515,6 +524,7 @@ export interface FileRoutesById {
   '/_authenticated/offers': typeof AuthenticatedOffersRoute
   '/_authenticated/pipeline': typeof AuthenticatedPipelineRoute
   '/_authenticated/properties': typeof AuthenticatedPropertiesRoute
+  '/_authenticated/referencing-cases': typeof AuthenticatedReferencingCasesRoute
   '/_authenticated/renewals': typeof AuthenticatedRenewalsRoute
   '/_authenticated/reports': typeof AuthenticatedReportsRoute
   '/_authenticated/right-to-rent': typeof AuthenticatedRightToRentRoute
@@ -575,6 +585,7 @@ export interface FileRouteTypes {
     | '/offers'
     | '/pipeline'
     | '/properties'
+    | '/referencing-cases'
     | '/renewals'
     | '/reports'
     | '/right-to-rent'
@@ -631,6 +642,7 @@ export interface FileRouteTypes {
     | '/offers'
     | '/pipeline'
     | '/properties'
+    | '/referencing-cases'
     | '/renewals'
     | '/reports'
     | '/right-to-rent'
@@ -690,6 +702,7 @@ export interface FileRouteTypes {
     | '/_authenticated/offers'
     | '/_authenticated/pipeline'
     | '/_authenticated/properties'
+    | '/_authenticated/referencing-cases'
     | '/_authenticated/renewals'
     | '/_authenticated/reports'
     | '/_authenticated/right-to-rent'
@@ -962,6 +975,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRenewalsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/referencing-cases': {
+      id: '/_authenticated/referencing-cases'
+      path: '/referencing-cases'
+      fullPath: '/referencing-cases'
+      preLoaderRoute: typeof AuthenticatedReferencingCasesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/properties': {
       id: '/_authenticated/properties'
       path: '/properties'
@@ -1158,6 +1178,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedOffersRoute: typeof AuthenticatedOffersRoute
   AuthenticatedPipelineRoute: typeof AuthenticatedPipelineRoute
   AuthenticatedPropertiesRoute: typeof AuthenticatedPropertiesRoute
+  AuthenticatedReferencingCasesRoute: typeof AuthenticatedReferencingCasesRoute
   AuthenticatedRenewalsRoute: typeof AuthenticatedRenewalsRoute
   AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
   AuthenticatedRightToRentRoute: typeof AuthenticatedRightToRentRoute
@@ -1196,6 +1217,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedOffersRoute: AuthenticatedOffersRoute,
   AuthenticatedPipelineRoute: AuthenticatedPipelineRoute,
   AuthenticatedPropertiesRoute: AuthenticatedPropertiesRoute,
+  AuthenticatedReferencingCasesRoute: AuthenticatedReferencingCasesRoute,
   AuthenticatedRenewalsRoute: AuthenticatedRenewalsRoute,
   AuthenticatedReportsRoute: AuthenticatedReportsRoute,
   AuthenticatedRightToRentRoute: AuthenticatedRightToRentRoute,

@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { PublicHeader } from "@/components/PublicHeader";
 import { PublicFooter } from "@/components/PublicFooter";
 import { Card, CardContent } from "@/components/ui/card";
@@ -11,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Check, ShieldCheck, FileText, Briefcase, Home, Landmark, ArrowRight, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
+import { createReferencingCase } from "@/lib/referencing.functions";
 
 export const Route = createFileRoute("/referencing")({
   head: () => ({ meta: [{ title: "Tenant referencing | Estately" }, { name: "description", content: "Complete your tenant reference online — identity, employment, landlord history and affordability — in under 10 minutes." }] }),
@@ -27,6 +29,7 @@ const steps = [
 
 function ReferencingPage() {
   const [step, setStep] = useState(0);
+  const [busy, setBusy] = useState(false);
   const [data, setData] = useState({
     name: "", dob: "", email: "", phone: "",
     address: "", years_at: "", previous_address: "",
@@ -39,10 +42,54 @@ function ReferencingPage() {
   const last = step === steps.length - 1;
   const progress = ((step + 1) / steps.length) * 100;
 
-  const submit = () => {
+  const submitFn = useServerFn(createReferencingCase);
+
+  const submit = async () => {
     if (!data.consent) { toast.error("Please tick the consent box"); return; }
-    toast.success("Reference submitted — we'll be in touch within 48h");
-    setStep(0);
+    setBusy(true);
+    try {
+      await submitFn({
+        data: {
+          applicant: {
+            name: data.name,
+            dob: data.dob,
+            email: data.email,
+            phone: data.phone,
+            address: data.address,
+            years_at: data.years_at,
+            previous_address: data.previous_address,
+            id_type: data.id_type,
+          },
+          employment: {
+            employer: data.employer,
+            role: data.role,
+            salary: data.salary,
+            contract: data.contract,
+          },
+          previous_landlord: {
+            name: data.landlord_name,
+            email: data.landlord_email,
+            rent_paid: data.rent_paid,
+            arrears: data.arrears,
+          },
+          income_monthly: data.salary ? Math.round(parseFloat(data.salary) / 12) : undefined,
+          credit_consent: data.consent,
+        },
+      });
+      toast.success("Reference submitted — we'll be in touch within 48h");
+      setStep(0);
+      setData({
+        name: "", dob: "", email: "", phone: "",
+        address: "", years_at: "", previous_address: "",
+        employer: "", role: "", salary: "", contract: "permanent",
+        landlord_name: "", landlord_email: "", rent_paid: "", arrears: "no",
+        id_type: "passport", consent: false,
+      });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Submission failed");
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
@@ -141,10 +188,10 @@ function ReferencingPage() {
           </Card>
 
           <div className="mt-5 flex justify-between gap-2">
-            <Button variant="outline" onClick={() => setStep((s) => Math.max(0, s - 1))} disabled={step === 0}><ArrowLeft className="h-4 w-4 mr-1" /> Back</Button>
+            <Button variant="outline" onClick={() => setStep((s) => Math.max(0, s - 1))} disabled={step === 0 || busy}><ArrowLeft className="h-4 w-4 mr-1" /> Back</Button>
             {last
-              ? <Button onClick={submit}>Submit reference <Check className="h-4 w-4 ml-1" /></Button>
-              : <Button onClick={() => setStep((s) => Math.min(steps.length - 1, s + 1))}>Next <ArrowRight className="h-4 w-4 ml-1" /></Button>}
+              ? <Button onClick={submit} disabled={busy}>{busy ? "Submitting…" : "Submit reference"} <Check className="h-4 w-4 ml-1" /></Button>
+              : <Button onClick={() => setStep((s) => Math.min(steps.length - 1, s + 1))} disabled={busy}>Next <ArrowRight className="h-4 w-4 ml-1" /></Button>}
           </div>
         </section>
       </main>
