@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Bed, Bath, MapPin } from "lucide-react";
+import { SaveListingButton } from "@/components/marketplace/SaveListingButton";
 
 export type ListingCardData = {
   id: string;
