@@ -475,6 +475,8 @@ function TenanciesPanel({ propertyId, isHmo }: { propertyId: string; isHmo: bool
       rent_frequency: editing.rent_frequency,
       deposit: editing.deposit ? Number(editing.deposit) : 0,
       status: editing.status,
+      bio: editing.bio ?? {},
+      tenant_compliance: editing.tenant_compliance ?? {},
     };
     const { error } = editing.id
       ? await supabase.from("tenancies").update(payload).eq("id", editing.id)
@@ -527,7 +529,7 @@ function TenanciesPanel({ propertyId, isHmo }: { propertyId: string; isHmo: bool
             <div className="font-medium flex items-center gap-2"><span className="truncate">{t.tenant_name}</span><Badge variant="outline" className="capitalize text-[10px]">{t.status}</Badge></div>
             <div className="flex gap-1">
               <Button size="icon" variant="ghost" onClick={() => generate(t)} title="Generate rent schedule"><PoundSterling className="h-3 w-3" /></Button>
-              <Button size="icon" variant="ghost" onClick={() => setEditing({ id: t.id, room_id: t.room_id ?? "", tenant_name: t.tenant_name, tenant_email: t.tenant_email ?? "", tenant_phone: t.tenant_phone ?? "", start_date: t.start_date, end_date: t.end_date ?? "", rent_amount: t.rent_amount.toString(), rent_frequency: t.rent_frequency, deposit: t.deposit?.toString() ?? "", status: t.status })}><Pencil className="h-3 w-3" /></Button>
+              <Button size="icon" variant="ghost" onClick={() => setEditing({ id: t.id, room_id: t.room_id ?? "", tenant_name: t.tenant_name, tenant_email: t.tenant_email ?? "", tenant_phone: t.tenant_phone ?? "", start_date: t.start_date, end_date: t.end_date ?? "", rent_amount: t.rent_amount.toString(), rent_frequency: t.rent_frequency, deposit: t.deposit?.toString() ?? "", status: t.status, bio: (t.bio ?? {}) as TenantBio, tenant_compliance: (t.tenant_compliance ?? {}) as TenantComplianceMap })}><Pencil className="h-3 w-3" /></Button>
               <Button size="icon" variant="ghost" className="text-destructive" onClick={() => del(t.id)}><Trash2 className="h-3 w-3" /></Button>
             </div>
           </div>
@@ -537,36 +539,43 @@ function TenanciesPanel({ propertyId, isHmo }: { propertyId: string; isHmo: bool
       {tenancies.length === 0 && <div className="text-sm text-muted-foreground text-center py-6 border border-dashed rounded-md">No tenants yet — click "Add tenant" above</div>}
 
       <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-3xl max-h-[92vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{editing?.id ? "Edit tenant" : "Add tenant"}</DialogTitle></DialogHeader>
-          {editing && (<div className="grid grid-cols-2 gap-3">
-            <div className="col-span-2"><Label>Tenant name *</Label><Input value={editing.tenant_name} onChange={(e) => setEditing({ ...editing, tenant_name: e.target.value })} /></div>
-            <div><Label>Email</Label><Input type="email" value={editing.tenant_email} onChange={(e) => setEditing({ ...editing, tenant_email: e.target.value })} /></div>
-            <div><Label>Phone</Label><Input value={editing.tenant_phone} onChange={(e) => setEditing({ ...editing, tenant_phone: e.target.value })} /></div>
-            {rooms.length > 0 && (
-              <div className="col-span-2"><Label>Room {isHmo && "*"}</Label>
-                <Select value={editing.room_id} onValueChange={(v) => setEditing({ ...editing, room_id: v })}>
-                  <SelectTrigger><SelectValue placeholder={isHmo ? "Pick a room" : "Whole property"} /></SelectTrigger>
-                  <SelectContent>{rooms.map((r) => <SelectItem key={r.id} value={r.id}>{r.room_number ? `#${r.room_number} — ${r.name}` : r.name}</SelectItem>)}</SelectContent>
+          {editing && (<div className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="col-span-2"><Label>Tenant name *</Label><Input value={editing.tenant_name} onChange={(e) => setEditing({ ...editing, tenant_name: e.target.value })} /></div>
+              <div><Label>Email</Label><Input type="email" value={editing.tenant_email} onChange={(e) => setEditing({ ...editing, tenant_email: e.target.value })} /></div>
+              <div><Label>Phone</Label><Input value={editing.tenant_phone} onChange={(e) => setEditing({ ...editing, tenant_phone: e.target.value })} /></div>
+              {rooms.length > 0 && (
+                <div className="col-span-2"><Label>Room {isHmo && "*"}</Label>
+                  <Select value={editing.room_id} onValueChange={(v) => setEditing({ ...editing, room_id: v })}>
+                    <SelectTrigger><SelectValue placeholder={isHmo ? "Pick a room" : "Whole property"} /></SelectTrigger>
+                    <SelectContent>{rooms.map((r) => <SelectItem key={r.id} value={r.id}>{r.room_number ? `#${r.room_number} — ${r.name}` : r.name}</SelectItem>)}</SelectContent>
+                  </Select>
+                </div>
+              )}
+              <div><Label>Start date *</Label><Input type="date" value={editing.start_date} onChange={(e) => setEditing({ ...editing, start_date: e.target.value })} /></div>
+              <div><Label>End date</Label><Input type="date" value={editing.end_date} onChange={(e) => setEditing({ ...editing, end_date: e.target.value })} /></div>
+              <div><Label>Rent £ *</Label><Input type="number" value={editing.rent_amount} onChange={(e) => setEditing({ ...editing, rent_amount: e.target.value })} /></div>
+              <div><Label>Frequency</Label>
+                <Select value={editing.rent_frequency} onValueChange={(v: any) => setEditing({ ...editing, rent_frequency: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent><SelectItem value="monthly">Monthly</SelectItem><SelectItem value="weekly">Weekly</SelectItem></SelectContent>
                 </Select>
               </div>
-            )}
-            <div><Label>Start date *</Label><Input type="date" value={editing.start_date} onChange={(e) => setEditing({ ...editing, start_date: e.target.value })} /></div>
-            <div><Label>End date</Label><Input type="date" value={editing.end_date} onChange={(e) => setEditing({ ...editing, end_date: e.target.value })} /></div>
-            <div><Label>Rent £ *</Label><Input type="number" value={editing.rent_amount} onChange={(e) => setEditing({ ...editing, rent_amount: e.target.value })} /></div>
-            <div><Label>Frequency</Label>
-              <Select value={editing.rent_frequency} onValueChange={(v: any) => setEditing({ ...editing, rent_frequency: v })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent><SelectItem value="monthly">Monthly</SelectItem><SelectItem value="weekly">Weekly</SelectItem></SelectContent>
-              </Select>
+              <div><Label>Deposit £</Label><Input type="number" value={editing.deposit} onChange={(e) => setEditing({ ...editing, deposit: e.target.value })} /></div>
+              <div><Label>Status</Label>
+                <Select value={editing.status} onValueChange={(v) => setEditing({ ...editing, status: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>{["draft", "active", "notice", "ended"].map((s) => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
             </div>
-            <div><Label>Deposit £</Label><Input type="number" value={editing.deposit} onChange={(e) => setEditing({ ...editing, deposit: e.target.value })} /></div>
-            <div><Label>Status</Label>
-              <Select value={editing.status} onValueChange={(v) => setEditing({ ...editing, status: v })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>{["draft", "active", "notice", "ended"].map((s) => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}</SelectContent>
-              </Select>
-            </div>
+
+            <TenantBioEditor value={editing.bio} onChange={(bio) => setEditing({ ...editing, bio })} />
+            <TenantComplianceEditor value={editing.tenant_compliance} onChange={(tc) => setEditing({ ...editing, tenant_compliance: tc })} />
+            {editing.id && <TenantDocsMini tenancyId={editing.id} tenantName={editing.tenant_name || "tenant"} />}
+            {!editing.id && <p className="text-xs text-muted-foreground border border-dashed rounded p-3">Save the tenant first, then re-open to upload documents (Right-to-Rent, passport, references, signed AST).</p>}
           </div>)}
           <DialogFooter><Button onClick={save}>Save</Button></DialogFooter>
         </DialogContent>
