@@ -29,7 +29,7 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
-  const [role, setRole] = useState<"landlord" | "agent" | "tenant" | "buyer">("landlord");
+  const [role, setRole] = useState<"landlord" | "agent" | "tenant" | "buyer" | "conveyancer" | "contractor" | "inventory_clerk" | "utility_provider">("landlord");
   const [show, setShow] = useState(false);
   const [busy, setBusy] = useState(false);
   const ensureDemo = useServerFn(ensureDemoUsers);
@@ -129,6 +129,10 @@ function AuthPage() {
                       <SelectItem value="agent">Letting / sales agent</SelectItem>
                       <SelectItem value="tenant">Tenant</SelectItem>
                       <SelectItem value="buyer">Buyer / renter</SelectItem>
+                      <SelectItem value="conveyancer">Conveyancer / solicitor</SelectItem>
+                      <SelectItem value="contractor">Trade / contractor</SelectItem>
+                      <SelectItem value="inventory_clerk">Inventory / EPC / Gas engineer</SelectItem>
+                      <SelectItem value="utility_provider">Utility / referencing / insurance</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

@@ -5,6 +5,10 @@ export const DEMO_ACCOUNTS = [
   { email: "demo-agent@estately.dev", password: "demo1234", role: "agent", name: "Demo Agent" },
   { email: "demo-tenant@estately.dev", password: "demo1234", role: "tenant", name: "Demo Tenant" },
   { email: "demo-buyer@estately.dev", password: "demo1234", role: "buyer", name: "Demo Buyer" },
+  { email: "demo-conveyancer@estately.dev", password: "demo1234", role: "conveyancer", name: "Demo Conveyancer" },
+  { email: "demo-contractor@estately.dev", password: "demo1234", role: "contractor", name: "Demo Trade" },
+  { email: "demo-inventory@estately.dev", password: "demo1234", role: "inventory_clerk", name: "Demo Inventory" },
+  { email: "demo-utility@estately.dev", password: "demo1234", role: "utility_provider", name: "Demo Utility" },
 ] as const;
 
 export const ensureDemoUsers = createServerFn({ method: "POST" }).handler(async () => {
