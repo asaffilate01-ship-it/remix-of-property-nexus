@@ -37,6 +37,7 @@ import { Route as AgenciesSlugRouteImport } from './routes/agencies.$slug'
 import { Route as AuthenticatedWorkOrdersRouteImport } from './routes/_authenticated/work-orders'
 import { Route as AuthenticatedViewingsRouteImport } from './routes/_authenticated/viewings'
 import { Route as AuthenticatedVendorPortalRouteImport } from './routes/_authenticated/vendor-portal'
+import { Route as AuthenticatedTenanciesRouteImport } from './routes/_authenticated/tenancies'
 import { Route as AuthenticatedTemplatesRouteImport } from './routes/_authenticated/templates'
 import { Route as AuthenticatedSurveyRouteImport } from './routes/_authenticated/survey'
 import { Route as AuthenticatedStatementsRouteImport } from './routes/_authenticated/statements'
@@ -71,6 +72,7 @@ import { Route as AuthenticatedArrearsRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedAiCopyRouteImport } from './routes/_authenticated/ai-copy'
 import { Route as AuthenticatedAgencyRouteImport } from './routes/_authenticated/agency'
 import { Route as ApiPublicReferencingWebhookRouteImport } from './routes/api/public/referencing-webhook'
+import { Route as AuthenticatedTenanciesIdRouteImport } from './routes/_authenticated/tenancies.$id'
 import { Route as ApiPublicHooksMatchSavedSearchesRouteImport } from './routes/api/public/hooks/match-saved-searches'
 
 const ValuationRoute = ValuationRouteImport.update({
@@ -213,6 +215,11 @@ const AuthenticatedVendorPortalRoute =
     path: '/vendor-portal',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedTenanciesRoute = AuthenticatedTenanciesRouteImport.update({
+  id: '/tenancies',
+  path: '/tenancies',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedTemplatesRoute = AuthenticatedTemplatesRouteImport.update({
   id: '/templates',
   path: '/templates',
@@ -389,6 +396,12 @@ const ApiPublicReferencingWebhookRoute =
     path: '/api/public/referencing-webhook',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AuthenticatedTenanciesIdRoute =
+  AuthenticatedTenanciesIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedTenanciesRoute,
+  } as any)
 const ApiPublicHooksMatchSavedSearchesRoute =
   ApiPublicHooksMatchSavedSearchesRouteImport.update({
     id: '/api/public/hooks/match-saved-searches',
@@ -447,6 +460,7 @@ export interface FileRoutesByFullPath {
   '/statements': typeof AuthenticatedStatementsRoute
   '/survey': typeof AuthenticatedSurveyRoute
   '/templates': typeof AuthenticatedTemplatesRoute
+  '/tenancies': typeof AuthenticatedTenanciesRouteWithChildren
   '/vendor-portal': typeof AuthenticatedVendorPortalRoute
   '/viewings': typeof AuthenticatedViewingsRoute
   '/work-orders': typeof AuthenticatedWorkOrdersRoute
@@ -457,6 +471,7 @@ export interface FileRoutesByFullPath {
   '/agencies/': typeof AgenciesIndexRoute
   '/blog/': typeof BlogIndexRoute
   '/marketplace/': typeof MarketplaceIndexRoute
+  '/tenancies/$id': typeof AuthenticatedTenanciesIdRoute
   '/api/public/referencing-webhook': typeof ApiPublicReferencingWebhookRoute
   '/api/public/hooks/match-saved-searches': typeof ApiPublicHooksMatchSavedSearchesRoute
 }
@@ -509,6 +524,7 @@ export interface FileRoutesByTo {
   '/statements': typeof AuthenticatedStatementsRoute
   '/survey': typeof AuthenticatedSurveyRoute
   '/templates': typeof AuthenticatedTemplatesRoute
+  '/tenancies': typeof AuthenticatedTenanciesRouteWithChildren
   '/vendor-portal': typeof AuthenticatedVendorPortalRoute
   '/viewings': typeof AuthenticatedViewingsRoute
   '/work-orders': typeof AuthenticatedWorkOrdersRoute
@@ -519,6 +535,7 @@ export interface FileRoutesByTo {
   '/agencies': typeof AgenciesIndexRoute
   '/blog': typeof BlogIndexRoute
   '/marketplace': typeof MarketplaceIndexRoute
+  '/tenancies/$id': typeof AuthenticatedTenanciesIdRoute
   '/api/public/referencing-webhook': typeof ApiPublicReferencingWebhookRoute
   '/api/public/hooks/match-saved-searches': typeof ApiPublicHooksMatchSavedSearchesRoute
 }
@@ -575,6 +592,7 @@ export interface FileRoutesById {
   '/_authenticated/statements': typeof AuthenticatedStatementsRoute
   '/_authenticated/survey': typeof AuthenticatedSurveyRoute
   '/_authenticated/templates': typeof AuthenticatedTemplatesRoute
+  '/_authenticated/tenancies': typeof AuthenticatedTenanciesRouteWithChildren
   '/_authenticated/vendor-portal': typeof AuthenticatedVendorPortalRoute
   '/_authenticated/viewings': typeof AuthenticatedViewingsRoute
   '/_authenticated/work-orders': typeof AuthenticatedWorkOrdersRoute
@@ -585,6 +603,7 @@ export interface FileRoutesById {
   '/agencies/': typeof AgenciesIndexRoute
   '/blog/': typeof BlogIndexRoute
   '/marketplace/': typeof MarketplaceIndexRoute
+  '/_authenticated/tenancies/$id': typeof AuthenticatedTenanciesIdRoute
   '/api/public/referencing-webhook': typeof ApiPublicReferencingWebhookRoute
   '/api/public/hooks/match-saved-searches': typeof ApiPublicHooksMatchSavedSearchesRoute
 }
@@ -641,6 +660,7 @@ export interface FileRouteTypes {
     | '/statements'
     | '/survey'
     | '/templates'
+    | '/tenancies'
     | '/vendor-portal'
     | '/viewings'
     | '/work-orders'
@@ -651,6 +671,7 @@ export interface FileRouteTypes {
     | '/agencies/'
     | '/blog/'
     | '/marketplace/'
+    | '/tenancies/$id'
     | '/api/public/referencing-webhook'
     | '/api/public/hooks/match-saved-searches'
   fileRoutesByTo: FileRoutesByTo
@@ -703,6 +724,7 @@ export interface FileRouteTypes {
     | '/statements'
     | '/survey'
     | '/templates'
+    | '/tenancies'
     | '/vendor-portal'
     | '/viewings'
     | '/work-orders'
@@ -713,6 +735,7 @@ export interface FileRouteTypes {
     | '/agencies'
     | '/blog'
     | '/marketplace'
+    | '/tenancies/$id'
     | '/api/public/referencing-webhook'
     | '/api/public/hooks/match-saved-searches'
   id:
@@ -768,6 +791,7 @@ export interface FileRouteTypes {
     | '/_authenticated/statements'
     | '/_authenticated/survey'
     | '/_authenticated/templates'
+    | '/_authenticated/tenancies'
     | '/_authenticated/vendor-portal'
     | '/_authenticated/viewings'
     | '/_authenticated/work-orders'
@@ -778,6 +802,7 @@ export interface FileRouteTypes {
     | '/agencies/'
     | '/blog/'
     | '/marketplace/'
+    | '/_authenticated/tenancies/$id'
     | '/api/public/referencing-webhook'
     | '/api/public/hooks/match-saved-searches'
   fileRoutesById: FileRoutesById
@@ -1004,6 +1029,13 @@ declare module '@tanstack/react-router' {
       path: '/vendor-portal'
       fullPath: '/vendor-portal'
       preLoaderRoute: typeof AuthenticatedVendorPortalRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/tenancies': {
+      id: '/_authenticated/tenancies'
+      path: '/tenancies'
+      fullPath: '/tenancies'
+      preLoaderRoute: typeof AuthenticatedTenanciesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/templates': {
@@ -1244,6 +1276,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicReferencingWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/tenancies/$id': {
+      id: '/_authenticated/tenancies/$id'
+      path: '/$id'
+      fullPath: '/tenancies/$id'
+      preLoaderRoute: typeof AuthenticatedTenanciesIdRouteImport
+      parentRoute: typeof AuthenticatedTenanciesRoute
+    }
     '/api/public/hooks/match-saved-searches': {
       id: '/api/public/hooks/match-saved-searches'
       path: '/api/public/hooks/match-saved-searches'
@@ -1253,6 +1292,20 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface AuthenticatedTenanciesRouteChildren {
+  AuthenticatedTenanciesIdRoute: typeof AuthenticatedTenanciesIdRoute
+}
+
+const AuthenticatedTenanciesRouteChildren: AuthenticatedTenanciesRouteChildren =
+  {
+    AuthenticatedTenanciesIdRoute: AuthenticatedTenanciesIdRoute,
+  }
+
+const AuthenticatedTenanciesRouteWithChildren =
+  AuthenticatedTenanciesRoute._addFileChildren(
+    AuthenticatedTenanciesRouteChildren,
+  )
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAgencyRoute: typeof AuthenticatedAgencyRoute
@@ -1288,6 +1341,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStatementsRoute: typeof AuthenticatedStatementsRoute
   AuthenticatedSurveyRoute: typeof AuthenticatedSurveyRoute
   AuthenticatedTemplatesRoute: typeof AuthenticatedTemplatesRoute
+  AuthenticatedTenanciesRoute: typeof AuthenticatedTenanciesRouteWithChildren
   AuthenticatedVendorPortalRoute: typeof AuthenticatedVendorPortalRoute
   AuthenticatedViewingsRoute: typeof AuthenticatedViewingsRoute
   AuthenticatedWorkOrdersRoute: typeof AuthenticatedWorkOrdersRoute
@@ -1328,6 +1382,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedStatementsRoute: AuthenticatedStatementsRoute,
   AuthenticatedSurveyRoute: AuthenticatedSurveyRoute,
   AuthenticatedTemplatesRoute: AuthenticatedTemplatesRoute,
+  AuthenticatedTenanciesRoute: AuthenticatedTenanciesRouteWithChildren,
   AuthenticatedVendorPortalRoute: AuthenticatedVendorPortalRoute,
   AuthenticatedViewingsRoute: AuthenticatedViewingsRoute,
   AuthenticatedWorkOrdersRoute: AuthenticatedWorkOrdersRoute,

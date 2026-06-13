@@ -55,6 +55,7 @@ const FULL: NavSection[] = [
   {
     label: "Tenancy ops",
     items: [
+      { to: "/tenancies", label: "Tenancies", icon: Home },
       { to: "/inspections", label: "Inspections", icon: ClipboardList },
       { to: "/mobile-inspection", label: "On‑site inspection", icon: Smartphone },
       { to: "/move", label: "Move in / out", icon: PackageOpen },
@@ -183,6 +184,7 @@ const LANDLORD: NavSection[] = [
     { to: "/listings", label: "Listings", icon: Tag },
   ] },
   { label: "Tenancy ops", defaultOpen: true, items: [
+    { to: "/tenancies", label: "Tenancies", icon: Home },
     { to: "/leads", label: "Enquiries", icon: Inbox },
     { to: "/work-orders", label: "Work orders", icon: Wrench },
     { to: "/contractor-marketplace", label: "Find a contractor", icon: Hammer },
