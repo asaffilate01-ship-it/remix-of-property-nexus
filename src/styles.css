@@ -143,3 +143,9 @@
 /* Gold hairline accent often used on prestige cards */
 .gold-hairline { box-shadow: inset 0 0 0 1px oklch(0.74 0.12 85 / 0.35); }
 
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
+
