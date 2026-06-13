@@ -5,15 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Check, X, ArrowRight, Sparkles, Building2, Users, Globe, Zap, ShieldCheck, BarChart3, Smartphone, Quote, Bot, Camera, MessageSquare, FileSignature, Megaphone, Languages } from "lucide-react";
+import { Check, X, ArrowRight, Sparkles, Building2, Users, Globe, Zap, ShieldCheck, BarChart3, Smartphone, Quote, Bot, Camera, MessageSquare, FileSignature, Megaphone, Languages, Info } from "lucide-react";
 
 export const Route = createFileRoute("/business")({
   head: () => ({
     meta: [
       { title: "Estately for agencies — the property OS for UK estate agents" },
-      { name: "description", content: "One platform for sales, lettings, HMO, compliance and the portal — replacing Reapit, Alto, Dezrez and Arthur. 30 days free, then from £29.99/mo." },
+      { name: "description", content: "One platform for sales, lettings, HMO, compliance and the portal — replacing Reapit, Alto, Dezrez and Arthur. 30 days free, then from £29.99/mo per branch." },
       { property: "og:title", content: "Estately for agencies — the property OS" },
-      { property: "og:description", content: "CRM + portal + compliance in one place. 30 days free, then from £29.99/mo." },
+      { property: "og:description", content: "CRM + portal + compliance in one place. 30 days free, then from £29.99/mo per branch." },
       { property: "og:url", content: "https://proptest.313test.co.uk/business" },
     ],
     links: [{ rel: "canonical", href: "https://proptest.313test.co.uk/business" }],
@@ -25,8 +25,8 @@ const PLANS = [
   {
     name: "Starter",
     price: "£29.99",
-    suffix: "/mo",
-    note: "Up to 3 live listings",
+    suffix: "/mo per branch",
+    note: "Up to 3 live listings per branch",
     cta: "Start 30-day free trial",
     highlight: false,
     features: [
@@ -42,8 +42,8 @@ const PLANS = [
   {
     name: "Growth",
     price: "£49.99",
-    suffix: "/mo",
-    note: "Most popular — up to 10 live listings",
+    suffix: "/mo per branch",
+    note: "Most popular — up to 10 live listings per branch",
     cta: "Start 30-day free trial",
     highlight: true,
     features: [
@@ -60,15 +60,15 @@ const PLANS = [
   {
     name: "Unlimited",
     price: "£99.99",
-    suffix: "/mo",
-    note: "Unlimited listings + full backend",
+    suffix: "/mo per branch",
+    note: "Unlimited listings per branch + full backend",
     cta: "Start 30-day free trial",
     highlight: false,
     features: [
       "30 days free — no card required",
       "Unlimited live listings",
       "Everything in Growth",
-      "Unlimited users & branches",
+      "Unlimited users per branch",
       "White-label microsites",
       "API access & Zapier",
       "SSO + audit logs",
@@ -165,7 +165,7 @@ function BusinessPage() {
           <div className="container mx-auto px-4 py-16 md:py-20">
             <div className="text-center max-w-2xl mx-auto mb-10">
               <h2 className="font-display text-3xl md:text-4xl font-bold">Honest pricing</h2>
-              <p className="text-muted-foreground mt-3">Start with 30 days free. No per-lead fees. No portal upsells. Cancel anytime.</p>
+              <p className="text-muted-foreground mt-3">Pricing is per branch. Start with 30 days free. No per-lead fees. No portal upsells. Cancel anytime.</p>
             </div>
             <div className="grid md:grid-cols-3 gap-5 max-w-5xl mx-auto">
               {PLANS.map((p) => (
@@ -194,12 +194,23 @@ function BusinessPage() {
               ))}
             </div>
 
+            {/* Multi-branch note */}
+            <div className="mt-8 max-w-5xl mx-auto">
+              <div className="flex items-start gap-3 rounded-xl border bg-card p-4 text-sm">
+                <Info className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-medium">Running multiple branches?</p>
+                  <p className="text-muted-foreground mt-1">Each branch is billed separately on its own plan. Add-ons apply per branch too. Contact us for franchise or network pricing.</p>
+                </div>
+              </div>
+            </div>
+
             {/* Add-ons */}
-            <div className="mt-16 max-w-5xl mx-auto">
+            <div className="mt-14 max-w-5xl mx-auto">
               <div className="text-center max-w-2xl mx-auto mb-8">
                 <Badge variant="outline" className="mb-3"><Sparkles className="h-3 w-3 mr-1.5" /> Optional add-ons</Badge>
                 <h3 className="font-display text-2xl md:text-3xl font-bold">AI & power features — add only what you need</h3>
-                <p className="text-muted-foreground mt-3 text-sm">Available on every plan. Turn on or off any month — no contract.</p>
+                <p className="text-muted-foreground mt-3 text-sm">Available on every plan, per branch. Turn on or off any month — no contract.</p>
               </div>
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {ADDONS.map((a) => (
