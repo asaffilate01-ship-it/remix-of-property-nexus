@@ -233,6 +233,18 @@
   &::-webkit-scrollbar { display: none; }
 }
 
+/* Tailwind v4 no longer ships a `container` utility with responsive max-widths.
+   Re-create the v3 behaviour so `container mx-auto` constrains page width. */
+@utility container {
+  width: 100%;
+  margin-inline: auto;
+  @media (min-width: 640px)  { max-width: 640px; }
+  @media (min-width: 768px)  { max-width: 768px; }
+  @media (min-width: 1024px) { max-width: 1024px; }
+  @media (min-width: 1280px) { max-width: 1280px; }
+  @media (min-width: 1536px) { max-width: 1440px; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; }
