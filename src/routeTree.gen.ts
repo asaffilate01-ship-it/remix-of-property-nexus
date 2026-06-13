@@ -38,7 +38,9 @@ import { Route as AuthenticatedVendorPortalRouteImport } from './routes/_authent
 import { Route as AuthenticatedStatementsRouteImport } from './routes/_authenticated/statements'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedSalesRouteImport } from './routes/_authenticated/sales'
+import { Route as AuthenticatedRightToRentRouteImport } from './routes/_authenticated/right-to-rent'
 import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
+import { Route as AuthenticatedRenewalsRouteImport } from './routes/_authenticated/renewals'
 import { Route as AuthenticatedPropertiesRouteImport } from './routes/_authenticated/properties'
 import { Route as AuthenticatedPipelineRouteImport } from './routes/_authenticated/pipeline'
 import { Route as AuthenticatedOffersRouteImport } from './routes/_authenticated/offers'
@@ -46,9 +48,13 @@ import { Route as AuthenticatedListingsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedLeadsRouteImport } from './routes/_authenticated/leads'
 import { Route as AuthenticatedInspectionsRouteImport } from './routes/_authenticated/inspections'
 import { Route as AuthenticatedHmoRouteImport } from './routes/_authenticated/hmo'
+import { Route as AuthenticatedESignRouteImport } from './routes/_authenticated/e-sign'
+import { Route as AuthenticatedDepositsRouteImport } from './routes/_authenticated/deposits'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedContractorMarketplaceRouteImport } from './routes/_authenticated/contractor-marketplace'
 import { Route as AuthenticatedContactsRouteImport } from './routes/_authenticated/contacts'
 import { Route as AuthenticatedComplianceRouteImport } from './routes/_authenticated/compliance'
+import { Route as AuthenticatedArrearsRouteImport } from './routes/_authenticated/arrears'
 import { Route as AuthenticatedAiCopyRouteImport } from './routes/_authenticated/ai-copy'
 import { Route as AuthenticatedAgencyRouteImport } from './routes/_authenticated/agency'
 
@@ -197,9 +203,20 @@ const AuthenticatedSalesRoute = AuthenticatedSalesRouteImport.update({
   path: '/sales',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedRightToRentRoute =
+  AuthenticatedRightToRentRouteImport.update({
+    id: '/right-to-rent',
+    path: '/right-to-rent',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedReportsRoute = AuthenticatedReportsRouteImport.update({
   id: '/reports',
   path: '/reports',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedRenewalsRoute = AuthenticatedRenewalsRouteImport.update({
+  id: '/renewals',
+  path: '/renewals',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedPropertiesRoute = AuthenticatedPropertiesRouteImport.update({
@@ -238,11 +255,27 @@ const AuthenticatedHmoRoute = AuthenticatedHmoRouteImport.update({
   path: '/hmo',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedESignRoute = AuthenticatedESignRouteImport.update({
+  id: '/e-sign',
+  path: '/e-sign',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDepositsRoute = AuthenticatedDepositsRouteImport.update({
+  id: '/deposits',
+  path: '/deposits',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedContractorMarketplaceRoute =
+  AuthenticatedContractorMarketplaceRouteImport.update({
+    id: '/contractor-marketplace',
+    path: '/contractor-marketplace',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedContactsRoute = AuthenticatedContactsRouteImport.update({
   id: '/contacts',
   path: '/contacts',
@@ -251,6 +284,11 @@ const AuthenticatedContactsRoute = AuthenticatedContactsRouteImport.update({
 const AuthenticatedComplianceRoute = AuthenticatedComplianceRouteImport.update({
   id: '/compliance',
   path: '/compliance',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedArrearsRoute = AuthenticatedArrearsRouteImport.update({
+  id: '/arrears',
+  path: '/arrears',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAiCopyRoute = AuthenticatedAiCopyRouteImport.update({
@@ -284,9 +322,13 @@ export interface FileRoutesByFullPath {
   '/valuation': typeof ValuationRoute
   '/agency': typeof AuthenticatedAgencyRoute
   '/ai-copy': typeof AuthenticatedAiCopyRoute
+  '/arrears': typeof AuthenticatedArrearsRoute
   '/compliance': typeof AuthenticatedComplianceRoute
   '/contacts': typeof AuthenticatedContactsRoute
+  '/contractor-marketplace': typeof AuthenticatedContractorMarketplaceRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/deposits': typeof AuthenticatedDepositsRoute
+  '/e-sign': typeof AuthenticatedESignRoute
   '/hmo': typeof AuthenticatedHmoRoute
   '/inspections': typeof AuthenticatedInspectionsRoute
   '/leads': typeof AuthenticatedLeadsRoute
@@ -294,7 +336,9 @@ export interface FileRoutesByFullPath {
   '/offers': typeof AuthenticatedOffersRoute
   '/pipeline': typeof AuthenticatedPipelineRoute
   '/properties': typeof AuthenticatedPropertiesRoute
+  '/renewals': typeof AuthenticatedRenewalsRoute
   '/reports': typeof AuthenticatedReportsRoute
+  '/right-to-rent': typeof AuthenticatedRightToRentRoute
   '/sales': typeof AuthenticatedSalesRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/statements': typeof AuthenticatedStatementsRoute
@@ -325,9 +369,13 @@ export interface FileRoutesByTo {
   '/valuation': typeof ValuationRoute
   '/agency': typeof AuthenticatedAgencyRoute
   '/ai-copy': typeof AuthenticatedAiCopyRoute
+  '/arrears': typeof AuthenticatedArrearsRoute
   '/compliance': typeof AuthenticatedComplianceRoute
   '/contacts': typeof AuthenticatedContactsRoute
+  '/contractor-marketplace': typeof AuthenticatedContractorMarketplaceRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/deposits': typeof AuthenticatedDepositsRoute
+  '/e-sign': typeof AuthenticatedESignRoute
   '/hmo': typeof AuthenticatedHmoRoute
   '/inspections': typeof AuthenticatedInspectionsRoute
   '/leads': typeof AuthenticatedLeadsRoute
@@ -335,7 +383,9 @@ export interface FileRoutesByTo {
   '/offers': typeof AuthenticatedOffersRoute
   '/pipeline': typeof AuthenticatedPipelineRoute
   '/properties': typeof AuthenticatedPropertiesRoute
+  '/renewals': typeof AuthenticatedRenewalsRoute
   '/reports': typeof AuthenticatedReportsRoute
+  '/right-to-rent': typeof AuthenticatedRightToRentRoute
   '/sales': typeof AuthenticatedSalesRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/statements': typeof AuthenticatedStatementsRoute
@@ -370,9 +420,13 @@ export interface FileRoutesById {
   '/valuation': typeof ValuationRoute
   '/_authenticated/agency': typeof AuthenticatedAgencyRoute
   '/_authenticated/ai-copy': typeof AuthenticatedAiCopyRoute
+  '/_authenticated/arrears': typeof AuthenticatedArrearsRoute
   '/_authenticated/compliance': typeof AuthenticatedComplianceRoute
   '/_authenticated/contacts': typeof AuthenticatedContactsRoute
+  '/_authenticated/contractor-marketplace': typeof AuthenticatedContractorMarketplaceRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/deposits': typeof AuthenticatedDepositsRoute
+  '/_authenticated/e-sign': typeof AuthenticatedESignRoute
   '/_authenticated/hmo': typeof AuthenticatedHmoRoute
   '/_authenticated/inspections': typeof AuthenticatedInspectionsRoute
   '/_authenticated/leads': typeof AuthenticatedLeadsRoute
@@ -380,7 +434,9 @@ export interface FileRoutesById {
   '/_authenticated/offers': typeof AuthenticatedOffersRoute
   '/_authenticated/pipeline': typeof AuthenticatedPipelineRoute
   '/_authenticated/properties': typeof AuthenticatedPropertiesRoute
+  '/_authenticated/renewals': typeof AuthenticatedRenewalsRoute
   '/_authenticated/reports': typeof AuthenticatedReportsRoute
+  '/_authenticated/right-to-rent': typeof AuthenticatedRightToRentRoute
   '/_authenticated/sales': typeof AuthenticatedSalesRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/statements': typeof AuthenticatedStatementsRoute
@@ -415,9 +471,13 @@ export interface FileRouteTypes {
     | '/valuation'
     | '/agency'
     | '/ai-copy'
+    | '/arrears'
     | '/compliance'
     | '/contacts'
+    | '/contractor-marketplace'
     | '/dashboard'
+    | '/deposits'
+    | '/e-sign'
     | '/hmo'
     | '/inspections'
     | '/leads'
@@ -425,7 +485,9 @@ export interface FileRouteTypes {
     | '/offers'
     | '/pipeline'
     | '/properties'
+    | '/renewals'
     | '/reports'
+    | '/right-to-rent'
     | '/sales'
     | '/settings'
     | '/statements'
@@ -456,9 +518,13 @@ export interface FileRouteTypes {
     | '/valuation'
     | '/agency'
     | '/ai-copy'
+    | '/arrears'
     | '/compliance'
     | '/contacts'
+    | '/contractor-marketplace'
     | '/dashboard'
+    | '/deposits'
+    | '/e-sign'
     | '/hmo'
     | '/inspections'
     | '/leads'
@@ -466,7 +532,9 @@ export interface FileRouteTypes {
     | '/offers'
     | '/pipeline'
     | '/properties'
+    | '/renewals'
     | '/reports'
+    | '/right-to-rent'
     | '/sales'
     | '/settings'
     | '/statements'
@@ -500,9 +568,13 @@ export interface FileRouteTypes {
     | '/valuation'
     | '/_authenticated/agency'
     | '/_authenticated/ai-copy'
+    | '/_authenticated/arrears'
     | '/_authenticated/compliance'
     | '/_authenticated/contacts'
+    | '/_authenticated/contractor-marketplace'
     | '/_authenticated/dashboard'
+    | '/_authenticated/deposits'
+    | '/_authenticated/e-sign'
     | '/_authenticated/hmo'
     | '/_authenticated/inspections'
     | '/_authenticated/leads'
@@ -510,7 +582,9 @@ export interface FileRouteTypes {
     | '/_authenticated/offers'
     | '/_authenticated/pipeline'
     | '/_authenticated/properties'
+    | '/_authenticated/renewals'
     | '/_authenticated/reports'
+    | '/_authenticated/right-to-rent'
     | '/_authenticated/sales'
     | '/_authenticated/settings'
     | '/_authenticated/statements'
@@ -751,11 +825,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSalesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/right-to-rent': {
+      id: '/_authenticated/right-to-rent'
+      path: '/right-to-rent'
+      fullPath: '/right-to-rent'
+      preLoaderRoute: typeof AuthenticatedRightToRentRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/reports': {
       id: '/_authenticated/reports'
       path: '/reports'
       fullPath: '/reports'
       preLoaderRoute: typeof AuthenticatedReportsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/renewals': {
+      id: '/_authenticated/renewals'
+      path: '/renewals'
+      fullPath: '/renewals'
+      preLoaderRoute: typeof AuthenticatedRenewalsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/properties': {
@@ -807,11 +895,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedHmoRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/e-sign': {
+      id: '/_authenticated/e-sign'
+      path: '/e-sign'
+      fullPath: '/e-sign'
+      preLoaderRoute: typeof AuthenticatedESignRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/deposits': {
+      id: '/_authenticated/deposits'
+      path: '/deposits'
+      fullPath: '/deposits'
+      preLoaderRoute: typeof AuthenticatedDepositsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/contractor-marketplace': {
+      id: '/_authenticated/contractor-marketplace'
+      path: '/contractor-marketplace'
+      fullPath: '/contractor-marketplace'
+      preLoaderRoute: typeof AuthenticatedContractorMarketplaceRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/contacts': {
@@ -826,6 +935,13 @@ declare module '@tanstack/react-router' {
       path: '/compliance'
       fullPath: '/compliance'
       preLoaderRoute: typeof AuthenticatedComplianceRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/arrears': {
+      id: '/_authenticated/arrears'
+      path: '/arrears'
+      fullPath: '/arrears'
+      preLoaderRoute: typeof AuthenticatedArrearsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/ai-copy': {
@@ -848,9 +964,13 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAgencyRoute: typeof AuthenticatedAgencyRoute
   AuthenticatedAiCopyRoute: typeof AuthenticatedAiCopyRoute
+  AuthenticatedArrearsRoute: typeof AuthenticatedArrearsRoute
   AuthenticatedComplianceRoute: typeof AuthenticatedComplianceRoute
   AuthenticatedContactsRoute: typeof AuthenticatedContactsRoute
+  AuthenticatedContractorMarketplaceRoute: typeof AuthenticatedContractorMarketplaceRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedDepositsRoute: typeof AuthenticatedDepositsRoute
+  AuthenticatedESignRoute: typeof AuthenticatedESignRoute
   AuthenticatedHmoRoute: typeof AuthenticatedHmoRoute
   AuthenticatedInspectionsRoute: typeof AuthenticatedInspectionsRoute
   AuthenticatedLeadsRoute: typeof AuthenticatedLeadsRoute
@@ -858,7 +978,9 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedOffersRoute: typeof AuthenticatedOffersRoute
   AuthenticatedPipelineRoute: typeof AuthenticatedPipelineRoute
   AuthenticatedPropertiesRoute: typeof AuthenticatedPropertiesRoute
+  AuthenticatedRenewalsRoute: typeof AuthenticatedRenewalsRoute
   AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
+  AuthenticatedRightToRentRoute: typeof AuthenticatedRightToRentRoute
   AuthenticatedSalesRoute: typeof AuthenticatedSalesRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedStatementsRoute: typeof AuthenticatedStatementsRoute
@@ -870,9 +992,14 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAgencyRoute: AuthenticatedAgencyRoute,
   AuthenticatedAiCopyRoute: AuthenticatedAiCopyRoute,
+  AuthenticatedArrearsRoute: AuthenticatedArrearsRoute,
   AuthenticatedComplianceRoute: AuthenticatedComplianceRoute,
   AuthenticatedContactsRoute: AuthenticatedContactsRoute,
+  AuthenticatedContractorMarketplaceRoute:
+    AuthenticatedContractorMarketplaceRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedDepositsRoute: AuthenticatedDepositsRoute,
+  AuthenticatedESignRoute: AuthenticatedESignRoute,
   AuthenticatedHmoRoute: AuthenticatedHmoRoute,
   AuthenticatedInspectionsRoute: AuthenticatedInspectionsRoute,
   AuthenticatedLeadsRoute: AuthenticatedLeadsRoute,
@@ -880,7 +1007,9 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedOffersRoute: AuthenticatedOffersRoute,
   AuthenticatedPipelineRoute: AuthenticatedPipelineRoute,
   AuthenticatedPropertiesRoute: AuthenticatedPropertiesRoute,
+  AuthenticatedRenewalsRoute: AuthenticatedRenewalsRoute,
   AuthenticatedReportsRoute: AuthenticatedReportsRoute,
+  AuthenticatedRightToRentRoute: AuthenticatedRightToRentRoute,
   AuthenticatedSalesRoute: AuthenticatedSalesRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedStatementsRoute: AuthenticatedStatementsRoute,
