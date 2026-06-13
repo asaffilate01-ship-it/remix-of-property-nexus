@@ -47,7 +47,9 @@ const search = z.object({
   min_sqft: z.number().optional(),
   bills_included: z.boolean().optional(),
   furnished: z.string().optional(),
+  available_from: z.string().optional(),
   sort: z.enum(sorts).optional(),
+
 });
 
 type SearchParams = z.infer<typeof search>;
