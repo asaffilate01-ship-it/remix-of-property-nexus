@@ -1,0 +1,145 @@
+import { useRef, useState, DragEvent } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Upload, X, Star, Image as ImageIcon } from "lucide-react";
+import { toast } from "sonner";
+
+export type ListingPhoto = { url: string; room?: string | null };
+
+type Props = {
+  photos: ListingPhoto[];
+  onChange: (next: ListingPhoto[]) => void;
+  coverIndex: number;
+  onCoverChange: (idx: number) => void;
+  roomOptions?: string[];
+};
+
+const LONG_TTL = 60 * 60 * 24 * 365 * 10; // 10y signed URL
+
+export function PhotoUploader({ photos, onChange, coverIndex, onCoverChange, roomOptions = [] }: Props) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [dragging, setDragging] = useState(false);
+  const [busy, setBusy] = useState(false);
+
+  const upload = async (files: FileList | File[]) => {
+    setBusy(true);
+    try {
+      const { data: u } = await supabase.auth.getUser();
+      if (!u.user) throw new Error("Not signed in");
+      const next: ListingPhoto[] = [...photos];
+      for (const file of Array.from(files)) {
+        if (!file.type.startsWith("image/")) continue;
+        const path = `listings/${u.user.id}/${Date.now()}-${Math.random().toString(36).slice(2, 7)}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
+        const { error: upErr } = await supabase.storage.from("documents").upload(path, file, { upsert: false, contentType: file.type });
+        if (upErr) throw upErr;
+        const { data: signed, error: sErr } = await supabase.storage.from("documents").createSignedUrl(path, LONG_TTL);
+        if (sErr) throw sErr;
+        next.push({ url: signed.signedUrl, room: null });
+      }
+      onChange(next);
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setBusy(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  };
+
+  const onDrop = (e: DragEvent) => {
+    e.preventDefault(); setDragging(false);
+    if (e.dataTransfer.files?.length) upload(e.dataTransfer.files);
+  };
+
+  const remove = (idx: number) => {
+    const next = photos.filter((_, i) => i !== idx);
+    onChange(next);
+    if (coverIndex === idx) onCoverChange(0);
+    else if (coverIndex > idx) onCoverChange(coverIndex - 1);
+  };
+
+  const setRoom = (idx: number, room: string) => {
+    onChange(photos.map((p, i) => i === idx ? { ...p, room: room || null } : p));
+  };
+
+  const addUrl = () => {
+    const url = prompt("Paste image URL");
+    if (url) onChange([...photos, { url, room: null }]);
+  };
+
+  return (
+    <div className="space-y-3">
+      <div
+        onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+        onDragLeave={() => setDragging(false)}
+        onDrop={onDrop}
+        className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${dragging ? "border-primary bg-primary/5" : "border-muted-foreground/25"}`}
+      >
+        <ImageIcon className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+        <div className="text-sm">Drag & drop images here</div>
+        <div className="text-xs text-muted-foreground mt-1">or</div>
+        <div className="flex gap-2 justify-center mt-2">
+          <Button type="button" size="sm" variant="outline" onClick={() => fileRef.current?.click()} disabled={busy}>
+            <Upload className="h-3 w-3 mr-1" /> {busy ? "Uploading…" : "Choose files"}
+          </Button>
+          <Button type="button" size="sm" variant="ghost" onClick={addUrl}>Add by URL</Button>
+        </div>
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/*"
+          multiple
+          className="hidden"
+          onChange={(e) => e.target.files && upload(e.target.files)}
+        />
+      </div>
+
+      {photos.length > 0 && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          {photos.map((p, idx) => (
+            <div key={idx} className="relative group rounded-md overflow-hidden border bg-muted">
+              <div className="aspect-[4/3]">
+                <img src={p.url} alt="" className="h-full w-full object-cover" />
+              </div>
+              <button
+                type="button"
+                title="Set as cover"
+                onClick={() => onCoverChange(idx)}
+                className={`absolute top-1 left-1 rounded-full p-1 ${coverIndex === idx ? "bg-primary text-primary-foreground" : "bg-card/80 text-muted-foreground hover:bg-card"}`}
+              >
+                <Star className="h-3 w-3" fill={coverIndex === idx ? "currentColor" : "none"} />
+              </button>
+              <button
+                type="button"
+                title="Remove"
+                onClick={() => remove(idx)}
+                className="absolute top-1 right-1 rounded-full p-1 bg-card/80 text-destructive opacity-0 group-hover:opacity-100"
+              >
+                <X className="h-3 w-3" />
+              </button>
+              {roomOptions.length > 0 ? (
+                <select
+                  value={p.room ?? ""}
+                  onChange={(e) => setRoom(idx, e.target.value)}
+                  className="w-full text-xs bg-card border-t px-2 py-1 outline-none"
+                >
+                  <option value="">No room tag</option>
+                  {roomOptions.map((r) => <option key={r} value={r}>{r}</option>)}
+                  <option value="Communal">Communal</option>
+                  <option value="Exterior">Exterior</option>
+                </select>
+              ) : (
+                <Input
+                  value={p.room ?? ""}
+                  onChange={(e) => setRoom(idx, e.target.value)}
+                  placeholder="Label (e.g. Kitchen)"
+                  className="rounded-none border-0 border-t h-7 text-xs"
+                />
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
