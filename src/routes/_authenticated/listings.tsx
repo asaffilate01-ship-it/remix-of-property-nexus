@@ -108,8 +108,20 @@ function ListingsPage() {
       setAgencies([]);
       return;
     }
-    const { data } = await supabase.from("agencies").select("id,name").or(`owner_id.eq.${u.user.id},id.in.(select agency_id from agency_members where user_id = '${u.user.id}')` as any);
-    setAgencies(data ?? []);
+    const [{ data: owned }, { data: memberships }] = await Promise.all([
+      supabase.from("agencies").select("id,name").eq("owner_id", u.user.id),
+      supabase.from("agency_members").select("agency_id").eq("user_id", u.user.id),
+    ]);
+    const memberAgencyIds = (memberships ?? []).map((m) => m.agency_id).filter(Boolean);
+    if (memberAgencyIds.length === 0) {
+      setAgencies(owned ?? []);
+      return;
+    }
+    const { data: memberAgencies } = await supabase.from("agencies").select("id,name").in("id", memberAgencyIds);
+    const merged = [...(owned ?? []), ...(memberAgencies ?? [])].filter(
+      (agency, index, all) => all.findIndex((candidate) => candidate.id === agency.id) === index,
+    );
+    setAgencies(merged);
   };
   useEffect(() => { void loadAgencies(); }, []);
   useEffect(() => { void load(); }, [agencies]);
