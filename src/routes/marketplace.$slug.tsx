@@ -15,7 +15,30 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/marketplace/$slug")({
-  head: () => ({ meta: [{ title: "Listing — Estately" }] }),
+  loader: async ({ params }) => {
+    try { return await fetchListing({ data: { slug: params.slug } }); }
+    catch { return { listing: null }; }
+  },
+  head: ({ params, loaderData }) => {
+    const l = (loaderData as { listing?: { title?: string; description?: string; cover_image?: string } } | undefined)?.listing;
+    const url = `https://proptest.313test.co.uk/marketplace/${params.slug}`;
+    const title = l?.title ? `${l.title} — Estately` : "Listing — Estately";
+    const desc = l?.description?.slice(0, 155) ?? "View this property on the Estately marketplace.";
+    return {
+      meta: [
+        { title },
+        { name: "description", content: desc },
+        { property: "og:type", content: "article" },
+        { property: "og:title", content: title },
+        { property: "og:description", content: desc },
+        { property: "og:url", content: url },
+        ...(l?.cover_image ? [{ property: "og:image", content: l.cover_image }, { name: "twitter:image", content: l.cover_image }] : []),
+        { name: "twitter:title", content: title },
+        { name: "twitter:description", content: desc },
+      ],
+      links: [{ rel: "canonical", href: url }],
+    };
+  },
   component: ListingDetail,
 });
 

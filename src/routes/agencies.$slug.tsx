@@ -7,6 +7,28 @@ import { ListingCard } from "@/components/ListingCard";
 import { fetchAgency } from "@/lib/public.functions";
 
 export const Route = createFileRoute("/agencies/$slug")({
+  loader: async ({ params }) => {
+    try { return await fetchAgency({ data: { slug: params.slug } }); }
+    catch { return { agency: null, listings: [] }; }
+  },
+  head: ({ params, loaderData }) => {
+    const a = (loaderData as { agency?: { name?: string; description?: string; logo_url?: string } } | undefined)?.agency;
+    const url = `https://proptest.313test.co.uk/agencies/${params.slug}`;
+    const title = a?.name ? `${a.name} — Estately` : "Agency — Estately";
+    const desc = a?.description?.slice(0, 155) ?? `Browse listings from ${a?.name ?? "this agency"} on Estately.`;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: desc },
+        { property: "og:type", content: "profile" },
+        { property: "og:title", content: title },
+        { property: "og:description", content: desc },
+        { property: "og:url", content: url },
+        ...(a?.logo_url ? [{ property: "og:image", content: a.logo_url }] : []),
+      ],
+      links: [{ rel: "canonical", href: url }],
+    };
+  },
   component: AgencyPage,
 });
 
