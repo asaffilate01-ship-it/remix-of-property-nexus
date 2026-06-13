@@ -33,8 +33,8 @@ export const saveSearch = createServerFn({ method: "POST" })
       .insert({
         user_id: context.userId,
         name: data.name ?? null,
-        criteria: data.criteria ?? {},
-        polygon: (data.polygon as object | null) ?? null,
+        criteria: (data.criteria ?? {}) as never,
+        polygon: (data.polygon ?? null) as never,
         alert_email: data.alert_email ?? true,
         alert_push: data.alert_push ?? false,
         frequency: data.frequency ?? "daily",
