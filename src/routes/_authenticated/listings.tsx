@@ -275,6 +275,9 @@ function ListingsPage() {
                     <Button size="icon" variant="ghost" className="h-8 w-8" title={l.status === "published" ? "Unpublish" : "Publish"} onClick={() => togglePublish(l)}>
                       {l.status === "published" ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
                     </Button>
+                    <Button asChild size="icon" variant="ghost" className="h-8 w-8" title="Window card (print)">
+                      <Link to="/listing/$id/window-card" params={{ id: l.id }}><Printer className="h-3.5 w-3.5" /></Link>
+                    </Button>
                     <Button size="icon" variant="ghost" className="h-8 w-8" title="Edit" onClick={() => openEdit(l)}><Pencil className="h-3.5 w-3.5" /></Button>
                     <AlertDialog>
                       <AlertDialogTrigger asChild><Button size="icon" variant="ghost" className="h-8 w-8 text-destructive" title="Delete"><Trash2 className="h-3.5 w-3.5" /></Button></AlertDialogTrigger>
