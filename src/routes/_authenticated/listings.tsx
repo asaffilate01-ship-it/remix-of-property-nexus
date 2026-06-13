@@ -279,8 +279,6 @@ function ListingForm({ form, setForm, agencies }: { form: Form; setForm: (f: For
             <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="none">No qualifier</SelectItem>
-              <SelectItem value="asking">Asking price</SelectItem>
-              <SelectItem value="fixed">Fixed price</SelectItem>
               <SelectItem value="guide_price">Guide price</SelectItem>
               <SelectItem value="offers_over">Offers over</SelectItem>
               <SelectItem value="offers_in_region">Offers in region of</SelectItem>
