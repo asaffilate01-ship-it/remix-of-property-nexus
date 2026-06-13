@@ -15,6 +15,7 @@ import { Plus, Star, Phone, Mail, Trash2, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import { fetchOpsData, saveContact, deleteContact } from "@/lib/ops.functions";
 import { PageHeader } from "@/components/PageHeader";
+import { QuickContactActions } from "@/components/QuickContactActions";
 
 export const Route = createFileRoute("/_authenticated/contacts")({ component: ContactsPage });
 
