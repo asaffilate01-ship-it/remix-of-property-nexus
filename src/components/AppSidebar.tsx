@@ -130,8 +130,83 @@ const SIMPLE: NavSection[] = [{ label: "Work", defaultOpen: true, items: [
   { to: "/settings", label: "Settings", icon: Settings },
 ] }];
 
+// Admin = platform oversight + everything
+const ADMIN: NavSection[] = [
+  { label: "Platform", defaultOpen: true, items: [
+    { to: "/dashboard", label: "Admin dashboard", icon: LayoutDashboard },
+    { to: "/agency", label: "Users & agencies", icon: Users },
+    { to: "/branches", label: "Branches", icon: Building2 },
+    { to: "/reports", label: "Platform reports", icon: BarChart3 },
+    { to: "/compliance", label: "Compliance oversight", icon: ShieldCheck },
+  ] },
+  ...FULL.slice(1), // re-use all operational sections after Overview
+];
+
+// Agent = pipeline-first
+const AGENT: NavSection[] = [
+  { label: "Today", defaultOpen: true, items: [
+    { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { to: "/leads", label: "Leads", icon: Inbox },
+    { to: "/viewings", label: "Viewings", icon: CalendarDays },
+    { to: "/pipeline", label: "Lettings pipeline", icon: Kanban },
+    { to: "/sales", label: "Sales pipeline", icon: Handshake },
+    { to: "/offers", label: "Offers & chains", icon: Gavel },
+  ] },
+  { label: "Stock", defaultOpen: true, items: [
+    { to: "/listings", label: "Listings", icon: Tag },
+    { to: "/properties", label: "Properties", icon: Building2 },
+    { to: "/media", label: "Floorplans & EPC", icon: ImageIcon },
+    { to: "/ai-copy", label: "AI listing copy", icon: Sparkles },
+  ] },
+  { label: "Ops", items: [
+    { to: "/inspections", label: "Inspections", icon: ClipboardList },
+    { to: "/work-orders", label: "Work orders", icon: Wrench },
+    { to: "/renewals", label: "Renewals", icon: RefreshCcw },
+    { to: "/arrears", label: "Arrears", icon: Banknote },
+    { to: "/referencing-cases", label: "Referencing", icon: ClipboardCheck },
+  ] },
+  { label: "Workspace", items: [
+    { to: "/contacts", label: "Contacts", icon: Contact },
+    { to: "/branches", label: "Branches", icon: Building2 },
+    { to: "/agency", label: "Team", icon: Users },
+    { to: "/reports", label: "Reports", icon: BarChart3 },
+    { to: "/settings", label: "Settings", icon: Settings },
+  ] },
+];
+
+// Landlord = portfolio-first (slimmer than agent)
+const LANDLORD: NavSection[] = [
+  { label: "Portfolio", defaultOpen: true, items: [
+    { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { to: "/properties", label: "Properties", icon: Building2 },
+    { to: "/hmo", label: "HMO & rooms", icon: BedDouble },
+    { to: "/listings", label: "Listings", icon: Tag },
+  ] },
+  { label: "Tenancy ops", defaultOpen: true, items: [
+    { to: "/leads", label: "Enquiries", icon: Inbox },
+    { to: "/work-orders", label: "Work orders", icon: Wrench },
+    { to: "/contractor-marketplace", label: "Find a contractor", icon: Hammer },
+    { to: "/inspections", label: "Inspections", icon: ClipboardList },
+    { to: "/renewals", label: "Renewals", icon: RefreshCcw },
+    { to: "/arrears", label: "Arrears", icon: Banknote },
+  ] },
+  { label: "Compliance & money", items: [
+    { to: "/compliance", label: "Compliance", icon: ShieldCheck },
+    { to: "/deposits", label: "Deposits", icon: Vault },
+    { to: "/statements", label: "Statements", icon: Receipt },
+    { to: "/documents", label: "Documents", icon: FolderLock },
+  ] },
+  { label: "Workspace", items: [
+    { to: "/contacts", label: "Contacts", icon: Contact },
+    { to: "/settings", label: "Settings", icon: Settings },
+  ] },
+];
+
 function sectionsFor(role: AppRole | null): NavSection[] {
   switch (role) {
+    case "admin": return ADMIN;
+    case "agent": return AGENT;
+    case "landlord": return LANDLORD;
     case "tenant": return TENANT;
     case "contractor": return CONTRACTOR;
     case "conveyancer": return CONVEYANCER;
