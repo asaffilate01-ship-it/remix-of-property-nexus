@@ -615,6 +615,19 @@ export type Database = {
         | "pat"
         | "insurance"
         | "deposit_protection"
+        | "selective_licence"
+        | "fire_risk_assessment"
+        | "emergency_lighting"
+        | "fire_door_check"
+        | "right_to_rent"
+        | "ast"
+        | "how_to_rent"
+        | "inventory"
+        | "cmp"
+        | "redress"
+        | "aml"
+        | "pi_insurance"
+        | "ico"
       deal_stage:
         | "lead"
         | "contacted"
@@ -793,6 +806,19 @@ export const Constants = {
         "pat",
         "insurance",
         "deposit_protection",
+        "selective_licence",
+        "fire_risk_assessment",
+        "emergency_lighting",
+        "fire_door_check",
+        "right_to_rent",
+        "ast",
+        "how_to_rent",
+        "inventory",
+        "cmp",
+        "redress",
+        "aml",
+        "pi_insurance",
+        "ico",
       ],
       deal_stage: [
         "lead",
