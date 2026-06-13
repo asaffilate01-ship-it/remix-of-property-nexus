@@ -113,14 +113,14 @@ function MarketplacePage() {
       <main className="flex-1">
         <section className="brand-gradient relative overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.18),transparent_60%)]" />
-          <div className="container mx-auto px-4 py-12 md:py-20 relative">
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 text-white text-xs font-medium px-3 py-1 backdrop-blur mb-4">
+          <div className="container mx-auto px-4 py-10 sm:py-14 md:py-20 relative">
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 text-white text-[11px] sm:text-xs font-medium px-3 py-1 backdrop-blur mb-4">
               <Sparkles className="h-3 w-3" /> Smarter than the portals
             </div>
-            <h1 className="text-3xl md:text-5xl font-bold mb-3 tracking-tight max-w-3xl text-white">
+            <h1 className="font-display text-[28px] leading-[1.1] sm:text-4xl md:text-5xl font-bold mb-3 tracking-tight max-w-3xl text-white">
               Find your next home, room or investment.
             </h1>
-            <p className="text-white/85 mb-6 md:mb-8 text-base md:text-lg max-w-2xl">
+            <p className="text-white/85 mb-6 md:mb-8 text-sm sm:text-base md:text-lg max-w-2xl">
               Direct from verified UK agents and landlords. Zero spam, zero phantom listings.
             </p>
 
@@ -130,10 +130,10 @@ function MarketplacePage() {
             />
 
             {meta.data && (
-              <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-white/90">
+              <div className="mt-5 sm:mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs sm:text-sm text-white/90">
                 <div className="inline-flex items-center gap-1.5"><Building2 className="h-4 w-4" /> {meta.data.total.toLocaleString()} listings</div>
                 <div className="inline-flex items-center gap-1.5"><MapPin className="h-4 w-4" /> {meta.data.cityCount} towns & cities</div>
-                <div>{meta.data.agencyCount} verified agencies</div>
+                <div className="hidden sm:block">{meta.data.agencyCount} verified agencies</div>
               </div>
             )}
           </div>
@@ -141,37 +141,50 @@ function MarketplacePage() {
 
         {meta.data && meta.data.featured.length > 0 && (
           <section className="border-b bg-muted/30">
-            <div className="container mx-auto px-4 py-4 flex items-center gap-3 overflow-x-auto">
-              <span className="text-xs uppercase tracking-wide text-muted-foreground font-semibold shrink-0">Featured agencies</span>
+            <div className="container mx-auto px-4 py-4 flex items-center gap-3 overflow-x-auto no-scrollbar">
+              <span className="text-[11px] uppercase tracking-wide text-muted-foreground font-semibold shrink-0">Featured</span>
               {meta.data.featured.map((a) => (
                 <Link key={a.id} to="/agencies/$slug" params={{ slug: a.slug }} className="shrink-0 inline-flex items-center gap-2 rounded-full border bg-card px-3 py-1.5 hover:bg-accent/10 transition-colors">
                   <div className="h-6 w-6 rounded-full bg-muted overflow-hidden shrink-0">
                     {a.logo_url && <img src={a.logo_url} alt="" className="h-full w-full object-cover" />}
                   </div>
-                  <span className="text-sm font-medium truncate max-w-[160px]">{a.name}</span>
+                  <span className="text-sm font-medium truncate max-w-[140px] sm:max-w-[160px]">{a.name}</span>
                 </Link>
               ))}
             </div>
           </section>
         )}
 
-        <section className="container mx-auto px-4 py-6">
-          <div className="flex flex-wrap items-center gap-3 justify-between">
-            <Tabs value={category} onValueChange={(v) => setSearch({ category: v === "all" ? undefined : (v as Category) })}>
-              <TabsList className="flex flex-wrap h-auto">
-                {tabs.map((t) => <TabsTrigger key={t.value} value={t.value}>{t.label}</TabsTrigger>)}
-              </TabsList>
+        <section className="container mx-auto px-4 py-5 sm:py-6">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <Tabs
+              value={category}
+              onValueChange={(v) => setSearch({ category: v === "all" ? undefined : (v as Category) })}
+              className="-mx-4 md:mx-0"
+            >
+              <div className="overflow-x-auto no-scrollbar px-4 md:px-0">
+                <TabsList className="inline-flex w-auto">
+                  {tabs.map((t) => <TabsTrigger key={t.value} value={t.value} className="whitespace-nowrap">{t.label}</TabsTrigger>)}
+                </TabsList>
+              </div>
             </Tabs>
 
             <div className="flex items-center gap-2">
               <FiltersSheet s={s} setSearch={setSearch} />
               <Select value={sort} onValueChange={(v) => setSearch({ sort: v as SortKey })}>
-                <SelectTrigger className="h-9 w-[180px]"><ArrowUpDown className="h-3.5 w-3.5 mr-1" /><SelectValue /></SelectTrigger>
+                <SelectTrigger className="h-9 w-auto min-w-0 px-3 sm:w-[180px]">
+                  <ArrowUpDown className="h-3.5 w-3.5 mr-1 shrink-0" />
+                  <span className="hidden sm:inline truncate"><SelectValue /></span>
+                  <span className="sm:hidden">Sort</span>
+                </SelectTrigger>
                 <SelectContent>
                   {sorts.map((k) => <SelectItem key={k} value={k}>{SORT_LABEL[k]}</SelectItem>)}
                 </SelectContent>
               </Select>
-              <Button variant="ghost" size="sm" onClick={saveSearch}><Bookmark className="h-4 w-4 mr-1" /> Save</Button>
+              <Button variant="ghost" size="sm" onClick={saveSearch} className="shrink-0">
+                <Bookmark className="h-4 w-4 sm:mr-1" />
+                <span className="hidden sm:inline">Save</span>
+              </Button>
             </div>
           </div>
 
@@ -187,7 +200,7 @@ function MarketplacePage() {
 
         <section className="container mx-auto px-4 pb-16">
           {isLoading ? (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {Array.from({ length: 6 }).map((_, i) => (
                 <Card key={i} className="border-0 shadow-card overflow-hidden animate-pulse">
                   <div className="aspect-[4/3] bg-muted" />
@@ -201,15 +214,15 @@ function MarketplacePage() {
             </div>
           ) : data?.listings.length ? (
             <>
-              <div className="text-sm text-muted-foreground mb-4">
+              <div className="text-xs sm:text-sm text-muted-foreground mb-4">
                 {data.listings.length} listing{data.listings.length === 1 ? "" : "s"}{isFetching ? " · updating…" : ""}
               </div>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {data.listings.map((l) => <ListingCard key={l.id} l={l} />)}
               </div>
             </>
           ) : (
-            <div className="text-center py-20">
+            <div className="text-center py-16 sm:py-20">
               <div className="mx-auto h-14 w-14 rounded-2xl bg-muted flex items-center justify-center mb-3"><Search className="h-6 w-6 text-muted-foreground" /></div>
               <p className="font-medium">No listings match your search</p>
               <p className="mt-1 text-sm text-muted-foreground">Try widening your filters or browsing all categories.</p>
@@ -217,6 +230,7 @@ function MarketplacePage() {
             </div>
           )}
         </section>
+
       </main>
       <PublicFooter />
     </div>
