@@ -109,7 +109,7 @@ function PostPage() {
           <ArrowLeft className="h-4 w-4" /> All articles
         </Link>
 
-        <div className="flex gap-2 mb-4">{p.tags.map((t) => <Badge key={t} variant="secondary">{t}</Badge>)}</div>
+        <div className="flex gap-2 mb-4">{p.tags.map((t: string) => <Badge key={t} variant="secondary">{t}</Badge>)}</div>
         <h1 className="font-display text-3xl md:text-5xl font-bold tracking-tight mb-4">{p.title}</h1>
         <p className="text-lg text-muted-foreground mb-6">{p.excerpt}</p>
 
