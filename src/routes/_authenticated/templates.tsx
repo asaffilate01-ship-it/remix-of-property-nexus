@@ -266,7 +266,7 @@ const TEMPLATES: Template[] = [
     id: "eicr",
     name: "EICR — Electrical Installation Condition Report",
     category: "Compliance",
-    jurisdiction: "England",
+    jurisdiction: "England & Wales",
     authority: "Electrical Safety Standards Regs 2020",
     description: "5-yearly EICR with C1/C2/C3/FI coding and remedial works tracker.",
     pages: 8,
