@@ -294,3 +294,92 @@ function ReferencingCasesPage() {
     </div>
   );
 }
+
+const CHECK_LABELS: Record<string, string> = {
+  id_verification: "ID Verification",
+  credit_check: "Credit Check",
+  right_to_rent: "Right to Rent",
+  employer_reference: "Employer Reference",
+  landlord_reference: "Landlord Reference",
+  affordability: "Affordability",
+  aml_pep_sanctions: "AML / PEP / Sanctions",
+  open_banking: "Open Banking",
+};
+
+const STATUS_PILL: Record<string, string> = {
+  pending: "bg-slate-100 text-slate-700",
+  in_progress: "bg-blue-50 text-blue-700",
+  passed: "bg-emerald-50 text-emerald-700",
+  failed: "bg-red-50 text-red-700",
+  review: "bg-amber-50 text-amber-700",
+  expired: "bg-muted text-muted-foreground",
+  cancelled: "bg-muted text-muted-foreground line-through",
+};
+
+function ChecksPanel({ caseId }: { caseId: string }) {
+  const fetchChecks = useServerFn(listReferencingChecks);
+  const runCheck = useServerFn(requestReferencingCheck);
+  const { data, refetch, isFetching } = useQuery({
+    queryKey: ["referencing-checks", caseId],
+    queryFn: () => fetchChecks({ data: { case_id: caseId } }),
+  });
+  const checks = data?.checks ?? [];
+  const [busy, setBusy] = useState<string | null>(null);
+
+  const run = async (check_type: string) => {
+    setBusy(check_type);
+    try {
+      await runCheck({ data: { case_id: caseId, check_type: check_type as never } });
+      toast.success(`${CHECK_LABELS[check_type]} complete`);
+      refetch();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed");
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  return (
+    <div className="rounded-lg border p-4 space-y-3">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm font-medium">Third-party checks</p>
+          <p className="text-xs text-muted-foreground">ID, credit, right-to-rent, references and open banking. Simulated mode is on until a provider is wired.</p>
+        </div>
+        <Button size="sm" variant="ghost" onClick={() => refetch()} disabled={isFetching}>Refresh</Button>
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        {Object.keys(CHECK_LABELS).map((t) => (
+          <Button key={t} size="sm" variant="outline" disabled={busy === t} onClick={() => run(t)}>
+            {busy === t ? "Running…" : `Run ${CHECK_LABELS[t]}`}
+          </Button>
+        ))}
+      </div>
+
+      {checks.length === 0 ? (
+        <p className="text-xs text-muted-foreground">No checks run yet.</p>
+      ) : (
+        <div className="divide-y border rounded">
+          {checks.map((c: { id: string; check_type: string; provider: string; status: string; score: number | null; result: Record<string, unknown>; completed_at: string | null; requested_at: string }) => (
+            <div key={c.id} className="p-3 flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <div className="text-sm font-medium flex items-center gap-2">
+                  {CHECK_LABELS[c.check_type] ?? c.check_type}
+                  <Badge className={STATUS_PILL[c.status] + " text-[10px]"}>{c.status}</Badge>
+                  {c.score !== null && <Badge variant="outline" className="text-[10px]">score {c.score}</Badge>}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {c.provider} · {new Date(c.completed_at ?? c.requested_at).toLocaleString("en-GB")}
+                </div>
+                {c.result && Object.keys(c.result).length > 0 && (
+                  <pre className="text-[10px] text-muted-foreground mt-1 whitespace-pre-wrap">{JSON.stringify(c.result, null, 0)}</pre>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
