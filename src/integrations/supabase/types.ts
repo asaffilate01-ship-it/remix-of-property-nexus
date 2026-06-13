@@ -209,6 +209,77 @@ export type Database = {
         }
         Relationships: []
       }
+      contacts: {
+        Row: {
+          address: string | null
+          agency_id: string
+          certifications: Json | null
+          company_name: string | null
+          contact_type: Database["public"]["Enums"]["contact_type"]
+          created_at: string
+          email: string | null
+          full_name: string
+          hourly_rate: number | null
+          id: string
+          insurance_expires_at: string | null
+          is_active: boolean
+          is_preferred: boolean
+          notes: string | null
+          phone: string | null
+          postcode: string | null
+          rating: number | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          agency_id: string
+          certifications?: Json | null
+          company_name?: string | null
+          contact_type: Database["public"]["Enums"]["contact_type"]
+          created_at?: string
+          email?: string | null
+          full_name: string
+          hourly_rate?: number | null
+          id?: string
+          insurance_expires_at?: string | null
+          is_active?: boolean
+          is_preferred?: boolean
+          notes?: string | null
+          phone?: string | null
+          postcode?: string | null
+          rating?: number | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          agency_id?: string
+          certifications?: Json | null
+          company_name?: string | null
+          contact_type?: Database["public"]["Enums"]["contact_type"]
+          created_at?: string
+          email?: string | null
+          full_name?: string
+          hourly_rate?: number | null
+          id?: string
+          insurance_expires_at?: string | null
+          is_active?: boolean
+          is_preferred?: boolean
+          notes?: string | null
+          phone?: string | null
+          postcode?: string | null
+          rating?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contacts_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       deals: {
         Row: {
           agency_id: string | null
@@ -278,6 +349,106 @@ export type Database = {
             columns: ["listing_id"]
             isOneToOne: false
             referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_media: {
+        Row: {
+          accuracy_m: number | null
+          agency_id: string
+          altitude_m: number | null
+          caption: string | null
+          captured_at: string | null
+          created_at: string
+          duration_s: number | null
+          file_size: number | null
+          has_exif_gps: boolean
+          has_overlay: boolean
+          height: number | null
+          id: string
+          kind: Database["public"]["Enums"]["job_media_kind"]
+          latitude: number | null
+          longitude: number | null
+          mime_type: string | null
+          property_id: string | null
+          source: string
+          storage_path: string
+          thumbnail_path: string | null
+          uploader_id: string | null
+          width: number | null
+          work_order_id: string | null
+        }
+        Insert: {
+          accuracy_m?: number | null
+          agency_id: string
+          altitude_m?: number | null
+          caption?: string | null
+          captured_at?: string | null
+          created_at?: string
+          duration_s?: number | null
+          file_size?: number | null
+          has_exif_gps?: boolean
+          has_overlay?: boolean
+          height?: number | null
+          id?: string
+          kind?: Database["public"]["Enums"]["job_media_kind"]
+          latitude?: number | null
+          longitude?: number | null
+          mime_type?: string | null
+          property_id?: string | null
+          source?: string
+          storage_path: string
+          thumbnail_path?: string | null
+          uploader_id?: string | null
+          width?: number | null
+          work_order_id?: string | null
+        }
+        Update: {
+          accuracy_m?: number | null
+          agency_id?: string
+          altitude_m?: number | null
+          caption?: string | null
+          captured_at?: string | null
+          created_at?: string
+          duration_s?: number | null
+          file_size?: number | null
+          has_exif_gps?: boolean
+          has_overlay?: boolean
+          height?: number | null
+          id?: string
+          kind?: Database["public"]["Enums"]["job_media_kind"]
+          latitude?: number | null
+          longitude?: number | null
+          mime_type?: string | null
+          property_id?: string | null
+          source?: string
+          storage_path?: string
+          thumbnail_path?: string | null
+          uploader_id?: string | null
+          width?: number | null
+          work_order_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_media_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_media_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_media_work_order_id_fkey"
+            columns: ["work_order_id"]
+            isOneToOne: false
+            referencedRelation: "work_orders"
             referencedColumns: ["id"]
           },
         ]
@@ -685,6 +856,121 @@ export type Database = {
           },
         ]
       }
+      sales_deals: {
+        Row: {
+          agency_id: string
+          agreed_price: number | null
+          buyer_conveyancer_id: string | null
+          buyer_lead_id: string | null
+          chain_position: string | null
+          completion_at: string | null
+          created_at: string
+          enquiries_returned_at: string | null
+          exchange_at: string | null
+          fall_through_reason: string | null
+          id: string
+          listing_id: string | null
+          memo_of_sale_at: string | null
+          mortgage_offer_at: string | null
+          notes: string | null
+          offer_amount: number | null
+          property_id: string | null
+          searches_ordered_at: string | null
+          seller_conveyancer_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          agency_id: string
+          agreed_price?: number | null
+          buyer_conveyancer_id?: string | null
+          buyer_lead_id?: string | null
+          chain_position?: string | null
+          completion_at?: string | null
+          created_at?: string
+          enquiries_returned_at?: string | null
+          exchange_at?: string | null
+          fall_through_reason?: string | null
+          id?: string
+          listing_id?: string | null
+          memo_of_sale_at?: string | null
+          mortgage_offer_at?: string | null
+          notes?: string | null
+          offer_amount?: number | null
+          property_id?: string | null
+          searches_ordered_at?: string | null
+          seller_conveyancer_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          agency_id?: string
+          agreed_price?: number | null
+          buyer_conveyancer_id?: string | null
+          buyer_lead_id?: string | null
+          chain_position?: string | null
+          completion_at?: string | null
+          created_at?: string
+          enquiries_returned_at?: string | null
+          exchange_at?: string | null
+          fall_through_reason?: string | null
+          id?: string
+          listing_id?: string | null
+          memo_of_sale_at?: string | null
+          mortgage_offer_at?: string | null
+          notes?: string | null
+          offer_amount?: number | null
+          property_id?: string | null
+          searches_ordered_at?: string | null
+          seller_conveyancer_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_deals_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_deals_buyer_conveyancer_id_fkey"
+            columns: ["buyer_conveyancer_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_deals_buyer_lead_id_fkey"
+            columns: ["buyer_lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_deals_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_deals_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_deals_seller_conveyancer_id_fkey"
+            columns: ["seller_conveyancer_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tenancies: {
         Row: {
           agency_id: string | null
@@ -794,6 +1080,147 @@ export type Database = {
         }
         Relationships: []
       }
+      work_order_updates: {
+        Row: {
+          author_id: string | null
+          created_at: string
+          id: string
+          note: string
+          status_change: Database["public"]["Enums"]["work_order_status"] | null
+          work_order_id: string
+        }
+        Insert: {
+          author_id?: string | null
+          created_at?: string
+          id?: string
+          note: string
+          status_change?:
+            | Database["public"]["Enums"]["work_order_status"]
+            | null
+          work_order_id: string
+        }
+        Update: {
+          author_id?: string | null
+          created_at?: string
+          id?: string
+          note?: string
+          status_change?:
+            | Database["public"]["Enums"]["work_order_status"]
+            | null
+          work_order_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "work_order_updates_work_order_id_fkey"
+            columns: ["work_order_id"]
+            isOneToOne: false
+            referencedRelation: "work_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      work_orders: {
+        Row: {
+          actual_cost: number | null
+          agency_id: string
+          category: string | null
+          completed_at: string | null
+          contact_id: string | null
+          created_at: string
+          description: string | null
+          estimated_cost: number | null
+          id: string
+          invoice_url: string | null
+          priority: Database["public"]["Enums"]["work_order_priority"]
+          property_id: string | null
+          reported_by: string | null
+          room_id: string | null
+          scheduled_for: string | null
+          status: Database["public"]["Enums"]["work_order_status"]
+          tenancy_id: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          actual_cost?: number | null
+          agency_id: string
+          category?: string | null
+          completed_at?: string | null
+          contact_id?: string | null
+          created_at?: string
+          description?: string | null
+          estimated_cost?: number | null
+          id?: string
+          invoice_url?: string | null
+          priority?: Database["public"]["Enums"]["work_order_priority"]
+          property_id?: string | null
+          reported_by?: string | null
+          room_id?: string | null
+          scheduled_for?: string | null
+          status?: Database["public"]["Enums"]["work_order_status"]
+          tenancy_id?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          actual_cost?: number | null
+          agency_id?: string
+          category?: string | null
+          completed_at?: string | null
+          contact_id?: string | null
+          created_at?: string
+          description?: string | null
+          estimated_cost?: number | null
+          id?: string
+          invoice_url?: string | null
+          priority?: Database["public"]["Enums"]["work_order_priority"]
+          property_id?: string | null
+          reported_by?: string | null
+          room_id?: string | null
+          scheduled_for?: string | null
+          status?: Database["public"]["Enums"]["work_order_status"]
+          tenancy_id?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "work_orders_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "work_orders_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "work_orders_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "work_orders_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "work_orders_tenancy_id_fkey"
+            columns: ["tenancy_id"]
+            isOneToOne: false
+            referencedRelation: "tenancies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -837,6 +1264,26 @@ export type Database = {
         | "aml"
         | "pi_insurance"
         | "ico"
+      contact_type:
+        | "conveyancer"
+        | "solicitor"
+        | "plumber"
+        | "electrician"
+        | "gas_engineer"
+        | "builder"
+        | "cleaner"
+        | "handyman"
+        | "locksmith"
+        | "roofer"
+        | "painter"
+        | "gardener"
+        | "inventory_clerk"
+        | "epc_assessor"
+        | "utilities"
+        | "council"
+        | "referencing"
+        | "insurance"
+        | "other"
       deal_stage:
         | "lead"
         | "contacted"
@@ -846,6 +1293,7 @@ export type Database = {
         | "agreed"
         | "completed"
         | "lost"
+      job_media_kind: "photo" | "video"
       lead_status:
         | "new"
         | "contacted"
@@ -879,6 +1327,13 @@ export type Database = {
       rent_status: "due" | "paid" | "overdue" | "waived"
       tenancy_status: "draft" | "active" | "notice" | "ended"
       tenure_type: "freehold" | "leasehold" | "share_of_freehold" | "commonhold"
+      work_order_priority: "low" | "medium" | "high" | "emergency"
+      work_order_status:
+        | "open"
+        | "in_progress"
+        | "on_hold"
+        | "completed"
+        | "cancelled"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1032,6 +1487,27 @@ export const Constants = {
         "pi_insurance",
         "ico",
       ],
+      contact_type: [
+        "conveyancer",
+        "solicitor",
+        "plumber",
+        "electrician",
+        "gas_engineer",
+        "builder",
+        "cleaner",
+        "handyman",
+        "locksmith",
+        "roofer",
+        "painter",
+        "gardener",
+        "inventory_clerk",
+        "epc_assessor",
+        "utilities",
+        "council",
+        "referencing",
+        "insurance",
+        "other",
+      ],
       deal_stage: [
         "lead",
         "contacted",
@@ -1042,6 +1518,7 @@ export const Constants = {
         "completed",
         "lost",
       ],
+      job_media_kind: ["photo", "video"],
       lead_status: [
         "new",
         "contacted",
@@ -1079,6 +1556,14 @@ export const Constants = {
       rent_status: ["due", "paid", "overdue", "waived"],
       tenancy_status: ["draft", "active", "notice", "ended"],
       tenure_type: ["freehold", "leasehold", "share_of_freehold", "commonhold"],
+      work_order_priority: ["low", "medium", "high", "emergency"],
+      work_order_status: [
+        "open",
+        "in_progress",
+        "on_hold",
+        "completed",
+        "cancelled",
+      ],
     },
   },
 } as const
