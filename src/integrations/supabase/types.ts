@@ -512,6 +512,97 @@ export type Database = {
           },
         ]
       }
+      documents: {
+        Row: {
+          agency_id: string | null
+          created_at: string
+          expires_on: string | null
+          folder: string
+          id: string
+          landlord_user_id: string | null
+          locked: boolean
+          mime_type: string | null
+          name: string
+          notes: string | null
+          property_id: string | null
+          retention: string | null
+          scope: Database["public"]["Enums"]["doc_scope"]
+          size_bytes: number | null
+          storage_path: string
+          tags: string[]
+          tenancy_id: string | null
+          tenant_user_id: string | null
+          updated_at: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          agency_id?: string | null
+          created_at?: string
+          expires_on?: string | null
+          folder?: string
+          id?: string
+          landlord_user_id?: string | null
+          locked?: boolean
+          mime_type?: string | null
+          name: string
+          notes?: string | null
+          property_id?: string | null
+          retention?: string | null
+          scope: Database["public"]["Enums"]["doc_scope"]
+          size_bytes?: number | null
+          storage_path: string
+          tags?: string[]
+          tenancy_id?: string | null
+          tenant_user_id?: string | null
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          agency_id?: string | null
+          created_at?: string
+          expires_on?: string | null
+          folder?: string
+          id?: string
+          landlord_user_id?: string | null
+          locked?: boolean
+          mime_type?: string | null
+          name?: string
+          notes?: string | null
+          property_id?: string | null
+          retention?: string | null
+          scope?: Database["public"]["Enums"]["doc_scope"]
+          size_bytes?: number | null
+          storage_path?: string
+          tags?: string[]
+          tenancy_id?: string | null
+          tenant_user_id?: string | null
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "documents_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documents_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documents_tenancy_id_fkey"
+            columns: ["tenancy_id"]
+            isOneToOne: false
+            referencedRelation: "tenancies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       job_media: {
         Row: {
           accuracy_m: number | null
@@ -1798,6 +1889,7 @@ export type Database = {
         | "agreed"
         | "completed"
         | "lost"
+      doc_scope: "property" | "landlord" | "tenant" | "tenancy" | "agency"
       job_media_kind: "photo" | "video"
       lead_status:
         | "new"
@@ -2054,6 +2146,7 @@ export const Constants = {
         "completed",
         "lost",
       ],
+      doc_scope: ["property", "landlord", "tenant", "tenancy", "agency"],
       job_media_kind: ["photo", "video"],
       lead_status: [
         "new",
