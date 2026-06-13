@@ -62,11 +62,12 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").repla
 
 function normalizePhotos(raw: unknown): ListingPhoto[] {
   if (!Array.isArray(raw)) return [];
-  return (raw as unknown[]).map((p) => {
-    if (typeof p === "string") return { url: p, room: null };
-    if (p && typeof p === "object" && "url" in p) return { url: String((p as any).url), room: (p as any).room ?? null };
-    return null;
-  }).filter((p): p is ListingPhoto => !!p && !!p.url);
+  const out: ListingPhoto[] = [];
+  for (const p of raw as unknown[]) {
+    if (typeof p === "string") out.push({ url: p, room: null });
+    else if (p && typeof p === "object" && "url" in (p as any)) out.push({ url: String((p as any).url), room: (p as any).room ?? null });
+  }
+  return out;
 }
 
 export const Route = createFileRoute("/_authenticated/listings")({ component: ListingsPage });
