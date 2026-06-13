@@ -105,7 +105,7 @@ function ListingsPage() {
       purpose: form.purpose,
       status: (form.publish ? "published" : "draft") as "published" | "draft",
       price: form.price ? Number(form.price) : null,
-      price_qualifier: (form.price_qualifier === "none" ? null : form.price_qualifier) as "asking" | "fixed" | "guide_price" | "offers_in_region" | "offers_over" | "poa" | null,
+      price_qualifier: (form.price_qualifier === "none" ? null : form.price_qualifier) as "guide_price" | "offers_in_region" | "offers_over" | "poa" | null,
       bedrooms: form.bedrooms ? Number(form.bedrooms) : null,
       bathrooms: form.bathrooms ? Number(form.bathrooms) : null,
       receptions: form.receptions ? Number(form.receptions) : null,
