@@ -33,6 +33,7 @@ import { Route as AgenciesIndexRouteImport } from './routes/agencies.index'
 import { Route as ModulesSlugRouteImport } from './routes/modules.$slug'
 import { Route as MarketplaceSlugRouteImport } from './routes/marketplace.$slug'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
+import { Route as AreaGuidesSlugRouteImport } from './routes/area-guides.$slug'
 import { Route as AgenciesSlugRouteImport } from './routes/agencies.$slug'
 import { Route as AuthenticatedWorkOrdersRouteImport } from './routes/_authenticated/work-orders'
 import { Route as AuthenticatedViewingsRouteImport } from './routes/_authenticated/viewings'
@@ -193,6 +194,11 @@ const BlogSlugRoute = BlogSlugRouteImport.update({
   id: '/blog/$slug',
   path: '/blog/$slug',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AreaGuidesSlugRoute = AreaGuidesSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => AreaGuidesRoute,
 } as any)
 const AgenciesSlugRoute = AgenciesSlugRouteImport.update({
   id: '/$slug',
@@ -412,7 +418,7 @@ const ApiPublicHooksMatchSavedSearchesRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/agencies': typeof AgenciesRouteWithChildren
-  '/area-guides': typeof AreaGuidesRoute
+  '/area-guides': typeof AreaGuidesRouteWithChildren
   '/auth': typeof AuthRoute
   '/business': typeof BusinessRoute
   '/complaints': typeof ComplaintsRoute
@@ -465,6 +471,7 @@ export interface FileRoutesByFullPath {
   '/viewings': typeof AuthenticatedViewingsRoute
   '/work-orders': typeof AuthenticatedWorkOrdersRoute
   '/agencies/$slug': typeof AgenciesSlugRoute
+  '/area-guides/$slug': typeof AreaGuidesSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/marketplace/$slug': typeof MarketplaceSlugRoute
   '/modules/$slug': typeof ModulesSlugRoute
@@ -477,7 +484,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/area-guides': typeof AreaGuidesRoute
+  '/area-guides': typeof AreaGuidesRouteWithChildren
   '/auth': typeof AuthRoute
   '/business': typeof BusinessRoute
   '/complaints': typeof ComplaintsRoute
@@ -529,6 +536,7 @@ export interface FileRoutesByTo {
   '/viewings': typeof AuthenticatedViewingsRoute
   '/work-orders': typeof AuthenticatedWorkOrdersRoute
   '/agencies/$slug': typeof AgenciesSlugRoute
+  '/area-guides/$slug': typeof AreaGuidesSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/marketplace/$slug': typeof MarketplaceSlugRoute
   '/modules/$slug': typeof ModulesSlugRoute
@@ -544,7 +552,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/agencies': typeof AgenciesRouteWithChildren
-  '/area-guides': typeof AreaGuidesRoute
+  '/area-guides': typeof AreaGuidesRouteWithChildren
   '/auth': typeof AuthRoute
   '/business': typeof BusinessRoute
   '/complaints': typeof ComplaintsRoute
@@ -597,6 +605,7 @@ export interface FileRoutesById {
   '/_authenticated/viewings': typeof AuthenticatedViewingsRoute
   '/_authenticated/work-orders': typeof AuthenticatedWorkOrdersRoute
   '/agencies/$slug': typeof AgenciesSlugRoute
+  '/area-guides/$slug': typeof AreaGuidesSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/marketplace/$slug': typeof MarketplaceSlugRoute
   '/modules/$slug': typeof ModulesSlugRoute
@@ -665,6 +674,7 @@ export interface FileRouteTypes {
     | '/viewings'
     | '/work-orders'
     | '/agencies/$slug'
+    | '/area-guides/$slug'
     | '/blog/$slug'
     | '/marketplace/$slug'
     | '/modules/$slug'
@@ -729,6 +739,7 @@ export interface FileRouteTypes {
     | '/viewings'
     | '/work-orders'
     | '/agencies/$slug'
+    | '/area-guides/$slug'
     | '/blog/$slug'
     | '/marketplace/$slug'
     | '/modules/$slug'
@@ -796,6 +807,7 @@ export interface FileRouteTypes {
     | '/_authenticated/viewings'
     | '/_authenticated/work-orders'
     | '/agencies/$slug'
+    | '/area-guides/$slug'
     | '/blog/$slug'
     | '/marketplace/$slug'
     | '/modules/$slug'
@@ -811,7 +823,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AgenciesRoute: typeof AgenciesRouteWithChildren
-  AreaGuidesRoute: typeof AreaGuidesRoute
+  AreaGuidesRoute: typeof AreaGuidesRouteWithChildren
   AuthRoute: typeof AuthRoute
   BusinessRoute: typeof BusinessRoute
   ComplaintsRoute: typeof ComplaintsRoute
@@ -1002,6 +1014,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/blog/$slug'
       preLoaderRoute: typeof BlogSlugRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/area-guides/$slug': {
+      id: '/area-guides/$slug'
+      path: '/$slug'
+      fullPath: '/area-guides/$slug'
+      preLoaderRoute: typeof AreaGuidesSlugRouteImport
+      parentRoute: typeof AreaGuidesRoute
     }
     '/agencies/$slug': {
       id: '/agencies/$slug'
@@ -1405,6 +1424,18 @@ const AgenciesRouteWithChildren = AgenciesRoute._addFileChildren(
   AgenciesRouteChildren,
 )
 
+interface AreaGuidesRouteChildren {
+  AreaGuidesSlugRoute: typeof AreaGuidesSlugRoute
+}
+
+const AreaGuidesRouteChildren: AreaGuidesRouteChildren = {
+  AreaGuidesSlugRoute: AreaGuidesSlugRoute,
+}
+
+const AreaGuidesRouteWithChildren = AreaGuidesRoute._addFileChildren(
+  AreaGuidesRouteChildren,
+)
+
 interface MarketplaceRouteChildren {
   MarketplaceSlugRoute: typeof MarketplaceSlugRoute
   MarketplaceIndexRoute: typeof MarketplaceIndexRoute
@@ -1423,7 +1454,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AgenciesRoute: AgenciesRouteWithChildren,
-  AreaGuidesRoute: AreaGuidesRoute,
+  AreaGuidesRoute: AreaGuidesRouteWithChildren,
   AuthRoute: AuthRoute,
   BusinessRoute: BusinessRoute,
   ComplaintsRoute: ComplaintsRoute,
