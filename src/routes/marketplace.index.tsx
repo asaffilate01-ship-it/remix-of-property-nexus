@@ -412,7 +412,9 @@ function FiltersSheet({ s, setSearch, category }: { s: SearchParams; setSearch: 
       epc_min: local.epc_min !== "any" ? (local.epc_min as "A" | "B" | "C" | "D" | "E") : undefined,
       tenure: local.tenure !== "any" ? (local.tenure as "freehold" | "leasehold" | "share_of_freehold") : undefined,
       features: local.features.length ? local.features : undefined,
+      available_from: local.available_from || undefined,
     });
+
     setOpen(false);
   };
 
