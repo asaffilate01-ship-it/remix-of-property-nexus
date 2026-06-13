@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Check, X, ArrowRight, Sparkles, Building2, Users, Globe, Zap, ShieldCheck, BarChart3, Smartphone, Quote } from "lucide-react";
+import { Check, X, ArrowRight, Sparkles, Building2, Users, Globe, Zap, ShieldCheck, BarChart3, Smartphone, Quote, Bot, Camera, MessageSquare, FileSignature, Megaphone, Languages } from "lucide-react";
 
 export const Route = createFileRoute("/business")({
   head: () => ({
