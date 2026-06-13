@@ -6,9 +6,11 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 const nav = [
   { to: "/marketplace", label: "Marketplace" },
+  { to: "/saved-searches", label: "Saved" },
   { to: "/valuation", label: "Valuation" },
   { to: "/mortgage", label: "Mortgages" },
   { to: "/area-guides", label: "Area guides" },
+  { to: "/referencing", label: "Referencing" },
   { to: "/agencies", label: "Agencies" },
   { to: "/business", label: "For business" },
 ];
