@@ -75,6 +75,7 @@ import { Route as AuthenticatedAgencyRouteImport } from './routes/_authenticated
 import { Route as ApiPublicReferencingWebhookRouteImport } from './routes/api/public/referencing-webhook'
 import { Route as AuthenticatedTenanciesIdRouteImport } from './routes/_authenticated/tenancies.$id'
 import { Route as ApiPublicHooksMatchSavedSearchesRouteImport } from './routes/api/public/hooks/match-saved-searches'
+import { Route as AuthenticatedListingIdWindowCardRouteImport } from './routes/_authenticated/listing.$id.window-card'
 
 const ValuationRoute = ValuationRouteImport.update({
   id: '/valuation',
@@ -414,6 +415,12 @@ const ApiPublicHooksMatchSavedSearchesRoute =
     path: '/api/public/hooks/match-saved-searches',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AuthenticatedListingIdWindowCardRoute =
+  AuthenticatedListingIdWindowCardRouteImport.update({
+    id: '/listing/$id/window-card',
+    path: '/listing/$id/window-card',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -480,6 +487,7 @@ export interface FileRoutesByFullPath {
   '/marketplace/': typeof MarketplaceIndexRoute
   '/tenancies/$id': typeof AuthenticatedTenanciesIdRoute
   '/api/public/referencing-webhook': typeof ApiPublicReferencingWebhookRoute
+  '/listing/$id/window-card': typeof AuthenticatedListingIdWindowCardRoute
   '/api/public/hooks/match-saved-searches': typeof ApiPublicHooksMatchSavedSearchesRoute
 }
 export interface FileRoutesByTo {
@@ -545,6 +553,7 @@ export interface FileRoutesByTo {
   '/marketplace': typeof MarketplaceIndexRoute
   '/tenancies/$id': typeof AuthenticatedTenanciesIdRoute
   '/api/public/referencing-webhook': typeof ApiPublicReferencingWebhookRoute
+  '/listing/$id/window-card': typeof AuthenticatedListingIdWindowCardRoute
   '/api/public/hooks/match-saved-searches': typeof ApiPublicHooksMatchSavedSearchesRoute
 }
 export interface FileRoutesById {
@@ -614,6 +623,7 @@ export interface FileRoutesById {
   '/marketplace/': typeof MarketplaceIndexRoute
   '/_authenticated/tenancies/$id': typeof AuthenticatedTenanciesIdRoute
   '/api/public/referencing-webhook': typeof ApiPublicReferencingWebhookRoute
+  '/_authenticated/listing/$id/window-card': typeof AuthenticatedListingIdWindowCardRoute
   '/api/public/hooks/match-saved-searches': typeof ApiPublicHooksMatchSavedSearchesRoute
 }
 export interface FileRouteTypes {
@@ -683,6 +693,7 @@ export interface FileRouteTypes {
     | '/marketplace/'
     | '/tenancies/$id'
     | '/api/public/referencing-webhook'
+    | '/listing/$id/window-card'
     | '/api/public/hooks/match-saved-searches'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -748,6 +759,7 @@ export interface FileRouteTypes {
     | '/marketplace'
     | '/tenancies/$id'
     | '/api/public/referencing-webhook'
+    | '/listing/$id/window-card'
     | '/api/public/hooks/match-saved-searches'
   id:
     | '__root__'
@@ -816,6 +828,7 @@ export interface FileRouteTypes {
     | '/marketplace/'
     | '/_authenticated/tenancies/$id'
     | '/api/public/referencing-webhook'
+    | '/_authenticated/listing/$id/window-card'
     | '/api/public/hooks/match-saved-searches'
   fileRoutesById: FileRoutesById
 }
@@ -1309,6 +1322,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksMatchSavedSearchesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/listing/$id/window-card': {
+      id: '/_authenticated/listing/$id/window-card'
+      path: '/listing/$id/window-card'
+      fullPath: '/listing/$id/window-card'
+      preLoaderRoute: typeof AuthenticatedListingIdWindowCardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -1364,6 +1384,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedVendorPortalRoute: typeof AuthenticatedVendorPortalRoute
   AuthenticatedViewingsRoute: typeof AuthenticatedViewingsRoute
   AuthenticatedWorkOrdersRoute: typeof AuthenticatedWorkOrdersRoute
+  AuthenticatedListingIdWindowCardRoute: typeof AuthenticatedListingIdWindowCardRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -1405,6 +1426,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedVendorPortalRoute: AuthenticatedVendorPortalRoute,
   AuthenticatedViewingsRoute: AuthenticatedViewingsRoute,
   AuthenticatedWorkOrdersRoute: AuthenticatedWorkOrdersRoute,
+  AuthenticatedListingIdWindowCardRoute: AuthenticatedListingIdWindowCardRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

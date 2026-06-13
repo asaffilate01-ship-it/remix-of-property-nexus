@@ -15,7 +15,7 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Plus, Tag, ExternalLink, Pencil, Trash2, Eye, EyeOff, Globe } from "lucide-react";
+import { Plus, Tag, ExternalLink, Pencil, Trash2, Eye, EyeOff, Globe, Printer } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/PageHeader";
 import { PhotoUploader, type ListingPhoto } from "@/components/listings/PhotoUploader";
@@ -274,6 +274,9 @@ function ListingsPage() {
                     </Button>
                     <Button size="icon" variant="ghost" className="h-8 w-8" title={l.status === "published" ? "Unpublish" : "Publish"} onClick={() => togglePublish(l)}>
                       {l.status === "published" ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                    </Button>
+                    <Button asChild size="icon" variant="ghost" className="h-8 w-8" title="Window card (print)">
+                      <Link to="/listing/$id/window-card" params={{ id: l.id }}><Printer className="h-3.5 w-3.5" /></Link>
                     </Button>
                     <Button size="icon" variant="ghost" className="h-8 w-8" title="Edit" onClick={() => openEdit(l)}><Pencil className="h-3.5 w-3.5" /></Button>
                     <AlertDialog>
