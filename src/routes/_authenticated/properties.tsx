@@ -18,10 +18,14 @@ import { toast } from "sonner";
 import { PageHeader } from "@/components/PageHeader";
 import { FeatureMultiSelect } from "@/components/properties/FeatureMultiSelect";
 import { PostcodeAutocomplete } from "@/components/properties/PostcodeAutocomplete";
+import { PostcodeLookup } from "@/components/properties/PostcodeLookup";
 import { PropertyScheduleGantt } from "@/components/properties/PropertyScheduleGantt";
 import { PropertyDocsPanel } from "@/components/properties/PropertyDocsPanel";
 import { PropertyCompliancePanel } from "@/components/properties/PropertyCompliancePanel";
 import { StreetViewThumb } from "@/components/properties/StreetViewThumb";
+import { TenantBioEditor, type TenantBio } from "@/components/tenancy/TenantBioEditor";
+import { TenantComplianceEditor, type TenantComplianceMap } from "@/components/tenancy/TenantComplianceEditor";
+import { TenantDocsMini } from "@/components/tenancy/TenantDocsMini";
 
 export const Route = createFileRoute("/_authenticated/properties")({ component: PropertiesPage });
 
@@ -34,7 +38,7 @@ type Property = {
   nightly_rate: number | null; min_stay_nights: number | null; cleaning_fee: number | null;
 };
 type Room = { id: string; property_id: string; name: string; room_number: string | null; rent_pcm: number | null; status: string; en_suite: boolean | null; bills_included: boolean | null; available_from: string | null };
-type Tenancy = { id: string; property_id: string; room_id: string | null; tenant_name: string; tenant_email: string | null; tenant_phone: string | null; start_date: string; end_date: string | null; rent_amount: number; rent_frequency: "weekly" | "monthly"; deposit: number | null; status: string };
+type Tenancy = { id: string; property_id: string; room_id: string | null; tenant_name: string; tenant_email: string | null; tenant_phone: string | null; start_date: string; end_date: string | null; rent_amount: number; rent_frequency: "weekly" | "monthly"; deposit: number | null; status: string; bio?: TenantBio | null; tenant_compliance?: TenantComplianceMap | null };
 
 const PURPOSES = [
   { v: "rent", l: "Long-let (Rent)" },
@@ -52,7 +56,7 @@ const emptyProp = {
   nightly_rate: "", min_stay_nights: "", cleaning_fee: "",
 };
 const emptyRoom = { id: "", name: "", room_number: "", rent_pcm: "", status: "vacant", en_suite: false, bills_included: true, available_from: "" };
-const emptyTenancy = { id: "", room_id: "", tenant_name: "", tenant_email: "", tenant_phone: "", start_date: "", end_date: "", rent_amount: "", rent_frequency: "monthly" as "weekly" | "monthly", deposit: "", status: "draft" };
+const emptyTenancy = { id: "", room_id: "", tenant_name: "", tenant_email: "", tenant_phone: "", start_date: "", end_date: "", rent_amount: "", rent_frequency: "monthly" as "weekly" | "monthly", deposit: "", status: "draft", bio: {} as TenantBio, tenant_compliance: {} as TenantComplianceMap };
 
 function PropertiesPage() {
   const [rows, setRows] = useState<Property[]>([]);
