@@ -239,21 +239,24 @@ function MarketplacePage() {
 
 function SearchBar({ q, setQ, city, setCity, onSubmit }: { q: string; setQ: (v: string) => void; city: string; setCity: (v: string) => void; onSubmit: () => void }) {
   return (
-    <div className="bg-card text-foreground rounded-2xl p-2 md:p-3 shadow-2xl ring-1 ring-border/50">
+    <div className="bg-card text-foreground rounded-2xl p-2 shadow-2xl ring-1 ring-border/50">
       <form className="grid grid-cols-1 md:grid-cols-12 gap-2" onSubmit={(e) => { e.preventDefault(); onSubmit(); }}>
         <div className="md:col-span-7 relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Search by area, postcode or keyword…" value={q} onChange={(e) => setQ(e.target.value)} className="pl-9 h-12 border-0 focus-visible:ring-0" />
+          <Input placeholder="Search by area, postcode or keyword…" value={q} onChange={(e) => setQ(e.target.value)} className="pl-9 h-11 md:h-12 border-0 focus-visible:ring-0" />
         </div>
         <div className="md:col-span-3 relative">
           <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="City" value={city} onChange={(e) => setCity(e.target.value)} className="pl-9 h-12 border-0 focus-visible:ring-0" />
+          <Input placeholder="City" value={city} onChange={(e) => setCity(e.target.value)} className="pl-9 h-11 md:h-12 border-0 focus-visible:ring-0" />
         </div>
-        <Button type="submit" className="md:col-span-2 h-12">Search</Button>
+        <Button type="submit" className="md:col-span-2 h-11 md:h-12 w-full">
+          <Search className="h-4 w-4 mr-2 md:hidden" />Search
+        </Button>
       </form>
     </div>
   );
 }
+
 
 function FiltersSheet({ s, setSearch }: { s: SearchParams; setSearch: (patch: Partial<SearchParams>) => void }) {
   const [open, setOpen] = useState(false);
