@@ -1,4 +1,4 @@
-import { createFileRoute, useSearch, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useSearch, useNavigate, Link } from "@tanstack/react-router";
 import { z } from "zod";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
@@ -10,12 +10,19 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { fetchListings } from "@/lib/public.functions";
-import { useState } from "react";
-import { Search, SlidersHorizontal } from "lucide-react";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter } from "@/components/ui/sheet";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { fetchListings, fetchMarketplaceMeta } from "@/lib/public.functions";
+import { useEffect, useState } from "react";
+import { Search, SlidersHorizontal, MapPin, Building2, Sparkles, X, ArrowUpDown, Bookmark } from "lucide-react";
+import { toast } from "sonner";
 
 const categories = ["all", "sale", "rent", "hmo", "commercial"] as const;
 type Category = (typeof categories)[number];
+const sorts = ["newest", "price_asc", "price_desc", "beds_desc"] as const;
+type SortKey = (typeof sorts)[number];
 
 const search = z.object({
   category: z.enum(categories).optional(),
@@ -24,16 +31,23 @@ const search = z.object({
   min_price: z.number().optional(),
   max_price: z.number().optional(),
   beds: z.number().optional(),
+  baths: z.number().optional(),
+  bills_included: z.boolean().optional(),
+  furnished: z.string().optional(),
+  sort: z.enum(sorts).optional(),
 });
+
+type SearchParams = z.infer<typeof search>;
 
 export const Route = createFileRoute("/marketplace/")({
   validateSearch: search,
   head: () => ({
     meta: [
-      { title: "Property Marketplace — Homes, Lets, Rooms & Commercial" },
-      { name: "description", content: "Browse residential sales, lettings, HMO rooms and commercial property from verified UK agents and landlords." },
-      { property: "og:title", content: "Property Marketplace" },
-      { property: "og:description", content: "Sales, lettings, HMO rooms and commercial — all in one place." },
+      { title: "Property Marketplace — Sales, Lettings, HMO & Commercial | Estately" },
+      { name: "description", content: "The smarter UK property marketplace. Browse verified sales, lettings, HMO rooms and commercial property direct from trusted agents and landlords." },
+      { property: "og:title", content: "Estately — Property Marketplace" },
+      { property: "og:description", content: "Sales, lettings, HMO rooms and commercial — direct from verified agents and landlords." },
+      { property: "og:type", content: "website" },
     ],
   }),
   component: MarketplacePage,
@@ -47,80 +61,128 @@ const tabs: { value: Category; label: string }[] = [
   { value: "commercial", label: "Commercial" },
 ];
 
+const SORT_LABEL: Record<SortKey, string> = {
+  newest: "Newest first",
+  price_asc: "Price: low to high",
+  price_desc: "Price: high to low",
+  beds_desc: "Most bedrooms",
+};
+
 function MarketplacePage() {
   const s = useSearch({ from: "/marketplace/" });
   const navigate = useNavigate({ from: "/marketplace/" });
   const [q, setQ] = useState(s.q ?? "");
   const [city, setCity] = useState(s.city ?? "");
-  const [minPrice, setMinPrice] = useState(s.min_price?.toString() ?? "");
-  const [maxPrice, setMaxPrice] = useState(s.max_price?.toString() ?? "");
-  const [beds, setBeds] = useState(s.beds?.toString() ?? "");
   const category: Category = s.category ?? "all";
+  const sort: SortKey = s.sort ?? "newest";
+
+  const setSearch = (patch: Partial<SearchParams>) => navigate({ search: (prev: SearchParams) => ({ ...prev, ...patch }) });
+
+  const meta = useQuery({ queryKey: ["mp-meta"], queryFn: useServerFn(fetchMarketplaceMeta) });
 
   const fn = useServerFn(fetchListings);
   const { data, isLoading, isFetching } = useQuery({
-    queryKey: ["listings", { q, city, category, minPrice, maxPrice, beds }],
+    queryKey: ["listings", s, q, city],
     queryFn: () => fn({ data: {
-      q: q || undefined,
-      city: city || undefined,
-      category,
-      min_price: minPrice ? Number(minPrice) : undefined,
-      max_price: maxPrice ? Number(maxPrice) : undefined,
-      beds: beds ? Number(beds) : undefined,
+      q: q || undefined, city: city || undefined, category,
+      min_price: s.min_price, max_price: s.max_price, beds: s.beds, baths: s.baths,
+      bills_included: s.bills_included, furnished: s.furnished, sort,
     } }),
   });
+
+  const activeFilters: string[] = [];
+  if (s.min_price) activeFilters.push(`from £${s.min_price.toLocaleString()}`);
+  if (s.max_price) activeFilters.push(`to £${s.max_price.toLocaleString()}`);
+  if (s.beds) activeFilters.push(`${s.beds}+ beds`);
+  if (s.baths) activeFilters.push(`${s.baths}+ baths`);
+  if (s.bills_included) activeFilters.push("bills included");
+  if (s.furnished) activeFilters.push(s.furnished);
+
+  const saveSearch = () => {
+    try {
+      const saved = JSON.parse(localStorage.getItem("estately:saved-searches") ?? "[]");
+      saved.unshift({ when: new Date().toISOString(), search: s, q, city });
+      localStorage.setItem("estately:saved-searches", JSON.stringify(saved.slice(0, 20)));
+      toast.success("Search saved");
+    } catch { toast.error("Could not save"); }
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
       <PublicHeader />
       <main className="flex-1">
-        <section className="brand-gradient text-white relative overflow-hidden">
-          <div className="container mx-auto px-4 py-12 md:py-16 relative">
-            <h1 className="text-3xl md:text-5xl font-bold mb-3 tracking-tight max-w-3xl">Find property that fits.</h1>
-            <p className="text-white/80 mb-6 md:mb-8 text-base md:text-lg max-w-2xl">Sales, lettings, HMO rooms and commercial — from verified agents and landlords across the UK.</p>
-
-            <div className="bg-card text-foreground rounded-2xl p-3 md:p-4 shadow-2xl ring-1 ring-border/50 space-y-3">
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
-                <div className="md:col-span-6 relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input placeholder="Search by title or keyword…" value={q} onChange={(e) => setQ(e.target.value)} className="pl-9 h-11" />
-                </div>
-                <div className="md:col-span-4">
-                  <Input placeholder="City or postcode" value={city} onChange={(e) => setCity(e.target.value)} className="h-11" />
-                </div>
-                <div className="md:col-span-2">
-                  <Select value={beds || "any"} onValueChange={(v) => setBeds(v === "any" ? "" : v)}>
-                    <SelectTrigger className="h-11"><SelectValue placeholder="Beds" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="any">Any beds</SelectItem>
-                      {[1,2,3,4,5].map((n) => <SelectItem key={n} value={String(n)}>{n}+ beds</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-12 gap-3 items-center">
-                <div className="md:col-span-3"><Input placeholder="Min price" inputMode="numeric" value={minPrice} onChange={(e) => setMinPrice(e.target.value.replace(/[^0-9]/g, ""))} /></div>
-                <div className="md:col-span-3"><Input placeholder="Max price" inputMode="numeric" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value.replace(/[^0-9]/g, ""))} /></div>
-                <div className="md:col-span-6 flex items-center justify-between gap-2 col-span-2">
-                  <div className="text-xs text-muted-foreground inline-flex items-center gap-1.5"><SlidersHorizontal className="h-3.5 w-3.5" />Filters apply instantly</div>
-                  <Button variant="ghost" size="sm" onClick={() => { setQ(""); setCity(""); setMinPrice(""); setMaxPrice(""); setBeds(""); }}>Reset</Button>
-                </div>
-              </div>
+        <section className="brand-gradient relative overflow-hidden">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.18),transparent_60%)]" />
+          <div className="container mx-auto px-4 py-12 md:py-20 relative">
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 text-white text-xs font-medium px-3 py-1 backdrop-blur mb-4">
+              <Sparkles className="h-3 w-3" /> Smarter than the portals
             </div>
+            <h1 className="text-3xl md:text-5xl font-bold mb-3 tracking-tight max-w-3xl text-white">
+              Find your next home, room or investment.
+            </h1>
+            <p className="text-white/85 mb-6 md:mb-8 text-base md:text-lg max-w-2xl">
+              Direct from verified UK agents and landlords. Zero spam, zero phantom listings.
+            </p>
+
+            <SearchBar
+              q={q} setQ={setQ} city={city} setCity={setCity}
+              onSubmit={() => setSearch({ q: q || undefined, city: city || undefined })}
+            />
+
+            {meta.data && (
+              <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-white/90">
+                <div className="inline-flex items-center gap-1.5"><Building2 className="h-4 w-4" /> {meta.data.total.toLocaleString()} listings</div>
+                <div className="inline-flex items-center gap-1.5"><MapPin className="h-4 w-4" /> {meta.data.cityCount} towns & cities</div>
+                <div>{meta.data.agencyCount} verified agencies</div>
+              </div>
+            )}
           </div>
         </section>
 
-        <section className="container mx-auto px-4 py-6">
-          <Tabs
-            value={category}
-            onValueChange={(v) => navigate({ search: (prev: z.infer<typeof search>) => ({ ...prev, category: v === "all" ? undefined : (v as Category) }) })}
-          >
-            <TabsList className="flex flex-wrap h-auto">
-              {tabs.map((t) => (
-                <TabsTrigger key={t.value} value={t.value}>{t.label}</TabsTrigger>
+        {meta.data && meta.data.featured.length > 0 && (
+          <section className="border-b bg-muted/30">
+            <div className="container mx-auto px-4 py-4 flex items-center gap-3 overflow-x-auto">
+              <span className="text-xs uppercase tracking-wide text-muted-foreground font-semibold shrink-0">Featured agencies</span>
+              {meta.data.featured.map((a) => (
+                <Link key={a.id} to="/agencies/$slug" params={{ slug: a.slug }} className="shrink-0 inline-flex items-center gap-2 rounded-full border bg-card px-3 py-1.5 hover:bg-accent/10 transition-colors">
+                  <div className="h-6 w-6 rounded-full bg-muted overflow-hidden shrink-0">
+                    {a.logo_url && <img src={a.logo_url} alt="" className="h-full w-full object-cover" />}
+                  </div>
+                  <span className="text-sm font-medium truncate max-w-[160px]">{a.name}</span>
+                </Link>
               ))}
-            </TabsList>
-          </Tabs>
+            </div>
+          </section>
+        )}
+
+        <section className="container mx-auto px-4 py-6">
+          <div className="flex flex-wrap items-center gap-3 justify-between">
+            <Tabs value={category} onValueChange={(v) => setSearch({ category: v === "all" ? undefined : (v as Category) })}>
+              <TabsList className="flex flex-wrap h-auto">
+                {tabs.map((t) => <TabsTrigger key={t.value} value={t.value}>{t.label}</TabsTrigger>)}
+              </TabsList>
+            </Tabs>
+
+            <div className="flex items-center gap-2">
+              <FiltersSheet s={s} setSearch={setSearch} />
+              <Select value={sort} onValueChange={(v) => setSearch({ sort: v as SortKey })}>
+                <SelectTrigger className="h-9 w-[180px]"><ArrowUpDown className="h-3.5 w-3.5 mr-1" /><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {sorts.map((k) => <SelectItem key={k} value={k}>{SORT_LABEL[k]}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              <Button variant="ghost" size="sm" onClick={saveSearch}><Bookmark className="h-4 w-4 mr-1" /> Save</Button>
+            </div>
+          </div>
+
+          {activeFilters.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2 mt-3">
+              {activeFilters.map((f, i) => <Badge key={i} variant="secondary" className="capitalize">{f}</Badge>)}
+              <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => navigate({ search: { category: category === "all" ? undefined : category } })}>
+                <X className="h-3 w-3 mr-1" /> Clear filters
+              </Button>
+            </div>
+          )}
         </section>
 
         <section className="container mx-auto px-4 pb-16">
@@ -147,14 +209,128 @@ function MarketplacePage() {
               </div>
             </>
           ) : (
-            <div className="text-center py-20 text-muted-foreground">
-              <p>No listings match your search.</p>
-              <p className="mt-2 text-sm">Try widening your filters or <a href="/auth" className="text-primary underline">list a property</a>.</p>
+            <div className="text-center py-20">
+              <div className="mx-auto h-14 w-14 rounded-2xl bg-muted flex items-center justify-center mb-3"><Search className="h-6 w-6 text-muted-foreground" /></div>
+              <p className="font-medium">No listings match your search</p>
+              <p className="mt-1 text-sm text-muted-foreground">Try widening your filters or browsing all categories.</p>
+              <Button variant="outline" className="mt-4" onClick={() => navigate({ search: {} })}>Reset search</Button>
             </div>
           )}
         </section>
       </main>
       <PublicFooter />
     </div>
+  );
+}
+
+function SearchBar({ q, setQ, city, setCity, onSubmit }: { q: string; setQ: (v: string) => void; city: string; setCity: (v: string) => void; onSubmit: () => void }) {
+  return (
+    <div className="bg-card text-foreground rounded-2xl p-2 md:p-3 shadow-2xl ring-1 ring-border/50">
+      <form className="grid grid-cols-1 md:grid-cols-12 gap-2" onSubmit={(e) => { e.preventDefault(); onSubmit(); }}>
+        <div className="md:col-span-7 relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input placeholder="Search by area, postcode or keyword…" value={q} onChange={(e) => setQ(e.target.value)} className="pl-9 h-12 border-0 focus-visible:ring-0" />
+        </div>
+        <div className="md:col-span-3 relative">
+          <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input placeholder="City" value={city} onChange={(e) => setCity(e.target.value)} className="pl-9 h-12 border-0 focus-visible:ring-0" />
+        </div>
+        <Button type="submit" className="md:col-span-2 h-12">Search</Button>
+      </form>
+    </div>
+  );
+}
+
+function FiltersSheet({ s, setSearch }: { s: SearchParams; setSearch: (patch: Partial<SearchParams>) => void }) {
+  const [open, setOpen] = useState(false);
+  const [local, setLocal] = useState({
+    min_price: s.min_price?.toString() ?? "",
+    max_price: s.max_price?.toString() ?? "",
+    beds: s.beds?.toString() ?? "any",
+    baths: s.baths?.toString() ?? "any",
+    bills_included: s.bills_included ?? false,
+    furnished: s.furnished ?? "any",
+  });
+  useEffect(() => {
+    setLocal({
+      min_price: s.min_price?.toString() ?? "",
+      max_price: s.max_price?.toString() ?? "",
+      beds: s.beds?.toString() ?? "any",
+      baths: s.baths?.toString() ?? "any",
+      bills_included: s.bills_included ?? false,
+      furnished: s.furnished ?? "any",
+    });
+  }, [s]);
+  const apply = () => {
+    setSearch({
+      min_price: local.min_price ? Number(local.min_price) : undefined,
+      max_price: local.max_price ? Number(local.max_price) : undefined,
+      beds: local.beds !== "any" ? Number(local.beds) : undefined,
+      baths: local.baths !== "any" ? Number(local.baths) : undefined,
+      bills_included: local.bills_included || undefined,
+      furnished: local.furnished !== "any" ? local.furnished : undefined,
+    });
+    setOpen(false);
+  };
+  return (
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
+        <Button variant="outline" size="sm" className="h-9"><SlidersHorizontal className="h-4 w-4 mr-1" /> Filters</Button>
+      </SheetTrigger>
+      <SheetContent className="w-full sm:max-w-md">
+        <SheetHeader><SheetTitle>Refine your search</SheetTitle></SheetHeader>
+        <div className="space-y-5 mt-6">
+          <div>
+            <Label>Price range (£)</Label>
+            <div className="grid grid-cols-2 gap-2 mt-2">
+              <Input placeholder="Min" inputMode="numeric" value={local.min_price} onChange={(e) => setLocal({ ...local, min_price: e.target.value.replace(/[^0-9]/g, "") })} />
+              <Input placeholder="Max" inputMode="numeric" value={local.max_price} onChange={(e) => setLocal({ ...local, max_price: e.target.value.replace(/[^0-9]/g, "") })} />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label>Bedrooms</Label>
+              <Select value={local.beds} onValueChange={(v) => setLocal({ ...local, beds: v })}>
+                <SelectTrigger className="mt-2"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="any">Any</SelectItem>
+                  {[1,2,3,4,5,6].map((n) => <SelectItem key={n} value={String(n)}>{n}+</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Bathrooms</Label>
+              <Select value={local.baths} onValueChange={(v) => setLocal({ ...local, baths: v })}>
+                <SelectTrigger className="mt-2"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="any">Any</SelectItem>
+                  {[1,2,3,4].map((n) => <SelectItem key={n} value={String(n)}>{n}+</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div>
+            <Label>Furnished</Label>
+            <Select value={local.furnished} onValueChange={(v) => setLocal({ ...local, furnished: v })}>
+              <SelectTrigger className="mt-2"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="any">Any</SelectItem>
+                <SelectItem value="furnished">Furnished</SelectItem>
+                <SelectItem value="part_furnished">Part furnished</SelectItem>
+                <SelectItem value="unfurnished">Unfurnished</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex items-center justify-between rounded-lg border p-3">
+            <Label htmlFor="bills" className="cursor-pointer">Bills included</Label>
+            <Switch id="bills" checked={local.bills_included} onCheckedChange={(v) => setLocal({ ...local, bills_included: v })} />
+          </div>
+        </div>
+        <SheetFooter className="mt-6 flex-row gap-2">
+          <Button variant="outline" className="flex-1" onClick={() => { setLocal({ min_price: "", max_price: "", beds: "any", baths: "any", bills_included: false, furnished: "any" }); }}>Reset</Button>
+          <Button className="flex-1" onClick={apply}>Apply filters</Button>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
   );
 }

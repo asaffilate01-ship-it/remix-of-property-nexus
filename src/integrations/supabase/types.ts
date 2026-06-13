@@ -19,6 +19,7 @@ export type Database = {
           address: string | null
           city: string | null
           commercial_module_enabled: boolean
+          cover_image: string | null
           created_at: string
           description: string | null
           email: string | null
@@ -40,6 +41,7 @@ export type Database = {
           address?: string | null
           city?: string | null
           commercial_module_enabled?: boolean
+          cover_image?: string | null
           created_at?: string
           description?: string | null
           email?: string | null
@@ -61,6 +63,7 @@ export type Database = {
           address?: string | null
           city?: string | null
           commercial_module_enabled?: boolean
+          cover_image?: string | null
           created_at?: string
           description?: string | null
           email?: string | null
@@ -523,6 +526,7 @@ export type Database = {
           bills_included: boolean
           business_rates_pa: number | null
           city: string | null
+          council_tax_band: string | null
           cover_image: string | null
           created_at: string
           currency: string
@@ -530,10 +534,14 @@ export type Database = {
           epc_rating: string | null
           features: Json
           floor_area_sqft: number | null
+          furnished: string | null
           id: string
           is_hmo: boolean
+          latitude: number | null
           lease_term_months: number | null
           listing_type: Database["public"]["Enums"]["listing_type"]
+          longitude: number | null
+          marketplace_publish: boolean
           owner_id: string
           photos: Json
           postcode: string | null
@@ -559,6 +567,7 @@ export type Database = {
           bills_included?: boolean
           business_rates_pa?: number | null
           city?: string | null
+          council_tax_band?: string | null
           cover_image?: string | null
           created_at?: string
           currency?: string
@@ -566,10 +575,14 @@ export type Database = {
           epc_rating?: string | null
           features?: Json
           floor_area_sqft?: number | null
+          furnished?: string | null
           id?: string
           is_hmo?: boolean
+          latitude?: number | null
           lease_term_months?: number | null
           listing_type: Database["public"]["Enums"]["listing_type"]
+          longitude?: number | null
+          marketplace_publish?: boolean
           owner_id: string
           photos?: Json
           postcode?: string | null
@@ -597,6 +610,7 @@ export type Database = {
           bills_included?: boolean
           business_rates_pa?: number | null
           city?: string | null
+          council_tax_band?: string | null
           cover_image?: string | null
           created_at?: string
           currency?: string
@@ -604,10 +618,14 @@ export type Database = {
           epc_rating?: string | null
           features?: Json
           floor_area_sqft?: number | null
+          furnished?: string | null
           id?: string
           is_hmo?: boolean
+          latitude?: number | null
           lease_term_months?: number | null
           listing_type?: Database["public"]["Enums"]["listing_type"]
+          longitude?: number | null
+          marketplace_publish?: boolean
           owner_id?: string
           photos?: Json
           postcode?: string | null
