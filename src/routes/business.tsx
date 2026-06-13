@@ -25,8 +25,8 @@ const PLANS = [
   {
     name: "Starter",
     price: "£29.99",
-    suffix: "/mo",
-    note: "Up to 3 live listings",
+    suffix: "/mo per branch",
+    note: "Up to 3 live listings per branch",
     cta: "Start 30-day free trial",
     highlight: false,
     features: [
@@ -42,8 +42,8 @@ const PLANS = [
   {
     name: "Growth",
     price: "£49.99",
-    suffix: "/mo",
-    note: "Most popular — up to 10 live listings",
+    suffix: "/mo per branch",
+    note: "Most popular — up to 10 live listings per branch",
     cta: "Start 30-day free trial",
     highlight: true,
     features: [
@@ -60,15 +60,15 @@ const PLANS = [
   {
     name: "Unlimited",
     price: "£99.99",
-    suffix: "/mo",
-    note: "Unlimited listings + full backend",
+    suffix: "/mo per branch",
+    note: "Unlimited listings per branch + full backend",
     cta: "Start 30-day free trial",
     highlight: false,
     features: [
       "30 days free — no card required",
       "Unlimited live listings",
       "Everything in Growth",
-      "Unlimited users & branches",
+      "Unlimited users per branch",
       "White-label microsites",
       "API access & Zapier",
       "SSO + audit logs",
