@@ -156,7 +156,7 @@ function ModulePage() {
         </section>
       </main>
       <PublicFooter />
-      <Outlet />
+      
     </div>
   );
 }
