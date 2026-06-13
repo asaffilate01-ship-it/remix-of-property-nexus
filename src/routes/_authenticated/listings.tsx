@@ -120,7 +120,7 @@ function ListingsPage() {
       marketplace_publish: form.marketplace_publish,
       available_from: form.available_from || null,
       epc_rating: form.epc_rating || null,
-      tenure: form.tenure || null,
+      tenure: (form.tenure || null) as "freehold" | "leasehold" | "share_of_freehold" | "commonhold" | null,
       floor_area_sqft: form.floor_area_sqft ? Number(form.floor_area_sqft) : null,
       council_tax_band: form.council_tax_band || null,
       furnished: form.furnished || null,
