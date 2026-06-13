@@ -76,11 +76,16 @@ type Form = typeof empty;
 type StatusFilter = "all" | "published" | "draft" | "off_market";
 
 function ListingsPage() {
+  const search = useSearch({ from: "/_authenticated/listings" });
   const [rows, setRows] = useState<Listing[]>([]);
   const [agencies, setAgencies] = useState<{ id: string; name: string }[]>([]);
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<Form>(empty);
   const [filter, setFilter] = useState<StatusFilter>("all");
+
+  useEffect(() => {
+    if (search.new) { setForm(empty); setOpen(true); }
+  }, [search.new]);
 
   const load = async () => {
     const { data } = await supabase.from("listings").select("*").order("created_at", { ascending: false });
