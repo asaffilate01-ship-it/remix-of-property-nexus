@@ -29,6 +29,7 @@ const FULL: NavSection[] = [
     label: "Overview", defaultOpen: true,
     items: [
       { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+      { to: "/alerts", label: "Alerts & expiries", icon: Bell },
       { to: "/reports", label: "Reports", icon: BarChart3 },
     ],
   },
