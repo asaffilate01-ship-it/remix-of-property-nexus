@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogT
 import { Building2, Plus, Pencil, Trash2, MapPin } from "lucide-react";
 import { toast } from "sonner";
 import { listBranches, saveBranch, deleteBranch } from "@/lib/branches.functions";
+import { AddressLookup } from "@/components/address/AddressLookup";
 
 export const Route = createFileRoute("/_authenticated/branches")({
   head: () => ({ meta: [{ title: "Branches — Estately" }] }),
