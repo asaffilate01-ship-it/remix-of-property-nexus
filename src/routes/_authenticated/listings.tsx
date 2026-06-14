@@ -41,7 +41,7 @@ type Listing = {
 const empty = {
   id: undefined as string | undefined,
   title: "", description: "",
-  listing_type: "rent" as "sale" | "rent" | "room",
+  listing_type: "rent" as "sale" | "rent" | "room" | "holiday",
   purpose: "rent" as "sale" | "rent",
   price: "", price_qualifier: "none",
   bedrooms: "", bathrooms: "", receptions: "",
