@@ -113,7 +113,7 @@ function WindowCardPage() {
           <div className="grid grid-cols-4 gap-2 mb-4">
             {extras.map((p) => (
               <div key={p} className="aspect-[4/3] overflow-hidden rounded-sm border border-neutral-200">
-                <img src={p} alt="" className="w-full h-full object-cover" />
+                <ListingImage src={p} alt="" className="w-full h-full object-cover" />
               </div>
             ))}
           </div>
