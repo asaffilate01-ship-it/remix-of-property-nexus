@@ -31,6 +31,12 @@ function HolidayPage() {
   const [monthOffset, setMonthOffset] = useState(0);
   const [bk, setBk] = useState<any | null>(null);
   const [bl, setBl] = useState<any | null>(null);
+  const [propFilter, setPropFilter] = useState<string>("all");
+  const [showKinds, setShowKinds] = useState<string[]>(["booking", "cleaning", "owner", "maintenance"]);
+
+  const toggleKind = (k: string) => {
+    setShowKinds((prev) => prev.includes(k) ? prev.filter((x) => x !== k) : [...prev, k]);
+  };
 
   const start = useMemo(() => {
     const d = new Date();
@@ -51,6 +57,7 @@ function HolidayPage() {
   };
 
   const properties = data?.properties ?? [];
+  const visibleProperties = propFilter === "all" ? properties : properties.filter((p: any) => p.id === propFilter);
 
   return (
     <div className="space-y-4">
@@ -68,17 +75,37 @@ function HolidayPage() {
         }
       />
 
-      <div className="flex gap-3 text-xs">
-        <Badge style={{ background: "hsl(220 80% 55%)", color: "white" }}>Booking</Badge>
-        <Badge style={{ background: "hsl(140 60% 40%)", color: "white" }}><Sparkles className="h-3 w-3 mr-1 inline" /> Cleaning</Badge>
-        <Badge style={{ background: "hsl(40 90% 50%)", color: "white" }}>Owner</Badge>
-        <Badge style={{ background: "hsl(0 70% 50%)", color: "white" }}><Wrench className="h-3 w-3 mr-1 inline" /> Maintenance</Badge>
+      <div className="flex flex-wrap gap-2 items-center">
+        <Select value={propFilter} onValueChange={setPropFilter}>
+          <SelectTrigger className="w-[220px]"><SelectValue placeholder="All properties" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All properties</SelectItem>
+            {properties.map((p: any) => <SelectItem key={p.id} value={p.id}>{p.title || p.address}</SelectItem>)}
+          </SelectContent>
+        </Select>
+        <div className="flex gap-1.5">
+          <Button size="sm" variant={showKinds.includes("booking") ? "default" : "outline"} onClick={() => toggleKind("booking")} className="gap-1">
+            <Badge style={{ background: "hsl(220 80% 55%)" }} className="h-2.5 w-2.5 rounded-full p-0" /> Bookings
+          </Button>
+          <Button size="sm" variant={showKinds.includes("cleaning") ? "default" : "outline"} onClick={() => toggleKind("cleaning")} className="gap-1">
+            <Badge style={{ background: "hsl(140 60% 40%)" }} className="h-2.5 w-2.5 rounded-full p-0" /> Cleaning
+          </Button>
+          <Button size="sm" variant={showKinds.includes("owner") ? "default" : "outline"} onClick={() => toggleKind("owner")} className="gap-1">
+            <Badge style={{ background: "hsl(40 90% 50%)" }} className="h-2.5 w-2.5 rounded-full p-0" /> Owner
+          </Button>
+          <Button size="sm" variant={showKinds.includes("maintenance") ? "default" : "outline"} onClick={() => toggleKind("maintenance")} className="gap-1">
+            <Badge style={{ background: "hsl(0 70% 50%)" }} className="h-2.5 w-2.5 rounded-full p-0" /> Maintenance
+          </Button>
+        </div>
       </div>
 
       <Card className="border-0 shadow-card overflow-hidden">
         <CardContent className="p-0">
           {isLoading && <div className="p-6 text-sm text-muted-foreground">Loading…</div>}
           {!isLoading && properties.length === 0 && <div className="p-12 text-sm text-muted-foreground text-center border-dashed">Add a property first</div>}
+          {!isLoading && properties.length > 0 && visibleProperties.length === 0 && (
+            <div className="p-12 text-sm text-muted-foreground text-center border-dashed">No properties match the selected filter.</div>
+          )}
           {properties.length > 0 && (
             <div className="overflow-x-auto">
               <div style={{ minWidth: 240 + days.length * DAY_W }}>
@@ -99,7 +126,7 @@ function HolidayPage() {
                   </div>
                 </div>
                 {/* rows */}
-                {properties.map((p: any) => {
+                {visibleProperties.map((p: any) => {
                   const pBookings = (data?.bookings ?? []).filter((b: any) => b.property_id === p.id);
                   const pBlocks = (data?.blocks ?? []).filter((b: any) => b.property_id === p.id);
                   const pCleans = (data?.cleaning ?? []).filter((c: any) => c.property_id === p.id);
@@ -110,7 +137,7 @@ function HolidayPage() {
                         <div className="text-[11px] text-muted-foreground truncate">{p.city}</div>
                       </div>
                       <div className="relative flex-1" style={{ minWidth: days.length * DAY_W }}>
-                        {pBookings.map((b: any) => {
+                        {showKinds.includes("booking") && pBookings.map((b: any) => {
                           const x = xFor(b.check_in);
                           const w = (xFor(b.check_out) - x) || DAY_W;
                           if (x + w < 0 || x > days.length * DAY_W) return null;
@@ -122,10 +149,11 @@ function HolidayPage() {
                             </button>
                           );
                         })}
-                        {pBlocks.map((b: any) => {
+                        {showKinds.includes("owner") && showKinds.includes("maintenance") && pBlocks.map((b: any) => {
                           const x = xFor(b.start_date);
                           const w = ((xFor(b.end_date) - x) || DAY_W) + DAY_W;
                           if (x + w < 0 || x > days.length * DAY_W) return null;
+                          if (!showKinds.includes(b.kind)) return null;
                           const color = b.kind === "owner" ? "hsl(40 90% 50%)" : b.kind === "maintenance" ? "hsl(0 70% 50%)" : "hsl(280 50% 50%)";
                           return (
                             <button key={b.id} onClick={() => setBl(b)}
@@ -135,7 +163,7 @@ function HolidayPage() {
                             </button>
                           );
                         })}
-                        {pCleans.map((c: any) => {
+                        {showKinds.includes("cleaning") && pCleans.map((c: any) => {
                           const x = xFor(c.scheduled_at);
                           if (x < 0 || x > days.length * DAY_W) return null;
                           return (

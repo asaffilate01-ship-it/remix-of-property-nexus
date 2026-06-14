@@ -13,7 +13,7 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
-import { Plus, Building2, Pencil, Trash2, BedDouble, Users, PoundSterling, Calendar, FileText, ShieldCheck } from "lucide-react";
+import { Plus, Building2, Pencil, Trash2, BedDouble, Users, PoundSterling, Calendar, FileText, ShieldCheck, Sun } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/PageHeader";
 import { FeatureMultiSelect } from "@/components/properties/FeatureMultiSelect";
@@ -66,6 +66,7 @@ function PropertiesPage() {
   const [q, setQ] = useState("");
   const [filterPurpose, setFilterPurpose] = useState<string>("all");
   const [filterHmo, setFilterHmo] = useState<string>("all");
+  const [filterHoliday, setFilterHoliday] = useState<boolean | null>(null);
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(emptyProp);
   const [active, setActive] = useState<Property | null>(null);
@@ -89,12 +90,14 @@ function PropertiesPage() {
     if (filterPurpose !== "all" && p.listing_purpose !== filterPurpose) return false;
     if (filterHmo === "hmo" && !p.is_hmo) return false;
     if (filterHmo === "std" && p.is_hmo) return false;
+    if (filterHoliday === true && p.listing_purpose !== "short_let") return false;
+    if (filterHoliday === false && p.listing_purpose === "short_let") return false;
     if (q) {
       const t = `${p.title} ${p.address ?? ""} ${p.city ?? ""} ${p.postcode ?? ""}`.toLowerCase();
       if (!t.includes(q.toLowerCase())) return false;
     }
     return true;
-  }), [rows, q, filterPurpose, filterHmo]);
+  }), [rows, q, filterPurpose, filterHmo, filterHoliday]);
 
   const startNew = () => { setForm(emptyProp); setOpen(true); };
   const startEdit = (p: Property) => {
@@ -182,7 +185,7 @@ function PropertiesPage() {
         <div className="flex-1 min-w-[220px]">
           <PostcodeAutocomplete value={q} onChange={setQ} postcodes={allPostcodes} />
         </div>
-        <Select value={filterPurpose} onValueChange={setFilterPurpose}>
+        <Select value={filterPurpose} onValueChange={(v) => { setFilterPurpose(v); if (v !== "all" && v !== "short_let") setFilterHoliday(null); if (v === "short_let") setFilterHoliday(true); }}>
           <SelectTrigger className="w-[160px]"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All purposes</SelectItem>
@@ -197,6 +200,14 @@ function PropertiesPage() {
             <SelectItem value="std">Standard only</SelectItem>
           </SelectContent>
         </Select>
+        <div className="flex gap-1.5">
+          <Button size="sm" variant={filterHoliday === true ? "default" : "outline"} onClick={() => setFilterHoliday(filterHoliday === true ? null : true)} className="gap-1">
+            <Sun className="h-3.5 w-3.5" /> Holiday lets
+          </Button>
+          <Button size="sm" variant={filterHoliday === false ? "default" : "outline"} onClick={() => setFilterHoliday(filterHoliday === false ? null : false)}>
+            Long-let / Sale
+          </Button>
+        </div>
         <div className="text-xs text-muted-foreground ml-auto">{filtered.length} of {rows.length}</div>
       </div>
 
@@ -228,6 +239,7 @@ function PropertiesPage() {
                 <StreetViewThumb address={p.address} city={p.city} postcode={p.postcode} className="absolute inset-0 h-full w-full" />
                 <div className="absolute top-2 right-2 flex gap-1 flex-wrap justify-end">
                   {p.is_hmo && <Badge className="bg-accent text-accent-foreground border-0">HMO</Badge>}
+                  {p.listing_purpose === "short_let" && <Badge className="bg-amber-500 text-white border-0"><Sun className="h-3 w-3 mr-1 inline" />Holiday let</Badge>}
                   <Badge variant="secondary" className="capitalize border-0 backdrop-blur bg-card/85">{p.listing_purpose.replace("_", " ")}</Badge>
                 </div>
               </div>

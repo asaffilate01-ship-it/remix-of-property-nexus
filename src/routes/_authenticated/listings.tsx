@@ -26,7 +26,7 @@ import { AddressLookup } from "@/components/address/AddressLookup";
 
 type Listing = {
   id: string; owner_id: string; slug: string; title: string; description: string | null;
-  listing_type: "sale" | "rent" | "room"; purpose: "sale" | "rent";
+  listing_type: "sale" | "rent" | "room" | "holiday"; purpose: "sale" | "rent";
   status: string; price: number | null; price_qualifier: string | null;
   bedrooms: number | null; bathrooms: number | null; receptions: number | null;
   city: string | null; postcode: string | null; address: string | null;
@@ -41,7 +41,7 @@ type Listing = {
 const empty = {
   id: undefined as string | undefined,
   title: "", description: "",
-  listing_type: "rent" as "sale" | "rent" | "room",
+  listing_type: "rent" as "sale" | "rent" | "room" | "holiday",
   purpose: "rent" as "sale" | "rent",
   price: "", price_qualifier: "none",
   bedrooms: "", bathrooms: "", receptions: "",
@@ -74,7 +74,7 @@ function normalizePhotos(raw: unknown): ListingPhoto[] {
 export const Route = createFileRoute("/_authenticated/listings")({ component: ListingsPage });
 
 type Form = typeof empty;
-type StatusFilter = "all" | "published" | "draft" | "off_market";
+type StatusFilter = "all" | "published" | "draft" | "off_market" | "holiday";
 
 function ListingsPage() {
   const search = useSearch({ from: "/_authenticated/listings" });
@@ -251,7 +251,11 @@ function ListingsPage() {
     if (error) toast.error(error.message); else { toast.success(l.marketplace_publish ? "Hidden from marketplace" : "Visible on marketplace"); load(); }
   };
 
-  const filtered = rows.filter((l) => filter === "all" ? true : l.status === filter);
+  const filtered = rows.filter((l) => {
+    if (filter === "all") return true;
+    if (filter === "holiday") return l.listing_type === "holiday";
+    return l.status === filter;
+  });
 
   return (
     <div className="space-y-6">
@@ -276,6 +280,7 @@ function ListingsPage() {
           <TabsTrigger value="all">All ({rows.length})</TabsTrigger>
           <TabsTrigger value="published">Published ({rows.filter((r) => r.status === "published").length})</TabsTrigger>
           <TabsTrigger value="draft">Drafts ({rows.filter((r) => r.status === "draft").length})</TabsTrigger>
+          <TabsTrigger value="holiday">Holiday ({rows.filter((r) => r.listing_type === "holiday").length})</TabsTrigger>
         </TabsList>
       </Tabs>
 
@@ -296,6 +301,7 @@ function ListingsPage() {
                   <Badge variant="secondary" className="capitalize">{l.purpose}</Badge>
                   <Badge variant={l.status === "published" ? "default" : "outline"}>{l.status}</Badge>
                   {l.is_hmo && <Badge className="bg-accent text-accent-foreground">HMO</Badge>}
+                  {l.listing_type === "holiday" && <Badge className="bg-amber-500 text-white border-0">Holiday</Badge>}
                 </div>
                 {!l.marketplace_publish && (
                   <div className="absolute top-2 right-2"><Badge variant="outline" className="bg-card/90 backdrop-blur"><EyeOff className="h-3 w-3 mr-1" />Off marketplace</Badge></div>
