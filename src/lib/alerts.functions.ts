@@ -32,7 +32,7 @@ export const fetchExpiries = createServerFn({ method: "GET" })
     const [contracts, docs, compliance, tenancies] = await Promise.all([
       context.supabase.from("template_instances").select("id,title,expires_on,template_id,templates:template_id(name)").not("expires_on", "is", null),
       context.supabase.from("documents").select("id,name,expires_on,scope").not("expires_on", "is", null),
-      context.supabase.from("compliance_records").select("id,record_type,expires_on,property_id").not("expires_on", "is", null),
+      context.supabase.from("compliance_records").select("id,type,expires_on,property_id").not("expires_on", "is", null),
       context.supabase.from("tenancies").select("id,tenant_name,end_date,property_id").not("end_date", "is", null),
     ]);
 
