@@ -256,16 +256,21 @@ export const fetchListing = createServerFn({ method: "GET" })
   .inputValidator(z.object({ slug: z.string() }))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: row, error } = await supabaseAdmin.from("listings")
+    const { data: rawRow, error } = await supabaseAdmin.from("listings")
       .select("*, agencies(id, name, slug, logo_url, phone, email, website, city, verified, rating, review_count, languages, specialties), properties(property_type, listing_purpose)")
       .eq("slug", data.slug)
       .maybeSingle();
     if (error) throw new Error(error.message);
-    if (!row) return { listing: null, similar: [] };
+    if (!rawRow) return { listing: null, similar: [] };
+    const row = {
+      ...withDisplayPrice(rawRow),
+      cover_image: await signListingPhotoValue(supabaseAdmin, rawRow.cover_image),
+      photos: await signListingPhotos(supabaseAdmin, rawRow.photos),
+    };
     await supabaseAdmin.from("listings").update({ view_count: (row.view_count ?? 0) + 1 }).eq("id", row.id);
 
     let similarQ = supabaseAdmin.from("listings")
-      .select("id, slug, title, listing_type, purpose, price, price_qualifier, currency, bedrooms, bathrooms, city, cover_image, is_hmo, created_at, verified, photos_verified")
+      .select("id, slug, title, listing_type, purpose, price, price_qualifier, currency, bedrooms, bathrooms, city, cover_image, is_hmo, created_at, verified, photos_verified, rooms")
       .in("status", ["published", "under_offer", "let_agreed"])
       .eq("marketplace_publish", true)
       .neq("id", row.id)
@@ -273,7 +278,16 @@ export const fetchListing = createServerFn({ method: "GET" })
     if (row.city) similarQ = similarQ.eq("city", row.city);
     if (row.purpose) similarQ = similarQ.eq("purpose", row.purpose);
     const { data: similar } = await similarQ;
-    return { listing: row, similar: similar ?? [] };
+    const hydratedSimilar = await Promise.all(
+      (similar ?? []).map(async (listing) => {
+        const withPrice = withDisplayPrice(listing);
+        return {
+          ...withPrice,
+          cover_image: await signListingPhotoValue(supabaseAdmin, withPrice.cover_image),
+        };
+      }),
+    );
+    return { listing: row, similar: hydratedSimilar };
   });
 
 export const fetchAgencies = createServerFn({ method: "GET" }).handler(async () => {
@@ -310,11 +324,19 @@ export const fetchAgency = createServerFn({ method: "GET" })
       .select("*").eq("slug", data.slug).eq("is_published", true).maybeSingle();
     if (!agency) return { agency: null, listings: [], stats: { total: 0, sale: 0, rent: 0, hmo: 0 } };
     const { data: listings } = await supabaseAdmin.from("listings")
-      .select("id, slug, title, listing_type, purpose, price, price_qualifier, currency, bedrooms, bathrooms, city, cover_image, is_hmo, created_at")
+      .select("id, slug, title, listing_type, purpose, price, price_qualifier, currency, bedrooms, bathrooms, city, cover_image, is_hmo, created_at, rooms")
       .eq("agency_id", agency.id)
       .in("status", ["published", "under_offer", "let_agreed"])
       .order("created_at", { ascending: false });
-    const rows = listings ?? [];
+    const rows = await Promise.all(
+      (listings ?? []).map(async (listing) => {
+        const withPrice = withDisplayPrice(listing);
+        return {
+          ...withPrice,
+          cover_image: await signListingPhotoValue(supabaseAdmin, withPrice.cover_image),
+        };
+      }),
+    );
     const stats = {
       total: rows.length,
       sale: rows.filter((r) => r.purpose === "sale").length,
