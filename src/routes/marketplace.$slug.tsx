@@ -345,7 +345,7 @@ function Gallery({ photos, title, isHmo, purpose }: { photos: string[]; title: s
     <div className="container mx-auto px-4 mt-4">
       <div className="grid grid-cols-4 grid-rows-2 gap-2 h-[280px] md:h-[460px] rounded-2xl overflow-hidden">
         <button onClick={() => setOpenAt(0)} className="col-span-4 md:col-span-2 row-span-2 relative bg-muted group">
-          <img src={main} alt={title} className="h-full w-full object-cover group-hover:scale-[1.02] transition-transform duration-500" />
+          <ListingImage src={main} alt={title} className="h-full w-full object-cover group-hover:scale-[1.02] transition-transform duration-500" />
           <div className="absolute inset-0 bg-gradient-to-t from-foreground/40 via-transparent to-transparent" />
           <div className="absolute top-3 left-3 flex gap-2">
             <Badge className="bg-card/95 text-foreground border-0">{purpose === "sale" ? "For sale" : "To let"}</Badge>
