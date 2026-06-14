@@ -260,6 +260,11 @@ function PropertiesPage() {
                     {p.features.length > 4 && <Badge variant="secondary" className="text-[10px]">+{p.features.length - 4}</Badge>}
                   </div>
                 )}
+                <div className="mt-3 pt-3 border-t flex gap-2">
+                  <Button size="sm" variant="outline" className="flex-1" onClick={(e) => { e.stopPropagation(); setActive(p); setInitialTab("tenancies"); }}>
+                    <Users className="h-3 w-3 mr-1" /> Assign tenant
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           ))}
