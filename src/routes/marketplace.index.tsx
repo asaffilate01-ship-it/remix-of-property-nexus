@@ -273,38 +273,59 @@ function MarketplacePage() {
           </section>
         )}
 
+        {/* Popular areas — Bayut-style recommended carousel */}
+        {meta.data && meta.data.topCities && meta.data.topCities.length > 0 && !s.city && !s.postcode && (
+          <section className="container mx-auto px-4 pt-6 sm:pt-8">
+            <div className="flex items-baseline justify-between mb-3">
+              <h2 className="font-display text-lg sm:text-xl font-semibold tracking-tight">Popular areas in the UK</h2>
+              <Link to="/area-guides" className="text-xs sm:text-sm text-primary inline-flex items-center gap-1 hover:underline">All areas <ChevronRight className="h-3.5 w-3.5" /></Link>
+            </div>
+            <div className="flex gap-3 overflow-x-auto no-scrollbar -mx-4 px-4 pb-2 snap-x snap-mandatory">
+              {meta.data.topCities.map((c) => (
+                <button
+                  key={c.name}
+                  type="button"
+                  onClick={() => { setWhere(c.name); setSearch({ city: c.name, postcode: undefined }); }}
+                  className="snap-start group relative shrink-0 w-[180px] sm:w-[220px] aspect-[4/3] rounded-2xl overflow-hidden border bg-muted text-left hover:shadow-xl transition-all"
+                >
+                  {c.cover ? (
+                    <img src={c.cover} alt={c.name} className="absolute inset-0 h-full w-full object-cover group-hover:scale-105 transition duration-500" loading="lazy" />
+                  ) : <div className="absolute inset-0 brand-gradient opacity-40" />}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                  <div className="absolute bottom-0 inset-x-0 p-3 text-white">
+                    <div className="font-display font-semibold text-base sm:text-lg leading-tight">{c.name}</div>
+                    <div className="text-[11px] sm:text-xs opacity-90">{c.count} listing{c.count === 1 ? "" : "s"}</div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </section>
+        )}
+
         <section className="container mx-auto px-4 py-5 sm:py-6">
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <Tabs
-              value={category}
-              onValueChange={(v) => setSearch({ category: v === "all" ? undefined : (v as Category) })}
-              className="-mx-4 md:mx-0"
-            >
-              <div className="overflow-x-auto no-scrollbar px-4 md:px-0">
-                <TabsList className="inline-flex w-auto">
-                  {tabs.map((t) => <TabsTrigger key={t.value} value={t.value} className="whitespace-nowrap">{t.label}</TabsTrigger>)}
-                </TabsList>
-              </div>
-            </Tabs>
+            <div className="text-xs sm:text-sm text-muted-foreground">
+              {data?.listings.length ?? 0} listing{(data?.listings.length ?? 0) === 1 ? "" : "s"}{isFetching ? " · updating…" : ""}
+              {(s.city || s.postcode) && <span className="ml-1">in <strong className="text-foreground">{s.postcode ?? s.city}</strong></span>}
+            </div>
 
             <div className="flex items-center gap-2">
               <div className="hidden sm:inline-flex rounded-md border bg-card p-0.5">
-                <button
-                  type="button"
-                  onClick={() => setView("grid")}
-                  className={`h-8 px-2.5 rounded inline-flex items-center text-xs font-medium transition-colors ${view === "grid" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
-                  aria-label="Grid view"
-                >
-                  <LayoutGrid className="h-3.5 w-3.5 sm:mr-1" /><span className="hidden md:inline">Grid</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setView("map")}
-                  className={`h-8 px-2.5 rounded inline-flex items-center text-xs font-medium transition-colors ${view === "map" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
-                  aria-label="Map view"
-                >
-                  <MapIcon className="h-3.5 w-3.5 sm:mr-1" /><span className="hidden md:inline">Map</span>
-                </button>
+                {([
+                  { v: "grid", label: "Grid", icon: LayoutGrid },
+                  { v: "split", label: "Split", icon: Columns2 },
+                  { v: "map", label: "Map", icon: MapIcon },
+                ] as const).map((opt) => (
+                  <button
+                    key={opt.v}
+                    type="button"
+                    onClick={() => setView(opt.v)}
+                    className={`h-8 px-2.5 rounded inline-flex items-center text-xs font-medium transition-colors ${view === opt.v ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                    aria-label={`${opt.label} view`}
+                  >
+                    <opt.icon className="h-3.5 w-3.5 sm:mr-1" /><span className="hidden lg:inline">{opt.label}</span>
+                  </button>
+                ))}
               </div>
               <FiltersSheet s={s} setSearch={setSearch} category={category} />
               <Select value={sort} onValueChange={(v) => setSearch({ sort: v as SortKey })}>
@@ -334,9 +355,9 @@ function MarketplacePage() {
           )}
         </section>
 
-        <section className="container mx-auto px-4 pb-16">
+        <section className={view === "split" ? "px-4 pb-16" : "container mx-auto px-4 pb-16"}>
           {isLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            <div className="container mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {Array.from({ length: 6 }).map((_, i) => (
                 <Card key={i} className="border-0 shadow-card overflow-hidden animate-pulse">
                   <div className="aspect-[4/3] bg-muted" />
@@ -349,18 +370,15 @@ function MarketplacePage() {
               ))}
             </div>
           ) : data?.listings.length ? (
-            <>
-              <div className="text-xs sm:text-sm text-muted-foreground mb-4">
-                {data.listings.length} listing{data.listings.length === 1 ? "" : "s"}{isFetching ? " · updating…" : ""}
+            view === "map" ? (
+              <div className="container mx-auto"><MapView listings={data.listings} /></div>
+            ) : view === "split" ? (
+              <SplitView listings={data.listings} />
+            ) : (
+              <div className="container mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                {data.listings.map((l) => <ListingCard key={l.id} l={l} />)}
               </div>
-              {view === "map" ? (
-                <MapView listings={data.listings} />
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                  {data.listings.map((l) => <ListingCard key={l.id} l={l} />)}
-                </div>
-              )}
-            </>
+            )
           ) : (
             <div className="text-center py-16 sm:py-20">
               <div className="mx-auto h-14 w-14 rounded-2xl bg-muted flex items-center justify-center mb-3"><Search className="h-6 w-6 text-muted-foreground" /></div>
@@ -370,6 +388,25 @@ function MarketplacePage() {
             </div>
           )}
         </section>
+
+      </main>
+      <PublicFooter />
+    </div>
+  );
+}
+
+function SplitView({ listings }: { listings: MapListing[] }) {
+  return (
+    <div className="mx-auto max-w-[1600px] grid lg:grid-cols-[minmax(0,1fr)_minmax(420px,46%)] gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:max-h-[calc(100vh-180px)] lg:overflow-y-auto pr-1">
+        {listings.map((l) => <ListingCard key={l.id} l={l as never} />)}
+      </div>
+      <div className="hidden lg:block lg:sticky lg:top-20 lg:self-start lg:h-[calc(100vh-180px)] rounded-2xl overflow-hidden border bg-muted">
+        <GoogleListingsMap listings={listings} />
+      </div>
+    </div>
+  );
+}
 
       </main>
       <PublicFooter />
