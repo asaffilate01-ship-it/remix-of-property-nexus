@@ -609,6 +609,20 @@ function TenanciesPanel({ propertyId, isHmo }: { propertyId: string; isHmo: bool
         <DialogContent className="max-w-3xl max-h-[92vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{editing?.id ? "Edit tenant" : "Add tenant"}</DialogTitle></DialogHeader>
           {editing && (<div className="space-y-4">
+            {!editing.id && tenantsList.length > 0 && (
+              <div className="rounded-md border bg-muted/30 p-3">
+                <Label className="text-xs">Pick existing tenant (or add new below)</Label>
+                <Select value={editing.tenant_id ?? ""} onValueChange={pickExisting}>
+                  <SelectTrigger className="mt-1.5"><SelectValue placeholder="Choose from tenant directory…" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__new__">+ New tenant (type below)</SelectItem>
+                    {tenantsList.map((t) => (
+                      <SelectItem key={t.id} value={t.id}>{t.full_name}{t.email ? ` · ${t.email}` : ""}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
             <div className="grid grid-cols-2 gap-3">
               <div className="col-span-2"><Label>Tenant name *</Label><Input value={editing.tenant_name} onChange={(e) => setEditing({ ...editing, tenant_name: e.target.value })} /></div>
               <div><Label>Email</Label><Input type="email" value={editing.tenant_email} onChange={(e) => setEditing({ ...editing, tenant_email: e.target.value })} /></div>
