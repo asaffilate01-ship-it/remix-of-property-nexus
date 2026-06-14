@@ -35,6 +35,18 @@ const STATUS_TONE: Record<string, string> = {
 
 function TenanciesPage() {
   const { data } = useSuspenseQuery(tenanciesQueryOptions());
+  const qc = useQueryClient();
+
+  useEffect(() => {
+    const ch = supabase
+      .channel(`tenancies-${Math.random().toString(36).slice(2, 8)}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "tenancies" }, () => {
+        void qc.invalidateQueries({ queryKey: ["tenancies-overview"] });
+      })
+      .subscribe();
+    return () => { void supabase.removeChannel(ch); };
+  }, [qc]);
+
 
   const active = data.filter((t) => t.status === "active").length;
   const draft = data.filter((t) => t.status === "draft").length;
