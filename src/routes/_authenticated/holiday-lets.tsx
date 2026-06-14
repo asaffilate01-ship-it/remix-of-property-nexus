@@ -123,7 +123,7 @@ function HolidayPage() {
                   </div>
                 </div>
                 {/* rows */}
-                {properties.map((p: any) => {
+                {visibleProperties.map((p: any) => {
                   const pBookings = (data?.bookings ?? []).filter((b: any) => b.property_id === p.id);
                   const pBlocks = (data?.blocks ?? []).filter((b: any) => b.property_id === p.id);
                   const pCleans = (data?.cleaning ?? []).filter((c: any) => c.property_id === p.id);
@@ -134,7 +134,7 @@ function HolidayPage() {
                         <div className="text-[11px] text-muted-foreground truncate">{p.city}</div>
                       </div>
                       <div className="relative flex-1" style={{ minWidth: days.length * DAY_W }}>
-                        {pBookings.map((b: any) => {
+                        {showKinds.includes("booking") && pBookings.map((b: any) => {
                           const x = xFor(b.check_in);
                           const w = (xFor(b.check_out) - x) || DAY_W;
                           if (x + w < 0 || x > days.length * DAY_W) return null;
@@ -146,10 +146,11 @@ function HolidayPage() {
                             </button>
                           );
                         })}
-                        {pBlocks.map((b: any) => {
+                        {showKinds.includes("owner") && showKinds.includes("maintenance") && pBlocks.map((b: any) => {
                           const x = xFor(b.start_date);
                           const w = ((xFor(b.end_date) - x) || DAY_W) + DAY_W;
                           if (x + w < 0 || x > days.length * DAY_W) return null;
+                          if (!showKinds.includes(b.kind)) return null;
                           const color = b.kind === "owner" ? "hsl(40 90% 50%)" : b.kind === "maintenance" ? "hsl(0 70% 50%)" : "hsl(280 50% 50%)";
                           return (
                             <button key={b.id} onClick={() => setBl(b)}
@@ -159,7 +160,7 @@ function HolidayPage() {
                             </button>
                           );
                         })}
-                        {pCleans.map((c: any) => {
+                        {showKinds.includes("cleaning") && pCleans.map((c: any) => {
                           const x = xFor(c.scheduled_at);
                           if (x < 0 || x > days.length * DAY_W) return null;
                           return (
