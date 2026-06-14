@@ -408,11 +408,7 @@ function SplitView({ listings }: { listings: MapListing[] }) {
   );
 }
 
-      </main>
-      <PublicFooter />
-    </div>
-  );
-}
+
 
 function SearchBar({ q, setQ, where, setWhere, radius, setRadius, onSubmit }: { q: string; setQ: (v: string) => void; where: string; setWhere: (v: string) => void; radius: number; setRadius: (r: number) => void; onSubmit: () => void }) {
   return (
