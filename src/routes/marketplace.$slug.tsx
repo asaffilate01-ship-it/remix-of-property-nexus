@@ -354,7 +354,7 @@ function Gallery({ photos, title, isHmo, purpose }: { photos: string[]; title: s
         </button>
         {[0, 1, 2, 3].map((i) => (
           <button key={i} onClick={() => thumbs[i] && setOpenAt(i + 1)} className="hidden md:block bg-muted relative group">
-            {thumbs[i] ? <img src={thumbs[i]} alt="" className="h-full w-full object-cover group-hover:scale-[1.03] transition-transform duration-500" /> : <div className="h-full w-full brand-gradient opacity-20" />}
+            {thumbs[i] ? <ListingImage src={thumbs[i]} alt="" className="h-full w-full object-cover group-hover:scale-[1.03] transition-transform duration-500" /> : <div className="h-full w-full brand-gradient opacity-20" />}
             {i === 3 && photos.length > 5 && <div className="absolute inset-0 bg-foreground/60 flex items-center justify-center text-background font-semibold">+{photos.length - 5} photos</div>}
           </button>
         ))}
