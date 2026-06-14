@@ -53,6 +53,9 @@ export function ListingCard({ l }: { l: ListingCardData }) {
               {l.is_hmo && <Badge className="bg-accent text-accent-foreground border-0">HMO</Badge>}
             </div>
             <div className="flex flex-col items-end gap-1">
+              <div onClick={(e) => e.stopPropagation()} className="rounded-full bg-card/95 backdrop-blur shadow-sm">
+                <SaveListingButton listingId={l.id} variant="ghost" size="icon" />
+              </div>
               {isNew(l.created_at) && <Badge className="bg-success text-success-foreground border-0">New</Badge>}
               {l.verified && <VerifiedBadge kind="verified" />}
               {l.photos_verified && <VerifiedBadge kind="photos" />}
@@ -73,9 +76,6 @@ export function ListingCard({ l }: { l: ListingCardData }) {
         </CardContent>
       </Card>
       </Link>
-      <div className="absolute top-3 right-3 z-10 rounded-full bg-card/95 backdrop-blur shadow-sm">
-        <SaveListingButton listingId={l.id} variant="ghost" size="icon" />
-      </div>
     </div>
   );
 }
