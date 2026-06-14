@@ -86,7 +86,7 @@ function BuyersPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Buyers" description="Active buyer requirements and matching criteria" icon={Users}
+      <PageHeader title="Buyers" description="Active buyer requirements and matching criteria"
         actions={<Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setF(empty); }}>
           <DialogTrigger asChild><Button><Plus className="h-4 w-4 mr-2" /> Add buyer</Button></DialogTrigger>
           <DialogContent className="max-w-xl max-h-[92vh] overflow-y-auto">
