@@ -155,12 +155,24 @@ export const fetchMarketplaceMeta = createServerFn({ method: "GET" }).handler(as
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const [{ count: total }, { data: cities }, { count: agencyCount }, { data: featured }] = await Promise.all([
     supabaseAdmin.from("listings").select("id", { count: "exact", head: true }).in("status", ["published", "under_offer", "let_agreed"]).eq("marketplace_publish", true),
-    supabaseAdmin.from("listings").select("city").not("city", "is", null).limit(500),
+    supabaseAdmin.from("listings").select("city, cover_image").not("city", "is", null).in("status", ["published", "under_offer", "let_agreed"]).eq("marketplace_publish", true).limit(1000),
     supabaseAdmin.from("agencies").select("id", { count: "exact", head: true }).eq("is_published", true),
     supabaseAdmin.from("agencies").select("id, name, slug, logo_url, city").eq("is_published", true).limit(8),
   ]);
-  const cityCount = new Set((cities ?? []).map((c) => (c.city ?? "").trim().toLowerCase()).filter(Boolean)).size;
-  return { total: total ?? 0, cityCount, agencyCount: agencyCount ?? 0, featured: featured ?? [] };
+  const cityRows = cities ?? [];
+  const cityCount = new Set(cityRows.map((c) => (c.city ?? "").trim().toLowerCase()).filter(Boolean)).size;
+  const counts = new Map<string, { name: string; count: number; cover: string | null }>();
+  for (const r of cityRows) {
+    const key = (r.city ?? "").trim();
+    if (!key) continue;
+    const k = key.toLowerCase();
+    const entry = counts.get(k) ?? { name: key, count: 0, cover: null };
+    entry.count += 1;
+    if (!entry.cover && r.cover_image) entry.cover = r.cover_image;
+    counts.set(k, entry);
+  }
+  const topCities = Array.from(counts.values()).sort((a, b) => b.count - a.count).slice(0, 8);
+  return { total: total ?? 0, cityCount, agencyCount: agencyCount ?? 0, featured: featured ?? [], topCities };
 });
 
 export const fetchListing = createServerFn({ method: "GET" })
