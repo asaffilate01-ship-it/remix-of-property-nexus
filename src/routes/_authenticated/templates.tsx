@@ -28,8 +28,8 @@ function TemplatesPage() {
   const create = useServerFn(createTemplateInstance);
   const setStatus = useServerFn(updateInstanceStatus);
   const { data, isLoading } = useQuery({ queryKey: ["templates"], queryFn: () => load() });
-  const templates = (data?.templates ?? []) as Template[];
-  const instances = (data?.instances ?? []) as Instance[];
+  const templates = (data?.templates ?? []) as unknown as Template[];
+  const instances = (data?.instances ?? []) as unknown as Instance[];
   const [q, setQ] = useState("");
   const [cat, setCat] = useState<string>("all");
   const [active, setActive] = useState<Template | null>(null);
