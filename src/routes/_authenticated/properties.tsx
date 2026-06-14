@@ -483,24 +483,56 @@ function RoomsPanel({ propertyId, isHmo }: { propertyId: string; isHmo: boolean 
 function TenanciesPanel({ propertyId, isHmo }: { propertyId: string; isHmo: boolean }) {
   const [tenancies, setTenancies] = useState<Tenancy[]>([]);
   const [rooms, setRooms] = useState<Room[]>([]);
-  const [editing, setEditing] = useState<typeof emptyTenancy | null>(null);
+  const [editing, setEditing] = useState<(typeof emptyTenancy & { tenant_id?: string }) | null>(null);
+  const [tenantsList, setTenantsList] = useState<{ id: string; full_name: string; email: string | null; phone: string | null }[]>([]);
 
   const load = async () => {
-    const [t, r] = await Promise.all([
+    const [t, r, tl] = await Promise.all([
       supabase.from("tenancies").select("*").eq("property_id", propertyId).order("start_date", { ascending: false }),
       supabase.from("rooms").select("*").eq("property_id", propertyId),
+      supabase.from("tenants").select("id,full_name,email,phone").order("full_name"),
     ]);
     setTenancies((t.data as Tenancy[]) ?? []);
     setRooms((r.data as Room[]) ?? []);
+    setTenantsList((tl.data as any) ?? []);
   };
   useEffect(() => { load(); }, [propertyId]);
+
+  const pickExisting = (id: string) => {
+    if (!editing) return;
+    if (id === "__new__") { setEditing({ ...editing, tenant_id: "", tenant_name: "", tenant_email: "", tenant_phone: "" }); return; }
+    const t = tenantsList.find((x) => x.id === id);
+    if (!t) return;
+    setEditing({ ...editing, tenant_id: id, tenant_name: t.full_name, tenant_email: t.email ?? "", tenant_phone: t.phone ?? "" });
+  };
 
   const save = async () => {
     if (!editing || !editing.tenant_name.trim() || !editing.start_date || !editing.rent_amount) return toast.error("Name, start date and rent required");
     if (isHmo && rooms.length > 0 && !editing.room_id) return toast.error("Pick a room for this HMO tenant");
+
+    let tenantId = editing.tenant_id || null;
+    if (!editing.id && !tenantId) {
+      // Create/find tenant record so the tenant appears in the Tenants directory
+      const { data: existing } = await supabase
+        .from("tenants").select("id")
+        .ilike("full_name", editing.tenant_name.trim())
+        .limit(1).maybeSingle();
+      if (existing?.id) {
+        tenantId = existing.id;
+      } else {
+        const { data: newT } = await supabase.from("tenants").insert({
+          full_name: editing.tenant_name.trim(),
+          email: editing.tenant_email || null,
+          phone: editing.tenant_phone || null,
+        }).select("id").single();
+        tenantId = newT?.id ?? null;
+      }
+    }
+
     const payload: any = {
       property_id: propertyId,
       room_id: editing.room_id || null,
+      tenant_id: tenantId,
       tenant_name: editing.tenant_name,
       tenant_email: editing.tenant_email || null,
       tenant_phone: editing.tenant_phone || null,
