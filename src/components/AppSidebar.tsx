@@ -62,6 +62,7 @@ const FULL: NavSection[] = [
     label: "Tenancy ops",
     items: [
       { to: "/tenancies", label: "Tenancies", icon: Home },
+      { to: "/tenants", label: "Tenants", icon: Users },
       { to: "/holiday-lets", label: "Holiday lets", icon: Sun },
       { to: "/inspections", label: "Inspections", icon: ClipboardList },
       { to: "/mobile-inspection", label: "On‑site inspection", icon: Smartphone },

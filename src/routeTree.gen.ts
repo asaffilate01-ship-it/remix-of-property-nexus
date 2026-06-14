@@ -43,6 +43,7 @@ import { Route as AgenciesSlugRouteImport } from './routes/agencies.$slug'
 import { Route as AuthenticatedWorkOrdersRouteImport } from './routes/_authenticated/work-orders'
 import { Route as AuthenticatedViewingsRouteImport } from './routes/_authenticated/viewings'
 import { Route as AuthenticatedVendorPortalRouteImport } from './routes/_authenticated/vendor-portal'
+import { Route as AuthenticatedTenantsRouteImport } from './routes/_authenticated/tenants'
 import { Route as AuthenticatedTenanciesRouteImport } from './routes/_authenticated/tenancies'
 import { Route as AuthenticatedTemplatesRouteImport } from './routes/_authenticated/templates'
 import { Route as AuthenticatedSurveyRouteImport } from './routes/_authenticated/survey'
@@ -264,6 +265,11 @@ const AuthenticatedVendorPortalRoute =
     path: '/vendor-portal',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedTenantsRoute = AuthenticatedTenantsRouteImport.update({
+  id: '/tenants',
+  path: '/tenants',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedTenanciesRoute = AuthenticatedTenanciesRouteImport.update({
   id: '/tenancies',
   path: '/tenancies',
@@ -592,6 +598,7 @@ export interface FileRoutesByFullPath {
   '/survey': typeof AuthenticatedSurveyRoute
   '/templates': typeof AuthenticatedTemplatesRoute
   '/tenancies': typeof AuthenticatedTenanciesRouteWithChildren
+  '/tenants': typeof AuthenticatedTenantsRoute
   '/vendor-portal': typeof AuthenticatedVendorPortalRoute
   '/viewings': typeof AuthenticatedViewingsRoute
   '/work-orders': typeof AuthenticatedWorkOrdersRouteWithChildren
@@ -674,6 +681,7 @@ export interface FileRoutesByTo {
   '/survey': typeof AuthenticatedSurveyRoute
   '/templates': typeof AuthenticatedTemplatesRoute
   '/tenancies': typeof AuthenticatedTenanciesRouteWithChildren
+  '/tenants': typeof AuthenticatedTenantsRoute
   '/vendor-portal': typeof AuthenticatedVendorPortalRoute
   '/viewings': typeof AuthenticatedViewingsRoute
   '/work-orders': typeof AuthenticatedWorkOrdersRouteWithChildren
@@ -761,6 +769,7 @@ export interface FileRoutesById {
   '/_authenticated/survey': typeof AuthenticatedSurveyRoute
   '/_authenticated/templates': typeof AuthenticatedTemplatesRoute
   '/_authenticated/tenancies': typeof AuthenticatedTenanciesRouteWithChildren
+  '/_authenticated/tenants': typeof AuthenticatedTenantsRoute
   '/_authenticated/vendor-portal': typeof AuthenticatedVendorPortalRoute
   '/_authenticated/viewings': typeof AuthenticatedViewingsRoute
   '/_authenticated/work-orders': typeof AuthenticatedWorkOrdersRouteWithChildren
@@ -848,6 +857,7 @@ export interface FileRouteTypes {
     | '/survey'
     | '/templates'
     | '/tenancies'
+    | '/tenants'
     | '/vendor-portal'
     | '/viewings'
     | '/work-orders'
@@ -930,6 +940,7 @@ export interface FileRouteTypes {
     | '/survey'
     | '/templates'
     | '/tenancies'
+    | '/tenants'
     | '/vendor-portal'
     | '/viewings'
     | '/work-orders'
@@ -1016,6 +1027,7 @@ export interface FileRouteTypes {
     | '/_authenticated/survey'
     | '/_authenticated/templates'
     | '/_authenticated/tenancies'
+    | '/_authenticated/tenants'
     | '/_authenticated/vendor-portal'
     | '/_authenticated/viewings'
     | '/_authenticated/work-orders'
@@ -1313,6 +1325,13 @@ declare module '@tanstack/react-router' {
       path: '/vendor-portal'
       fullPath: '/vendor-portal'
       preLoaderRoute: typeof AuthenticatedVendorPortalRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/tenants': {
+      id: '/_authenticated/tenants'
+      path: '/tenants'
+      fullPath: '/tenants'
+      preLoaderRoute: typeof AuthenticatedTenantsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/tenancies': {
@@ -1765,6 +1784,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedSurveyRoute: typeof AuthenticatedSurveyRoute
   AuthenticatedTemplatesRoute: typeof AuthenticatedTemplatesRoute
   AuthenticatedTenanciesRoute: typeof AuthenticatedTenanciesRouteWithChildren
+  AuthenticatedTenantsRoute: typeof AuthenticatedTenantsRoute
   AuthenticatedVendorPortalRoute: typeof AuthenticatedVendorPortalRoute
   AuthenticatedViewingsRoute: typeof AuthenticatedViewingsRoute
   AuthenticatedWorkOrdersRoute: typeof AuthenticatedWorkOrdersRouteWithChildren
@@ -1812,6 +1832,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSurveyRoute: AuthenticatedSurveyRoute,
   AuthenticatedTemplatesRoute: AuthenticatedTemplatesRoute,
   AuthenticatedTenanciesRoute: AuthenticatedTenanciesRouteWithChildren,
+  AuthenticatedTenantsRoute: AuthenticatedTenantsRoute,
   AuthenticatedVendorPortalRoute: AuthenticatedVendorPortalRoute,
   AuthenticatedViewingsRoute: AuthenticatedViewingsRoute,
   AuthenticatedWorkOrdersRoute: AuthenticatedWorkOrdersRouteWithChildren,
@@ -1896,13 +1917,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
