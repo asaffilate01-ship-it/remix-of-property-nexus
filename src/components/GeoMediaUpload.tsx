@@ -10,6 +10,9 @@ import exifr from "exifr";
 type Props = {
   workOrderId?: string | null;
   propertyId?: string | null;
+  visitId?: string | null;
+  stage?: "before" | "progress" | "after" | null;
+  label?: string;
   onUploaded?: () => void;
 };
 
@@ -70,7 +73,7 @@ function getBrowserLocation(): Promise<GeolocationPosition | null> {
   });
 }
 
-export function GeoMediaUpload({ workOrderId, propertyId, onUploaded }: Props) {
+export function GeoMediaUpload({ workOrderId, propertyId, visitId, stage, label, onUploaded }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const save = useServerFn(saveJobMedia);
@@ -123,6 +126,8 @@ export function GeoMediaUpload({ workOrderId, propertyId, onUploaded }: Props) {
         await save({ data: {
           work_order_id: workOrderId ?? null,
           property_id: propertyId ?? null,
+          visit_id: visitId ?? null,
+          stage: stage ?? null,
           kind: isVideo ? "video" : "photo",
           storage_path: path,
           mime_type: mime,
@@ -160,7 +165,7 @@ export function GeoMediaUpload({ workOrderId, propertyId, onUploaded }: Props) {
       />
       <Button type="button" onClick={onPick} disabled={busy} variant="default" size="sm">
         {busy ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Camera className="h-4 w-4 mr-2" />}
-        Capture photo / video
+        {label ?? "Capture photo / video"}
         <MapPin className="h-3 w-3 ml-2 opacity-60" />
       </Button>
     </>

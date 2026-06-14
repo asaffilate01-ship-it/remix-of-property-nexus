@@ -33,6 +33,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as MarketplaceIndexRouteImport } from './routes/marketplace.index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as AgenciesIndexRouteImport } from './routes/agencies.index'
+import { Route as VisitTokenRouteImport } from './routes/visit.$token'
 import { Route as SignTokenRouteImport } from './routes/sign.$token'
 import { Route as ModulesSlugRouteImport } from './routes/modules.$slug'
 import { Route as MarketplaceSlugRouteImport } from './routes/marketplace.$slug'
@@ -204,6 +205,11 @@ const AgenciesIndexRoute = AgenciesIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AgenciesRoute,
+} as any)
+const VisitTokenRoute = VisitTokenRouteImport.update({
+  id: '/visit/$token',
+  path: '/visit/$token',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const SignTokenRoute = SignTokenRouteImport.update({
   id: '/sign/$token',
@@ -546,6 +552,7 @@ export interface FileRoutesByFullPath {
   '/marketplace/$slug': typeof MarketplaceSlugRoute
   '/modules/$slug': typeof ModulesSlugRoute
   '/sign/$token': typeof SignTokenRoute
+  '/visit/$token': typeof VisitTokenRoute
   '/agencies/': typeof AgenciesIndexRoute
   '/blog/': typeof BlogIndexRoute
   '/marketplace/': typeof MarketplaceIndexRoute
@@ -621,6 +628,7 @@ export interface FileRoutesByTo {
   '/marketplace/$slug': typeof MarketplaceSlugRoute
   '/modules/$slug': typeof ModulesSlugRoute
   '/sign/$token': typeof SignTokenRoute
+  '/visit/$token': typeof VisitTokenRoute
   '/agencies': typeof AgenciesIndexRoute
   '/blog': typeof BlogIndexRoute
   '/marketplace': typeof MarketplaceIndexRoute
@@ -700,6 +708,7 @@ export interface FileRoutesById {
   '/marketplace/$slug': typeof MarketplaceSlugRoute
   '/modules/$slug': typeof ModulesSlugRoute
   '/sign/$token': typeof SignTokenRoute
+  '/visit/$token': typeof VisitTokenRoute
   '/agencies/': typeof AgenciesIndexRoute
   '/blog/': typeof BlogIndexRoute
   '/marketplace/': typeof MarketplaceIndexRoute
@@ -779,6 +788,7 @@ export interface FileRouteTypes {
     | '/marketplace/$slug'
     | '/modules/$slug'
     | '/sign/$token'
+    | '/visit/$token'
     | '/agencies/'
     | '/blog/'
     | '/marketplace/'
@@ -854,6 +864,7 @@ export interface FileRouteTypes {
     | '/marketplace/$slug'
     | '/modules/$slug'
     | '/sign/$token'
+    | '/visit/$token'
     | '/agencies'
     | '/blog'
     | '/marketplace'
@@ -932,6 +943,7 @@ export interface FileRouteTypes {
     | '/marketplace/$slug'
     | '/modules/$slug'
     | '/sign/$token'
+    | '/visit/$token'
     | '/agencies/'
     | '/blog/'
     | '/marketplace/'
@@ -967,6 +979,7 @@ export interface RootRouteChildren {
   BlogSlugRoute: typeof BlogSlugRoute
   ModulesSlugRoute: typeof ModulesSlugRoute
   SignTokenRoute: typeof SignTokenRoute
+  VisitTokenRoute: typeof VisitTokenRoute
   BlogIndexRoute: typeof BlogIndexRoute
   ApiPublicReferencingWebhookRoute: typeof ApiPublicReferencingWebhookRoute
   ApiPublicHooksExpiryRemindersRoute: typeof ApiPublicHooksExpiryRemindersRoute
@@ -1142,6 +1155,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/agencies/'
       preLoaderRoute: typeof AgenciesIndexRouteImport
       parentRoute: typeof AgenciesRoute
+    }
+    '/visit/$token': {
+      id: '/visit/$token'
+      path: '/visit/$token'
+      fullPath: '/visit/$token'
+      preLoaderRoute: typeof VisitTokenRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/sign/$token': {
       id: '/sign/$token'
@@ -1683,6 +1703,7 @@ const rootRouteChildren: RootRouteChildren = {
   BlogSlugRoute: BlogSlugRoute,
   ModulesSlugRoute: ModulesSlugRoute,
   SignTokenRoute: SignTokenRoute,
+  VisitTokenRoute: VisitTokenRoute,
   BlogIndexRoute: BlogIndexRoute,
   ApiPublicReferencingWebhookRoute: ApiPublicReferencingWebhookRoute,
   ApiPublicHooksExpiryRemindersRoute: ApiPublicHooksExpiryRemindersRoute,

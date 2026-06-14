@@ -11,11 +11,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Plus, MapPin, Clock, AlertTriangle, Wrench, Camera } from "lucide-react";
+import { Plus, MapPin, Clock, AlertTriangle, Wrench, Camera, Link2, Copy } from "lucide-react";
 import { toast } from "sonner";
 import { fetchOpsData, saveWorkOrder, addWorkOrderUpdate } from "@/lib/ops.functions";
+import { createShareToken } from "@/lib/visits.functions";
 import { GeoMediaUpload } from "@/components/GeoMediaUpload";
 import { SignedMedia } from "@/components/SignedMedia";
+import { VisitPanel } from "@/components/VisitPanel";
 
 export const Route = createFileRoute("/_authenticated/work-orders")({ component: WorkOrdersPage });
 
@@ -59,9 +61,15 @@ function WorkOrdersPage() {
   const tenancies = (data?.tenancies ?? []) as any[];
   const updates = (data?.updates ?? []) as any[];
   const media = (data?.media ?? []) as any[];
+  const visits = (data?.visits ?? []) as any[];
+  const shareTokens = (data?.shareTokens ?? []) as any[];
 
   const propMap = useMemo(() => Object.fromEntries(properties.map((p) => [p.id, p])), [properties]);
   const contactMap = useMemo(() => Object.fromEntries(contacts.map((c) => [c.id, c])), [contacts]);
+  const shareFn = useServerFn(createShareToken);
+  const [shareName, setShareName] = useState("");
+  const [sharePhone, setSharePhone] = useState("");
+  const [shareOpen, setShareOpen] = useState(false);
 
   const filtered = useMemo(() => {
     if (tab === "active") return workOrders.filter((w) => w.status !== "completed" && w.status !== "cancelled");
@@ -230,6 +238,37 @@ function WorkOrdersPage() {
                   {active.description && <p className="text-foreground mt-2">{active.description}</p>}
                 </div>
 
+                <div className="border-t pt-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-semibold flex items-center gap-2"><MapPin className="h-4 w-4" /> Site visits</h4>
+                    <Button size="sm" variant="outline" onClick={() => setShareOpen(true)}><Link2 className="h-3 w-3 mr-1" /> Contractor link</Button>
+                  </div>
+                  <VisitPanel
+                    workOrderId={active.id}
+                    propertyId={active.property_id}
+                    visits={visits.filter((v) => v.work_order_id === active.id)}
+                    media={media.filter((m) => m.work_order_id === active.id)}
+                  />
+                  {shareTokens.filter((t) => t.work_order_id === active.id && !t.revoked_at).length > 0 && (
+                    <div className="space-y-1">
+                      <div className="text-xs font-semibold uppercase text-muted-foreground">Active contractor links</div>
+                      {shareTokens.filter((t) => t.work_order_id === active.id && !t.revoked_at).map((t) => {
+                        const url = `${typeof window !== "undefined" ? window.location.origin : ""}/visit/${t.token}`;
+                        return (
+                          <div key={t.id} className="flex items-center justify-between gap-2 text-xs border rounded-md p-2">
+                            <div className="min-w-0">
+                              <div className="font-medium">{t.contractor_name}</div>
+                              <div className="text-muted-foreground truncate">{url}</div>
+                            </div>
+                            <Button size="sm" variant="ghost" onClick={() => { navigator.clipboard.writeText(url); toast.success("Copied"); }}><Copy className="h-3 w-3" /></Button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+
+
                 <div className="border-t pt-4">
                   <div className="flex items-center justify-between mb-3">
                     <h4 className="font-semibold flex items-center gap-2"><Camera className="h-4 w-4" /> Media on site</h4>
@@ -275,6 +314,30 @@ function WorkOrdersPage() {
               </div>
             </>
           )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={shareOpen} onOpenChange={setShareOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle>Generate contractor link</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <div><Label>Contractor name *</Label><Input value={shareName} onChange={(e) => setShareName(e.target.value)} /></div>
+            <div><Label>Phone (optional)</Label><Input value={sharePhone} onChange={(e) => setSharePhone(e.target.value)} /></div>
+            <p className="text-xs text-muted-foreground">Creates a secure link valid for 7 days. The contractor opens it on their phone to check in, capture before/after media, and check out — no login required.</p>
+          </div>
+          <DialogFooter>
+            <Button onClick={async () => {
+              if (!active || !shareName.trim()) return toast.error("Name required");
+              try {
+                const res = await shareFn({ data: { work_order_id: active.id, contractor_name: shareName, contractor_phone: sharePhone || null } });
+                const url = `${window.location.origin}/visit/${res.token}`;
+                await navigator.clipboard.writeText(url);
+                toast.success("Link copied to clipboard");
+                setShareName(""); setSharePhone(""); setShareOpen(false);
+                qc.invalidateQueries({ queryKey: ["ops"] });
+              } catch (e: any) { toast.error(e.message); }
+            }}>Create & copy link</Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
