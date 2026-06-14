@@ -7,6 +7,10 @@ import { toast } from "sonner";
 
 export type ListingPhoto = { url: string; path?: string | null; room?: string | null };
 
+const MAX_PARALLEL_UPLOADS = 3;
+const MAX_IMAGE_EDGE = 2200;
+const COMPRESS_AFTER_BYTES = 2 * 1024 * 1024;
+
 function extractListingPhotoPath(url: string): string | null {
   if (!url) return null;
   if (url.startsWith("listing-photos://")) return decodeURIComponent(url.slice("listing-photos://".length));
@@ -17,6 +21,69 @@ function extractListingPhotoPath(url: string): string | null {
 
 function toListingPhotoRef(path: string): string {
   return `listing-photos://${encodeURIComponent(path)}`;
+}
+
+async function loadImage(file: File): Promise<HTMLImageElement> {
+  const url = URL.createObjectURL(file);
+  return await new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      resolve(img);
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error("Image load failed"));
+    };
+    img.src = url;
+  });
+}
+
+async function optimizeImageFile(file: File): Promise<File> {
+  if (!file.type.startsWith("image/") || file.type === "image/gif" || file.type === "image/svg+xml") return file;
+  if (file.size <= COMPRESS_AFTER_BYTES) return file;
+
+  try {
+    const image = await loadImage(file);
+    const longestEdge = Math.max(image.naturalWidth, image.naturalHeight);
+    const scale = longestEdge > MAX_IMAGE_EDGE ? MAX_IMAGE_EDGE / longestEdge : 1;
+
+    if (scale >= 1 && file.type === "image/png") return file;
+
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+    canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return file;
+    ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+    const outputType = file.type === "image/png" ? "image/png" : "image/jpeg";
+    const quality = outputType === "image/png" ? undefined : 0.82;
+    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, outputType, quality));
+
+    if (!blob || blob.size >= file.size * 0.95) return file;
+
+    const nextName = file.name.replace(/\.[^.]+$/, outputType === "image/png" ? ".png" : ".jpg");
+    return new File([blob], nextName === file.name ? `${file.name}.jpg` : nextName, {
+      type: outputType,
+      lastModified: file.lastModified,
+    });
+  } catch {
+    return file;
+  }
+}
+
+async function runWithConcurrency<T>(items: T[], limit: number, worker: (item: T, index: number) => Promise<void>) {
+  let nextIndex = 0;
+  const runners = Array.from({ length: Math.min(limit, items.length) }, async () => {
+    while (nextIndex < items.length) {
+      const current = nextIndex;
+      nextIndex += 1;
+      await worker(items[current], current);
+    }
+  });
+  await Promise.all(runners);
 }
 
 // Renders a storage-backed thumbnail by re-signing on demand, so a long-lived
@@ -60,6 +127,7 @@ export function PhotoUploader({ photos, onChange, coverIndex, onCoverChange, roo
   const fileRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
 
   const upload = async (files: FileList | File[]) => {
     setBusy(true);
@@ -67,26 +135,42 @@ export function PhotoUploader({ photos, onChange, coverIndex, onCoverChange, roo
     try {
       const { data: u, error: authErr } = await supabase.auth.getUser();
       if (authErr || !u?.user) throw new Error("Sign in required to upload photos");
-      const added: ListingPhoto[] = [];
-      for (const file of Array.from(files)) {
+
+      const validFiles = Array.from(files).filter((file) => {
         if (!file.type.startsWith("image/")) {
           toast.error(`Skipped ${file.name}: not an image`);
-          continue;
+          return false;
         }
         if (file.size > 15 * 1024 * 1024) {
           toast.error(`Skipped ${file.name}: over 15MB`);
-          continue;
+          return false;
         }
-        const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-        const path = `${u.user.id}/${Date.now()}-${Math.random().toString(36).slice(2, 7)}-${safe}`;
-        const { error: upErr } = await supabase.storage.from("listing-photos").upload(path, file, { upsert: false, contentType: file.type });
+        return true;
+      });
+
+      if (!validFiles.length) return;
+
+      const added: ListingPhoto[] = [];
+      setProgress({ done: 0, total: validFiles.length });
+
+      await runWithConcurrency(validFiles, MAX_PARALLEL_UPLOADS, async (file, index) => {
+        const prepared = await optimizeImageFile(file);
+        const safe = prepared.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+        const path = `${u.user.id}/${Date.now()}-${index}-${crypto.randomUUID()}-${safe}`;
+        const { error: upErr } = await supabase.storage
+          .from("listing-photos")
+          .upload(path, prepared, { upsert: false, contentType: prepared.type || file.type });
+
         if (upErr) {
           console.error("[PhotoUploader] upload failed", upErr);
           toast.error(`Upload failed: ${upErr.message}`);
-          continue;
+        } else {
+          added.push({ url: toListingPhotoRef(path), path, room: null });
         }
-        added.push({ url: toListingPhotoRef(path), path, room: null });
-      }
+
+        setProgress((prev) => (prev ? { ...prev, done: prev.done + 1 } : prev));
+      });
+
       if (added.length) {
         onChange([...photos, ...added]);
         toast.success(`${added.length} photo${added.length === 1 ? "" : "s"} added`);
@@ -96,6 +180,7 @@ export function PhotoUploader({ photos, onChange, coverIndex, onCoverChange, roo
       toast.error(e.message ?? "Upload failed");
     } finally {
       setBusy(false);
+      setProgress(null);
       onUploadingChange?.(false);
       if (fileRef.current) fileRef.current.value = "";
     }
@@ -135,9 +220,9 @@ export function PhotoUploader({ photos, onChange, coverIndex, onCoverChange, roo
         <div className="text-xs text-muted-foreground mt-1">or</div>
         <div className="flex gap-2 justify-center mt-2">
           <Button type="button" size="sm" variant="outline" onClick={() => fileRef.current?.click()} disabled={busy}>
-            <Upload className="h-3 w-3 mr-1" /> {busy ? "Uploading…" : "Choose files"}
+            <Upload className="h-3 w-3 mr-1" /> {busy ? `Uploading ${progress?.done ?? 0}/${progress?.total ?? 0}…` : "Choose files"}
           </Button>
-          <Button type="button" size="sm" variant="ghost" onClick={addUrl}>Add by URL</Button>
+          <Button type="button" size="sm" variant="ghost" onClick={addUrl} disabled={busy}>Add by URL</Button>
         </div>
         <input
           ref={fileRef}
