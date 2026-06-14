@@ -70,6 +70,7 @@ function PropertiesPage() {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(emptyProp);
   const [active, setActive] = useState<Property | null>(null);
+  const [initialTab, setInitialTab] = useState<string>("rooms");
   const [ptypes, setPtypes] = useState<{ code: string; label: string; category: string }[]>([]);
 
   const load = async () => {
