@@ -238,6 +238,37 @@ function WorkOrdersPage() {
                   {active.description && <p className="text-foreground mt-2">{active.description}</p>}
                 </div>
 
+                <div className="border-t pt-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-semibold flex items-center gap-2"><MapPin className="h-4 w-4" /> Site visits</h4>
+                    <Button size="sm" variant="outline" onClick={() => setShareOpen(true)}><Link2 className="h-3 w-3 mr-1" /> Contractor link</Button>
+                  </div>
+                  <VisitPanel
+                    workOrderId={active.id}
+                    propertyId={active.property_id}
+                    visits={visits.filter((v) => v.work_order_id === active.id)}
+                    media={media.filter((m) => m.work_order_id === active.id)}
+                  />
+                  {shareTokens.filter((t) => t.work_order_id === active.id && !t.revoked_at).length > 0 && (
+                    <div className="space-y-1">
+                      <div className="text-xs font-semibold uppercase text-muted-foreground">Active contractor links</div>
+                      {shareTokens.filter((t) => t.work_order_id === active.id && !t.revoked_at).map((t) => {
+                        const url = `${typeof window !== "undefined" ? window.location.origin : ""}/visit/${t.token}`;
+                        return (
+                          <div key={t.id} className="flex items-center justify-between gap-2 text-xs border rounded-md p-2">
+                            <div className="min-w-0">
+                              <div className="font-medium">{t.contractor_name}</div>
+                              <div className="text-muted-foreground truncate">{url}</div>
+                            </div>
+                            <Button size="sm" variant="ghost" onClick={() => { navigator.clipboard.writeText(url); toast.success("Copied"); }}><Copy className="h-3 w-3" /></Button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+
+
                 <div className="border-t pt-4">
                   <div className="flex items-center justify-between mb-3">
                     <h4 className="font-semibold flex items-center gap-2"><Camera className="h-4 w-4" /> Media on site</h4>
