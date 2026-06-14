@@ -80,7 +80,7 @@ export function PhotoUploader({ photos, onChange, coverIndex, onCoverChange, roo
           toast.error(`Couldn't preview ${file.name}: ${sErr?.message ?? "no URL"}`);
           continue;
         }
-        added.push({ url: signed.signedUrl, room: null });
+        added.push({ url: signed.signedUrl, path, room: null });
       }
       if (added.length) {
         onChange([...photos, ...added]);
