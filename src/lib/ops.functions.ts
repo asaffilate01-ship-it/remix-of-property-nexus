@@ -182,6 +182,8 @@ export const saveJobMedia = createServerFn({ method: "POST" })
   .inputValidator(z.object({
     work_order_id: z.string().uuid().optional().nullable(),
     property_id: z.string().uuid().optional().nullable(),
+    visit_id: z.string().uuid().optional().nullable(),
+    stage: z.enum(["before", "progress", "after"]).optional().nullable(),
     kind: z.enum(["photo", "video"]),
     storage_path: z.string().min(1).max(500),
     mime_type: z.string().max(100).optional().nullable(),
@@ -207,6 +209,8 @@ export const saveJobMedia = createServerFn({ method: "POST" })
       uploader_id: context.userId,
       work_order_id: data.work_order_id || null,
       property_id: data.property_id || null,
+      visit_id: data.visit_id || null,
+      stage: data.stage || null,
       kind: data.kind,
       storage_path: data.storage_path,
       mime_type: data.mime_type || null,
