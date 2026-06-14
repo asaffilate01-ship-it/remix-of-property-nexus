@@ -178,16 +178,33 @@ function MarketplacePage() {
       <main className="flex-1">
         <section className="brand-gradient relative overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.18),transparent_60%)]" />
-          <div className="container mx-auto px-4 py-10 sm:py-14 md:py-20 relative">
+          <div className="container mx-auto px-4 py-8 sm:py-12 md:py-16 relative">
             <div className="inline-flex items-center gap-2 rounded-full bg-white/10 text-white text-[11px] sm:text-xs font-medium px-3 py-1 backdrop-blur mb-4">
               <Sparkles className="h-3 w-3" /> Smarter than the portals
             </div>
-            <h1 className="font-display text-[28px] leading-[1.1] sm:text-4xl md:text-5xl font-bold mb-3 tracking-tight max-w-3xl text-white">
+            <h1 className="font-display text-[26px] leading-[1.1] sm:text-4xl md:text-5xl font-bold mb-2 tracking-tight max-w-3xl text-white">
               Find your next home, room or investment.
             </h1>
-            <p className="text-white/85 mb-6 md:mb-8 text-sm sm:text-base md:text-lg max-w-2xl">
+            <p className="text-white/85 mb-5 md:mb-6 text-sm sm:text-base md:text-lg max-w-2xl">
               Direct from verified UK agents and landlords. Zero spam, zero phantom listings.
             </p>
+
+            {/* Bayut-style purpose pills */}
+            <div className="inline-flex rounded-full bg-white/15 backdrop-blur p-1 mb-3 ring-1 ring-white/20">
+              {tabs.map((t) => {
+                const active = category === t.value;
+                return (
+                  <button
+                    key={t.value}
+                    type="button"
+                    onClick={() => setSearch({ category: t.value === "all" ? undefined : (t.value as Category) })}
+                    className={`px-3 sm:px-4 h-9 text-xs sm:text-sm font-semibold rounded-full transition-colors ${active ? "bg-white text-primary shadow-sm" : "text-white/90 hover:text-white"}`}
+                  >
+                    {t.label}
+                  </button>
+                );
+              })}
+            </div>
 
             <SearchBar
               q={q} setQ={setQ}
@@ -195,6 +212,35 @@ function MarketplacePage() {
               radius={s.radius ?? 0} setRadius={(r) => setSearch({ radius: r || undefined })}
               onSubmit={() => { setSearch({ q: q || undefined }); onSubmitWhere(); }}
             />
+
+            {/* Quick chips: property type + beds */}
+            <div className="mt-3 flex flex-wrap items-center gap-1.5">
+              <span className="text-[11px] uppercase tracking-wide text-white/70 font-semibold mr-1">Type</span>
+              {(["any","house","flat","studio","room","commercial"] as PropertyType[]).map((t) => {
+                const active = (s.property_type ?? "any") === t;
+                return (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => setSearch({ property_type: t === "any" ? undefined : t })}
+                    className={`h-7 px-2.5 rounded-full text-[11px] sm:text-xs font-medium capitalize border transition-colors ${active ? "bg-white text-primary border-white" : "bg-white/10 text-white border-white/30 hover:bg-white/20"}`}
+                  >{t === "any" ? "Any" : t}</button>
+                );
+              })}
+              <span className="text-[11px] uppercase tracking-wide text-white/70 font-semibold ml-2 mr-1">Beds</span>
+              {[0,1,2,3,4,5].map((n) => {
+                const active = (s.beds ?? 0) === n;
+                return (
+                  <button
+                    key={n}
+                    type="button"
+                    onClick={() => setSearch({ beds: n === 0 ? undefined : n })}
+                    className={`h-7 min-w-[2rem] px-2 rounded-full text-[11px] sm:text-xs font-semibold border transition-colors ${active ? "bg-white text-primary border-white" : "bg-white/10 text-white border-white/30 hover:bg-white/20"}`}
+                  >{n === 0 ? "Any" : `${n}+`}</button>
+                );
+              })}
+            </div>
+
             {data?.centroid && s.radius ? (
               <div className="mt-3 text-xs text-white/80">
                 Showing properties within {s.radius} miles of <strong>{data.centroid.label}</strong>
@@ -202,7 +248,7 @@ function MarketplacePage() {
             ) : null}
 
             {meta.data && (
-              <div className="mt-5 sm:mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs sm:text-sm text-white/90">
+              <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs sm:text-sm text-white/90">
                 <div className="inline-flex items-center gap-1.5"><Building2 className="h-4 w-4" /> {meta.data.total.toLocaleString()} listings</div>
                 <div className="inline-flex items-center gap-1.5"><MapPin className="h-4 w-4" /> {meta.data.cityCount} towns & cities</div>
                 <div className="hidden sm:block">{meta.data.agencyCount} verified agencies</div>
