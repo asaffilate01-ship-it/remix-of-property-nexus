@@ -217,6 +217,7 @@ function ListingDetail() {
               {(l.floorplan_url || l.tour_url) && <TabsTrigger value="tour">Floorplan & tour</TabsTrigger>}
               {isSale && <TabsTrigger value="mortgage">Mortgage</TabsTrigger>}
               <TabsTrigger value="area">Area</TabsTrigger>
+              <TabsTrigger value="nearby">Nearby</TabsTrigger>
             </TabsList>
             <TabsContent value="overview" className="pt-4">
               {l.description ? (
