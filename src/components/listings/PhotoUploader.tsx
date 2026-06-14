@@ -150,7 +150,7 @@ export function PhotoUploader({ photos, onChange, coverIndex, onCoverChange, roo
 
       if (!validFiles.length) return;
 
-      const added: ListingPhoto[] = [];
+      const added: Array<ListingPhoto | null> = Array.from({ length: validFiles.length }, () => null);
       setProgress({ done: 0, total: validFiles.length });
 
       await runWithConcurrency(validFiles, MAX_PARALLEL_UPLOADS, async (file, index) => {
@@ -165,15 +165,16 @@ export function PhotoUploader({ photos, onChange, coverIndex, onCoverChange, roo
           console.error("[PhotoUploader] upload failed", upErr);
           toast.error(`Upload failed: ${upErr.message}`);
         } else {
-          added.push({ url: toListingPhotoRef(path), path, room: null });
+          added[index] = { url: toListingPhotoRef(path), path, room: null };
         }
 
         setProgress((prev) => (prev ? { ...prev, done: prev.done + 1 } : prev));
       });
 
-      if (added.length) {
-        onChange([...photos, ...added]);
-        toast.success(`${added.length} photo${added.length === 1 ? "" : "s"} added`);
+      const completed = added.filter((item): item is ListingPhoto => item !== null);
+      if (completed.length) {
+        onChange([...photos, ...completed]);
+        toast.success(`${completed.length} photo${completed.length === 1 ? "" : "s"} added`);
       }
     } catch (e: any) {
       console.error("[PhotoUploader] error", e);
