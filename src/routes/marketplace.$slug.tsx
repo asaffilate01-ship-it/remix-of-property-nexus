@@ -373,11 +373,18 @@ type ListingRecord = {
 };
 
 function KeyFacts({ l }: { l: ListingRecord }) {
+  const [units, setUnits] = useState<"sqft" | "sqm">("sqft");
+  const area = l.floor_area_sqft != null
+    ? units === "sqft"
+      ? `${Number(l.floor_area_sqft).toLocaleString()} sq ft`
+      : `${Math.round(Number(l.floor_area_sqft) * 0.092903).toLocaleString()} sq m`
+    : null;
+
   const facts = [
     { icon: Bed, label: "Bedrooms", value: l.bedrooms?.toString() },
     { icon: Bath, label: "Bathrooms", value: l.bathrooms?.toString() },
     { icon: Home, label: "Receptions", value: l.receptions?.toString() },
-    { icon: Ruler, label: "Floor area", value: l.floor_area_sqft ? `${Number(l.floor_area_sqft).toLocaleString()} sq ft` : null },
+    { icon: Ruler, label: "Floor area", value: area },
     { icon: Zap, label: "EPC rating", value: l.epc_rating },
     { icon: Shield, label: "Tenure", value: l.tenure?.replace(/_/g, " ") },
     { icon: Home, label: "Furnishing", value: l.furnished?.replace(/_/g, " ") },
@@ -389,14 +396,30 @@ function KeyFacts({ l }: { l: ListingRecord }) {
 
   if (!facts.length) return null;
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-      {facts.map((f, i) => (
-        <div key={i} className="rounded-xl border bg-card p-3">
-          <f.icon className="h-4 w-4 text-accent mb-1.5" />
-          <div className="text-xs text-muted-foreground">{f.label}</div>
-          <div className="font-semibold capitalize">{f.value}</div>
+    <div className="space-y-3">
+      {l.floor_area_sqft != null && (
+        <div className="flex justify-end">
+          <div className="inline-flex rounded-full border bg-muted p-0.5 text-xs">
+            <button
+              onClick={() => setUnits("sqft")}
+              className={`px-3 py-1 rounded-full transition ${units === "sqft" ? "bg-card shadow-sm font-medium" : "text-muted-foreground"}`}
+            >sq ft</button>
+            <button
+              onClick={() => setUnits("sqm")}
+              className={`px-3 py-1 rounded-full transition ${units === "sqm" ? "bg-card shadow-sm font-medium" : "text-muted-foreground"}`}
+            >sq m</button>
+          </div>
         </div>
-      ))}
+      )}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+        {facts.map((f, i) => (
+          <div key={i} className="rounded-xl border bg-card p-3">
+            <f.icon className="h-4 w-4 text-accent mb-1.5" />
+            <div className="text-xs text-muted-foreground">{f.label}</div>
+            <div className="font-semibold capitalize">{f.value}</div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
