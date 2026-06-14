@@ -870,9 +870,11 @@ export type Database = {
           mime_type: string | null
           property_id: string | null
           source: string
+          stage: Database["public"]["Enums"]["job_media_stage"] | null
           storage_path: string
           thumbnail_path: string | null
           uploader_id: string | null
+          visit_id: string | null
           width: number | null
           work_order_id: string | null
         }
@@ -895,9 +897,11 @@ export type Database = {
           mime_type?: string | null
           property_id?: string | null
           source?: string
+          stage?: Database["public"]["Enums"]["job_media_stage"] | null
           storage_path: string
           thumbnail_path?: string | null
           uploader_id?: string | null
+          visit_id?: string | null
           width?: number | null
           work_order_id?: string | null
         }
@@ -920,9 +924,11 @@ export type Database = {
           mime_type?: string | null
           property_id?: string | null
           source?: string
+          stage?: Database["public"]["Enums"]["job_media_stage"] | null
           storage_path?: string
           thumbnail_path?: string | null
           uploader_id?: string | null
+          visit_id?: string | null
           width?: number | null
           work_order_id?: string | null
         }
@@ -1384,7 +1390,9 @@ export type Database = {
           hmo_licence_number: string | null
           id: string
           is_hmo: boolean
+          latitude: number | null
           listing_purpose: Database["public"]["Enums"]["listing_purpose"]
+          longitude: number | null
           min_stay_nights: number | null
           nightly_rate: number | null
           notes: string | null
@@ -1409,7 +1417,9 @@ export type Database = {
           hmo_licence_number?: string | null
           id?: string
           is_hmo?: boolean
+          latitude?: number | null
           listing_purpose?: Database["public"]["Enums"]["listing_purpose"]
+          longitude?: number | null
           min_stay_nights?: number | null
           nightly_rate?: number | null
           notes?: string | null
@@ -1434,7 +1444,9 @@ export type Database = {
           hmo_licence_number?: string | null
           id?: string
           is_hmo?: boolean
+          latitude?: number | null
           listing_purpose?: Database["public"]["Enums"]["listing_purpose"]
+          longitude?: number | null
           min_stay_nights?: number | null
           nightly_rate?: number | null
           notes?: string | null
@@ -2927,6 +2939,66 @@ export type Database = {
           },
         ]
       }
+      work_order_share_tokens: {
+        Row: {
+          agency_id: string
+          contractor_email: string | null
+          contractor_name: string | null
+          contractor_phone: string | null
+          created_at: string
+          created_by: string | null
+          expires_at: string | null
+          id: string
+          last_used_at: string | null
+          revoked_at: string | null
+          token: string
+          work_order_id: string
+        }
+        Insert: {
+          agency_id: string
+          contractor_email?: string | null
+          contractor_name?: string | null
+          contractor_phone?: string | null
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          last_used_at?: string | null
+          revoked_at?: string | null
+          token: string
+          work_order_id: string
+        }
+        Update: {
+          agency_id?: string
+          contractor_email?: string | null
+          contractor_name?: string | null
+          contractor_phone?: string | null
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          last_used_at?: string | null
+          revoked_at?: string | null
+          token?: string
+          work_order_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "work_order_share_tokens_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "work_order_share_tokens_work_order_id_fkey"
+            columns: ["work_order_id"]
+            isOneToOne: false
+            referencedRelation: "work_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       work_order_updates: {
         Row: {
           author_id: string | null
@@ -2962,6 +3034,122 @@ export type Database = {
             columns: ["work_order_id"]
             isOneToOne: false
             referencedRelation: "work_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      work_order_visits: {
+        Row: {
+          agency_id: string
+          check_in_accuracy_m: number | null
+          check_in_at: string
+          check_in_distance_m: number | null
+          check_in_lat: number | null
+          check_in_lng: number | null
+          check_out_accuracy_m: number | null
+          check_out_at: string | null
+          check_out_lat: number | null
+          check_out_lng: number | null
+          created_at: string
+          duration_minutes: number | null
+          id: string
+          ip_address: string | null
+          notes: string | null
+          property_id: string | null
+          signature_path: string | null
+          source: string
+          status: string
+          updated_at: string
+          user_agent: string | null
+          work_order_id: string
+          worker_contact_id: string | null
+          worker_name: string | null
+          worker_phone: string | null
+          worker_user_id: string | null
+        }
+        Insert: {
+          agency_id: string
+          check_in_accuracy_m?: number | null
+          check_in_at?: string
+          check_in_distance_m?: number | null
+          check_in_lat?: number | null
+          check_in_lng?: number | null
+          check_out_accuracy_m?: number | null
+          check_out_at?: string | null
+          check_out_lat?: number | null
+          check_out_lng?: number | null
+          created_at?: string
+          duration_minutes?: number | null
+          id?: string
+          ip_address?: string | null
+          notes?: string | null
+          property_id?: string | null
+          signature_path?: string | null
+          source?: string
+          status?: string
+          updated_at?: string
+          user_agent?: string | null
+          work_order_id: string
+          worker_contact_id?: string | null
+          worker_name?: string | null
+          worker_phone?: string | null
+          worker_user_id?: string | null
+        }
+        Update: {
+          agency_id?: string
+          check_in_accuracy_m?: number | null
+          check_in_at?: string
+          check_in_distance_m?: number | null
+          check_in_lat?: number | null
+          check_in_lng?: number | null
+          check_out_accuracy_m?: number | null
+          check_out_at?: string | null
+          check_out_lat?: number | null
+          check_out_lng?: number | null
+          created_at?: string
+          duration_minutes?: number | null
+          id?: string
+          ip_address?: string | null
+          notes?: string | null
+          property_id?: string | null
+          signature_path?: string | null
+          source?: string
+          status?: string
+          updated_at?: string
+          user_agent?: string | null
+          work_order_id?: string
+          worker_contact_id?: string | null
+          worker_name?: string | null
+          worker_phone?: string | null
+          worker_user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "work_order_visits_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "work_order_visits_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "work_order_visits_work_order_id_fkey"
+            columns: ["work_order_id"]
+            isOneToOne: false
+            referencedRelation: "work_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "work_order_visits_worker_contact_id_fkey"
+            columns: ["worker_contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
             referencedColumns: ["id"]
           },
         ]
@@ -3177,6 +3365,7 @@ export type Database = {
         | "lost"
       doc_scope: "property" | "landlord" | "tenant" | "tenancy" | "agency"
       job_media_kind: "photo" | "video"
+      job_media_stage: "before" | "progress" | "after"
       lead_status:
         | "new"
         | "contacted"
@@ -3468,6 +3657,7 @@ export const Constants = {
       ],
       doc_scope: ["property", "landlord", "tenant", "tenancy", "agency"],
       job_media_kind: ["photo", "video"],
+      job_media_stage: ["before", "progress", "after"],
       lead_status: [
         "new",
         "contacted",
