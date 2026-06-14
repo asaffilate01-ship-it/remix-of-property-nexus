@@ -316,6 +316,30 @@ function WorkOrdersPage() {
           )}
         </DialogContent>
       </Dialog>
+
+      <Dialog open={shareOpen} onOpenChange={setShareOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle>Generate contractor link</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <div><Label>Contractor name *</Label><Input value={shareName} onChange={(e) => setShareName(e.target.value)} /></div>
+            <div><Label>Phone (optional)</Label><Input value={sharePhone} onChange={(e) => setSharePhone(e.target.value)} /></div>
+            <p className="text-xs text-muted-foreground">Creates a secure link valid for 7 days. The contractor opens it on their phone to check in, capture before/after media, and check out — no login required.</p>
+          </div>
+          <DialogFooter>
+            <Button onClick={async () => {
+              if (!active || !shareName.trim()) return toast.error("Name required");
+              try {
+                const res = await shareFn({ data: { work_order_id: active.id, contractor_name: shareName, contractor_phone: sharePhone || null } });
+                const url = `${window.location.origin}/visit/${res.token}`;
+                await navigator.clipboard.writeText(url);
+                toast.success("Link copied to clipboard");
+                setShareName(""); setSharePhone(""); setShareOpen(false);
+                qc.invalidateQueries({ queryKey: ["ops"] });
+              } catch (e: any) { toast.error(e.message); }
+            }}>Create & copy link</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
