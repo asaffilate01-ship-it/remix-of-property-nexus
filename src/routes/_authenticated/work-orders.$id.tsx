@@ -26,7 +26,7 @@ export const Route = createFileRoute("/_authenticated/work-orders/$id")({
 });
 
 const STATUS = ["open", "in_progress", "on_hold", "completed", "cancelled"] as const;
-const PRIORITY = ["low", "medium", "high", "urgent"] as const;
+const PRIORITY = ["low", "medium", "high", "emergency"] as const;
 
 function WorkOrderDetail() {
   const { id } = Route.useParams();
