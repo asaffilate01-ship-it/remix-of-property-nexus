@@ -13,7 +13,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { fetchListing, submitLead } from "@/lib/public.functions";
-import { Bed, Bath, MapPin, Calendar, Ruler, Zap, Shield, ChevronLeft, Share2, Mail, Globe, Calculator, Sparkles, Home, Building2 } from "lucide-react";
+import { Bed, Bath, MapPin, Calendar, Ruler, Zap, Shield, ChevronLeft, Share2, Mail, Globe, Calculator, Sparkles, Home, Building2, Star } from "lucide-react";
+import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { PhoneReveal } from "@/components/PhoneReveal";
 import { GoogleListingsMap } from "@/components/GoogleListingsMap";
 
@@ -188,6 +189,8 @@ function ListingDetail() {
               {l.is_hmo && <Badge className="bg-accent text-accent-foreground">HMO</Badge>}
               {l.status !== "published" && <Badge variant="outline" className="capitalize">{l.status?.replace(/_/g, " ")}</Badge>}
               {l.epc_rating && <Badge variant="outline">EPC {l.epc_rating}</Badge>}
+              {l.verified && <VerifiedBadge kind="verified" />}
+              {l.photos_verified && <VerifiedBadge kind="photos" />}
             </div>
             <div className="flex flex-wrap items-baseline justify-between gap-3">
               <div>
@@ -273,7 +276,17 @@ function ListingDetail() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="text-xs text-muted-foreground">Listed by</div>
-                    <Link to="/agencies/$slug" params={{ slug: l.agencies.slug }} className="font-semibold hover:underline">{l.agencies.name}</Link>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <Link to="/agencies/$slug" params={{ slug: l.agencies.slug }} className="font-semibold hover:underline">{l.agencies.name}</Link>
+                      {l.agencies.verified && <VerifiedBadge kind="agency" compact />}
+                    </div>
+                    {l.agencies.rating != null && (
+                      <div className="mt-0.5 inline-flex items-center gap-1 text-xs">
+                        <Star className="h-3 w-3 fill-warning text-warning" />
+                        <span className="font-medium">{Number(l.agencies.rating).toFixed(1)}</span>
+                        <span className="text-muted-foreground">({l.agencies.review_count ?? 0} reviews)</span>
+                      </div>
+                    )}
                   </div>
                 </div>
                 <PhoneReveal
