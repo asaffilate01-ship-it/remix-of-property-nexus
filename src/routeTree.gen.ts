@@ -83,6 +83,7 @@ import { Route as AuthenticatedAgencyRouteImport } from './routes/_authenticated
 import { Route as ApiPublicReferencingWebhookRouteImport } from './routes/api/public/referencing-webhook'
 import { Route as AuthenticatedTenanciesIdRouteImport } from './routes/_authenticated/tenancies.$id'
 import { Route as ApiPublicHooksMatchSavedSearchesRouteImport } from './routes/api/public/hooks/match-saved-searches'
+import { Route as ApiPublicHooksExpiryRemindersRouteImport } from './routes/api/public/hooks/expiry-reminders'
 import { Route as AuthenticatedListingIdWindowCardRouteImport } from './routes/_authenticated/listing.$id.window-card'
 
 const ValuationRoute = ValuationRouteImport.update({
@@ -464,6 +465,12 @@ const ApiPublicHooksMatchSavedSearchesRoute =
     path: '/api/public/hooks/match-saved-searches',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksExpiryRemindersRoute =
+  ApiPublicHooksExpiryRemindersRouteImport.update({
+    id: '/api/public/hooks/expiry-reminders',
+    path: '/api/public/hooks/expiry-reminders',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedListingIdWindowCardRoute =
   AuthenticatedListingIdWindowCardRouteImport.update({
     id: '/listing/$id/window-card',
@@ -545,6 +552,7 @@ export interface FileRoutesByFullPath {
   '/tenancies/$id': typeof AuthenticatedTenanciesIdRoute
   '/api/public/referencing-webhook': typeof ApiPublicReferencingWebhookRoute
   '/listing/$id/window-card': typeof AuthenticatedListingIdWindowCardRoute
+  '/api/public/hooks/expiry-reminders': typeof ApiPublicHooksExpiryRemindersRoute
   '/api/public/hooks/match-saved-searches': typeof ApiPublicHooksMatchSavedSearchesRoute
 }
 export interface FileRoutesByTo {
@@ -619,6 +627,7 @@ export interface FileRoutesByTo {
   '/tenancies/$id': typeof AuthenticatedTenanciesIdRoute
   '/api/public/referencing-webhook': typeof ApiPublicReferencingWebhookRoute
   '/listing/$id/window-card': typeof AuthenticatedListingIdWindowCardRoute
+  '/api/public/hooks/expiry-reminders': typeof ApiPublicHooksExpiryRemindersRoute
   '/api/public/hooks/match-saved-searches': typeof ApiPublicHooksMatchSavedSearchesRoute
 }
 export interface FileRoutesById {
@@ -697,6 +706,7 @@ export interface FileRoutesById {
   '/_authenticated/tenancies/$id': typeof AuthenticatedTenanciesIdRoute
   '/api/public/referencing-webhook': typeof ApiPublicReferencingWebhookRoute
   '/_authenticated/listing/$id/window-card': typeof AuthenticatedListingIdWindowCardRoute
+  '/api/public/hooks/expiry-reminders': typeof ApiPublicHooksExpiryRemindersRoute
   '/api/public/hooks/match-saved-searches': typeof ApiPublicHooksMatchSavedSearchesRoute
 }
 export interface FileRouteTypes {
@@ -775,6 +785,7 @@ export interface FileRouteTypes {
     | '/tenancies/$id'
     | '/api/public/referencing-webhook'
     | '/listing/$id/window-card'
+    | '/api/public/hooks/expiry-reminders'
     | '/api/public/hooks/match-saved-searches'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -849,6 +860,7 @@ export interface FileRouteTypes {
     | '/tenancies/$id'
     | '/api/public/referencing-webhook'
     | '/listing/$id/window-card'
+    | '/api/public/hooks/expiry-reminders'
     | '/api/public/hooks/match-saved-searches'
   id:
     | '__root__'
@@ -926,6 +938,7 @@ export interface FileRouteTypes {
     | '/_authenticated/tenancies/$id'
     | '/api/public/referencing-webhook'
     | '/_authenticated/listing/$id/window-card'
+    | '/api/public/hooks/expiry-reminders'
     | '/api/public/hooks/match-saved-searches'
   fileRoutesById: FileRoutesById
 }
@@ -956,6 +969,7 @@ export interface RootRouteChildren {
   SignTokenRoute: typeof SignTokenRoute
   BlogIndexRoute: typeof BlogIndexRoute
   ApiPublicReferencingWebhookRoute: typeof ApiPublicReferencingWebhookRoute
+  ApiPublicHooksExpiryRemindersRoute: typeof ApiPublicHooksExpiryRemindersRoute
   ApiPublicHooksMatchSavedSearchesRoute: typeof ApiPublicHooksMatchSavedSearchesRoute
 }
 
@@ -1479,6 +1493,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksMatchSavedSearchesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/expiry-reminders': {
+      id: '/api/public/hooks/expiry-reminders'
+      path: '/api/public/hooks/expiry-reminders'
+      fullPath: '/api/public/hooks/expiry-reminders'
+      preLoaderRoute: typeof ApiPublicHooksExpiryRemindersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/listing/$id/window-card': {
       id: '/_authenticated/listing/$id/window-card'
       path: '/listing/$id/window-card'
@@ -1664,6 +1685,7 @@ const rootRouteChildren: RootRouteChildren = {
   SignTokenRoute: SignTokenRoute,
   BlogIndexRoute: BlogIndexRoute,
   ApiPublicReferencingWebhookRoute: ApiPublicReferencingWebhookRoute,
+  ApiPublicHooksExpiryRemindersRoute: ApiPublicHooksExpiryRemindersRoute,
   ApiPublicHooksMatchSavedSearchesRoute: ApiPublicHooksMatchSavedSearchesRoute,
 }
 export const routeTree = rootRouteImport
