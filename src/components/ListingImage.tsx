@@ -30,6 +30,7 @@ export function ListingImage({ src, alt = "", className, loading = "lazy" }: Pro
     let alive = true;
     setFailed(false);
     if (!src) { setResolved(null); return; }
+    setResolved(src);
     const path = extractListingPhotoPath(src);
     if (!path) { setResolved(src); return; }
     // Re-sign so expired tokens from previous sessions don't break previews.
