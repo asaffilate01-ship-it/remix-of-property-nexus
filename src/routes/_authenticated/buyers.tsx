@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Pencil, Trash2, Users, Banknote } from "lucide-react";
+import { Plus, Pencil, Trash2, Banknote } from "lucide-react";
 import { toast } from "sonner";
 import { fetchBuyers, saveBuyer, deleteBuyer, fetchPropertyTypes } from "@/lib/persistence.functions";
 
