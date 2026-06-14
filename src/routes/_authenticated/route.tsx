@@ -59,8 +59,16 @@ function AuthedLayout() {
       <div className="min-h-screen flex w-full bg-background">
         <AppSidebar />
         <div className="flex-1 flex flex-col min-w-0">
-          <header className="h-14 sm:h-16 flex items-center gap-3 border-b border-border/60 bg-card/70 backdrop-blur-md px-3 sm:px-6 sticky top-0 z-20">
+          <header
+            className="h-14 sm:h-16 flex items-center gap-2 sm:gap-3 border-b border-border/60 bg-card/70 backdrop-blur-md px-3 sm:px-6 sticky top-0 z-20"
+            style={{ paddingTop: "env(safe-area-inset-top)" }}
+          >
             <SidebarTrigger className="shrink-0" />
+            {crumbs.length > 0 && (
+              <h1 className="sm:hidden truncate text-sm font-semibold text-foreground capitalize min-w-0 flex-1">
+                {crumbs[crumbs.length - 1].label}
+              </h1>
+            )}
             {crumbs.length > 1 && (
               <nav aria-label="Breadcrumb" className="hidden sm:flex items-center gap-1.5 text-xs font-medium text-muted-foreground min-w-0">
                 {crumbs.map((c, i) => {
@@ -78,7 +86,7 @@ function AuthedLayout() {
                 })}
               </nav>
             )}
-            <div className="flex-1" />
+            <div className="hidden sm:block flex-1" />
             <Button
               variant="outline"
               size="sm"
@@ -92,7 +100,16 @@ function AuthedLayout() {
             <Button
               variant="ghost"
               size="icon"
-              className="relative h-9 w-9 text-muted-foreground hover:text-foreground"
+              onClick={() => window.dispatchEvent(new Event("open-command-palette"))}
+              className="md:hidden h-9 w-9 text-muted-foreground hover:text-foreground shrink-0"
+              aria-label="Search"
+            >
+              <Search className="h-[18px] w-[18px]" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="relative h-9 w-9 text-muted-foreground hover:text-foreground shrink-0"
               aria-label="Notifications"
             >
               <Bell className="h-[18px] w-[18px]" />
@@ -103,7 +120,7 @@ function AuthedLayout() {
             </Button>
           </header>
           <main className="flex-1 pb-24 md:pb-10">
-            <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8">
+            <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 pt-4 sm:pt-8">
               <Outlet />
             </div>
           </main>
