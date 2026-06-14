@@ -384,7 +384,7 @@ function Lightbox({ photos, index, onChange, title }: { photos: string[]; index:
     <Dialog open={open} onOpenChange={(o) => !o && onChange(null)}>
       <DialogContent className="max-w-6xl p-0 bg-background/95 border-0 [&>button]:hidden">
         <div className="relative">
-          <img src={photos[index]} alt={`${title} – photo ${index + 1}`} className="w-full max-h-[85vh] object-contain rounded-md" />
+          <ListingImage src={photos[index]} alt={`${title} – photo ${index + 1}`} className="w-full max-h-[85vh] object-contain rounded-md" />
           <button onClick={() => onChange(null)} className="absolute top-3 right-3 h-10 w-10 rounded-full bg-foreground/70 text-background hover:bg-foreground inline-flex items-center justify-center" aria-label="Close"><X className="h-5 w-5" /></button>
           {photos.length > 1 && (
             <>
