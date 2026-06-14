@@ -94,7 +94,9 @@ function MarketplacePage() {
   const [where, setWhere] = useState(s.postcode ?? s.city ?? "");
   const category: Category = s.category ?? "all";
   const sort: SortKey = s.sort ?? "newest";
-  const [view, setView] = useState<"grid" | "map">("grid");
+  const isMobile = useIsMobile();
+  const [view, setView] = useState<"grid" | "map" | "split">("grid");
+  useEffect(() => { setView(isMobile ? "grid" : "split"); }, [isMobile]);
 
   const setSearch = (patch: Partial<SearchParams>) => navigate({ search: (prev: SearchParams) => ({ ...prev, ...patch }) });
 
