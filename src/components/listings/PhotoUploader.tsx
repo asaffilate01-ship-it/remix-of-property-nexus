@@ -16,7 +16,7 @@ type Props = {
   onUploadingChange?: (uploading: boolean) => void;
 };
 
-const LONG_TTL = 60 * 60 * 24 * 365 * 10; // 10y signed URL
+const LONG_TTL = 60 * 60 * 24 * 365; // 1 year (max Supabase signed-URL TTL on most plans)
 
 export function PhotoUploader({ photos, onChange, coverIndex, onCoverChange, roomOptions = [], onUploadingChange }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
@@ -27,22 +27,41 @@ export function PhotoUploader({ photos, onChange, coverIndex, onCoverChange, roo
     setBusy(true);
     onUploadingChange?.(true);
     try {
-      const { data: u } = await supabase.auth.getUser();
-      if (!u.user) throw new Error("Not signed in");
-      const next: ListingPhoto[] = [...photos];
+      const { data: u, error: authErr } = await supabase.auth.getUser();
+      if (authErr || !u?.user) throw new Error("Sign in required to upload photos");
+      const added: ListingPhoto[] = [];
       for (const file of Array.from(files)) {
-        if (!file.type.startsWith("image/")) continue;
+        if (!file.type.startsWith("image/")) {
+          toast.error(`Skipped ${file.name}: not an image`);
+          continue;
+        }
+        if (file.size > 15 * 1024 * 1024) {
+          toast.error(`Skipped ${file.name}: over 15MB`);
+          continue;
+        }
         const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
         const path = `${u.user.id}/${Date.now()}-${Math.random().toString(36).slice(2, 7)}-${safe}`;
         const { error: upErr } = await supabase.storage.from("listing-photos").upload(path, file, { upsert: false, contentType: file.type });
-        if (upErr) throw upErr;
+        if (upErr) {
+          console.error("[PhotoUploader] upload failed", upErr);
+          toast.error(`Upload failed: ${upErr.message}`);
+          continue;
+        }
         const { data: signed, error: sErr } = await supabase.storage.from("listing-photos").createSignedUrl(path, LONG_TTL);
-        if (sErr) throw sErr;
-        next.push({ url: signed.signedUrl, room: null });
+        if (sErr || !signed?.signedUrl) {
+          console.error("[PhotoUploader] signed-url failed", sErr);
+          toast.error(`Couldn't preview ${file.name}: ${sErr?.message ?? "no URL"}`);
+          continue;
+        }
+        added.push({ url: signed.signedUrl, room: null });
       }
-      onChange(next);
+      if (added.length) {
+        onChange([...photos, ...added]);
+        toast.success(`${added.length} photo${added.length === 1 ? "" : "s"} added`);
+      }
     } catch (e: any) {
-      toast.error(e.message);
+      console.error("[PhotoUploader] error", e);
+      toast.error(e.message ?? "Upload failed");
     } finally {
       setBusy(false);
       onUploadingChange?.(false);
