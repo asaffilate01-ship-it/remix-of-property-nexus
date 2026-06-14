@@ -14,17 +14,20 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SavedSearchesRouteImport } from './routes/saved-searches'
 import { Route as ReferencingRouteImport } from './routes/referencing'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PlatformRouteImport } from './routes/platform'
 import { Route as MortgageRouteImport } from './routes/mortgage'
 import { Route as MarketplaceRouteImport } from './routes/marketplace'
 import { Route as ForLandlordsRouteImport } from './routes/for-landlords'
 import { Route as ForAgentsRouteImport } from './routes/for-agents'
 import { Route as CookiesRouteImport } from './routes/cookies'
+import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ComplaintsRouteImport } from './routes/complaints'
 import { Route as BusinessRouteImport } from './routes/business'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AreaGuidesRouteImport } from './routes/area-guides'
 import { Route as AgenciesRouteImport } from './routes/agencies'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as MarketplaceIndexRouteImport } from './routes/marketplace.index'
@@ -102,6 +105,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
   path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PlatformRoute = PlatformRouteImport.update({
   id: '/platform',
   path: '/platform',
@@ -132,6 +140,11 @@ const CookiesRoute = CookiesRouteImport.update({
   path: '/cookies',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ComplaintsRoute = ComplaintsRouteImport.update({
   id: '/complaints',
   path: '/complaints',
@@ -155,6 +168,11 @@ const AreaGuidesRoute = AreaGuidesRouteImport.update({
 const AgenciesRoute = AgenciesRouteImport.update({
   id: '/agencies',
   path: '/agencies',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
@@ -424,17 +442,20 @@ const AuthenticatedListingIdWindowCardRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/agencies': typeof AgenciesRouteWithChildren
   '/area-guides': typeof AreaGuidesRouteWithChildren
   '/auth': typeof AuthRoute
   '/business': typeof BusinessRoute
   '/complaints': typeof ComplaintsRoute
+  '/contact': typeof ContactRoute
   '/cookies': typeof CookiesRoute
   '/for-agents': typeof ForAgentsRoute
   '/for-landlords': typeof ForLandlordsRoute
   '/marketplace': typeof MarketplaceRouteWithChildren
   '/mortgage': typeof MortgageRoute
   '/platform': typeof PlatformRoute
+  '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/referencing': typeof ReferencingRoute
   '/saved-searches': typeof SavedSearchesRoute
@@ -492,15 +513,18 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/area-guides': typeof AreaGuidesRouteWithChildren
   '/auth': typeof AuthRoute
   '/business': typeof BusinessRoute
   '/complaints': typeof ComplaintsRoute
+  '/contact': typeof ContactRoute
   '/cookies': typeof CookiesRoute
   '/for-agents': typeof ForAgentsRoute
   '/for-landlords': typeof ForLandlordsRoute
   '/mortgage': typeof MortgageRoute
   '/platform': typeof PlatformRoute
+  '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/referencing': typeof ReferencingRoute
   '/saved-searches': typeof SavedSearchesRoute
@@ -560,17 +584,20 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/about': typeof AboutRoute
   '/agencies': typeof AgenciesRouteWithChildren
   '/area-guides': typeof AreaGuidesRouteWithChildren
   '/auth': typeof AuthRoute
   '/business': typeof BusinessRoute
   '/complaints': typeof ComplaintsRoute
+  '/contact': typeof ContactRoute
   '/cookies': typeof CookiesRoute
   '/for-agents': typeof ForAgentsRoute
   '/for-landlords': typeof ForLandlordsRoute
   '/marketplace': typeof MarketplaceRouteWithChildren
   '/mortgage': typeof MortgageRoute
   '/platform': typeof PlatformRoute
+  '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/referencing': typeof ReferencingRoute
   '/saved-searches': typeof SavedSearchesRoute
@@ -630,17 +657,20 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/about'
     | '/agencies'
     | '/area-guides'
     | '/auth'
     | '/business'
     | '/complaints'
+    | '/contact'
     | '/cookies'
     | '/for-agents'
     | '/for-landlords'
     | '/marketplace'
     | '/mortgage'
     | '/platform'
+    | '/pricing'
     | '/privacy'
     | '/referencing'
     | '/saved-searches'
@@ -698,15 +728,18 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/about'
     | '/area-guides'
     | '/auth'
     | '/business'
     | '/complaints'
+    | '/contact'
     | '/cookies'
     | '/for-agents'
     | '/for-landlords'
     | '/mortgage'
     | '/platform'
+    | '/pricing'
     | '/privacy'
     | '/referencing'
     | '/saved-searches'
@@ -765,17 +798,20 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/about'
     | '/agencies'
     | '/area-guides'
     | '/auth'
     | '/business'
     | '/complaints'
+    | '/contact'
     | '/cookies'
     | '/for-agents'
     | '/for-landlords'
     | '/marketplace'
     | '/mortgage'
     | '/platform'
+    | '/pricing'
     | '/privacy'
     | '/referencing'
     | '/saved-searches'
@@ -835,17 +871,20 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AboutRoute: typeof AboutRoute
   AgenciesRoute: typeof AgenciesRouteWithChildren
   AreaGuidesRoute: typeof AreaGuidesRouteWithChildren
   AuthRoute: typeof AuthRoute
   BusinessRoute: typeof BusinessRoute
   ComplaintsRoute: typeof ComplaintsRoute
+  ContactRoute: typeof ContactRoute
   CookiesRoute: typeof CookiesRoute
   ForAgentsRoute: typeof ForAgentsRoute
   ForLandlordsRoute: typeof ForLandlordsRoute
   MarketplaceRoute: typeof MarketplaceRouteWithChildren
   MortgageRoute: typeof MortgageRoute
   PlatformRoute: typeof PlatformRoute
+  PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
   ReferencingRoute: typeof ReferencingRoute
   SavedSearchesRoute: typeof SavedSearchesRoute
@@ -895,6 +934,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/platform': {
       id: '/platform'
       path: '/platform'
@@ -937,6 +983,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CookiesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/complaints': {
       id: '/complaints'
       path: '/complaints'
@@ -970,6 +1023,13 @@ declare module '@tanstack/react-router' {
       path: '/agencies'
       fullPath: '/agencies'
       preLoaderRoute: typeof AgenciesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -1475,17 +1535,20 @@ const MarketplaceRouteWithChildren = MarketplaceRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AboutRoute: AboutRoute,
   AgenciesRoute: AgenciesRouteWithChildren,
   AreaGuidesRoute: AreaGuidesRouteWithChildren,
   AuthRoute: AuthRoute,
   BusinessRoute: BusinessRoute,
   ComplaintsRoute: ComplaintsRoute,
+  ContactRoute: ContactRoute,
   CookiesRoute: CookiesRoute,
   ForAgentsRoute: ForAgentsRoute,
   ForLandlordsRoute: ForLandlordsRoute,
   MarketplaceRoute: MarketplaceRouteWithChildren,
   MortgageRoute: MortgageRoute,
   PlatformRoute: PlatformRoute,
+  PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
   ReferencingRoute: ReferencingRoute,
   SavedSearchesRoute: SavedSearchesRoute,
