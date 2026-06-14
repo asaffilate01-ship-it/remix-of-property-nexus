@@ -51,7 +51,7 @@ export const fetchExpiries = createServerFn({ method: "GET" })
       addItem({ id: `d-${d.id}`, kind: "document", title: d.name, expires_on: d.expires_on, link: "/documents", meta: d.scope })
     );
     (compliance.data ?? []).forEach((c: any) =>
-      addItem({ id: `cp-${c.id}`, kind: "compliance", title: c.record_type, expires_on: c.expires_on, link: "/compliance" })
+      addItem({ id: `cp-${c.id}`, kind: "compliance", title: c.type, expires_on: c.expires_on, link: "/compliance" })
     );
     (tenancies.data ?? []).forEach((t: any) =>
       addItem({ id: `t-${t.id}`, kind: "tenancy", title: `Tenancy: ${t.tenant_name ?? "—"}`, expires_on: t.end_date, link: `/tenancies/${t.id}` })
