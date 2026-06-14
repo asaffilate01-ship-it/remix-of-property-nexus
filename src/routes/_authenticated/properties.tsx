@@ -239,6 +239,7 @@ function PropertiesPage() {
                 <StreetViewThumb address={p.address} city={p.city} postcode={p.postcode} className="absolute inset-0 h-full w-full" />
                 <div className="absolute top-2 right-2 flex gap-1 flex-wrap justify-end">
                   {p.is_hmo && <Badge className="bg-accent text-accent-foreground border-0">HMO</Badge>}
+                  {p.listing_purpose === "short_let" && <Badge className="bg-amber-500 text-white border-0"><Sun className="h-3 w-3 mr-1 inline" />Holiday let</Badge>}
                   <Badge variant="secondary" className="capitalize border-0 backdrop-blur bg-card/85">{p.listing_purpose.replace("_", " ")}</Badge>
                 </div>
               </div>
