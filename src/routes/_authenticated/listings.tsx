@@ -22,6 +22,7 @@ import { PhotoUploader, type ListingPhoto } from "@/components/listings/PhotoUpl
 import { RoomsEditor, type HmoRoom } from "@/components/listings/RoomsEditor";
 import { ComplianceEditor, type ComplianceMap } from "@/components/listings/ComplianceEditor";
 import { FeatureMultiSelect } from "@/components/properties/FeatureMultiSelect";
+import { AddressLookup } from "@/components/address/AddressLookup";
 
 type Listing = {
   id: string; owner_id: string; slug: string; title: string; description: string | null;
