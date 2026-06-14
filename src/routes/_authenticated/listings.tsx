@@ -227,6 +227,39 @@ function ListingsPage() {
       agency_id: currentForm.agency_id || null,
     };
 
+    // Geocode postcode/city so the listing shows on the map
+    try {
+      const pc = (currentForm.postcode || "").trim();
+      const city = (currentForm.city || "").trim();
+      let geo: { latitude: number; longitude: number } | null = null;
+      if (pc) {
+        const r = await fetch(`https://api.postcodes.io/postcodes/${encodeURIComponent(pc)}`);
+        if (r.ok) {
+          const j = await r.json();
+          if (j?.result) geo = { latitude: j.result.latitude, longitude: j.result.longitude };
+        }
+        if (!geo) {
+          const outcode = pc.split(/\s+/)[0];
+          const r2 = await fetch(`https://api.postcodes.io/outcodes/${encodeURIComponent(outcode)}`);
+          if (r2.ok) {
+            const j2 = await r2.json();
+            if (j2?.result) geo = { latitude: j2.result.latitude, longitude: j2.result.longitude };
+          }
+        }
+      }
+      if (!geo && city) {
+        const r3 = await fetch(`https://api.postcodes.io/places?q=${encodeURIComponent(city)}&limit=1`);
+        if (r3.ok) {
+          const j3 = await r3.json();
+          if (j3?.result?.[0]) geo = { latitude: j3.result[0].latitude, longitude: j3.result[0].longitude };
+        }
+      }
+      if (geo) {
+        payload.latitude = geo.latitude;
+        payload.longitude = geo.longitude;
+      }
+    } catch { /* non-fatal */ }
+
     let savedId: string | null = null;
 
     if (currentForm.id) {
