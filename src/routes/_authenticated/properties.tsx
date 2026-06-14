@@ -69,6 +69,7 @@ function PropertiesPage() {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(emptyProp);
   const [active, setActive] = useState<Property | null>(null);
+  const [ptypes, setPtypes] = useState<{ code: string; label: string; category: string }[]>([]);
 
   const load = async () => {
     setLoading(true);
@@ -78,6 +79,11 @@ function PropertiesPage() {
     setLoading(false);
   };
   useEffect(() => { load(); }, []);
+  useEffect(() => {
+    void supabase.from("property_types").select("code,label,category").eq("active", true).order("sort_order").then(({ data }) => {
+      if (data) setPtypes(data as any);
+    });
+  }, []);
 
   const filtered = useMemo(() => rows.filter((p) => {
     if (filterPurpose !== "all" && p.listing_purpose !== filterPurpose) return false;
