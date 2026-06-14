@@ -13,10 +13,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { fetchListing, submitLead } from "@/lib/public.functions";
-import { Bed, Bath, MapPin, Calendar, Ruler, Zap, Shield, ChevronLeft, Share2, Mail, Globe, Calculator, Sparkles, Home, Building2, Star } from "lucide-react";
+import { fetchNearby } from "@/lib/nearby.functions";
+import { Bed, Bath, MapPin, Calendar, Ruler, Zap, Shield, ChevronLeft, ChevronRight, Share2, Mail, Globe, Calculator, Sparkles, Home, Building2, Star, GraduationCap, Train, ShoppingCart, Utensils, Trees, Dumbbell, X } from "lucide-react";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { PhoneReveal } from "@/components/PhoneReveal";
 import { GoogleListingsMap } from "@/components/GoogleListingsMap";
+import { useEffect } from "react";
 
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
