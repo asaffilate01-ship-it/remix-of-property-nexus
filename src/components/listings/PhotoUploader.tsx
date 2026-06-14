@@ -1,9 +1,12 @@
 import { useEffect, useRef, useState, DragEvent } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Upload, X, Star, Image as ImageIcon, ImageOff } from "lucide-react";
 import { toast } from "sonner";
+import { signListingPhotoUrl } from "@/lib/ops.functions";
+import { extractListingPhotoPath, toListingPhotoRef } from "@/lib/listing-photos";
 
 export type ListingPhoto = { url: string; path?: string | null; room?: string | null };
 
@@ -11,18 +14,6 @@ const MAX_PARALLEL_UPLOADS = 3;
 const MAX_IMAGE_EDGE = 2200;
 const COMPRESS_AFTER_BYTES = 2 * 1024 * 1024;
 const SIGN_RETRY_DELAYS_MS = [0, 300, 900, 1800];
-
-function extractListingPhotoPath(url: string): string | null {
-  if (!url) return null;
-  if (url.startsWith("listing-photos://")) return decodeURIComponent(url.slice("listing-photos://".length));
-  const match = url.match(/\/storage\/v1\/object\/(?:sign|public|authenticated)\/listing-photos\/([^?#]+)/);
-  if (match?.[1]) return decodeURIComponent(match[1]);
-  return null;
-}
-
-function toListingPhotoRef(path: string): string {
-  return `listing-photos://${encodeURIComponent(path)}`;
-}
 
 async function loadImage(file: File): Promise<HTMLImageElement> {
   const url = URL.createObjectURL(file);
@@ -87,11 +78,15 @@ async function runWithConcurrency<T>(items: T[], limit: number, worker: (item: T
   await Promise.all(runners);
 }
 
-async function waitForSignedPreview(path: string): Promise<string | null> {
+async function waitForSignedPreview(path: string, sign: (args: { data: { path: string; expires: number } }) => Promise<{ url: string }>): Promise<string | null> {
   for (const delay of SIGN_RETRY_DELAYS_MS) {
     if (delay > 0) await new Promise((resolve) => setTimeout(resolve, delay));
-    const { data, error } = await supabase.storage.from("listing-photos").createSignedUrl(path, 3600);
-    if (!error && data?.signedUrl) return data.signedUrl;
+    try {
+      const data = await sign({ data: { path, expires: 3600 } });
+      if (data?.url) return data.url;
+    } catch {
+      // retry
+    }
   }
   return null;
 }
@@ -99,6 +94,7 @@ async function waitForSignedPreview(path: string): Promise<string | null> {
 // Renders a storage-backed thumbnail by re-signing on demand, so a long-lived
 // signed URL from upload time never blocks the preview.
 function Thumb({ photo }: { photo: ListingPhoto }) {
+  const sign = useServerFn(signListingPhotoUrl);
   const [src, setSrc] = useState<string | null>(() => (photo.path ? null : photo.url || null));
   const [failed, setFailed] = useState(false);
   useEffect(() => {
@@ -108,12 +104,17 @@ function Thumb({ photo }: { photo: ListingPhoto }) {
       const signWithRetry = async () => {
         for (const delay of SIGN_RETRY_DELAYS_MS) {
           if (delay > 0) await new Promise((resolve) => setTimeout(resolve, delay));
-          const { data, error } = await supabase.storage.from("listing-photos").createSignedUrl(path, 3600);
-          if (!alive) return;
-          if (!error && data?.signedUrl) {
-            setSrc(data.signedUrl);
-            return;
+          try {
+            const data = await sign({ data: { path, expires: 3600 } });
+            if (!alive) return;
+            if (data?.url) {
+              setSrc(data.url);
+              return;
+            }
+          } catch {
+            // retry
           }
+          if (!alive) return;
         }
         if (alive) setFailed(true);
       };
@@ -122,7 +123,7 @@ function Thumb({ photo }: { photo: ListingPhoto }) {
       setSrc(photo.url || null);
     }
     return () => { alive = false; };
-  }, [photo.path, photo.url]);
+  }, [photo.path, photo.url, sign]);
   if (failed || (!src && !photo.path)) {
     return <div className="h-full w-full flex items-center justify-center bg-muted"><ImageOff className="h-6 w-6 opacity-50" /></div>;
   }
@@ -140,6 +141,7 @@ type Props = {
 };
 
 export function PhotoUploader({ photos, onChange, coverIndex, onCoverChange, roomOptions = [], onUploadingChange }: Props) {
+  const sign = useServerFn(signListingPhotoUrl);
   const fileRef = useRef<HTMLInputElement>(null);
   const photosRef = useRef<ListingPhoto[]>(photos);
   const [dragging, setDragging] = useState(false);
@@ -192,7 +194,7 @@ export function PhotoUploader({ photos, onChange, coverIndex, onCoverChange, roo
           console.error("[PhotoUploader] upload failed", upErr);
           toast.error(`Upload failed: ${upErr.message}`);
         } else {
-          const previewUrl = await waitForSignedPreview(path);
+          const previewUrl = await waitForSignedPreview(path, sign);
           if (!previewUrl) {
             console.error("[PhotoUploader] upload verification failed", { path });
             toast.error(`Upload failed to verify: ${file.name}`);

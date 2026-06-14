@@ -234,10 +234,24 @@ export const saveJobMedia = createServerFn({ method: "POST" })
 
 export const signMediaUrl = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(z.object({ path: z.string().min(1).max(500), expires: z.number().int().min(60).max(3600).optional() }))
+  .inputValidator(z.object({
+    path: z.string().min(1).max(500),
+    expires: z.number().int().min(60).max(3600).optional(),
+  }))
   .handler(async ({ data, context }) => {
     const { data: signed, error } = await context.supabase.storage
       .from("job-media")
+      .createSignedUrl(data.path, data.expires ?? 600);
+    if (error) throw new Error(error.message);
+    return { url: signed.signedUrl };
+  });
+
+export const signListingPhotoUrl = createServerFn({ method: "POST" })
+  .inputValidator(z.object({ path: z.string().min(1).max(500), expires: z.number().int().min(60).max(3600).optional() }))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: signed, error } = await supabaseAdmin.storage
+      .from("listing-photos")
       .createSignedUrl(data.path, data.expires ?? 600);
     if (error) throw new Error(error.message);
     return { url: signed.signedUrl };
