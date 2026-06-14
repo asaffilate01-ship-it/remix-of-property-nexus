@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import type { Session } from "@supabase/supabase-js";
 import { z } from "zod";
 import { useServerFn } from "@tanstack/react-start";
 import { Button } from "@/components/ui/button";
@@ -13,7 +14,23 @@ import { toast } from "sonner";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { DEMO_ACCOUNTS, ensureDemoUsers } from "@/lib/dev.functions";
 
-const searchSchema = z.object({ mode: z.enum(["signin", "signup"]).optional() });
+const searchSchema = z.object({
+  mode: z.enum(["signin", "signup"]).optional(),
+  redirect: z.string().optional(),
+});
+
+function getRedirectTarget(redirect?: string) {
+  if (!redirect) return "/dashboard";
+  if (redirect.startsWith("/")) return redirect;
+  if (typeof window === "undefined") return "/dashboard";
+  try {
+    const url = new URL(redirect, window.location.origin);
+    if (url.origin !== window.location.origin) return "/dashboard";
+    return `${url.pathname}${url.search}${url.hash}`;
+  } catch {
+    return "/dashboard";
+  }
+}
 
 export const Route = createFileRoute("/auth")({
   validateSearch: searchSchema,
@@ -22,7 +39,7 @@ export const Route = createFileRoute("/auth")({
 });
 
 function AuthPage() {
-  const { mode } = useSearch({ from: "/auth" });
+  const { mode, redirect } = useSearch({ from: "/auth" });
   const navigate = useNavigate();
   const [tab, setTab] = useState<"signin" | "signup">(mode === "signup" ? "signup" : "signin");
   const [email, setEmail] = useState("");
@@ -32,21 +49,44 @@ function AuthPage() {
   const [show, setShow] = useState(false);
   const [busy, setBusy] = useState(false);
   const ensureDemo = useServerFn(ensureDemoUsers);
+  const redirectTo = getRedirectTarget(redirect);
+
+  useEffect(() => {
+    let cancelled = false;
+    void supabase.auth.getSession().then(({ data }) => {
+      if (cancelled || !data.session) return;
+      void navigate({ to: redirectTo as never, replace: true });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [navigate, redirectTo]);
+
+  const finishSignIn = async (session: Session | null) => {
+    let activeSession = session;
+    for (let i = 0; i < 5 && !activeSession; i += 1) {
+      const { data } = await supabase.auth.getSession();
+      activeSession = data.session;
+      if (!activeSession) await new Promise((resolve) => window.setTimeout(resolve, 150));
+    }
+    if (!activeSession) throw new Error("Sign-in completed, but the session is still syncing. Please try again.");
+    await navigate({ to: redirectTo as never, replace: true });
+  };
 
   const demoLogin = async (acct: typeof DEMO_ACCOUNTS[number]) => {
     setBusy(true);
     try {
       // Try sign-in first — demo accounts almost always already exist.
-      let { error } = await supabase.auth.signInWithPassword({ email: acct.email, password: acct.password });
+      let { data, error } = await supabase.auth.signInWithPassword({ email: acct.email, password: acct.password });
       if (error) {
         // Seed accounts on the server, then retry once.
         try { await ensureDemo({ data: undefined as never }); }
         catch (seedErr) { console.warn("ensureDemoUsers failed", seedErr); }
-        ({ error } = await supabase.auth.signInWithPassword({ email: acct.email, password: acct.password }));
+        ({ data, error } = await supabase.auth.signInWithPassword({ email: acct.email, password: acct.password }));
         if (error) throw error;
       }
       toast.success(`Signed in as ${acct.name}`);
-      navigate({ to: "/dashboard" });
+      await finishSignIn(data.session);
     } catch (e: unknown) {
       toast.error(e instanceof Error ? e.message : "Demo sign-in failed");
     } finally { setBusy(false); }
@@ -56,7 +96,7 @@ function AuthPage() {
     setBusy(true);
     try {
       if (tab === "signup") {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email, password,
           options: {
             data: { full_name: name, role },
@@ -64,12 +104,17 @@ function AuthPage() {
           },
         });
         if (error) throw error;
+        if (!data.session) {
+          toast.success("Account created — check your email to continue.");
+          return;
+        }
         toast.success("Account created — redirecting…");
+        await finishSignIn(data.session);
       } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
+        await finishSignIn(data.session);
       }
-      navigate({ to: "/dashboard" });
     } catch (e: unknown) {
       toast.error(e instanceof Error ? e.message : "Auth failed");
     } finally { setBusy(false); }
