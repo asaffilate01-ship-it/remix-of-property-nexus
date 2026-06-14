@@ -25,6 +25,7 @@ import { Route as BusinessRouteImport } from './routes/business'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AreaGuidesRouteImport } from './routes/area-guides'
 import { Route as AgenciesRouteImport } from './routes/agencies'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as MarketplaceIndexRouteImport } from './routes/marketplace.index'
@@ -155,6 +156,11 @@ const AreaGuidesRoute = AreaGuidesRouteImport.update({
 const AgenciesRoute = AgenciesRouteImport.update({
   id: '/agencies',
   path: '/agencies',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
@@ -424,6 +430,7 @@ const AuthenticatedListingIdWindowCardRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/agencies': typeof AgenciesRouteWithChildren
   '/area-guides': typeof AreaGuidesRouteWithChildren
   '/auth': typeof AuthRoute
@@ -492,6 +499,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/area-guides': typeof AreaGuidesRouteWithChildren
   '/auth': typeof AuthRoute
   '/business': typeof BusinessRoute
@@ -560,6 +568,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/about': typeof AboutRoute
   '/agencies': typeof AgenciesRouteWithChildren
   '/area-guides': typeof AreaGuidesRouteWithChildren
   '/auth': typeof AuthRoute
@@ -630,6 +639,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/about'
     | '/agencies'
     | '/area-guides'
     | '/auth'
@@ -698,6 +708,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/about'
     | '/area-guides'
     | '/auth'
     | '/business'
@@ -765,6 +776,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/about'
     | '/agencies'
     | '/area-guides'
     | '/auth'
@@ -835,6 +847,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AboutRoute: typeof AboutRoute
   AgenciesRoute: typeof AgenciesRouteWithChildren
   AreaGuidesRoute: typeof AreaGuidesRouteWithChildren
   AuthRoute: typeof AuthRoute
@@ -970,6 +983,13 @@ declare module '@tanstack/react-router' {
       path: '/agencies'
       fullPath: '/agencies'
       preLoaderRoute: typeof AgenciesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -1475,6 +1495,7 @@ const MarketplaceRouteWithChildren = MarketplaceRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AboutRoute: AboutRoute,
   AgenciesRoute: AgenciesRouteWithChildren,
   AreaGuidesRoute: AreaGuidesRouteWithChildren,
   AuthRoute: AuthRoute,
