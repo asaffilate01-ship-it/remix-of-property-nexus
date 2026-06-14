@@ -281,7 +281,10 @@ function PropertiesPage() {
             <div><Label>Type</Label>
               <Select value={form.property_type} onValueChange={(v) => setForm({ ...form, property_type: v })}>
                 <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
-                <SelectContent>{PROPERTY_TYPES.map((t) => <SelectItem key={t} value={t} className="capitalize">{t}</SelectItem>)}</SelectContent>
+                <SelectContent className="max-h-72">
+                  {(ptypes.length ? ptypes.map(t => ({ v: t.code, l: t.label })) : PROPERTY_TYPES.map(t => ({ v: t, l: t })))
+                    .map((t) => <SelectItem key={t.v} value={t.v} className="capitalize">{t.l}</SelectItem>)}
+                </SelectContent>
               </Select>
             </div>
             <div><Label>Purpose</Label>
