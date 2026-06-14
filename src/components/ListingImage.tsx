@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { ImageOff } from "lucide-react";
-import { signMediaUrl } from "@/lib/ops.functions";
+import { signListingPhotoUrl } from "@/lib/ops.functions";
 import { extractListingPhotoPath } from "@/lib/listing-photos";
 
 const SIGN_RETRY_DELAYS_MS = [0, 300, 900, 1800];
@@ -16,7 +16,7 @@ type Props = {
 export function ListingImage({ src, alt = "", className, loading = "lazy" }: Props) {
   const [resolved, setResolved] = useState<string | null>(null);
   const [failed, setFailed] = useState(false);
-  const sign = useServerFn(signMediaUrl);
+  const sign = useServerFn(signListingPhotoUrl);
 
   useEffect(() => {
     let alive = true;
@@ -30,7 +30,7 @@ export function ListingImage({ src, alt = "", className, loading = "lazy" }: Pro
       for (const delay of SIGN_RETRY_DELAYS_MS) {
         if (delay > 0) await new Promise((resolve) => setTimeout(resolve, delay));
         try {
-          const data = await sign({ data: { bucket: "listing-photos", path, expires: 3600 } });
+          const data = await sign({ data: { path, expires: 3600 } });
           if (!alive) return;
           if (data?.url) {
             setResolved(data.url);
