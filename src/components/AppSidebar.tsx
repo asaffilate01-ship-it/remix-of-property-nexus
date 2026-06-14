@@ -303,6 +303,27 @@ export function AppSidebar() {
         )}
       </SidebarHeader>
       <SidebarContent>
+        {!collapsed && !query && recent.length > 0 && (
+          <SidebarGroup>
+            <SidebarGroupLabel className="flex items-center gap-1.5">
+              <Clock className="h-3 w-3" /> <span>Recent</span>
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {recent.slice(0, 4).map((r) => (
+                  <SidebarMenuItem key={r.to}>
+                    <SidebarMenuButton asChild isActive={isActive(r.to)}>
+                      <Link to={r.to as string}>
+                        <Clock className="h-4 w-4 opacity-60" />
+                        <span className="truncate capitalize">{r.label}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
         {filtered.map((section) => {
           const hasActive = section.items.some((i) => isActive(i.to));
           const open = !!query || section.defaultOpen || hasActive;
