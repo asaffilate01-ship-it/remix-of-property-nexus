@@ -1,12 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useServerFn } from "@tanstack/react-start";
-import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { useSuspenseQuery, queryOptions, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, Home, Users, Plus } from "lucide-react";
+import { ChevronRight, Home, Users } from "lucide-react";
 import { listTenancyOverview } from "@/lib/tenancy-lifecycle.functions";
 import { PageHeader } from "@/components/PageHeader";
+import { AddTenancyDialog } from "@/components/tenancy/AddTenancyDialog";
 
 const tenanciesQueryOptions = () =>
   queryOptions({
