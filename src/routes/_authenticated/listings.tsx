@@ -276,6 +276,7 @@ function ListingsPage() {
           <TabsTrigger value="all">All ({rows.length})</TabsTrigger>
           <TabsTrigger value="published">Published ({rows.filter((r) => r.status === "published").length})</TabsTrigger>
           <TabsTrigger value="draft">Drafts ({rows.filter((r) => r.status === "draft").length})</TabsTrigger>
+          <TabsTrigger value="holiday">Holiday ({rows.filter((r) => r.listing_type === "holiday").length})</TabsTrigger>
         </TabsList>
       </Tabs>
 
