@@ -5,7 +5,7 @@ import {
   ClipboardList, CalendarDays, Gavel, Receipt, BarChart3, Sparkles, Eye, Bookmark,
   RefreshCcw, Vault, UserCheck, FilePenLine, Hammer, Banknote, Image as ImageIcon,
   Landmark, Briefcase, Smartphone, PackageOpen, FolderLock, Camera, ScrollText,
-  ChevronRight, Bell, Sun,
+  ChevronRight, Bell, Sun, Workflow,
 } from "lucide-react";
 import { BranchSwitcher } from "@/components/BranchSwitcher";
 import {
@@ -30,6 +30,7 @@ const FULL: NavSection[] = [
     items: [
       { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
       { to: "/alerts", label: "Alerts & expiries", icon: Bell },
+      { to: "/automations", label: "Automations", icon: Workflow },
       { to: "/reports", label: "Reports", icon: BarChart3 },
     ],
   },
