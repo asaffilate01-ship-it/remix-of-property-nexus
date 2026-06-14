@@ -193,6 +193,7 @@ const LANDLORD: NavSection[] = [
   ] },
   { label: "Tenancy ops", defaultOpen: true, items: [
     { to: "/tenancies", label: "Tenancies", icon: Home },
+    { to: "/tenants", label: "Tenants", icon: Users },
     { to: "/leads", label: "Enquiries", icon: Inbox },
     { to: "/work-orders", label: "Work orders", icon: Wrench },
     { to: "/contractor-marketplace", label: "Find a contractor", icon: Hammer },
