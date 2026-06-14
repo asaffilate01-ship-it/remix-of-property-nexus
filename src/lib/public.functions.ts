@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { extractListingPhotoPath } from "@/lib/listing-photos";
 
 const categorySchema = z.enum(["all", "sale", "rent", "hmo", "commercial"]).optional();
 const sortSchema = z.enum(["newest", "price_asc", "price_desc", "beds_desc", "distance"]).optional();
@@ -47,6 +48,65 @@ function haversineMiles(a: { lat: number; lng: number }, b: { lat: number; lng: 
   return 2 * R * Math.asin(Math.sqrt(s));
 }
 
+function getRoomRents(rooms: unknown): number[] {
+  if (!Array.isArray(rooms)) return [];
+  return rooms
+    .map((room) => {
+      if (!room || typeof room !== "object") return null;
+      const value = Number((room as { rent_pcm?: unknown }).rent_pcm);
+      return Number.isFinite(value) && value > 0 ? value : null;
+    })
+    .filter((value): value is number => value != null);
+}
+
+function withDisplayPrice<T extends { is_hmo?: boolean | null; price: number | null; price_qualifier?: string | null; rooms?: unknown }>(listing: T): T {
+  if (!listing.is_hmo || listing.price != null) return listing;
+  const roomRents = getRoomRents(listing.rooms);
+  if (!roomRents.length) return listing;
+  const minRent = Math.min(...roomRents);
+  const hasRange = roomRents.some((rent) => rent !== minRent);
+  return {
+    ...listing,
+    price: minRent,
+    price_qualifier: listing.price_qualifier ?? (hasRange ? "from" : null),
+  };
+}
+
+async function signListingPhotoValue(supabaseAdmin: any, value: string | null | undefined, expires = 3600): Promise<string | null> {
+  if (!value) return null;
+  if (/^https?:\/\//i.test(value)) return value;
+  const path = extractListingPhotoPath(value);
+  if (!path) return value;
+
+  try {
+    const { data, error } = await supabaseAdmin.storage.from("listing-photos").createSignedUrl(path, expires);
+    if (error || !data?.signedUrl) return value;
+    return data.signedUrl;
+  } catch {
+    return value;
+  }
+}
+
+async function signListingPhotos(supabaseAdmin: any, photos: unknown): Promise<unknown> {
+  if (!Array.isArray(photos)) return photos;
+
+  return Promise.all(
+    photos.map(async (photo) => {
+      if (typeof photo === "string") {
+        return (await signListingPhotoValue(supabaseAdmin, photo)) ?? photo;
+      }
+      if (photo && typeof photo === "object" && "url" in photo) {
+        const current = String((photo as { url: unknown }).url ?? "");
+        return {
+          ...photo,
+          url: (await signListingPhotoValue(supabaseAdmin, current)) ?? current,
+        };
+      }
+      return photo;
+    }),
+  );
+}
+
 export const fetchListings = createServerFn({ method: "GET" })
   .inputValidator(z.object({
     q: z.string().optional(),
@@ -80,7 +140,7 @@ export const fetchListings = createServerFn({ method: "GET" })
     else if (data?.city && radius > 0) centroid = await geocodeUK(data.city);
 
     let query = supabaseAdmin.from("listings")
-      .select("id, slug, title, listing_type, purpose, price, price_qualifier, currency, bedrooms, bathrooms, receptions, city, postcode, latitude, longitude, cover_image, is_hmo, features, epc_rating, tenure, floor_area_sqft, status, agency_id, created_at, view_count, verified, photos_verified, last_verified_at, properties(property_type)")
+      .select("id, slug, title, listing_type, purpose, price, price_qualifier, currency, bedrooms, bathrooms, receptions, city, postcode, latitude, longitude, cover_image, is_hmo, features, epc_rating, tenure, floor_area_sqft, status, agency_id, created_at, view_count, verified, photos_verified, last_verified_at, rooms, properties(property_type)")
       .in("status", ["published", "under_offer", "let_agreed"])
       .eq("marketplace_publish", true)
       .limit(centroid && radius ? 500 : 120);
@@ -147,8 +207,17 @@ export const fetchListings = createServerFn({ method: "GET" })
       }
     }
     const final = withDistance.length > 120 ? withDistance.slice(0, 120) : withDistance;
+    const hydrated = await Promise.all(
+      final.map(async (listing) => {
+        const withPrice = withDisplayPrice(listing);
+        return {
+          ...withPrice,
+          cover_image: await signListingPhotoValue(supabaseAdmin, withPrice.cover_image),
+        };
+      }),
+    );
 
-    return { listings: final, centroid: resolvedCentroid };
+    return { listings: hydrated, centroid: resolvedCentroid };
   });
 
 export const fetchMarketplaceMeta = createServerFn({ method: "GET" }).handler(async () => {
@@ -171,7 +240,15 @@ export const fetchMarketplaceMeta = createServerFn({ method: "GET" }).handler(as
     if (!entry.cover && r.cover_image) entry.cover = r.cover_image;
     counts.set(k, entry);
   }
-  const topCities = Array.from(counts.values()).sort((a, b) => b.count - a.count).slice(0, 8);
+  const topCities = await Promise.all(
+    Array.from(counts.values())
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 8)
+      .map(async (city) => ({
+        ...city,
+        cover: await signListingPhotoValue(supabaseAdmin, city.cover),
+      })),
+  );
   return { total: total ?? 0, cityCount, agencyCount: agencyCount ?? 0, featured: featured ?? [], topCities };
 });
 
