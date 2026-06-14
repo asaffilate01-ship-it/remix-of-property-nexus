@@ -87,6 +87,14 @@ function BranchesPage() {
             <DialogHeader><DialogTitle>{draft.id ? "Edit branch" : "Add branch"}</DialogTitle></DialogHeader>
             <div className="space-y-3">
               <Field label="Branch name"><Input value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} placeholder="Manchester — Deansgate" /></Field>
+              <AddressLookup
+                onResolve={(a) => setDraft({
+                  ...draft,
+                  address: a.line1 || draft.address,
+                  city: a.city || draft.city,
+                  postcode: a.postcode || draft.postcode,
+                })}
+              />
               <div className="grid grid-cols-2 gap-3">
                 <Field label="City"><Input value={draft.city ?? ""} onChange={(e) => setDraft({ ...draft, city: e.target.value })} /></Field>
                 <Field label="Postcode"><Input value={draft.postcode ?? ""} onChange={(e) => setDraft({ ...draft, postcode: e.target.value })} /></Field>
