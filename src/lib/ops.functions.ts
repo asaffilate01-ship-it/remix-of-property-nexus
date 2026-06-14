@@ -14,17 +14,19 @@ export const fetchOpsData = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase } = context;
-    const [contacts, workOrders, updates, media, properties, rooms, tenancies, sales, leads, listings] = await Promise.all([
+    const [contacts, workOrders, updates, media, properties, rooms, tenancies, sales, leads, listings, visits, shareTokens] = await Promise.all([
       supabase.from("contacts").select("*").order("is_preferred", { ascending: false }).order("full_name"),
       supabase.from("work_orders").select("*").order("created_at", { ascending: false }),
       supabase.from("work_order_updates").select("*").order("created_at", { ascending: false }),
       supabase.from("job_media").select("*").order("created_at", { ascending: false }),
-      supabase.from("properties").select("id, title, address, city, postcode"),
+      supabase.from("properties").select("id, title, address, city, postcode, latitude, longitude"),
       supabase.from("rooms").select("id, name, property_id"),
       supabase.from("tenancies").select("id, tenant_name, property_id, room_id, status"),
       supabase.from("sales_deals").select("*").order("created_at", { ascending: false }),
       supabase.from("leads").select("id, name, email, phone, status"),
       supabase.from("listings").select("id, title, listing_type, status, price"),
+      supabase.from("work_order_visits").select("*").order("check_in_at", { ascending: false }).limit(500),
+      supabase.from("work_order_share_tokens").select("*").order("created_at", { ascending: false }).limit(200),
     ]);
     return {
       contacts: contacts.data ?? [],
@@ -37,6 +39,8 @@ export const fetchOpsData = createServerFn({ method: "GET" })
       sales: sales.data ?? [],
       leads: leads.data ?? [],
       listings: listings.data ?? [],
+      visits: visits.data ?? [],
+      shareTokens: shareTokens.data ?? [],
     };
   });
 
