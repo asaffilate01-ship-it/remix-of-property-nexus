@@ -71,6 +71,7 @@ import { Route as AuthenticatedContractorMarketplaceRouteImport } from './routes
 import { Route as AuthenticatedContactsRouteImport } from './routes/_authenticated/contacts'
 import { Route as AuthenticatedComplianceRouteImport } from './routes/_authenticated/compliance'
 import { Route as AuthenticatedCommercialRouteImport } from './routes/_authenticated/commercial'
+import { Route as AuthenticatedBuyersRouteImport } from './routes/_authenticated/buyers'
 import { Route as AuthenticatedBranchesRouteImport } from './routes/_authenticated/branches'
 import { Route as AuthenticatedArrearsRouteImport } from './routes/_authenticated/arrears'
 import { Route as AuthenticatedAiCopyRouteImport } from './routes/_authenticated/ai-copy'
@@ -395,6 +396,11 @@ const AuthenticatedCommercialRoute = AuthenticatedCommercialRouteImport.update({
   path: '/commercial',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedBuyersRoute = AuthenticatedBuyersRouteImport.update({
+  id: '/buyers',
+  path: '/buyers',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedBranchesRoute = AuthenticatedBranchesRouteImport.update({
   id: '/branches',
   path: '/branches',
@@ -465,6 +471,7 @@ export interface FileRoutesByFullPath {
   '/ai-copy': typeof AuthenticatedAiCopyRoute
   '/arrears': typeof AuthenticatedArrearsRoute
   '/branches': typeof AuthenticatedBranchesRoute
+  '/buyers': typeof AuthenticatedBuyersRoute
   '/commercial': typeof AuthenticatedCommercialRoute
   '/compliance': typeof AuthenticatedComplianceRoute
   '/contacts': typeof AuthenticatedContactsRoute
@@ -534,6 +541,7 @@ export interface FileRoutesByTo {
   '/ai-copy': typeof AuthenticatedAiCopyRoute
   '/arrears': typeof AuthenticatedArrearsRoute
   '/branches': typeof AuthenticatedBranchesRoute
+  '/buyers': typeof AuthenticatedBuyersRoute
   '/commercial': typeof AuthenticatedCommercialRoute
   '/compliance': typeof AuthenticatedComplianceRoute
   '/contacts': typeof AuthenticatedContactsRoute
@@ -607,6 +615,7 @@ export interface FileRoutesById {
   '/_authenticated/ai-copy': typeof AuthenticatedAiCopyRoute
   '/_authenticated/arrears': typeof AuthenticatedArrearsRoute
   '/_authenticated/branches': typeof AuthenticatedBranchesRoute
+  '/_authenticated/buyers': typeof AuthenticatedBuyersRoute
   '/_authenticated/commercial': typeof AuthenticatedCommercialRoute
   '/_authenticated/compliance': typeof AuthenticatedComplianceRoute
   '/_authenticated/contacts': typeof AuthenticatedContactsRoute
@@ -680,6 +689,7 @@ export interface FileRouteTypes {
     | '/ai-copy'
     | '/arrears'
     | '/branches'
+    | '/buyers'
     | '/commercial'
     | '/compliance'
     | '/contacts'
@@ -749,6 +759,7 @@ export interface FileRouteTypes {
     | '/ai-copy'
     | '/arrears'
     | '/branches'
+    | '/buyers'
     | '/commercial'
     | '/compliance'
     | '/contacts'
@@ -821,6 +832,7 @@ export interface FileRouteTypes {
     | '/_authenticated/ai-copy'
     | '/_authenticated/arrears'
     | '/_authenticated/branches'
+    | '/_authenticated/buyers'
     | '/_authenticated/commercial'
     | '/_authenticated/compliance'
     | '/_authenticated/contacts'
@@ -1333,6 +1345,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCommercialRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/buyers': {
+      id: '/_authenticated/buyers'
+      path: '/buyers'
+      fullPath: '/buyers'
+      preLoaderRoute: typeof AuthenticatedBuyersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/branches': {
       id: '/_authenticated/branches'
       path: '/branches'
@@ -1411,6 +1430,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAiCopyRoute: typeof AuthenticatedAiCopyRoute
   AuthenticatedArrearsRoute: typeof AuthenticatedArrearsRoute
   AuthenticatedBranchesRoute: typeof AuthenticatedBranchesRoute
+  AuthenticatedBuyersRoute: typeof AuthenticatedBuyersRoute
   AuthenticatedCommercialRoute: typeof AuthenticatedCommercialRoute
   AuthenticatedComplianceRoute: typeof AuthenticatedComplianceRoute
   AuthenticatedContactsRoute: typeof AuthenticatedContactsRoute
@@ -1452,6 +1472,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAiCopyRoute: AuthenticatedAiCopyRoute,
   AuthenticatedArrearsRoute: AuthenticatedArrearsRoute,
   AuthenticatedBranchesRoute: AuthenticatedBranchesRoute,
+  AuthenticatedBuyersRoute: AuthenticatedBuyersRoute,
   AuthenticatedCommercialRoute: AuthenticatedCommercialRoute,
   AuthenticatedComplianceRoute: AuthenticatedComplianceRoute,
   AuthenticatedContactsRoute: AuthenticatedContactsRoute,
