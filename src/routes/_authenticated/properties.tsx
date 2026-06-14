@@ -66,6 +66,7 @@ function PropertiesPage() {
   const [q, setQ] = useState("");
   const [filterPurpose, setFilterPurpose] = useState<string>("all");
   const [filterHmo, setFilterHmo] = useState<string>("all");
+  const [filterHoliday, setFilterHoliday] = useState<boolean | null>(null);
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(emptyProp);
   const [active, setActive] = useState<Property | null>(null);
@@ -89,12 +90,14 @@ function PropertiesPage() {
     if (filterPurpose !== "all" && p.listing_purpose !== filterPurpose) return false;
     if (filterHmo === "hmo" && !p.is_hmo) return false;
     if (filterHmo === "std" && p.is_hmo) return false;
+    if (filterHoliday === true && p.listing_purpose !== "short_let") return false;
+    if (filterHoliday === false && p.listing_purpose === "short_let") return false;
     if (q) {
       const t = `${p.title} ${p.address ?? ""} ${p.city ?? ""} ${p.postcode ?? ""}`.toLowerCase();
       if (!t.includes(q.toLowerCase())) return false;
     }
     return true;
-  }), [rows, q, filterPurpose, filterHmo]);
+  }), [rows, q, filterPurpose, filterHmo, filterHoliday]);
 
   const startNew = () => { setForm(emptyProp); setOpen(true); };
   const startEdit = (p: Property) => {
