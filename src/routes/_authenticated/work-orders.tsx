@@ -61,9 +61,15 @@ function WorkOrdersPage() {
   const tenancies = (data?.tenancies ?? []) as any[];
   const updates = (data?.updates ?? []) as any[];
   const media = (data?.media ?? []) as any[];
+  const visits = (data?.visits ?? []) as any[];
+  const shareTokens = (data?.shareTokens ?? []) as any[];
 
   const propMap = useMemo(() => Object.fromEntries(properties.map((p) => [p.id, p])), [properties]);
   const contactMap = useMemo(() => Object.fromEntries(contacts.map((c) => [c.id, c])), [contacts]);
+  const shareFn = useServerFn(createShareToken);
+  const [shareName, setShareName] = useState("");
+  const [sharePhone, setSharePhone] = useState("");
+  const [shareOpen, setShareOpen] = useState(false);
 
   const filtered = useMemo(() => {
     if (tab === "active") return workOrders.filter((w) => w.status !== "completed" && w.status !== "cancelled");
