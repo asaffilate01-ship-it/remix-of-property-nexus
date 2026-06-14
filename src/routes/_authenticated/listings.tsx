@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -86,9 +86,18 @@ function ListingsPage() {
   const [filter, setFilter] = useState<StatusFilter>("all");
   const [saving, setSaving] = useState(false);
   const [uploadingPhotos, setUploadingPhotos] = useState(false);
+  const formRef = useRef<Form>(empty);
+
+  const updateForm: React.Dispatch<React.SetStateAction<Form>> = (next) => {
+    setForm((prev) => {
+      const resolved = typeof next === "function" ? (next as (prev: Form) => Form)(prev) : next;
+      formRef.current = resolved;
+      return resolved;
+    });
+  };
 
   useEffect(() => {
-    if (search.new) { setForm(empty); setOpen(true); }
+    if (search.new) { updateForm(empty); setOpen(true); }
   }, [search.new]);
 
   const load = async () => {
@@ -140,14 +149,14 @@ function ListingsPage() {
     };
   }, []);
 
-  const openNew = () => { setForm(empty); setOpen(true); };
+  const openNew = () => { updateForm(empty); setOpen(true); };
   const openEdit = (l: Listing) => {
     const photos = normalizePhotos(l.photos);
     const features = Array.isArray(l.features) ? (l.features as unknown[]).filter((f): f is string => typeof f === "string") : [];
     const rooms = Array.isArray(l.rooms) ? (l.rooms as HmoRoom[]) : [];
     const compliance = (l.compliance && typeof l.compliance === "object" ? l.compliance : {}) as ComplianceMap;
     const coverIdx = Math.max(0, photos.findIndex((p) => p.url === l.cover_image));
-    setForm({
+    updateForm({
       id: l.id,
       title: l.title, description: l.description ?? "",
       listing_type: l.listing_type, purpose: l.purpose,
@@ -178,60 +187,61 @@ function ListingsPage() {
       setSaving(false);
       return;
     }
-    const photos = form.photos;
-    const coverUrl = photos[form.cover_index]?.url ?? photos[0]?.url ?? form.cover_image ?? null;
+    const currentForm = formRef.current;
+    const photos = currentForm.photos;
+    const coverUrl = photos[currentForm.cover_index]?.url ?? photos[0]?.url ?? currentForm.cover_image ?? null;
     // If HMO, infer bedrooms from rooms count
-    const bedroomsValue = form.is_hmo
-      ? (form.rooms.length || (form.bedrooms ? Number(form.bedrooms) : null))
-      : (form.bedrooms ? Number(form.bedrooms) : null);
+    const bedroomsValue = currentForm.is_hmo
+      ? (currentForm.rooms.length || (currentForm.bedrooms ? Number(currentForm.bedrooms) : null))
+      : (currentForm.bedrooms ? Number(currentForm.bedrooms) : null);
     // Sync epc_rating top-level if compliance has one (keep existing field too)
     const payload: any = {
-      title: form.title,
-      description: form.description || null,
-      listing_type: form.listing_type,
-      purpose: form.purpose,
-      status: (form.publish ? "published" : "draft") as "published" | "draft",
-      price: form.price ? Number(form.price) : null,
-      price_qualifier: (form.price_qualifier === "none" ? null : form.price_qualifier),
+      title: currentForm.title,
+      description: currentForm.description || null,
+      listing_type: currentForm.listing_type,
+      purpose: currentForm.purpose,
+      status: (currentForm.publish ? "published" : "draft") as "published" | "draft",
+      price: currentForm.price ? Number(currentForm.price) : null,
+      price_qualifier: (currentForm.price_qualifier === "none" ? null : currentForm.price_qualifier),
       bedrooms: bedroomsValue,
-      bathrooms: form.bathrooms ? Number(form.bathrooms) : null,
-      receptions: form.receptions ? Number(form.receptions) : null,
-      address: form.address || null,
-      city: form.city || null,
-      postcode: form.postcode || null,
+      bathrooms: currentForm.bathrooms ? Number(currentForm.bathrooms) : null,
+      receptions: currentForm.receptions ? Number(currentForm.receptions) : null,
+      address: currentForm.address || null,
+      city: currentForm.city || null,
+      postcode: currentForm.postcode || null,
       cover_image: coverUrl,
       photos: photos as any,
-      features: form.features as any,
-      rooms: form.rooms as any,
-      compliance: form.compliance as any,
-      is_hmo: form.is_hmo,
-      bills_included: form.bills_included,
-      marketplace_publish: form.marketplace_publish,
-      available_from: form.available_from || null,
-      epc_rating: form.epc_rating || null,
-      tenure: form.tenure || null,
-      floor_area_sqft: form.floor_area_sqft ? Number(form.floor_area_sqft) : null,
-      council_tax_band: form.council_tax_band || null,
-      furnished: form.furnished || null,
-      agency_id: form.agency_id || null,
+      features: currentForm.features as any,
+      rooms: currentForm.rooms as any,
+      compliance: currentForm.compliance as any,
+      is_hmo: currentForm.is_hmo,
+      bills_included: currentForm.bills_included,
+      marketplace_publish: currentForm.marketplace_publish,
+      available_from: currentForm.available_from || null,
+      epc_rating: currentForm.epc_rating || null,
+      tenure: currentForm.tenure || null,
+      floor_area_sqft: currentForm.floor_area_sqft ? Number(currentForm.floor_area_sqft) : null,
+      council_tax_band: currentForm.council_tax_band || null,
+      furnished: currentForm.furnished || null,
+      agency_id: currentForm.agency_id || null,
     };
 
-    if (form.id) {
-      const { error } = await supabase.from("listings").update(payload).eq("id", form.id);
+    if (currentForm.id) {
+      const { error } = await supabase.from("listings").update(payload).eq("id", currentForm.id);
       if (error) {
         setSaving(false);
         return toast.error(error.message);
       }
       toast.success("Listing updated");
     } else {
-      const { error } = await supabase.from("listings").insert({ ...payload, owner_id: u.user.id, slug: slugify(form.title) });
+      const { error } = await supabase.from("listings").insert({ ...payload, owner_id: u.user.id, slug: slugify(currentForm.title) });
       if (error) {
         setSaving(false);
         return toast.error(error.message);
       }
       toast.success("Listing created");
     }
-    setOpen(false); setForm(empty); setFilter("all"); await load();
+    setOpen(false); updateForm(empty); setFilter("all"); await load();
     setSaving(false);
   };
 
@@ -268,7 +278,7 @@ function ListingsPage() {
             <DialogTrigger asChild><Button onClick={openNew}><Plus className="mr-2 h-4 w-4" /> New listing</Button></DialogTrigger>
               <DialogContent className="max-w-2xl max-h-[92vh] overflow-y-auto">
               <DialogHeader><DialogTitle>{form.id ? "Edit listing" : "New listing"}</DialogTitle></DialogHeader>
-                <ListingForm form={form} setForm={setForm} agencies={agencies} onUploadingChange={setUploadingPhotos} />
+                <ListingForm form={form} setForm={updateForm} agencies={agencies} onUploadingChange={setUploadingPhotos} />
                 <DialogFooter><Button onClick={save} disabled={!form.title || saving || uploadingPhotos}>{uploadingPhotos ? "Uploading photos…" : saving ? "Saving…" : form.id ? "Save changes" : "Create listing"}</Button></DialogFooter>
             </DialogContent>
           </Dialog>
