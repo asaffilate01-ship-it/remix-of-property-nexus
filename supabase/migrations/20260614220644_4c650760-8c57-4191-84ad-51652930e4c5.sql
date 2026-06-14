@@ -1,0 +1,1 @@
+UPDATE public.listings SET latitude = 51.8964, longitude = -0.4019 WHERE id = '43442484-a8a6-4f3e-8713-d0d96dae2aaa' AND latitude IS NULL;
