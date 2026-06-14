@@ -52,8 +52,8 @@ export const prefillTemplateValues = createServerFn({ method: "POST" })
         values.start_date = t.start_date;
         values.end_date = t.end_date;
         values.rent_amount = t.rent_amount;
-        values.rent_period = t.rent_period ?? "month";
-        values.deposit_amount = t.deposit_amount;
+        values.rent_period = (t as any).rent_frequency === "weekly" ? "week" : "month";
+        values.deposit_amount = t.deposit;
         values.deposit_scheme = t.deposit_scheme ?? "DPS";
         if (t.properties && !values.property_address) values.property_address = fmtAddr(t.properties);
         if (t.start_date && t.end_date) {
