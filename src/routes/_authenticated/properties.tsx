@@ -235,7 +235,7 @@ function PropertiesPage() {
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filtered.map((p) => (
-            <Card key={p.id} className="border-0 shadow-card hover:shadow-md transition-shadow cursor-pointer overflow-hidden" onClick={() => setActive(p)}>
+            <Card key={p.id} className="border-0 shadow-card hover:shadow-md transition-shadow cursor-pointer overflow-hidden" onClick={() => { setActive(p); setInitialTab("rooms"); }}>
               <div className="aspect-[16/10] relative bg-muted">
                 <StreetViewThumb address={p.address} city={p.city} postcode={p.postcode} className="absolute inset-0 h-full w-full" />
                 <div className="absolute top-2 right-2 flex gap-1 flex-wrap justify-end">
