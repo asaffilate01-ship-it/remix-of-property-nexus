@@ -251,12 +251,23 @@ function PropertiesPage() {
           <DialogHeader><DialogTitle>{form.id ? "Edit property" : "Add property"}</DialogTitle></DialogHeader>
           <div className="grid sm:grid-cols-2 gap-3">
             <div className="sm:col-span-2"><Label>Title *</Label><Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="e.g. 12 Oak Avenue" /></div>
+            <div className="sm:col-span-2">
+              <AddressLookup
+                onResolve={(a) => setForm({
+                  ...form,
+                  address: a.line1 || form.address,
+                  city: a.city || form.city,
+                  postcode: a.postcode || form.postcode,
+                  title: form.title || a.line1 || a.formatted,
+                })}
+              />
+            </div>
             <div className="sm:col-span-2"><Label>Address</Label><Input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} /></div>
             <div><Label>City</Label><Input value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} /></div>
             <PostcodeLookup
               postcode={form.postcode}
               onPostcode={(v) => setForm({ ...form, postcode: v })}
-              onResolve={(info) => setForm((f) => ({ ...f, postcode: form.postcode.toUpperCase(), city: f.city || info.city }))}
+              onResolve={(info) => setForm({ ...form, postcode: form.postcode.toUpperCase(), city: form.city || info.city })}
             />
             <div><Label>Type</Label>
               <Select value={form.property_type} onValueChange={(v) => setForm({ ...form, property_type: v })}>
