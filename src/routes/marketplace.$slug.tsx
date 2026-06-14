@@ -16,6 +16,7 @@ import { fetchListing, submitLead } from "@/lib/public.functions";
 import { fetchNearby } from "@/lib/nearby.functions";
 import { Bed, Bath, MapPin, Calendar, Ruler, Zap, Shield, ChevronLeft, ChevronRight, Share2, Mail, Globe, Calculator, Sparkles, Home, Building2, Star, GraduationCap, Train, ShoppingCart, Utensils, Trees, Dumbbell, X } from "lucide-react";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
+import { ListingImage } from "@/components/ListingImage";
 import { PhoneReveal } from "@/components/PhoneReveal";
 import { GoogleListingsMap } from "@/components/GoogleListingsMap";
 import { useEffect } from "react";
