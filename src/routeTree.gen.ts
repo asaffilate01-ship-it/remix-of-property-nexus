@@ -77,12 +77,17 @@ import { Route as AuthenticatedComplianceRouteImport } from './routes/_authentic
 import { Route as AuthenticatedCommercialRouteImport } from './routes/_authenticated/commercial'
 import { Route as AuthenticatedBuyersRouteImport } from './routes/_authenticated/buyers'
 import { Route as AuthenticatedBranchesRouteImport } from './routes/_authenticated/branches'
+import { Route as AuthenticatedAutomationsRouteImport } from './routes/_authenticated/automations'
 import { Route as AuthenticatedArrearsRouteImport } from './routes/_authenticated/arrears'
 import { Route as AuthenticatedAlertsRouteImport } from './routes/_authenticated/alerts'
 import { Route as AuthenticatedAiCopyRouteImport } from './routes/_authenticated/ai-copy'
 import { Route as AuthenticatedAgencyRouteImport } from './routes/_authenticated/agency'
+import { Route as AuthenticatedAutomationsIndexRouteImport } from './routes/_authenticated/automations.index'
 import { Route as ApiPublicReferencingWebhookRouteImport } from './routes/api/public/referencing-webhook'
 import { Route as AuthenticatedTenanciesIdRouteImport } from './routes/_authenticated/tenancies.$id'
+import { Route as AuthenticatedAutomationsRunsRouteImport } from './routes/_authenticated/automations.runs'
+import { Route as AuthenticatedAutomationsIdRouteImport } from './routes/_authenticated/automations.$id'
+import { Route as ApiPublicHooksProcessTracksRouteImport } from './routes/api/public/hooks/process-tracks'
 import { Route as ApiPublicHooksMatchSavedSearchesRouteImport } from './routes/api/public/hooks/match-saved-searches'
 import { Route as ApiPublicHooksExpiryRemindersRouteImport } from './routes/api/public/hooks/expiry-reminders'
 import { Route as AuthenticatedListingIdWindowCardRouteImport } from './routes/_authenticated/listing.$id.window-card'
@@ -433,6 +438,12 @@ const AuthenticatedBranchesRoute = AuthenticatedBranchesRouteImport.update({
   path: '/branches',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAutomationsRoute =
+  AuthenticatedAutomationsRouteImport.update({
+    id: '/automations',
+    path: '/automations',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedArrearsRoute = AuthenticatedArrearsRouteImport.update({
   id: '/arrears',
   path: '/arrears',
@@ -453,6 +464,12 @@ const AuthenticatedAgencyRoute = AuthenticatedAgencyRouteImport.update({
   path: '/agency',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAutomationsIndexRoute =
+  AuthenticatedAutomationsIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedAutomationsRoute,
+  } as any)
 const ApiPublicReferencingWebhookRoute =
   ApiPublicReferencingWebhookRouteImport.update({
     id: '/api/public/referencing-webhook',
@@ -464,6 +481,24 @@ const AuthenticatedTenanciesIdRoute =
     id: '/$id',
     path: '/$id',
     getParentRoute: () => AuthenticatedTenanciesRoute,
+  } as any)
+const AuthenticatedAutomationsRunsRoute =
+  AuthenticatedAutomationsRunsRouteImport.update({
+    id: '/runs',
+    path: '/runs',
+    getParentRoute: () => AuthenticatedAutomationsRoute,
+  } as any)
+const AuthenticatedAutomationsIdRoute =
+  AuthenticatedAutomationsIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedAutomationsRoute,
+  } as any)
+const ApiPublicHooksProcessTracksRoute =
+  ApiPublicHooksProcessTracksRouteImport.update({
+    id: '/api/public/hooks/process-tracks',
+    path: '/api/public/hooks/process-tracks',
+    getParentRoute: () => rootRouteImport,
   } as any)
 const ApiPublicHooksMatchSavedSearchesRoute =
   ApiPublicHooksMatchSavedSearchesRouteImport.update({
@@ -509,6 +544,7 @@ export interface FileRoutesByFullPath {
   '/ai-copy': typeof AuthenticatedAiCopyRoute
   '/alerts': typeof AuthenticatedAlertsRoute
   '/arrears': typeof AuthenticatedArrearsRoute
+  '/automations': typeof AuthenticatedAutomationsRouteWithChildren
   '/branches': typeof AuthenticatedBranchesRoute
   '/buyers': typeof AuthenticatedBuyersRoute
   '/commercial': typeof AuthenticatedCommercialRoute
@@ -556,11 +592,15 @@ export interface FileRoutesByFullPath {
   '/agencies/': typeof AgenciesIndexRoute
   '/blog/': typeof BlogIndexRoute
   '/marketplace/': typeof MarketplaceIndexRoute
+  '/automations/$id': typeof AuthenticatedAutomationsIdRoute
+  '/automations/runs': typeof AuthenticatedAutomationsRunsRoute
   '/tenancies/$id': typeof AuthenticatedTenanciesIdRoute
   '/api/public/referencing-webhook': typeof ApiPublicReferencingWebhookRoute
+  '/automations/': typeof AuthenticatedAutomationsIndexRoute
   '/listing/$id/window-card': typeof AuthenticatedListingIdWindowCardRoute
   '/api/public/hooks/expiry-reminders': typeof ApiPublicHooksExpiryRemindersRoute
   '/api/public/hooks/match-saved-searches': typeof ApiPublicHooksMatchSavedSearchesRoute
+  '/api/public/hooks/process-tracks': typeof ApiPublicHooksProcessTracksRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -632,11 +672,15 @@ export interface FileRoutesByTo {
   '/agencies': typeof AgenciesIndexRoute
   '/blog': typeof BlogIndexRoute
   '/marketplace': typeof MarketplaceIndexRoute
+  '/automations/$id': typeof AuthenticatedAutomationsIdRoute
+  '/automations/runs': typeof AuthenticatedAutomationsRunsRoute
   '/tenancies/$id': typeof AuthenticatedTenanciesIdRoute
   '/api/public/referencing-webhook': typeof ApiPublicReferencingWebhookRoute
+  '/automations': typeof AuthenticatedAutomationsIndexRoute
   '/listing/$id/window-card': typeof AuthenticatedListingIdWindowCardRoute
   '/api/public/hooks/expiry-reminders': typeof ApiPublicHooksExpiryRemindersRoute
   '/api/public/hooks/match-saved-searches': typeof ApiPublicHooksMatchSavedSearchesRoute
+  '/api/public/hooks/process-tracks': typeof ApiPublicHooksProcessTracksRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -665,6 +709,7 @@ export interface FileRoutesById {
   '/_authenticated/ai-copy': typeof AuthenticatedAiCopyRoute
   '/_authenticated/alerts': typeof AuthenticatedAlertsRoute
   '/_authenticated/arrears': typeof AuthenticatedArrearsRoute
+  '/_authenticated/automations': typeof AuthenticatedAutomationsRouteWithChildren
   '/_authenticated/branches': typeof AuthenticatedBranchesRoute
   '/_authenticated/buyers': typeof AuthenticatedBuyersRoute
   '/_authenticated/commercial': typeof AuthenticatedCommercialRoute
@@ -712,11 +757,15 @@ export interface FileRoutesById {
   '/agencies/': typeof AgenciesIndexRoute
   '/blog/': typeof BlogIndexRoute
   '/marketplace/': typeof MarketplaceIndexRoute
+  '/_authenticated/automations/$id': typeof AuthenticatedAutomationsIdRoute
+  '/_authenticated/automations/runs': typeof AuthenticatedAutomationsRunsRoute
   '/_authenticated/tenancies/$id': typeof AuthenticatedTenanciesIdRoute
   '/api/public/referencing-webhook': typeof ApiPublicReferencingWebhookRoute
+  '/_authenticated/automations/': typeof AuthenticatedAutomationsIndexRoute
   '/_authenticated/listing/$id/window-card': typeof AuthenticatedListingIdWindowCardRoute
   '/api/public/hooks/expiry-reminders': typeof ApiPublicHooksExpiryRemindersRoute
   '/api/public/hooks/match-saved-searches': typeof ApiPublicHooksMatchSavedSearchesRoute
+  '/api/public/hooks/process-tracks': typeof ApiPublicHooksProcessTracksRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -745,6 +794,7 @@ export interface FileRouteTypes {
     | '/ai-copy'
     | '/alerts'
     | '/arrears'
+    | '/automations'
     | '/branches'
     | '/buyers'
     | '/commercial'
@@ -792,11 +842,15 @@ export interface FileRouteTypes {
     | '/agencies/'
     | '/blog/'
     | '/marketplace/'
+    | '/automations/$id'
+    | '/automations/runs'
     | '/tenancies/$id'
     | '/api/public/referencing-webhook'
+    | '/automations/'
     | '/listing/$id/window-card'
     | '/api/public/hooks/expiry-reminders'
     | '/api/public/hooks/match-saved-searches'
+    | '/api/public/hooks/process-tracks'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -868,11 +922,15 @@ export interface FileRouteTypes {
     | '/agencies'
     | '/blog'
     | '/marketplace'
+    | '/automations/$id'
+    | '/automations/runs'
     | '/tenancies/$id'
     | '/api/public/referencing-webhook'
+    | '/automations'
     | '/listing/$id/window-card'
     | '/api/public/hooks/expiry-reminders'
     | '/api/public/hooks/match-saved-searches'
+    | '/api/public/hooks/process-tracks'
   id:
     | '__root__'
     | '/'
@@ -900,6 +958,7 @@ export interface FileRouteTypes {
     | '/_authenticated/ai-copy'
     | '/_authenticated/alerts'
     | '/_authenticated/arrears'
+    | '/_authenticated/automations'
     | '/_authenticated/branches'
     | '/_authenticated/buyers'
     | '/_authenticated/commercial'
@@ -947,11 +1006,15 @@ export interface FileRouteTypes {
     | '/agencies/'
     | '/blog/'
     | '/marketplace/'
+    | '/_authenticated/automations/$id'
+    | '/_authenticated/automations/runs'
     | '/_authenticated/tenancies/$id'
     | '/api/public/referencing-webhook'
+    | '/_authenticated/automations/'
     | '/_authenticated/listing/$id/window-card'
     | '/api/public/hooks/expiry-reminders'
     | '/api/public/hooks/match-saved-searches'
+    | '/api/public/hooks/process-tracks'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -984,6 +1047,7 @@ export interface RootRouteChildren {
   ApiPublicReferencingWebhookRoute: typeof ApiPublicReferencingWebhookRoute
   ApiPublicHooksExpiryRemindersRoute: typeof ApiPublicHooksExpiryRemindersRoute
   ApiPublicHooksMatchSavedSearchesRoute: typeof ApiPublicHooksMatchSavedSearchesRoute
+  ApiPublicHooksProcessTracksRoute: typeof ApiPublicHooksProcessTracksRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1464,6 +1528,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBranchesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/automations': {
+      id: '/_authenticated/automations'
+      path: '/automations'
+      fullPath: '/automations'
+      preLoaderRoute: typeof AuthenticatedAutomationsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/arrears': {
       id: '/_authenticated/arrears'
       path: '/arrears'
@@ -1492,6 +1563,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAgencyRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/automations/': {
+      id: '/_authenticated/automations/'
+      path: '/'
+      fullPath: '/automations/'
+      preLoaderRoute: typeof AuthenticatedAutomationsIndexRouteImport
+      parentRoute: typeof AuthenticatedAutomationsRoute
+    }
     '/api/public/referencing-webhook': {
       id: '/api/public/referencing-webhook'
       path: '/api/public/referencing-webhook'
@@ -1505,6 +1583,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/tenancies/$id'
       preLoaderRoute: typeof AuthenticatedTenanciesIdRouteImport
       parentRoute: typeof AuthenticatedTenanciesRoute
+    }
+    '/_authenticated/automations/runs': {
+      id: '/_authenticated/automations/runs'
+      path: '/runs'
+      fullPath: '/automations/runs'
+      preLoaderRoute: typeof AuthenticatedAutomationsRunsRouteImport
+      parentRoute: typeof AuthenticatedAutomationsRoute
+    }
+    '/_authenticated/automations/$id': {
+      id: '/_authenticated/automations/$id'
+      path: '/$id'
+      fullPath: '/automations/$id'
+      preLoaderRoute: typeof AuthenticatedAutomationsIdRouteImport
+      parentRoute: typeof AuthenticatedAutomationsRoute
+    }
+    '/api/public/hooks/process-tracks': {
+      id: '/api/public/hooks/process-tracks'
+      path: '/api/public/hooks/process-tracks'
+      fullPath: '/api/public/hooks/process-tracks'
+      preLoaderRoute: typeof ApiPublicHooksProcessTracksRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/public/hooks/match-saved-searches': {
       id: '/api/public/hooks/match-saved-searches'
@@ -1530,6 +1629,24 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedAutomationsRouteChildren {
+  AuthenticatedAutomationsIdRoute: typeof AuthenticatedAutomationsIdRoute
+  AuthenticatedAutomationsRunsRoute: typeof AuthenticatedAutomationsRunsRoute
+  AuthenticatedAutomationsIndexRoute: typeof AuthenticatedAutomationsIndexRoute
+}
+
+const AuthenticatedAutomationsRouteChildren: AuthenticatedAutomationsRouteChildren =
+  {
+    AuthenticatedAutomationsIdRoute: AuthenticatedAutomationsIdRoute,
+    AuthenticatedAutomationsRunsRoute: AuthenticatedAutomationsRunsRoute,
+    AuthenticatedAutomationsIndexRoute: AuthenticatedAutomationsIndexRoute,
+  }
+
+const AuthenticatedAutomationsRouteWithChildren =
+  AuthenticatedAutomationsRoute._addFileChildren(
+    AuthenticatedAutomationsRouteChildren,
+  )
+
 interface AuthenticatedTenanciesRouteChildren {
   AuthenticatedTenanciesIdRoute: typeof AuthenticatedTenanciesIdRoute
 }
@@ -1549,6 +1666,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAiCopyRoute: typeof AuthenticatedAiCopyRoute
   AuthenticatedAlertsRoute: typeof AuthenticatedAlertsRoute
   AuthenticatedArrearsRoute: typeof AuthenticatedArrearsRoute
+  AuthenticatedAutomationsRoute: typeof AuthenticatedAutomationsRouteWithChildren
   AuthenticatedBranchesRoute: typeof AuthenticatedBranchesRoute
   AuthenticatedBuyersRoute: typeof AuthenticatedBuyersRoute
   AuthenticatedCommercialRoute: typeof AuthenticatedCommercialRoute
@@ -1594,6 +1712,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAiCopyRoute: AuthenticatedAiCopyRoute,
   AuthenticatedAlertsRoute: AuthenticatedAlertsRoute,
   AuthenticatedArrearsRoute: AuthenticatedArrearsRoute,
+  AuthenticatedAutomationsRoute: AuthenticatedAutomationsRouteWithChildren,
   AuthenticatedBranchesRoute: AuthenticatedBranchesRoute,
   AuthenticatedBuyersRoute: AuthenticatedBuyersRoute,
   AuthenticatedCommercialRoute: AuthenticatedCommercialRoute,
@@ -1708,6 +1827,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicReferencingWebhookRoute: ApiPublicReferencingWebhookRoute,
   ApiPublicHooksExpiryRemindersRoute: ApiPublicHooksExpiryRemindersRoute,
   ApiPublicHooksMatchSavedSearchesRoute: ApiPublicHooksMatchSavedSearchesRoute,
+  ApiPublicHooksProcessTracksRoute: ApiPublicHooksProcessTracksRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

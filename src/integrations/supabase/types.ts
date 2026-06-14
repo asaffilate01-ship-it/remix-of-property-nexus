@@ -2826,6 +2826,217 @@ export type Database = {
           },
         ]
       }
+      track_run_steps: {
+        Row: {
+          created_at: string
+          error: string | null
+          executed_at: string | null
+          id: string
+          result: Json | null
+          run_id: string
+          scheduled_for: string
+          status: Database["public"]["Enums"]["track_step_status"]
+          step_id: string
+          step_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          executed_at?: string | null
+          id?: string
+          result?: Json | null
+          run_id: string
+          scheduled_for: string
+          status?: Database["public"]["Enums"]["track_step_status"]
+          step_id: string
+          step_order: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          executed_at?: string | null
+          id?: string
+          result?: Json | null
+          run_id?: string
+          scheduled_for?: string
+          status?: Database["public"]["Enums"]["track_step_status"]
+          step_id?: string
+          step_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "track_run_steps_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "track_runs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "track_run_steps_step_id_fkey"
+            columns: ["step_id"]
+            isOneToOne: false
+            referencedRelation: "track_steps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      track_runs: {
+        Row: {
+          agency_id: string
+          completed_at: string | null
+          context: Json
+          created_at: string
+          entity_id: string
+          entity_type: Database["public"]["Enums"]["track_entity_type"]
+          id: string
+          started_at: string
+          started_by: string | null
+          status: Database["public"]["Enums"]["track_run_status"]
+          template_id: string
+          updated_at: string
+        }
+        Insert: {
+          agency_id: string
+          completed_at?: string | null
+          context?: Json
+          created_at?: string
+          entity_id: string
+          entity_type: Database["public"]["Enums"]["track_entity_type"]
+          id?: string
+          started_at?: string
+          started_by?: string | null
+          status?: Database["public"]["Enums"]["track_run_status"]
+          template_id: string
+          updated_at?: string
+        }
+        Update: {
+          agency_id?: string
+          completed_at?: string | null
+          context?: Json
+          created_at?: string
+          entity_id?: string
+          entity_type?: Database["public"]["Enums"]["track_entity_type"]
+          id?: string
+          started_at?: string
+          started_by?: string | null
+          status?: Database["public"]["Enums"]["track_run_status"]
+          template_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "track_runs_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "track_runs_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "track_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      track_steps: {
+        Row: {
+          action_config: Json
+          action_type: Database["public"]["Enums"]["track_action_type"]
+          condition: Json | null
+          created_at: string
+          delay_amount: number
+          delay_unit: Database["public"]["Enums"]["track_delay_unit"]
+          id: string
+          step_order: number
+          template_id: string
+          updated_at: string
+        }
+        Insert: {
+          action_config?: Json
+          action_type: Database["public"]["Enums"]["track_action_type"]
+          condition?: Json | null
+          created_at?: string
+          delay_amount?: number
+          delay_unit?: Database["public"]["Enums"]["track_delay_unit"]
+          id?: string
+          step_order: number
+          template_id: string
+          updated_at?: string
+        }
+        Update: {
+          action_config?: Json
+          action_type?: Database["public"]["Enums"]["track_action_type"]
+          condition?: Json | null
+          created_at?: string
+          delay_amount?: number
+          delay_unit?: Database["public"]["Enums"]["track_delay_unit"]
+          id?: string
+          step_order?: number
+          template_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "track_steps_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "track_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      track_templates: {
+        Row: {
+          agency_id: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          entity_type: Database["public"]["Enums"]["track_entity_type"]
+          id: string
+          is_active: boolean
+          name: string
+          trigger_event: Database["public"]["Enums"]["track_trigger_event"]
+          updated_at: string
+        }
+        Insert: {
+          agency_id: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          entity_type: Database["public"]["Enums"]["track_entity_type"]
+          id?: string
+          is_active?: boolean
+          name: string
+          trigger_event?: Database["public"]["Enums"]["track_trigger_event"]
+          updated_at?: string
+        }
+        Update: {
+          agency_id?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          entity_type?: Database["public"]["Enums"]["track_entity_type"]
+          id?: string
+          is_active?: boolean
+          name?: string
+          trigger_event?: Database["public"]["Enums"]["track_trigger_event"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "track_templates_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -3261,7 +3472,32 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      claim_due_track_steps: {
+        Args: { _limit?: number }
+        Returns: {
+          action_config: Json
+          action_type: Database["public"]["Enums"]["track_action_type"]
+          agency_id: string
+          context: Json
+          entity_id: string
+          entity_type: Database["public"]["Enums"]["track_entity_type"]
+          run_id: string
+          run_step_id: string
+          step_id: string
+          step_order: number
+          template_id: string
+        }[]
+      }
       current_user_contact_ids: { Args: never; Returns: string[] }
+      enroll_in_track: {
+        Args: {
+          _context?: Json
+          _entity_id: string
+          _started_by?: string
+          _template_id: string
+        }
+        Returns: string
+      }
       has_capability: {
         Args: { _agency: string; _capability: string; _user: string }
         Returns: boolean
@@ -3426,6 +3662,38 @@ export type Database = {
         | "rent_schedule_generated"
       tenancy_status: "draft" | "active" | "notice" | "ended"
       tenure_type: "freehold" | "leasehold" | "share_of_freehold" | "commonhold"
+      track_action_type:
+        | "send_email"
+        | "create_task"
+        | "create_alert"
+        | "send_sms"
+        | "add_tag"
+        | "assign_to"
+        | "webhook"
+        | "wait"
+      track_delay_unit: "minutes" | "hours" | "days"
+      track_entity_type:
+        | "lead"
+        | "listing"
+        | "viewing"
+        | "offer"
+        | "tenancy"
+        | "contact"
+        | "deal"
+      track_run_status: "running" | "completed" | "cancelled" | "failed"
+      track_step_status: "pending" | "done" | "skipped" | "failed"
+      track_trigger_event:
+        | "manual"
+        | "lead_created"
+        | "listing_created"
+        | "viewing_booked"
+        | "viewing_completed"
+        | "offer_received"
+        | "offer_accepted"
+        | "tenancy_started"
+        | "tenancy_ending"
+        | "contact_created"
+        | "deal_created"
       viewing_feedback: "positive" | "negative" | "neutral" | "offer"
       viewing_status:
         | "pending"
@@ -3724,6 +3992,41 @@ export const Constants = {
       ],
       tenancy_status: ["draft", "active", "notice", "ended"],
       tenure_type: ["freehold", "leasehold", "share_of_freehold", "commonhold"],
+      track_action_type: [
+        "send_email",
+        "create_task",
+        "create_alert",
+        "send_sms",
+        "add_tag",
+        "assign_to",
+        "webhook",
+        "wait",
+      ],
+      track_delay_unit: ["minutes", "hours", "days"],
+      track_entity_type: [
+        "lead",
+        "listing",
+        "viewing",
+        "offer",
+        "tenancy",
+        "contact",
+        "deal",
+      ],
+      track_run_status: ["running", "completed", "cancelled", "failed"],
+      track_step_status: ["pending", "done", "skipped", "failed"],
+      track_trigger_event: [
+        "manual",
+        "lead_created",
+        "listing_created",
+        "viewing_booked",
+        "viewing_completed",
+        "offer_received",
+        "offer_accepted",
+        "tenancy_started",
+        "tenancy_ending",
+        "contact_created",
+        "deal_created",
+      ],
       viewing_feedback: ["positive", "negative", "neutral", "offer"],
       viewing_status: [
         "pending",
