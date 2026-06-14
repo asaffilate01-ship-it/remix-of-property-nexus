@@ -47,6 +47,8 @@ const FULL: NavSection[] = [
     label: "Pipeline & deals",
     items: [
       { to: "/leads", label: "Leads", icon: Inbox },
+      { to: "/buyers", label: "Buyers", icon: Users },
+      { to: "/sellers", label: "Sellers", icon: Handshake },
       { to: "/viewings", label: "Viewings", icon: CalendarDays },
       { to: "/pipeline", label: "Lettings pipeline", icon: Kanban },
       { to: "/sales", label: "Sales pipeline", icon: Handshake },
