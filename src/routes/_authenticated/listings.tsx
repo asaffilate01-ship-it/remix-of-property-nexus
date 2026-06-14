@@ -412,6 +412,16 @@ function ListingForm({ form, setForm, agencies, onUploadingChange }: { form: For
       )}
 
       <div className="grid grid-cols-2 gap-3">
+        <div className="col-span-2">
+          <AddressLookup
+            onResolve={(a) => setForm((f) => ({
+              ...f,
+              address: a.line1 || f.address,
+              city: a.city || f.city,
+              postcode: a.postcode || f.postcode,
+            }))}
+          />
+        </div>
         <div className="col-span-2"><Label>Address</Label><Input value={form.address} onChange={(e) => u("address", e.target.value)} placeholder="12 High Street" /></div>
         <div><Label>City</Label><Input value={form.city} onChange={(e) => u("city", e.target.value)} placeholder="London" /></div>
         <div><Label>Postcode</Label><Input value={form.postcode} onChange={(e) => u("postcode", e.target.value)} placeholder="SW1A 1AA" /></div>
