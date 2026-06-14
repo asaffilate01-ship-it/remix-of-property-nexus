@@ -161,7 +161,9 @@ function fmt(n: number | null | undefined, currency = "GBP") {
 function ListingDetail() {
   const { slug } = useParams({ from: "/marketplace/$slug" });
   const fn = useServerFn(fetchListing);
-  const { data, isLoading } = useQuery({ queryKey: ["listing", slug], queryFn: () => fn({ data: { slug } }) });
+  const query = useQuery({ queryKey: ["listing", slug], queryFn: () => fn({ data: { slug } }) });
+  const data = query.data as Awaited<ReturnType<typeof fn>> | undefined;
+  const { isLoading } = query;
 
   if (isLoading) return <ListingSkeleton />;
   const l = data?.listing;
@@ -334,7 +336,7 @@ function ListingDetail() {
         <section className="container mx-auto px-4 pb-16">
           <div className="flex items-center gap-2 mb-4"><Sparkles className="h-4 w-4 text-accent" /><h2 className="text-xl font-semibold">Similar properties nearby</h2></div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {data.similar.slice(0, 3).map((s) => <ListingCard key={s.id} l={s as never} />)}
+            {data.similar.slice(0, 3).map((s: any) => <ListingCard key={s.id} l={s as never} />)}
           </div>
         </section>
       )}

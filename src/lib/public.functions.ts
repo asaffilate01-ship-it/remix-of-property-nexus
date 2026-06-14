@@ -87,8 +87,11 @@ async function signListingPhotoValue(supabaseAdmin: any, value: string | null | 
   }
 }
 
-async function signListingPhotos(supabaseAdmin: any, photos: unknown): Promise<unknown> {
-  if (!Array.isArray(photos)) return photos;
+async function signListingPhotos(
+  supabaseAdmin: any,
+  photos: unknown,
+): Promise<Array<string | { url: string; room: string | null }>> {
+  if (!Array.isArray(photos)) return [];
 
   return Promise.all(
     photos.map(async (photo) => {
@@ -98,13 +101,13 @@ async function signListingPhotos(supabaseAdmin: any, photos: unknown): Promise<u
       if (photo && typeof photo === "object" && "url" in photo) {
         const current = String((photo as { url: unknown }).url ?? "");
         return {
-          ...photo,
           url: (await signListingPhotoValue(supabaseAdmin, current)) ?? current,
+          room: typeof (photo as { room?: unknown }).room === "string" ? (photo as { room?: string }).room ?? null : null,
         };
       }
-      return photo;
+      return "";
     }),
-  );
+  ).then((items) => items.filter((item) => item !== ""));
 }
 
 export const fetchListings = createServerFn({ method: "GET" })
