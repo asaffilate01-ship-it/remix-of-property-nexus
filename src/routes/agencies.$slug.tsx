@@ -147,8 +147,30 @@ function AgencyPage() {
             </div>
             <div className="flex-1 min-w-0">
               <Link to="/agencies" className="text-xs text-muted-foreground inline-flex items-center hover:text-foreground mb-1"><ChevronLeft className="h-3 w-3" /> All agencies</Link>
-              <h1 className="text-3xl md:text-4xl font-bold tracking-tight">{a.name}</h1>
-              {a.city && <div className="text-muted-foreground inline-flex items-center gap-1.5 mt-1"><MapPin className="h-4 w-4" />{a.city}</div>}
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="text-3xl md:text-4xl font-bold tracking-tight">{a.name}</h1>
+                {a.verified && <VerifiedBadge kind="agency" />}
+              </div>
+              <div className="flex flex-wrap items-center gap-3 mt-1.5 text-sm">
+                {a.city && <span className="text-muted-foreground inline-flex items-center gap-1.5"><MapPin className="h-4 w-4" />{a.city}</span>}
+                {a.rating != null && (
+                  <span className="inline-flex items-center gap-1 font-medium">
+                    <Star className="h-3.5 w-3.5 fill-warning text-warning" />
+                    {Number(a.rating).toFixed(1)}
+                    <span className="text-muted-foreground font-normal">({a.review_count ?? 0} reviews)</span>
+                  </span>
+                )}
+                {a.languages && a.languages.length > 0 && (
+                  <span className="text-xs text-muted-foreground">Languages: {a.languages.join(", ")}</span>
+                )}
+              </div>
+              {a.specialties && a.specialties.length > 0 && (
+                <div className="flex flex-wrap gap-1 mt-2">
+                  {a.specialties.map((s: string) => (
+                    <Badge key={s} variant="secondary" className="text-[10px] capitalize">{s}</Badge>
+                  ))}
+                </div>
+              )}
             </div>
             <div className="flex flex-wrap gap-2">
               {a.email && <Button variant="outline" size="sm" asChild><a href={`mailto:${a.email}`}><Mail className="h-3 w-3 mr-1" /> Email</a></Button>}
