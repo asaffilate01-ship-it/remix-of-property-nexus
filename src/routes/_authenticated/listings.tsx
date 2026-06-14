@@ -381,7 +381,7 @@ function ListingForm({ form, setForm, agencies, onUploadingChange }: { form: For
             value={form.listing_type}
             onValueChange={(v) => {
               const next = v as Form["listing_type"];
-              setForm({ ...form, listing_type: next, is_hmo: next === "room" ? true : form.is_hmo });
+              setForm((prev) => ({ ...prev, listing_type: next, is_hmo: next === "room" ? true : prev.is_hmo }));
             }}
           >
             <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
@@ -431,12 +431,12 @@ function ListingForm({ form, setForm, agencies, onUploadingChange }: { form: For
       <div className="grid grid-cols-2 gap-3">
         <div className="col-span-2">
           <AddressLookup
-            onResolve={(a) => setForm({
-              ...form,
-              address: a.line1 || form.address,
-              city: a.city || form.city,
-              postcode: a.postcode || form.postcode,
-            })}
+            onResolve={(a) => setForm((prev) => ({
+              ...prev,
+              address: a.line1 || prev.address,
+              city: a.city || prev.city,
+              postcode: a.postcode || prev.postcode,
+            }))}
           />
         </div>
         <div className="col-span-2"><Label>Address</Label><Input value={form.address} onChange={(e) => u("address", e.target.value)} placeholder="12 High Street" /></div>
