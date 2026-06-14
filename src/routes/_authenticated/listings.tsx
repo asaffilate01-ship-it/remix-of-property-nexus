@@ -74,7 +74,7 @@ function normalizePhotos(raw: unknown): ListingPhoto[] {
 export const Route = createFileRoute("/_authenticated/listings")({ component: ListingsPage });
 
 type Form = typeof empty;
-type StatusFilter = "all" | "published" | "draft" | "off_market";
+type StatusFilter = "all" | "published" | "draft" | "off_market" | "holiday";
 
 function ListingsPage() {
   const search = useSearch({ from: "/_authenticated/listings" });
