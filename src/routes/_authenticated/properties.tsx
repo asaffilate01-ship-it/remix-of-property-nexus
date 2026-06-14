@@ -185,7 +185,7 @@ function PropertiesPage() {
         <div className="flex-1 min-w-[220px]">
           <PostcodeAutocomplete value={q} onChange={setQ} postcodes={allPostcodes} />
         </div>
-        <Select value={filterPurpose} onValueChange={setFilterPurpose}>
+        <Select value={filterPurpose} onValueChange={(v) => { setFilterPurpose(v); if (v !== "all" && v !== "short_let") setFilterHoliday(null); if (v === "short_let") setFilterHoliday(true); }}>
           <SelectTrigger className="w-[160px]"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All purposes</SelectItem>
@@ -200,6 +200,14 @@ function PropertiesPage() {
             <SelectItem value="std">Standard only</SelectItem>
           </SelectContent>
         </Select>
+        <div className="flex gap-1.5">
+          <Button size="sm" variant={filterHoliday === true ? "default" : "outline"} onClick={() => setFilterHoliday(filterHoliday === true ? null : true)} className="gap-1">
+            <Sun className="h-3.5 w-3.5" /> Holiday lets
+          </Button>
+          <Button size="sm" variant={filterHoliday === false ? "default" : "outline"} onClick={() => setFilterHoliday(filterHoliday === false ? null : false)}>
+            Long-let / Sale
+          </Button>
+        </div>
         <div className="text-xs text-muted-foreground ml-auto">{filtered.length} of {rows.length}</div>
       </div>
 
