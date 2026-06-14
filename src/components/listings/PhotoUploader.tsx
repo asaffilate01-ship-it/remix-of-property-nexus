@@ -149,7 +149,7 @@ export function PhotoUploader({ photos, onChange, coverIndex, onCoverChange, roo
           {photos.map((p, idx) => (
             <div key={idx} className="relative group rounded-md overflow-hidden border bg-muted">
               <div className="aspect-[4/3]">
-                <img src={p.url} alt="" className="h-full w-full object-cover" />
+                <Thumb photo={p} />
               </div>
               <button
                 type="button"
