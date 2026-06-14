@@ -46,11 +46,12 @@ function TenanciesPage() {
         title="Tenancies"
         description="End-to-end lifecycle: lead → viewing → offer → tenancy → deposit → rent → renewal."
         actions={
-          <Button asChild>
-            <Link to="/pipeline">
-              <Plus className="mr-2 h-4 w-4" /> Start from pipeline
-            </Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button asChild variant="outline">
+              <Link to="/pipeline">From pipeline</Link>
+            </Button>
+            <AddTenancyDialog />
+          </div>
         }
       />
 
