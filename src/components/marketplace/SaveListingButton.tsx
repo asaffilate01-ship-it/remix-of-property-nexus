@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { useLocation, useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Heart } from "lucide-react";
@@ -9,6 +9,7 @@ type Props = { listingId: string; variant?: "default" | "outline" | "ghost"; siz
 
 export function SaveListingButton({ listingId, variant = "outline", size = "default" }: Props) {
   const navigate = useNavigate();
+  const location = useLocation();
   const [saved, setSaved] = useState(false);
   const [busy, setBusy] = useState(false);
   const [uid, setUid] = useState<string | null>(null);
@@ -35,7 +36,7 @@ export function SaveListingButton({ listingId, variant = "outline", size = "defa
   const toggle = async () => {
     if (!uid) {
       toast.info("Sign in to save listings");
-      navigate({ to: "/auth" });
+      navigate({ to: "/auth", search: { redirect: location.href } as never });
       return;
     }
     setBusy(true);
