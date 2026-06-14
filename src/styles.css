@@ -251,3 +251,16 @@
 }
 
 
+
+/* Mobile UX: prevent iOS zoom on focus by ensuring 16px+ inputs */
+@media (max-width: 640px) {
+  input, select, textarea { font-size: 16px; }
+}
+
+/* Wrap any raw <table> on small screens so it scrolls instead of breaking layout */
+@media (max-width: 640px) {
+  .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+}
+
+/* Respect iOS safe-area on the home indicator for any bottom-fixed element */
+.safe-pb { padding-bottom: max(env(safe-area-inset-bottom), 0.5rem); }
