@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState, DragEvent } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
+import { useServerFn } from "@tanstack/react-start";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Upload, X, Star, Image as ImageIcon, ImageOff } from "lucide-react";
 import { toast } from "sonner";
-import { signMediaUrl } from "@/lib/ops.functions";
+import { signListingPhotoUrl } from "@/lib/ops.functions";
 import { extractListingPhotoPath, toListingPhotoRef } from "@/lib/listing-photos";
 
 export type ListingPhoto = { url: string; path?: string | null; room?: string | null };
@@ -78,11 +79,11 @@ async function runWithConcurrency<T>(items: T[], limit: number, worker: (item: T
   await Promise.all(runners);
 }
 
-async function waitForSignedPreview(path: string, sign: (args: { data: { bucket: "listing-photos"; path: string; expires: number } }) => Promise<{ url: string }>): Promise<string | null> {
+async function waitForSignedPreview(path: string, sign: (args: { data: { path: string; expires: number } }) => Promise<{ url: string }>): Promise<string | null> {
   for (const delay of SIGN_RETRY_DELAYS_MS) {
     if (delay > 0) await new Promise((resolve) => setTimeout(resolve, delay));
     try {
-      const data = await sign({ data: { bucket: "listing-photos", path, expires: 3600 } });
+      const data = await sign({ data: { path, expires: 3600 } });
       if (data?.url) return data.url;
     } catch {
       // retry
@@ -94,7 +95,7 @@ async function waitForSignedPreview(path: string, sign: (args: { data: { bucket:
 // Renders a storage-backed thumbnail by re-signing on demand, so a long-lived
 // signed URL from upload time never blocks the preview.
 function Thumb({ photo }: { photo: ListingPhoto }) {
-  const sign = useServerFn(signMediaUrl);
+  const sign = useServerFn(signListingPhotoUrl);
   const [src, setSrc] = useState<string | null>(() => (photo.path ? null : photo.url || null));
   const [failed, setFailed] = useState(false);
   useEffect(() => {
@@ -105,7 +106,7 @@ function Thumb({ photo }: { photo: ListingPhoto }) {
         for (const delay of SIGN_RETRY_DELAYS_MS) {
           if (delay > 0) await new Promise((resolve) => setTimeout(resolve, delay));
           try {
-            const data = await sign({ data: { bucket: "listing-photos", path, expires: 3600 } });
+            const data = await sign({ data: { path, expires: 3600 } });
             if (!alive) return;
             if (data?.url) {
               setSrc(data.url);
@@ -141,7 +142,7 @@ type Props = {
 };
 
 export function PhotoUploader({ photos, onChange, coverIndex, onCoverChange, roomOptions = [], onUploadingChange }: Props) {
-  const sign = useServerFn(signMediaUrl);
+  const sign = useServerFn(signListingPhotoUrl);
   const fileRef = useRef<HTMLInputElement>(null);
   const photosRef = useRef<ListingPhoto[]>(photos);
   const [dragging, setDragging] = useState(false);
