@@ -19,6 +19,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { FeatureMultiSelect } from "@/components/properties/FeatureMultiSelect";
 import { PostcodeAutocomplete } from "@/components/properties/PostcodeAutocomplete";
 import { PostcodeLookup } from "@/components/properties/PostcodeLookup";
+import { AddressLookup } from "@/components/address/AddressLookup";
 import { PropertyScheduleGantt } from "@/components/properties/PropertyScheduleGantt";
 import { PropertyDocsPanel } from "@/components/properties/PropertyDocsPanel";
 import { PropertyCompliancePanel } from "@/components/properties/PropertyCompliancePanel";
