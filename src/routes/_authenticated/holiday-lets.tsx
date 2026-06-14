@@ -103,6 +103,9 @@ function HolidayPage() {
         <CardContent className="p-0">
           {isLoading && <div className="p-6 text-sm text-muted-foreground">Loading…</div>}
           {!isLoading && properties.length === 0 && <div className="p-12 text-sm text-muted-foreground text-center border-dashed">Add a property first</div>}
+          {!isLoading && properties.length > 0 && visibleProperties.length === 0 && (
+            <div className="p-12 text-sm text-muted-foreground text-center border-dashed">No properties match the selected filter.</div>
+          )}
           {properties.length > 0 && (
             <div className="overflow-x-auto">
               <div style={{ minWidth: 240 + days.length * DAY_W }}>
