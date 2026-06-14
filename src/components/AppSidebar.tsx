@@ -5,7 +5,7 @@ import {
   ClipboardList, CalendarDays, Gavel, Receipt, BarChart3, Sparkles, Eye, Bookmark,
   RefreshCcw, Vault, UserCheck, FilePenLine, Hammer, Banknote, Image as ImageIcon,
   Landmark, Briefcase, Smartphone, PackageOpen, FolderLock, Camera, ScrollText,
-  ChevronRight,
+  ChevronRight, Bell, Sun,
 } from "lucide-react";
 import { BranchSwitcher } from "@/components/BranchSwitcher";
 import {
