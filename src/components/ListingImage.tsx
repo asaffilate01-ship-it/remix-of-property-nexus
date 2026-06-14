@@ -6,6 +6,7 @@ import { ImageOff } from "lucide-react";
 // for the listing-photos bucket. Returns null otherwise.
 function extractListingPhotoPath(url: string): string | null {
   try {
+    if (url.startsWith("listing-photos://")) return decodeURIComponent(url.slice("listing-photos://".length));
     const m = url.match(/\/storage\/v1\/object\/(?:sign|public|authenticated)\/listing-photos\/([^?#]+)/);
     if (m && m[1]) return decodeURIComponent(m[1]);
     return null;
