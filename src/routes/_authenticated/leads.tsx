@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
@@ -118,7 +118,13 @@ function LeadsPage() {
                           <div className="flex items-start gap-1.5">
                             <GripVertical className="h-3 w-3 text-muted-foreground/40 mt-0.5 shrink-0" />
                             <div className="flex-1 min-w-0">
-                              <div className="font-medium text-sm truncate">{l.name}</div>
+                              <Link
+                                to="/leads/$id"
+                                params={{ id: l.id }}
+                                className="font-medium text-sm truncate hover:text-primary block"
+                              >
+                                {l.name}
+                              </Link>
                               <div className="text-[11px] text-muted-foreground truncate">
                                 {new Date(l.created_at).toLocaleDateString()}
                               </div>

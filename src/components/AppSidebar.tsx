@@ -5,7 +5,7 @@ import {
   ClipboardList, CalendarDays, Gavel, Receipt, BarChart3, Sparkles, Eye, Bookmark,
   RefreshCcw, Vault, UserCheck, FilePenLine, Hammer, Banknote, Image as ImageIcon,
   Landmark, Briefcase, Smartphone, PackageOpen, FolderLock, Camera, ScrollText,
-  ChevronRight, Bell, Sun, Workflow,
+  ChevronRight, Bell, Sun, Workflow, Clock,
 } from "lucide-react";
 import { BranchSwitcher } from "@/components/BranchSwitcher";
 import {
@@ -18,7 +18,8 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { useUserRole, type AppRole } from "@/hooks/useUserRole";
-import { useMemo, useState } from "react";
+import { useRecentRoutes, trackRoute } from "@/hooks/useRecentRoutes";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 type NavItem = { to: string; label: string; icon: typeof LayoutDashboard };
@@ -234,6 +235,21 @@ export function AppSidebar() {
   const { role, name } = useUserRole();
   const sections = sectionsFor(role);
   const [query, setQuery] = useState("");
+  const { items: recent } = useRecentRoutes();
+
+  // Track route visits using the best label match from any section item.
+  useEffect(() => {
+    if (!path) return;
+    const all = sections.flatMap((s) => s.items);
+    const exact = all.find((i) => i.to === path);
+    if (exact) {
+      trackRoute(exact.to, exact.label);
+      return;
+    }
+    // For detail routes (e.g. /leads/abc), track the parent with a "… detail" suffix
+    const parent = all.find((i) => path.startsWith(i.to + "/"));
+    if (parent) trackRoute(path, `${parent.label} detail`);
+  }, [path, sections]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -287,6 +303,25 @@ export function AppSidebar() {
         )}
       </SidebarHeader>
       <SidebarContent>
+        {!collapsed && !query && recent.length > 0 && (
+          <SidebarGroup>
+            <SidebarGroupLabel className="flex items-center gap-1.5">
+              <Clock className="h-3 w-3" /> <span>Recent</span>
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {recent.slice(0, 4).map((r) => (
+                  <SidebarMenuItem key={r.to}>
+                    <SidebarMenuButton isActive={isActive(r.to)} onClick={() => navigate({ to: r.to as never })}>
+                      <Clock className="h-4 w-4 opacity-60" />
+                      <span className="truncate capitalize">{r.label}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
         {filtered.map((section) => {
           const hasActive = section.items.some((i) => isActive(i.to));
           const open = !!query || section.defaultOpen || hasActive;
