@@ -375,7 +375,7 @@ function PropertiesPage() {
                   {active.features.map((f) => <Badge key={f} variant="secondary" className="text-[10px]">{f}</Badge>)}
                 </div>
               )}
-              <Tabs defaultValue="rooms" className="mt-6">
+              <Tabs value={initialTab} onValueChange={setInitialTab} className="mt-6">
                 <TabsList className="flex-wrap h-auto">
                   <TabsTrigger value="rooms"><BedDouble className="h-3 w-3 mr-1" /> Rooms</TabsTrigger>
                   <TabsTrigger value="tenancies"><Users className="h-3 w-3 mr-1" /> Tenants</TabsTrigger>
