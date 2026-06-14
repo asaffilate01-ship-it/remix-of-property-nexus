@@ -70,6 +70,7 @@ function PropertiesPage() {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(emptyProp);
   const [active, setActive] = useState<Property | null>(null);
+  const [initialTab, setInitialTab] = useState<string>("rooms");
   const [ptypes, setPtypes] = useState<{ code: string; label: string; category: string }[]>([]);
 
   const load = async () => {
@@ -234,7 +235,7 @@ function PropertiesPage() {
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filtered.map((p) => (
-            <Card key={p.id} className="border-0 shadow-card hover:shadow-md transition-shadow cursor-pointer overflow-hidden" onClick={() => setActive(p)}>
+            <Card key={p.id} className="border-0 shadow-card hover:shadow-md transition-shadow cursor-pointer overflow-hidden" onClick={() => { setActive(p); setInitialTab("rooms"); }}>
               <div className="aspect-[16/10] relative bg-muted">
                 <StreetViewThumb address={p.address} city={p.city} postcode={p.postcode} className="absolute inset-0 h-full w-full" />
                 <div className="absolute top-2 right-2 flex gap-1 flex-wrap justify-end">
@@ -260,6 +261,11 @@ function PropertiesPage() {
                     {p.features.length > 4 && <Badge variant="secondary" className="text-[10px]">+{p.features.length - 4}</Badge>}
                   </div>
                 )}
+                <div className="mt-3 pt-3 border-t flex gap-2">
+                  <Button size="sm" variant="outline" className="flex-1" onClick={(e) => { e.stopPropagation(); setActive(p); setInitialTab("tenancies"); }}>
+                    <Users className="h-3 w-3 mr-1" /> Assign tenant
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           ))}
@@ -369,7 +375,7 @@ function PropertiesPage() {
                   {active.features.map((f) => <Badge key={f} variant="secondary" className="text-[10px]">{f}</Badge>)}
                 </div>
               )}
-              <Tabs defaultValue="rooms" className="mt-6">
+              <Tabs value={initialTab} onValueChange={setInitialTab} className="mt-6">
                 <TabsList className="flex-wrap h-auto">
                   <TabsTrigger value="rooms"><BedDouble className="h-3 w-3 mr-1" /> Rooms</TabsTrigger>
                   <TabsTrigger value="tenancies"><Users className="h-3 w-3 mr-1" /> Tenants</TabsTrigger>
@@ -483,24 +489,56 @@ function RoomsPanel({ propertyId, isHmo }: { propertyId: string; isHmo: boolean 
 function TenanciesPanel({ propertyId, isHmo }: { propertyId: string; isHmo: boolean }) {
   const [tenancies, setTenancies] = useState<Tenancy[]>([]);
   const [rooms, setRooms] = useState<Room[]>([]);
-  const [editing, setEditing] = useState<typeof emptyTenancy | null>(null);
+  const [editing, setEditing] = useState<(typeof emptyTenancy & { tenant_id?: string }) | null>(null);
+  const [tenantsList, setTenantsList] = useState<{ id: string; full_name: string; email: string | null; phone: string | null }[]>([]);
 
   const load = async () => {
-    const [t, r] = await Promise.all([
+    const [t, r, tl] = await Promise.all([
       supabase.from("tenancies").select("*").eq("property_id", propertyId).order("start_date", { ascending: false }),
       supabase.from("rooms").select("*").eq("property_id", propertyId),
+      supabase.from("tenants").select("id,full_name,email,phone").order("full_name"),
     ]);
     setTenancies((t.data as Tenancy[]) ?? []);
     setRooms((r.data as Room[]) ?? []);
+    setTenantsList((tl.data as any) ?? []);
   };
   useEffect(() => { load(); }, [propertyId]);
+
+  const pickExisting = (id: string) => {
+    if (!editing) return;
+    if (id === "__new__") { setEditing({ ...editing, tenant_id: "", tenant_name: "", tenant_email: "", tenant_phone: "" }); return; }
+    const t = tenantsList.find((x) => x.id === id);
+    if (!t) return;
+    setEditing({ ...editing, tenant_id: id, tenant_name: t.full_name, tenant_email: t.email ?? "", tenant_phone: t.phone ?? "" });
+  };
 
   const save = async () => {
     if (!editing || !editing.tenant_name.trim() || !editing.start_date || !editing.rent_amount) return toast.error("Name, start date and rent required");
     if (isHmo && rooms.length > 0 && !editing.room_id) return toast.error("Pick a room for this HMO tenant");
+
+    let tenantId = editing.tenant_id || null;
+    if (!editing.id && !tenantId) {
+      // Create/find tenant record so the tenant appears in the Tenants directory
+      const { data: existing } = await supabase
+        .from("tenants").select("id")
+        .ilike("full_name", editing.tenant_name.trim())
+        .limit(1).maybeSingle();
+      if (existing?.id) {
+        tenantId = existing.id;
+      } else {
+        const { data: newT } = await supabase.from("tenants").insert({
+          full_name: editing.tenant_name.trim(),
+          email: editing.tenant_email || null,
+          phone: editing.tenant_phone || null,
+        }).select("id").single();
+        tenantId = newT?.id ?? null;
+      }
+    }
+
     const payload: any = {
       property_id: propertyId,
       room_id: editing.room_id || null,
+      tenant_id: tenantId,
       tenant_name: editing.tenant_name,
       tenant_email: editing.tenant_email || null,
       tenant_phone: editing.tenant_phone || null,
@@ -577,6 +615,20 @@ function TenanciesPanel({ propertyId, isHmo }: { propertyId: string; isHmo: bool
         <DialogContent className="max-w-3xl max-h-[92vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{editing?.id ? "Edit tenant" : "Add tenant"}</DialogTitle></DialogHeader>
           {editing && (<div className="space-y-4">
+            {!editing.id && tenantsList.length > 0 && (
+              <div className="rounded-md border bg-muted/30 p-3">
+                <Label className="text-xs">Pick existing tenant (or add new below)</Label>
+                <Select value={editing.tenant_id ?? ""} onValueChange={pickExisting}>
+                  <SelectTrigger className="mt-1.5"><SelectValue placeholder="Choose from tenant directory…" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__new__">+ New tenant (type below)</SelectItem>
+                    {tenantsList.map((t) => (
+                      <SelectItem key={t.id} value={t.id}>{t.full_name}{t.email ? ` · ${t.email}` : ""}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
             <div className="grid grid-cols-2 gap-3">
               <div className="col-span-2"><Label>Tenant name *</Label><Input value={editing.tenant_name} onChange={(e) => setEditing({ ...editing, tenant_name: e.target.value })} /></div>
               <div><Label>Email</Label><Input type="email" value={editing.tenant_email} onChange={(e) => setEditing({ ...editing, tenant_email: e.target.value })} /></div>
