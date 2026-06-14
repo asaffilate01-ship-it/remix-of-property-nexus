@@ -446,7 +446,7 @@ function ListingForm({ form, setForm, agencies, onUploadingChange }: { form: For
 
       <div>
         <Label>Photos</Label>
-        <p className="text-xs text-muted-foreground mb-2">Drag & drop or upload. Click the star to set the cover image{form.is_hmo ? "; tag each shot to a room." : "."}</p>
+        <p className="text-xs text-muted-foreground mb-2">Drag & drop or upload. Click the star to set the cover image, then add where in the property each image was taken.</p>
         <PhotoUploader
           photos={form.photos}
           onChange={(photos) => u("photos", photos)}
