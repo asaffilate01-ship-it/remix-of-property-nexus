@@ -47,8 +47,25 @@ export function AddTenancyDialog() {
     if (!f.tenant_name.trim()) return toast.error("Tenant name required");
     if (!f.rent_amount) return toast.error("Rent amount required");
     setSaving(true);
+    // Create or find a tenant row first so tenancies link to a real tenant record.
+    let tenantId: string | null = null;
+    const { data: existing } = await supabase
+      .from("tenants").select("id")
+      .ilike("full_name", f.tenant_name.trim())
+      .limit(1).maybeSingle();
+    if (existing?.id) {
+      tenantId = existing.id;
+    } else {
+      const { data: newT } = await supabase.from("tenants").insert({
+        full_name: f.tenant_name.trim(),
+        email: f.tenant_email || null,
+        phone: f.tenant_phone || null,
+      }).select("id").single();
+      tenantId = newT?.id ?? null;
+    }
     const { error } = await supabase.from("tenancies").insert({
       property_id: f.property_id,
+      tenant_id: tenantId,
       tenant_name: f.tenant_name.trim(),
       tenant_email: f.tenant_email || null,
       tenant_phone: f.tenant_phone || null,

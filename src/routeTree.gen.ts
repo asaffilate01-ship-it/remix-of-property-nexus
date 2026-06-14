@@ -46,6 +46,7 @@ import { Route as AuthenticatedTemplatesRouteImport } from './routes/_authentica
 import { Route as AuthenticatedSurveyRouteImport } from './routes/_authenticated/survey'
 import { Route as AuthenticatedStatementsRouteImport } from './routes/_authenticated/statements'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
+import { Route as AuthenticatedSellersRouteImport } from './routes/_authenticated/sellers'
 import { Route as AuthenticatedSalesRouteImport } from './routes/_authenticated/sales'
 import { Route as AuthenticatedRightToRentRouteImport } from './routes/_authenticated/right-to-rent'
 import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
@@ -71,6 +72,7 @@ import { Route as AuthenticatedContractorMarketplaceRouteImport } from './routes
 import { Route as AuthenticatedContactsRouteImport } from './routes/_authenticated/contacts'
 import { Route as AuthenticatedComplianceRouteImport } from './routes/_authenticated/compliance'
 import { Route as AuthenticatedCommercialRouteImport } from './routes/_authenticated/commercial'
+import { Route as AuthenticatedBuyersRouteImport } from './routes/_authenticated/buyers'
 import { Route as AuthenticatedBranchesRouteImport } from './routes/_authenticated/branches'
 import { Route as AuthenticatedArrearsRouteImport } from './routes/_authenticated/arrears'
 import { Route as AuthenticatedAiCopyRouteImport } from './routes/_authenticated/ai-copy'
@@ -265,6 +267,11 @@ const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSellersRoute = AuthenticatedSellersRouteImport.update({
+  id: '/sellers',
+  path: '/sellers',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedSalesRoute = AuthenticatedSalesRouteImport.update({
   id: '/sales',
   path: '/sales',
@@ -395,6 +402,11 @@ const AuthenticatedCommercialRoute = AuthenticatedCommercialRouteImport.update({
   path: '/commercial',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedBuyersRoute = AuthenticatedBuyersRouteImport.update({
+  id: '/buyers',
+  path: '/buyers',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedBranchesRoute = AuthenticatedBranchesRouteImport.update({
   id: '/branches',
   path: '/branches',
@@ -465,6 +477,7 @@ export interface FileRoutesByFullPath {
   '/ai-copy': typeof AuthenticatedAiCopyRoute
   '/arrears': typeof AuthenticatedArrearsRoute
   '/branches': typeof AuthenticatedBranchesRoute
+  '/buyers': typeof AuthenticatedBuyersRoute
   '/commercial': typeof AuthenticatedCommercialRoute
   '/compliance': typeof AuthenticatedComplianceRoute
   '/contacts': typeof AuthenticatedContactsRoute
@@ -490,6 +503,7 @@ export interface FileRoutesByFullPath {
   '/reports': typeof AuthenticatedReportsRoute
   '/right-to-rent': typeof AuthenticatedRightToRentRoute
   '/sales': typeof AuthenticatedSalesRoute
+  '/sellers': typeof AuthenticatedSellersRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/statements': typeof AuthenticatedStatementsRoute
   '/survey': typeof AuthenticatedSurveyRoute
@@ -534,6 +548,7 @@ export interface FileRoutesByTo {
   '/ai-copy': typeof AuthenticatedAiCopyRoute
   '/arrears': typeof AuthenticatedArrearsRoute
   '/branches': typeof AuthenticatedBranchesRoute
+  '/buyers': typeof AuthenticatedBuyersRoute
   '/commercial': typeof AuthenticatedCommercialRoute
   '/compliance': typeof AuthenticatedComplianceRoute
   '/contacts': typeof AuthenticatedContactsRoute
@@ -559,6 +574,7 @@ export interface FileRoutesByTo {
   '/reports': typeof AuthenticatedReportsRoute
   '/right-to-rent': typeof AuthenticatedRightToRentRoute
   '/sales': typeof AuthenticatedSalesRoute
+  '/sellers': typeof AuthenticatedSellersRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/statements': typeof AuthenticatedStatementsRoute
   '/survey': typeof AuthenticatedSurveyRoute
@@ -607,6 +623,7 @@ export interface FileRoutesById {
   '/_authenticated/ai-copy': typeof AuthenticatedAiCopyRoute
   '/_authenticated/arrears': typeof AuthenticatedArrearsRoute
   '/_authenticated/branches': typeof AuthenticatedBranchesRoute
+  '/_authenticated/buyers': typeof AuthenticatedBuyersRoute
   '/_authenticated/commercial': typeof AuthenticatedCommercialRoute
   '/_authenticated/compliance': typeof AuthenticatedComplianceRoute
   '/_authenticated/contacts': typeof AuthenticatedContactsRoute
@@ -632,6 +649,7 @@ export interface FileRoutesById {
   '/_authenticated/reports': typeof AuthenticatedReportsRoute
   '/_authenticated/right-to-rent': typeof AuthenticatedRightToRentRoute
   '/_authenticated/sales': typeof AuthenticatedSalesRoute
+  '/_authenticated/sellers': typeof AuthenticatedSellersRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/statements': typeof AuthenticatedStatementsRoute
   '/_authenticated/survey': typeof AuthenticatedSurveyRoute
@@ -680,6 +698,7 @@ export interface FileRouteTypes {
     | '/ai-copy'
     | '/arrears'
     | '/branches'
+    | '/buyers'
     | '/commercial'
     | '/compliance'
     | '/contacts'
@@ -705,6 +724,7 @@ export interface FileRouteTypes {
     | '/reports'
     | '/right-to-rent'
     | '/sales'
+    | '/sellers'
     | '/settings'
     | '/statements'
     | '/survey'
@@ -749,6 +769,7 @@ export interface FileRouteTypes {
     | '/ai-copy'
     | '/arrears'
     | '/branches'
+    | '/buyers'
     | '/commercial'
     | '/compliance'
     | '/contacts'
@@ -774,6 +795,7 @@ export interface FileRouteTypes {
     | '/reports'
     | '/right-to-rent'
     | '/sales'
+    | '/sellers'
     | '/settings'
     | '/statements'
     | '/survey'
@@ -821,6 +843,7 @@ export interface FileRouteTypes {
     | '/_authenticated/ai-copy'
     | '/_authenticated/arrears'
     | '/_authenticated/branches'
+    | '/_authenticated/buyers'
     | '/_authenticated/commercial'
     | '/_authenticated/compliance'
     | '/_authenticated/contacts'
@@ -846,6 +869,7 @@ export interface FileRouteTypes {
     | '/_authenticated/reports'
     | '/_authenticated/right-to-rent'
     | '/_authenticated/sales'
+    | '/_authenticated/sellers'
     | '/_authenticated/settings'
     | '/_authenticated/statements'
     | '/_authenticated/survey'
@@ -1158,6 +1182,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/sellers': {
+      id: '/_authenticated/sellers'
+      path: '/sellers'
+      fullPath: '/sellers'
+      preLoaderRoute: typeof AuthenticatedSellersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/sales': {
       id: '/_authenticated/sales'
       path: '/sales'
@@ -1333,6 +1364,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCommercialRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/buyers': {
+      id: '/_authenticated/buyers'
+      path: '/buyers'
+      fullPath: '/buyers'
+      preLoaderRoute: typeof AuthenticatedBuyersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/branches': {
       id: '/_authenticated/branches'
       path: '/branches'
@@ -1411,6 +1449,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAiCopyRoute: typeof AuthenticatedAiCopyRoute
   AuthenticatedArrearsRoute: typeof AuthenticatedArrearsRoute
   AuthenticatedBranchesRoute: typeof AuthenticatedBranchesRoute
+  AuthenticatedBuyersRoute: typeof AuthenticatedBuyersRoute
   AuthenticatedCommercialRoute: typeof AuthenticatedCommercialRoute
   AuthenticatedComplianceRoute: typeof AuthenticatedComplianceRoute
   AuthenticatedContactsRoute: typeof AuthenticatedContactsRoute
@@ -1436,6 +1475,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
   AuthenticatedRightToRentRoute: typeof AuthenticatedRightToRentRoute
   AuthenticatedSalesRoute: typeof AuthenticatedSalesRoute
+  AuthenticatedSellersRoute: typeof AuthenticatedSellersRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedStatementsRoute: typeof AuthenticatedStatementsRoute
   AuthenticatedSurveyRoute: typeof AuthenticatedSurveyRoute
@@ -1452,6 +1492,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAiCopyRoute: AuthenticatedAiCopyRoute,
   AuthenticatedArrearsRoute: AuthenticatedArrearsRoute,
   AuthenticatedBranchesRoute: AuthenticatedBranchesRoute,
+  AuthenticatedBuyersRoute: AuthenticatedBuyersRoute,
   AuthenticatedCommercialRoute: AuthenticatedCommercialRoute,
   AuthenticatedComplianceRoute: AuthenticatedComplianceRoute,
   AuthenticatedContactsRoute: AuthenticatedContactsRoute,
@@ -1478,6 +1519,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedReportsRoute: AuthenticatedReportsRoute,
   AuthenticatedRightToRentRoute: AuthenticatedRightToRentRoute,
   AuthenticatedSalesRoute: AuthenticatedSalesRoute,
+  AuthenticatedSellersRoute: AuthenticatedSellersRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedStatementsRoute: AuthenticatedStatementsRoute,
   AuthenticatedSurveyRoute: AuthenticatedSurveyRoute,

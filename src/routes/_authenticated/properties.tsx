@@ -47,6 +47,7 @@ const PURPOSES = [
   { v: "both", l: "Sale & rent" },
   { v: "short_let", l: "Short-let (Airbnb-style)" },
 ] as const;
+// Loaded from DB via fetchPropertyTypes (see persistence.functions.ts) — kept as fallback list.
 const PROPERTY_TYPES = ["house", "flat", "studio", "hmo", "bungalow", "commercial", "land"] as const;
 
 const emptyProp = {
@@ -68,6 +69,7 @@ function PropertiesPage() {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(emptyProp);
   const [active, setActive] = useState<Property | null>(null);
+  const [ptypes, setPtypes] = useState<{ code: string; label: string; category: string }[]>([]);
 
   const load = async () => {
     setLoading(true);
@@ -77,6 +79,11 @@ function PropertiesPage() {
     setLoading(false);
   };
   useEffect(() => { load(); }, []);
+  useEffect(() => {
+    void supabase.from("property_types").select("code,label,category").eq("active", true).order("sort_order").then(({ data }) => {
+      if (data) setPtypes(data as any);
+    });
+  }, []);
 
   const filtered = useMemo(() => rows.filter((p) => {
     if (filterPurpose !== "all" && p.listing_purpose !== filterPurpose) return false;
@@ -112,6 +119,7 @@ function PropertiesPage() {
       city: form.city || null,
       postcode: form.postcode || null,
       property_type: form.property_type || null,
+      property_type_code: form.property_type || null,
       bedrooms: form.bedrooms ? Number(form.bedrooms) : null,
       bathrooms: form.bathrooms ? Number(form.bathrooms) : null,
       is_hmo: form.is_hmo,
@@ -273,7 +281,10 @@ function PropertiesPage() {
             <div><Label>Type</Label>
               <Select value={form.property_type} onValueChange={(v) => setForm({ ...form, property_type: v })}>
                 <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
-                <SelectContent>{PROPERTY_TYPES.map((t) => <SelectItem key={t} value={t} className="capitalize">{t}</SelectItem>)}</SelectContent>
+                <SelectContent className="max-h-72">
+                  {(ptypes.length ? ptypes.map(t => ({ v: t.code, l: t.label })) : PROPERTY_TYPES.map(t => ({ v: t, l: t })))
+                    .map((t) => <SelectItem key={t.v} value={t.v} className="capitalize">{t.l}</SelectItem>)}
+                </SelectContent>
               </Select>
             </div>
             <div><Label>Purpose</Label>
