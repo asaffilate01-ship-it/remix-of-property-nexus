@@ -8,6 +8,8 @@ import { ListingCard } from "@/components/ListingCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { Building2, MapPin, Mail, Globe, ChevronLeft, ShieldCheck, Wrench, Home, Users, ArrowRight, Star } from "lucide-react";
 import { PhoneReveal } from "@/components/PhoneReveal";
 import { fetchAgency } from "@/lib/public.functions";
