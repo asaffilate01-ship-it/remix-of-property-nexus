@@ -18,6 +18,7 @@ import {
 import { Plus, Tag, ExternalLink, Pencil, Trash2, Eye, EyeOff, Globe, Printer } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/PageHeader";
+import { ListingImage } from "@/components/ListingImage";
 import { PhotoUploader, type ListingPhoto } from "@/components/listings/PhotoUploader";
 import { RoomsEditor, type HmoRoom } from "@/components/listings/RoomsEditor";
 import { ComplianceEditor, type ComplianceMap } from "@/components/listings/ComplianceEditor";
