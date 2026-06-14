@@ -1,12 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useServerFn } from "@tanstack/react-start";
-import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { useSuspenseQuery, queryOptions, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, Home, Users, Plus } from "lucide-react";
+import { ChevronRight, Home, Users } from "lucide-react";
 import { listTenancyOverview } from "@/lib/tenancy-lifecycle.functions";
 import { PageHeader } from "@/components/PageHeader";
+import { AddTenancyDialog } from "@/components/tenancy/AddTenancyDialog";
 
 const tenanciesQueryOptions = () =>
   queryOptions({
@@ -33,6 +35,18 @@ const STATUS_TONE: Record<string, string> = {
 
 function TenanciesPage() {
   const { data } = useSuspenseQuery(tenanciesQueryOptions());
+  const qc = useQueryClient();
+
+  useEffect(() => {
+    const ch = supabase
+      .channel(`tenancies-${Math.random().toString(36).slice(2, 8)}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "tenancies" }, () => {
+        void qc.invalidateQueries({ queryKey: ["tenancies-overview"] });
+      })
+      .subscribe();
+    return () => { void supabase.removeChannel(ch); };
+  }, [qc]);
+
 
   const active = data.filter((t) => t.status === "active").length;
   const draft = data.filter((t) => t.status === "draft").length;
@@ -44,11 +58,12 @@ function TenanciesPage() {
         title="Tenancies"
         description="End-to-end lifecycle: lead → viewing → offer → tenancy → deposit → rent → renewal."
         actions={
-          <Button asChild>
-            <Link to="/pipeline">
-              <Plus className="mr-2 h-4 w-4" /> Start from pipeline
-            </Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button asChild variant="outline">
+              <Link to="/pipeline">From pipeline</Link>
+            </Button>
+            <AddTenancyDialog />
+          </div>
         }
       />
 
