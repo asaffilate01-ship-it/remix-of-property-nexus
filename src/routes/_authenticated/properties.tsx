@@ -13,7 +13,7 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
-import { Plus, Building2, Pencil, Trash2, BedDouble, Users, PoundSterling, Calendar, FileText, ShieldCheck } from "lucide-react";
+import { Plus, Building2, Pencil, Trash2, BedDouble, Users, PoundSterling, Calendar, FileText, ShieldCheck, Sun } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/PageHeader";
 import { FeatureMultiSelect } from "@/components/properties/FeatureMultiSelect";
