@@ -31,6 +31,12 @@ function HolidayPage() {
   const [monthOffset, setMonthOffset] = useState(0);
   const [bk, setBk] = useState<any | null>(null);
   const [bl, setBl] = useState<any | null>(null);
+  const [propFilter, setPropFilter] = useState<string>("all");
+  const [showKinds, setShowKinds] = useState<string[]>(["booking", "cleaning", "owner", "maintenance"]);
+
+  const toggleKind = (k: string) => {
+    setShowKinds((prev) => prev.includes(k) ? prev.filter((x) => x !== k) : [...prev, k]);
+  };
 
   const start = useMemo(() => {
     const d = new Date();

@@ -301,6 +301,7 @@ function ListingsPage() {
                   <Badge variant="secondary" className="capitalize">{l.purpose}</Badge>
                   <Badge variant={l.status === "published" ? "default" : "outline"}>{l.status}</Badge>
                   {l.is_hmo && <Badge className="bg-accent text-accent-foreground">HMO</Badge>}
+                  {l.listing_type === "holiday" && <Badge className="bg-amber-500 text-white border-0">Holiday</Badge>}
                 </div>
                 {!l.marketplace_publish && (
                   <div className="absolute top-2 right-2"><Badge variant="outline" className="bg-card/90 backdrop-blur"><EyeOff className="h-3 w-3 mr-1" />Off marketplace</Badge></div>
