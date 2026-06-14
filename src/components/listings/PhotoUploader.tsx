@@ -1,11 +1,38 @@
-import { useRef, useState, DragEvent } from "react";
+import { useEffect, useRef, useState, DragEvent } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Upload, X, Star, Image as ImageIcon } from "lucide-react";
+import { Upload, X, Star, Image as ImageIcon, ImageOff } from "lucide-react";
 import { toast } from "sonner";
 
-export type ListingPhoto = { url: string; room?: string | null };
+export type ListingPhoto = { url: string; path?: string | null; room?: string | null };
+
+// Renders a storage-backed thumbnail by re-signing on demand, so a long-lived
+// signed URL from upload time never blocks the preview.
+function Thumb({ photo }: { photo: ListingPhoto }) {
+  const [src, setSrc] = useState<string | null>(() => (photo.path ? null : photo.url || null));
+  const [failed, setFailed] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    if (photo.path) {
+      supabase.storage.from("listing-photos").createSignedUrl(photo.path, 3600)
+        .then(({ data, error }) => {
+          if (!alive) return;
+          if (error || !data?.signedUrl) { setFailed(true); return; }
+          setSrc(data.signedUrl);
+        })
+        .catch(() => { if (alive) setFailed(true); });
+    } else {
+      setSrc(photo.url || null);
+    }
+    return () => { alive = false; };
+  }, [photo.path, photo.url]);
+  if (failed || (!src && !photo.path)) {
+    return <div className="h-full w-full flex items-center justify-center bg-muted"><ImageOff className="h-6 w-6 opacity-50" /></div>;
+  }
+  if (!src) return <div className="h-full w-full bg-muted animate-pulse" />;
+  return <img src={src} alt="" className="h-full w-full object-cover" onError={() => setFailed(true)} loading="lazy" />;
+}
 
 type Props = {
   photos: ListingPhoto[];
@@ -53,7 +80,7 @@ export function PhotoUploader({ photos, onChange, coverIndex, onCoverChange, roo
           toast.error(`Couldn't preview ${file.name}: ${sErr?.message ?? "no URL"}`);
           continue;
         }
-        added.push({ url: signed.signedUrl, room: null });
+        added.push({ url: signed.signedUrl, path, room: null });
       }
       if (added.length) {
         onChange([...photos, ...added]);
@@ -122,7 +149,7 @@ export function PhotoUploader({ photos, onChange, coverIndex, onCoverChange, roo
           {photos.map((p, idx) => (
             <div key={idx} className="relative group rounded-md overflow-hidden border bg-muted">
               <div className="aspect-[4/3]">
-                <img src={p.url} alt="" className="h-full w-full object-cover" />
+                <Thumb photo={p} />
               </div>
               <button
                 type="button"

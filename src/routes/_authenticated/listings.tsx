@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -346,8 +346,8 @@ function ListingsPage() {
   );
 }
 
-function ListingForm({ form, setForm, agencies, onUploadingChange }: { form: Form; setForm: (f: Form) => void; agencies: { id: string; name: string }[]; onUploadingChange?: (uploading: boolean) => void }) {
-  const u = <K extends keyof Form>(k: K, v: Form[K]) => setForm({ ...form, [k]: v });
+function ListingForm({ form, setForm, agencies, onUploadingChange }: { form: Form; setForm: React.Dispatch<React.SetStateAction<Form>>; agencies: { id: string; name: string }[]; onUploadingChange?: (uploading: boolean) => void }) {
+  const u = <K extends keyof Form>(k: K, v: Form[K]) => setForm((prev) => ({ ...prev, [k]: v }));
   return (
     <div className="space-y-4 pr-1">
       <div><Label>Title *</Label><Input value={form.title} onChange={(e) => u("title", e.target.value)} placeholder="2 bed modern flat with balcony" /></div>
