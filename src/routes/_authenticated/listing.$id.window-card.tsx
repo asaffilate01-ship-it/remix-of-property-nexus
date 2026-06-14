@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Printer, ArrowLeft, Bed, Bath, Sofa, Ruler, Zap, Home } from "lucide-react";
+import { ListingImage } from "@/components/ListingImage";
 
 export const Route = createFileRoute("/_authenticated/listing/$id/window-card")({
   component: WindowCardPage,
