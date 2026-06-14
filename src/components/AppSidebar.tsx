@@ -312,11 +312,9 @@ export function AppSidebar() {
               <SidebarMenu>
                 {recent.slice(0, 4).map((r) => (
                   <SidebarMenuItem key={r.to}>
-                    <SidebarMenuButton asChild isActive={isActive(r.to)}>
-                      <Link to={r.to as string}>
-                        <Clock className="h-4 w-4 opacity-60" />
-                        <span className="truncate capitalize">{r.label}</span>
-                      </Link>
+                    <SidebarMenuButton isActive={isActive(r.to)} onClick={() => navigate({ to: r.to as never })}>
+                      <Clock className="h-4 w-4 opacity-60" />
+                      <span className="truncate capitalize">{r.label}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}
