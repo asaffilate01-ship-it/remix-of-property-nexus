@@ -46,7 +46,7 @@ function WorkOrderDetail() {
   });
 
   const update = useMutation({
-    mutationFn: async (patch: { status?: "open" | "in_progress" | "on_hold" | "completed" | "cancelled"; priority?: "low" | "medium" | "high" | "urgent" }) => {
+    mutationFn: async (patch: { status?: "open" | "in_progress" | "on_hold" | "completed" | "cancelled"; priority?: "low" | "medium" | "high" | "emergency" }) => {
       const { error } = await supabase.from("work_orders").update(patch).eq("id", id);
       if (error) throw error;
     },
@@ -85,7 +85,7 @@ function WorkOrderDetail() {
           </p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          <Select value={data.priority} onValueChange={(v) => update.mutate({ priority: v as "low" | "medium" | "high" | "urgent" })}>
+          <Select value={data.priority} onValueChange={(v) => update.mutate({ priority: v as "low" | "medium" | "high" | "emergency" })}>
             <SelectTrigger className="w-32 h-9"><SelectValue /></SelectTrigger>
             <SelectContent>
               {PRIORITY.map((p) => <SelectItem key={p} value={p} className="capitalize">{p}</SelectItem>)}
