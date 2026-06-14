@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ImageOff } from "lucide-react";
 
+const SIGN_RETRY_DELAYS_MS = [0, 300, 900, 1800];
+
 // Extracts the object path if the URL is a Supabase signed/public URL
 // for the listing-photos bucket. Returns null otherwise.
 function extractListingPhotoPath(url: string): string | null {
@@ -30,17 +32,23 @@ export function ListingImage({ src, alt = "", className, loading = "lazy" }: Pro
     let alive = true;
     setFailed(false);
     if (!src) { setResolved(null); return; }
-    setResolved(src);
     const path = extractListingPhotoPath(src);
     if (!path) { setResolved(src); return; }
-    // Re-sign so expired tokens from previous sessions don't break previews.
-    supabase.storage.from("listing-photos").createSignedUrl(path, 3600)
-      .then(({ data, error }) => {
+
+    const signWithRetry = async () => {
+      for (const delay of SIGN_RETRY_DELAYS_MS) {
+        if (delay > 0) await new Promise((resolve) => setTimeout(resolve, delay));
+        const { data, error } = await supabase.storage.from("listing-photos").createSignedUrl(path, 3600);
         if (!alive) return;
-        if (error || !data?.signedUrl) { setResolved(src); return; }
-        setResolved(data.signedUrl);
-      })
-      .catch(() => { if (alive) setResolved(src); });
+        if (!error && data?.signedUrl) {
+          setResolved(data.signedUrl);
+          return;
+        }
+      }
+      if (alive) setFailed(true);
+    };
+
+    void signWithRetry();
     return () => { alive = false; };
   }, [src]);
 
