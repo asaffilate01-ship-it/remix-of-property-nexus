@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { fetchOpsData, saveContact, deleteContact } from "@/lib/ops.functions";
 import { PageHeader } from "@/components/PageHeader";
 import { QuickContactActions } from "@/components/QuickContactActions";
+import { AddressLookup } from "@/components/address/AddressLookup";
 
 export const Route = createFileRoute("/_authenticated/contacts")({ component: ContactsPage });
 
@@ -134,6 +135,15 @@ function ContactsPage() {
                 <div><Label>Company</Label><Input value={form.company_name} onChange={(e) => setForm({ ...form, company_name: e.target.value })} /></div>
                 <div><Label>Email</Label><Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></div>
                 <div><Label>Phone</Label><Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></div>
+                <div className="sm:col-span-2">
+                  <AddressLookup
+                    onResolve={(a) => setForm({
+                      ...form,
+                      address: a.line1 || form.address,
+                      postcode: a.postcode || form.postcode,
+                    })}
+                  />
+                </div>
                 <div><Label>Postcode</Label><Input value={form.postcode} onChange={(e) => setForm({ ...form, postcode: e.target.value })} /></div>
                 <div className="sm:col-span-2"><Label>Address</Label><Input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} /></div>
                 <div><Label>Hourly rate (£)</Label><Input type="number" value={form.hourly_rate} onChange={(e) => setForm({ ...form, hourly_rate: e.target.value })} /></div>

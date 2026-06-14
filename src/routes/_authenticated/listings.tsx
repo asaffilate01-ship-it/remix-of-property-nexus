@@ -22,6 +22,7 @@ import { PhotoUploader, type ListingPhoto } from "@/components/listings/PhotoUpl
 import { RoomsEditor, type HmoRoom } from "@/components/listings/RoomsEditor";
 import { ComplianceEditor, type ComplianceMap } from "@/components/listings/ComplianceEditor";
 import { FeatureMultiSelect } from "@/components/properties/FeatureMultiSelect";
+import { AddressLookup } from "@/components/address/AddressLookup";
 
 type Listing = {
   id: string; owner_id: string; slug: string; title: string; description: string | null;
@@ -411,6 +412,16 @@ function ListingForm({ form, setForm, agencies, onUploadingChange }: { form: For
       )}
 
       <div className="grid grid-cols-2 gap-3">
+        <div className="col-span-2">
+          <AddressLookup
+            onResolve={(a) => setForm({
+              ...form,
+              address: a.line1 || form.address,
+              city: a.city || form.city,
+              postcode: a.postcode || form.postcode,
+            })}
+          />
+        </div>
         <div className="col-span-2"><Label>Address</Label><Input value={form.address} onChange={(e) => u("address", e.target.value)} placeholder="12 High Street" /></div>
         <div><Label>City</Label><Input value={form.city} onChange={(e) => u("city", e.target.value)} placeholder="London" /></div>
         <div><Label>Postcode</Label><Input value={form.postcode} onChange={(e) => u("postcode", e.target.value)} placeholder="SW1A 1AA" /></div>

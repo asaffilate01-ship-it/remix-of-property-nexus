@@ -42,7 +42,7 @@ export function loadGoogleMaps(): Promise<void> {
 
     const s = document.createElement("script");
     s.dataset.estatelyGmaps = "1";
-    s.src = `https://maps.googleapis.com/maps/api/js?key=${key}&loading=async&callback=__estatelyInitMap${channel ? `&channel=${channel}` : ""}`;
+    s.src = `https://maps.googleapis.com/maps/api/js?key=${key}&libraries=places&loading=async&callback=__estatelyInitMap${channel ? `&channel=${channel}` : ""}`;
     s.async = true;
     s.defer = true;
     s.onerror = () => {
