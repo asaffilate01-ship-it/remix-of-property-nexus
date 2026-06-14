@@ -33,6 +33,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as MarketplaceIndexRouteImport } from './routes/marketplace.index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as AgenciesIndexRouteImport } from './routes/agencies.index'
+import { Route as SignTokenRouteImport } from './routes/sign.$token'
 import { Route as ModulesSlugRouteImport } from './routes/modules.$slug'
 import { Route as MarketplaceSlugRouteImport } from './routes/marketplace.$slug'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
@@ -62,6 +63,7 @@ import { Route as AuthenticatedListingsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedLeaseholdRouteImport } from './routes/_authenticated/leasehold'
 import { Route as AuthenticatedLeadsRouteImport } from './routes/_authenticated/leads'
 import { Route as AuthenticatedInspectionsRouteImport } from './routes/_authenticated/inspections'
+import { Route as AuthenticatedHolidayLetsRouteImport } from './routes/_authenticated/holiday-lets'
 import { Route as AuthenticatedHmoRouteImport } from './routes/_authenticated/hmo'
 import { Route as AuthenticatedEvidenceRouteImport } from './routes/_authenticated/evidence'
 import { Route as AuthenticatedESignRouteImport } from './routes/_authenticated/e-sign'
@@ -75,11 +77,13 @@ import { Route as AuthenticatedCommercialRouteImport } from './routes/_authentic
 import { Route as AuthenticatedBuyersRouteImport } from './routes/_authenticated/buyers'
 import { Route as AuthenticatedBranchesRouteImport } from './routes/_authenticated/branches'
 import { Route as AuthenticatedArrearsRouteImport } from './routes/_authenticated/arrears'
+import { Route as AuthenticatedAlertsRouteImport } from './routes/_authenticated/alerts'
 import { Route as AuthenticatedAiCopyRouteImport } from './routes/_authenticated/ai-copy'
 import { Route as AuthenticatedAgencyRouteImport } from './routes/_authenticated/agency'
 import { Route as ApiPublicReferencingWebhookRouteImport } from './routes/api/public/referencing-webhook'
 import { Route as AuthenticatedTenanciesIdRouteImport } from './routes/_authenticated/tenancies.$id'
 import { Route as ApiPublicHooksMatchSavedSearchesRouteImport } from './routes/api/public/hooks/match-saved-searches'
+import { Route as ApiPublicHooksExpiryRemindersRouteImport } from './routes/api/public/hooks/expiry-reminders'
 import { Route as AuthenticatedListingIdWindowCardRouteImport } from './routes/_authenticated/listing.$id.window-card'
 
 const ValuationRoute = ValuationRouteImport.update({
@@ -200,6 +204,11 @@ const AgenciesIndexRoute = AgenciesIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AgenciesRoute,
+} as any)
+const SignTokenRoute = SignTokenRouteImport.update({
+  id: '/sign/$token',
+  path: '/sign/$token',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ModulesSlugRoute = ModulesSlugRouteImport.update({
   id: '/modules/$slug',
@@ -351,6 +360,12 @@ const AuthenticatedInspectionsRoute =
     path: '/inspections',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedHolidayLetsRoute =
+  AuthenticatedHolidayLetsRouteImport.update({
+    id: '/holiday-lets',
+    path: '/holiday-lets',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedHmoRoute = AuthenticatedHmoRouteImport.update({
   id: '/hmo',
   path: '/hmo',
@@ -417,6 +432,11 @@ const AuthenticatedArrearsRoute = AuthenticatedArrearsRouteImport.update({
   path: '/arrears',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAlertsRoute = AuthenticatedAlertsRouteImport.update({
+  id: '/alerts',
+  path: '/alerts',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAiCopyRoute = AuthenticatedAiCopyRouteImport.update({
   id: '/ai-copy',
   path: '/ai-copy',
@@ -443,6 +463,12 @@ const ApiPublicHooksMatchSavedSearchesRoute =
   ApiPublicHooksMatchSavedSearchesRouteImport.update({
     id: '/api/public/hooks/match-saved-searches',
     path: '/api/public/hooks/match-saved-searches',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksExpiryRemindersRoute =
+  ApiPublicHooksExpiryRemindersRouteImport.update({
+    id: '/api/public/hooks/expiry-reminders',
+    path: '/api/public/hooks/expiry-reminders',
     getParentRoute: () => rootRouteImport,
   } as any)
 const AuthenticatedListingIdWindowCardRoute =
@@ -475,6 +501,7 @@ export interface FileRoutesByFullPath {
   '/valuation': typeof ValuationRoute
   '/agency': typeof AuthenticatedAgencyRoute
   '/ai-copy': typeof AuthenticatedAiCopyRoute
+  '/alerts': typeof AuthenticatedAlertsRoute
   '/arrears': typeof AuthenticatedArrearsRoute
   '/branches': typeof AuthenticatedBranchesRoute
   '/buyers': typeof AuthenticatedBuyersRoute
@@ -488,6 +515,7 @@ export interface FileRoutesByFullPath {
   '/e-sign': typeof AuthenticatedESignRoute
   '/evidence': typeof AuthenticatedEvidenceRoute
   '/hmo': typeof AuthenticatedHmoRoute
+  '/holiday-lets': typeof AuthenticatedHolidayLetsRoute
   '/inspections': typeof AuthenticatedInspectionsRoute
   '/leads': typeof AuthenticatedLeadsRoute
   '/leasehold': typeof AuthenticatedLeaseholdRoute
@@ -517,12 +545,14 @@ export interface FileRoutesByFullPath {
   '/blog/$slug': typeof BlogSlugRoute
   '/marketplace/$slug': typeof MarketplaceSlugRoute
   '/modules/$slug': typeof ModulesSlugRoute
+  '/sign/$token': typeof SignTokenRoute
   '/agencies/': typeof AgenciesIndexRoute
   '/blog/': typeof BlogIndexRoute
   '/marketplace/': typeof MarketplaceIndexRoute
   '/tenancies/$id': typeof AuthenticatedTenanciesIdRoute
   '/api/public/referencing-webhook': typeof ApiPublicReferencingWebhookRoute
   '/listing/$id/window-card': typeof AuthenticatedListingIdWindowCardRoute
+  '/api/public/hooks/expiry-reminders': typeof ApiPublicHooksExpiryRemindersRoute
   '/api/public/hooks/match-saved-searches': typeof ApiPublicHooksMatchSavedSearchesRoute
 }
 export interface FileRoutesByTo {
@@ -546,6 +576,7 @@ export interface FileRoutesByTo {
   '/valuation': typeof ValuationRoute
   '/agency': typeof AuthenticatedAgencyRoute
   '/ai-copy': typeof AuthenticatedAiCopyRoute
+  '/alerts': typeof AuthenticatedAlertsRoute
   '/arrears': typeof AuthenticatedArrearsRoute
   '/branches': typeof AuthenticatedBranchesRoute
   '/buyers': typeof AuthenticatedBuyersRoute
@@ -559,6 +590,7 @@ export interface FileRoutesByTo {
   '/e-sign': typeof AuthenticatedESignRoute
   '/evidence': typeof AuthenticatedEvidenceRoute
   '/hmo': typeof AuthenticatedHmoRoute
+  '/holiday-lets': typeof AuthenticatedHolidayLetsRoute
   '/inspections': typeof AuthenticatedInspectionsRoute
   '/leads': typeof AuthenticatedLeadsRoute
   '/leasehold': typeof AuthenticatedLeaseholdRoute
@@ -588,12 +620,14 @@ export interface FileRoutesByTo {
   '/blog/$slug': typeof BlogSlugRoute
   '/marketplace/$slug': typeof MarketplaceSlugRoute
   '/modules/$slug': typeof ModulesSlugRoute
+  '/sign/$token': typeof SignTokenRoute
   '/agencies': typeof AgenciesIndexRoute
   '/blog': typeof BlogIndexRoute
   '/marketplace': typeof MarketplaceIndexRoute
   '/tenancies/$id': typeof AuthenticatedTenanciesIdRoute
   '/api/public/referencing-webhook': typeof ApiPublicReferencingWebhookRoute
   '/listing/$id/window-card': typeof AuthenticatedListingIdWindowCardRoute
+  '/api/public/hooks/expiry-reminders': typeof ApiPublicHooksExpiryRemindersRoute
   '/api/public/hooks/match-saved-searches': typeof ApiPublicHooksMatchSavedSearchesRoute
 }
 export interface FileRoutesById {
@@ -621,6 +655,7 @@ export interface FileRoutesById {
   '/valuation': typeof ValuationRoute
   '/_authenticated/agency': typeof AuthenticatedAgencyRoute
   '/_authenticated/ai-copy': typeof AuthenticatedAiCopyRoute
+  '/_authenticated/alerts': typeof AuthenticatedAlertsRoute
   '/_authenticated/arrears': typeof AuthenticatedArrearsRoute
   '/_authenticated/branches': typeof AuthenticatedBranchesRoute
   '/_authenticated/buyers': typeof AuthenticatedBuyersRoute
@@ -634,6 +669,7 @@ export interface FileRoutesById {
   '/_authenticated/e-sign': typeof AuthenticatedESignRoute
   '/_authenticated/evidence': typeof AuthenticatedEvidenceRoute
   '/_authenticated/hmo': typeof AuthenticatedHmoRoute
+  '/_authenticated/holiday-lets': typeof AuthenticatedHolidayLetsRoute
   '/_authenticated/inspections': typeof AuthenticatedInspectionsRoute
   '/_authenticated/leads': typeof AuthenticatedLeadsRoute
   '/_authenticated/leasehold': typeof AuthenticatedLeaseholdRoute
@@ -663,12 +699,14 @@ export interface FileRoutesById {
   '/blog/$slug': typeof BlogSlugRoute
   '/marketplace/$slug': typeof MarketplaceSlugRoute
   '/modules/$slug': typeof ModulesSlugRoute
+  '/sign/$token': typeof SignTokenRoute
   '/agencies/': typeof AgenciesIndexRoute
   '/blog/': typeof BlogIndexRoute
   '/marketplace/': typeof MarketplaceIndexRoute
   '/_authenticated/tenancies/$id': typeof AuthenticatedTenanciesIdRoute
   '/api/public/referencing-webhook': typeof ApiPublicReferencingWebhookRoute
   '/_authenticated/listing/$id/window-card': typeof AuthenticatedListingIdWindowCardRoute
+  '/api/public/hooks/expiry-reminders': typeof ApiPublicHooksExpiryRemindersRoute
   '/api/public/hooks/match-saved-searches': typeof ApiPublicHooksMatchSavedSearchesRoute
 }
 export interface FileRouteTypes {
@@ -696,6 +734,7 @@ export interface FileRouteTypes {
     | '/valuation'
     | '/agency'
     | '/ai-copy'
+    | '/alerts'
     | '/arrears'
     | '/branches'
     | '/buyers'
@@ -709,6 +748,7 @@ export interface FileRouteTypes {
     | '/e-sign'
     | '/evidence'
     | '/hmo'
+    | '/holiday-lets'
     | '/inspections'
     | '/leads'
     | '/leasehold'
@@ -738,12 +778,14 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/marketplace/$slug'
     | '/modules/$slug'
+    | '/sign/$token'
     | '/agencies/'
     | '/blog/'
     | '/marketplace/'
     | '/tenancies/$id'
     | '/api/public/referencing-webhook'
     | '/listing/$id/window-card'
+    | '/api/public/hooks/expiry-reminders'
     | '/api/public/hooks/match-saved-searches'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -767,6 +809,7 @@ export interface FileRouteTypes {
     | '/valuation'
     | '/agency'
     | '/ai-copy'
+    | '/alerts'
     | '/arrears'
     | '/branches'
     | '/buyers'
@@ -780,6 +823,7 @@ export interface FileRouteTypes {
     | '/e-sign'
     | '/evidence'
     | '/hmo'
+    | '/holiday-lets'
     | '/inspections'
     | '/leads'
     | '/leasehold'
@@ -809,12 +853,14 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/marketplace/$slug'
     | '/modules/$slug'
+    | '/sign/$token'
     | '/agencies'
     | '/blog'
     | '/marketplace'
     | '/tenancies/$id'
     | '/api/public/referencing-webhook'
     | '/listing/$id/window-card'
+    | '/api/public/hooks/expiry-reminders'
     | '/api/public/hooks/match-saved-searches'
   id:
     | '__root__'
@@ -841,6 +887,7 @@ export interface FileRouteTypes {
     | '/valuation'
     | '/_authenticated/agency'
     | '/_authenticated/ai-copy'
+    | '/_authenticated/alerts'
     | '/_authenticated/arrears'
     | '/_authenticated/branches'
     | '/_authenticated/buyers'
@@ -854,6 +901,7 @@ export interface FileRouteTypes {
     | '/_authenticated/e-sign'
     | '/_authenticated/evidence'
     | '/_authenticated/hmo'
+    | '/_authenticated/holiday-lets'
     | '/_authenticated/inspections'
     | '/_authenticated/leads'
     | '/_authenticated/leasehold'
@@ -883,12 +931,14 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/marketplace/$slug'
     | '/modules/$slug'
+    | '/sign/$token'
     | '/agencies/'
     | '/blog/'
     | '/marketplace/'
     | '/_authenticated/tenancies/$id'
     | '/api/public/referencing-webhook'
     | '/_authenticated/listing/$id/window-card'
+    | '/api/public/hooks/expiry-reminders'
     | '/api/public/hooks/match-saved-searches'
   fileRoutesById: FileRoutesById
 }
@@ -916,8 +966,10 @@ export interface RootRouteChildren {
   ValuationRoute: typeof ValuationRoute
   BlogSlugRoute: typeof BlogSlugRoute
   ModulesSlugRoute: typeof ModulesSlugRoute
+  SignTokenRoute: typeof SignTokenRoute
   BlogIndexRoute: typeof BlogIndexRoute
   ApiPublicReferencingWebhookRoute: typeof ApiPublicReferencingWebhookRoute
+  ApiPublicHooksExpiryRemindersRoute: typeof ApiPublicHooksExpiryRemindersRoute
   ApiPublicHooksMatchSavedSearchesRoute: typeof ApiPublicHooksMatchSavedSearchesRoute
 }
 
@@ -1090,6 +1142,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/agencies/'
       preLoaderRoute: typeof AgenciesIndexRouteImport
       parentRoute: typeof AgenciesRoute
+    }
+    '/sign/$token': {
+      id: '/sign/$token'
+      path: '/sign/$token'
+      fullPath: '/sign/$token'
+      preLoaderRoute: typeof SignTokenRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/modules/$slug': {
       id: '/modules/$slug'
@@ -1294,6 +1353,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedInspectionsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/holiday-lets': {
+      id: '/_authenticated/holiday-lets'
+      path: '/holiday-lets'
+      fullPath: '/holiday-lets'
+      preLoaderRoute: typeof AuthenticatedHolidayLetsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/hmo': {
       id: '/_authenticated/hmo'
       path: '/hmo'
@@ -1385,6 +1451,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedArrearsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/alerts': {
+      id: '/_authenticated/alerts'
+      path: '/alerts'
+      fullPath: '/alerts'
+      preLoaderRoute: typeof AuthenticatedAlertsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/ai-copy': {
       id: '/_authenticated/ai-copy'
       path: '/ai-copy'
@@ -1420,6 +1493,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksMatchSavedSearchesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/expiry-reminders': {
+      id: '/api/public/hooks/expiry-reminders'
+      path: '/api/public/hooks/expiry-reminders'
+      fullPath: '/api/public/hooks/expiry-reminders'
+      preLoaderRoute: typeof ApiPublicHooksExpiryRemindersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/listing/$id/window-card': {
       id: '/_authenticated/listing/$id/window-card'
       path: '/listing/$id/window-card'
@@ -1447,6 +1527,7 @@ const AuthenticatedTenanciesRouteWithChildren =
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAgencyRoute: typeof AuthenticatedAgencyRoute
   AuthenticatedAiCopyRoute: typeof AuthenticatedAiCopyRoute
+  AuthenticatedAlertsRoute: typeof AuthenticatedAlertsRoute
   AuthenticatedArrearsRoute: typeof AuthenticatedArrearsRoute
   AuthenticatedBranchesRoute: typeof AuthenticatedBranchesRoute
   AuthenticatedBuyersRoute: typeof AuthenticatedBuyersRoute
@@ -1460,6 +1541,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedESignRoute: typeof AuthenticatedESignRoute
   AuthenticatedEvidenceRoute: typeof AuthenticatedEvidenceRoute
   AuthenticatedHmoRoute: typeof AuthenticatedHmoRoute
+  AuthenticatedHolidayLetsRoute: typeof AuthenticatedHolidayLetsRoute
   AuthenticatedInspectionsRoute: typeof AuthenticatedInspectionsRoute
   AuthenticatedLeadsRoute: typeof AuthenticatedLeadsRoute
   AuthenticatedLeaseholdRoute: typeof AuthenticatedLeaseholdRoute
@@ -1490,6 +1572,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAgencyRoute: AuthenticatedAgencyRoute,
   AuthenticatedAiCopyRoute: AuthenticatedAiCopyRoute,
+  AuthenticatedAlertsRoute: AuthenticatedAlertsRoute,
   AuthenticatedArrearsRoute: AuthenticatedArrearsRoute,
   AuthenticatedBranchesRoute: AuthenticatedBranchesRoute,
   AuthenticatedBuyersRoute: AuthenticatedBuyersRoute,
@@ -1504,6 +1587,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedESignRoute: AuthenticatedESignRoute,
   AuthenticatedEvidenceRoute: AuthenticatedEvidenceRoute,
   AuthenticatedHmoRoute: AuthenticatedHmoRoute,
+  AuthenticatedHolidayLetsRoute: AuthenticatedHolidayLetsRoute,
   AuthenticatedInspectionsRoute: AuthenticatedInspectionsRoute,
   AuthenticatedLeadsRoute: AuthenticatedLeadsRoute,
   AuthenticatedLeaseholdRoute: AuthenticatedLeaseholdRoute,
@@ -1598,8 +1682,10 @@ const rootRouteChildren: RootRouteChildren = {
   ValuationRoute: ValuationRoute,
   BlogSlugRoute: BlogSlugRoute,
   ModulesSlugRoute: ModulesSlugRoute,
+  SignTokenRoute: SignTokenRoute,
   BlogIndexRoute: BlogIndexRoute,
   ApiPublicReferencingWebhookRoute: ApiPublicReferencingWebhookRoute,
+  ApiPublicHooksExpiryRemindersRoute: ApiPublicHooksExpiryRemindersRoute,
   ApiPublicHooksMatchSavedSearchesRoute: ApiPublicHooksMatchSavedSearchesRoute,
 }
 export const routeTree = rootRouteImport

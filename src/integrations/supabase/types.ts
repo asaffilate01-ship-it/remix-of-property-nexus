@@ -368,10 +368,12 @@ export type Database = {
         Row: {
           assignee_name: string | null
           assignee_user_id: string | null
+          booking_id: string | null
           created_at: string
           created_by: string
           duration_minutes: number
           id: string
+          kind: string
           notes: string | null
           property_id: string
           room_id: string | null
@@ -382,10 +384,12 @@ export type Database = {
         Insert: {
           assignee_name?: string | null
           assignee_user_id?: string | null
+          booking_id?: string | null
           created_at?: string
           created_by?: string
           duration_minutes?: number
           id?: string
+          kind?: string
           notes?: string | null
           property_id: string
           room_id?: string | null
@@ -396,10 +400,12 @@ export type Database = {
         Update: {
           assignee_name?: string | null
           assignee_user_id?: string | null
+          booking_id?: string | null
           created_at?: string
           created_by?: string
           duration_minutes?: number
           id?: string
+          kind?: string
           notes?: string | null
           property_id?: string
           room_id?: string | null
@@ -408,6 +414,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "cleaning_jobs_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "holiday_bookings"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "cleaning_jobs_property_id_fkey"
             columns: ["property_id"]
@@ -752,6 +765,87 @@ export type Database = {
             columns: ["tenancy_id"]
             isOneToOne: false
             referencedRelation: "tenancies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      holiday_bookings: {
+        Row: {
+          agency_id: string | null
+          check_in: string
+          check_out: string
+          cleaning_fee: number | null
+          created_at: string
+          created_by: string | null
+          external_ref: string | null
+          guest_email: string | null
+          guest_name: string
+          guest_phone: string | null
+          guests_count: number
+          id: string
+          nightly_rate: number | null
+          notes: string | null
+          property_id: string
+          source: string | null
+          status: string
+          total: number | null
+          updated_at: string
+        }
+        Insert: {
+          agency_id?: string | null
+          check_in: string
+          check_out: string
+          cleaning_fee?: number | null
+          created_at?: string
+          created_by?: string | null
+          external_ref?: string | null
+          guest_email?: string | null
+          guest_name: string
+          guest_phone?: string | null
+          guests_count?: number
+          id?: string
+          nightly_rate?: number | null
+          notes?: string | null
+          property_id: string
+          source?: string | null
+          status?: string
+          total?: number | null
+          updated_at?: string
+        }
+        Update: {
+          agency_id?: string | null
+          check_in?: string
+          check_out?: string
+          cleaning_fee?: number | null
+          created_at?: string
+          created_by?: string | null
+          external_ref?: string | null
+          guest_email?: string | null
+          guest_name?: string
+          guest_phone?: string | null
+          guests_count?: number
+          id?: string
+          nightly_rate?: number | null
+          notes?: string | null
+          property_id?: string
+          source?: string | null
+          status?: string
+          total?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "holiday_bookings_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "holiday_bookings_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
             referencedColumns: ["id"]
           },
         ]
@@ -1372,6 +1466,50 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "property_types"
             referencedColumns: ["code"]
+          },
+        ]
+      }
+      property_blocks: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          end_date: string
+          id: string
+          kind: string
+          notes: string | null
+          property_id: string
+          start_date: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          end_date: string
+          id?: string
+          kind: string
+          notes?: string | null
+          property_id: string
+          start_date: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          end_date?: string
+          id?: string
+          kind?: string
+          notes?: string | null
+          property_id?: string
+          start_date?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_blocks_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -2219,54 +2357,78 @@ export type Database = {
       template_instances: {
         Row: {
           agency_id: string
+          booking_id: string | null
+          contact_id: string | null
           created_at: string
           created_by: string | null
           deal_id: string | null
+          expires_on: string | null
           id: string
+          last_reminder_at: string | null
           pdf_storage_path: string | null
           property_id: string | null
           recipient_contact_ids: string[]
+          reminder_days: number[]
           sent_at: string | null
           signed_at: string | null
+          signers_meta: Json
           status: string
           template_id: string
           tenancy_id: string | null
+          title: string | null
           updated_at: string
           values: Json
+          work_order_id: string | null
         }
         Insert: {
           agency_id: string
+          booking_id?: string | null
+          contact_id?: string | null
           created_at?: string
           created_by?: string | null
           deal_id?: string | null
+          expires_on?: string | null
           id?: string
+          last_reminder_at?: string | null
           pdf_storage_path?: string | null
           property_id?: string | null
           recipient_contact_ids?: string[]
+          reminder_days?: number[]
           sent_at?: string | null
           signed_at?: string | null
+          signers_meta?: Json
           status?: string
           template_id: string
           tenancy_id?: string | null
+          title?: string | null
           updated_at?: string
           values?: Json
+          work_order_id?: string | null
         }
         Update: {
           agency_id?: string
+          booking_id?: string | null
+          contact_id?: string | null
           created_at?: string
           created_by?: string | null
           deal_id?: string | null
+          expires_on?: string | null
           id?: string
+          last_reminder_at?: string | null
           pdf_storage_path?: string | null
           property_id?: string | null
           recipient_contact_ids?: string[]
+          reminder_days?: number[]
           sent_at?: string | null
           signed_at?: string | null
+          signers_meta?: Json
           status?: string
           template_id?: string
           tenancy_id?: string | null
+          title?: string | null
           updated_at?: string
           values?: Json
+          work_order_id?: string | null
         }
         Relationships: [
           {
@@ -2274,6 +2436,20 @@ export type Database = {
             columns: ["agency_id"]
             isOneToOne: false
             referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "template_instances_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "holiday_bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "template_instances_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
             referencedColumns: ["id"]
           },
           {
@@ -2302,6 +2478,75 @@ export type Database = {
             columns: ["tenancy_id"]
             isOneToOne: false
             referencedRelation: "tenancies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "template_instances_work_order_id_fkey"
+            columns: ["work_order_id"]
+            isOneToOne: false
+            referencedRelation: "work_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      template_signatures: {
+        Row: {
+          created_at: string
+          id: string
+          instance_id: string
+          order_index: number
+          signature_image_path: string | null
+          signed_at: string | null
+          signed_ip: string | null
+          signed_ua: string | null
+          signer_email: string
+          signer_name: string
+          signer_role: string
+          status: string
+          token: string
+          typed_signature: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          instance_id: string
+          order_index?: number
+          signature_image_path?: string | null
+          signed_at?: string | null
+          signed_ip?: string | null
+          signed_ua?: string | null
+          signer_email: string
+          signer_name: string
+          signer_role: string
+          status?: string
+          token?: string
+          typed_signature?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          instance_id?: string
+          order_index?: number
+          signature_image_path?: string | null
+          signed_at?: string | null
+          signed_ip?: string | null
+          signed_ua?: string | null
+          signer_email?: string
+          signer_name?: string
+          signer_role?: string
+          status?: string
+          token?: string
+          typed_signature?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "template_signatures_instance_id_fkey"
+            columns: ["instance_id"]
+            isOneToOne: false
+            referencedRelation: "template_instances"
             referencedColumns: ["id"]
           },
         ]

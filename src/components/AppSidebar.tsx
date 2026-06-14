@@ -5,7 +5,7 @@ import {
   ClipboardList, CalendarDays, Gavel, Receipt, BarChart3, Sparkles, Eye, Bookmark,
   RefreshCcw, Vault, UserCheck, FilePenLine, Hammer, Banknote, Image as ImageIcon,
   Landmark, Briefcase, Smartphone, PackageOpen, FolderLock, Camera, ScrollText,
-  ChevronRight,
+  ChevronRight, Bell, Sun,
 } from "lucide-react";
 import { BranchSwitcher } from "@/components/BranchSwitcher";
 import {
@@ -29,6 +29,7 @@ const FULL: NavSection[] = [
     label: "Overview", defaultOpen: true,
     items: [
       { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+      { to: "/alerts", label: "Alerts & expiries", icon: Bell },
       { to: "/reports", label: "Reports", icon: BarChart3 },
     ],
   },
@@ -59,6 +60,7 @@ const FULL: NavSection[] = [
     label: "Tenancy ops",
     items: [
       { to: "/tenancies", label: "Tenancies", icon: Home },
+      { to: "/holiday-lets", label: "Holiday lets", icon: Sun },
       { to: "/inspections", label: "Inspections", icon: ClipboardList },
       { to: "/mobile-inspection", label: "On‑site inspection", icon: Smartphone },
       { to: "/move", label: "Move in / out", icon: PackageOpen },
