@@ -125,9 +125,20 @@ type Props = {
 
 export function PhotoUploader({ photos, onChange, coverIndex, onCoverChange, roomOptions = [], onUploadingChange }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
+  const photosRef = useRef<ListingPhoto[]>(photos);
   const [dragging, setDragging] = useState(false);
   const [busy, setBusy] = useState(false);
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
+
+  useEffect(() => {
+    photosRef.current = photos;
+  }, [photos]);
+
+  const commitPhotos = (updater: (current: ListingPhoto[]) => ListingPhoto[]) => {
+    const next = updater(photosRef.current);
+    photosRef.current = next;
+    onChange(next);
+  };
 
   const upload = async (files: FileList | File[]) => {
     setBusy(true);
@@ -173,7 +184,7 @@ export function PhotoUploader({ photos, onChange, coverIndex, onCoverChange, roo
 
       const completed = added.filter((item): item is ListingPhoto => item !== null);
       if (completed.length) {
-        onChange([...photos, ...completed]);
+        commitPhotos((current) => [...current, ...completed]);
         toast.success(`${completed.length} photo${completed.length === 1 ? "" : "s"} added`);
       }
     } catch (e: any) {
@@ -193,19 +204,20 @@ export function PhotoUploader({ photos, onChange, coverIndex, onCoverChange, roo
   };
 
   const remove = (idx: number) => {
-    const next = photos.filter((_, i) => i !== idx);
+    const next = photosRef.current.filter((_, i) => i !== idx);
+    photosRef.current = next;
     onChange(next);
     if (coverIndex === idx) onCoverChange(0);
     else if (coverIndex > idx) onCoverChange(coverIndex - 1);
   };
 
   const setRoom = (idx: number, room: string) => {
-    onChange(photos.map((p, i) => i === idx ? { ...p, room: room || null } : p));
+    commitPhotos((current) => current.map((p, i) => i === idx ? { ...p, room: room.trim() || null } : p));
   };
 
   const addUrl = () => {
     const url = prompt("Paste image URL");
-    if (url) onChange([...photos, { url, room: null }]);
+    if (url) commitPhotos((current) => [...current, { url, room: null }]);
   };
 
   return (
@@ -258,25 +270,22 @@ export function PhotoUploader({ photos, onChange, coverIndex, onCoverChange, roo
               >
                 <X className="h-3 w-3" />
               </button>
-              {roomOptions.length > 0 ? (
-                <select
-                  value={p.room ?? ""}
-                  onChange={(e) => setRoom(idx, e.target.value)}
-                  className="w-full text-xs bg-card border-t px-2 py-1 outline-none"
-                >
-                  <option value="">No room tag</option>
-                  {roomOptions.map((r) => <option key={r} value={r}>{r}</option>)}
-                  <option value="Communal">Communal</option>
-                  <option value="Exterior">Exterior</option>
-                </select>
-              ) : (
+              <div className="border-t bg-card/95 p-2">
                 <Input
                   value={p.room ?? ""}
                   onChange={(e) => setRoom(idx, e.target.value)}
-                  placeholder="Label (e.g. Kitchen)"
-                  className="rounded-none border-0 border-t h-7 text-xs"
+                  placeholder={roomOptions.length > 0 ? "Where in the property is this?" : "Where in the property is this?"}
+                  list={roomOptions.length > 0 ? `photo-room-options-${idx}` : undefined}
+                  className="h-8 text-xs"
                 />
-              )}
+                {roomOptions.length > 0 && (
+                  <datalist id={`photo-room-options-${idx}`}>
+                    {roomOptions.map((r) => <option key={r} value={r} />)}
+                    <option value="Communal" />
+                    <option value="Exterior" />
+                  </datalist>
+                )}
+              </div>
             </div>
           ))}
         </div>
