@@ -57,6 +57,7 @@ function HolidayPage() {
   };
 
   const properties = data?.properties ?? [];
+  const visibleProperties = propFilter === "all" ? properties : properties.filter((p: any) => p.id === propFilter);
 
   return (
     <div className="space-y-4">
@@ -74,11 +75,28 @@ function HolidayPage() {
         }
       />
 
-      <div className="flex gap-3 text-xs">
-        <Badge style={{ background: "hsl(220 80% 55%)", color: "white" }}>Booking</Badge>
-        <Badge style={{ background: "hsl(140 60% 40%)", color: "white" }}><Sparkles className="h-3 w-3 mr-1 inline" /> Cleaning</Badge>
-        <Badge style={{ background: "hsl(40 90% 50%)", color: "white" }}>Owner</Badge>
-        <Badge style={{ background: "hsl(0 70% 50%)", color: "white" }}><Wrench className="h-3 w-3 mr-1 inline" /> Maintenance</Badge>
+      <div className="flex flex-wrap gap-2 items-center">
+        <Select value={propFilter} onValueChange={setPropFilter}>
+          <SelectTrigger className="w-[220px]"><SelectValue placeholder="All properties" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All properties</SelectItem>
+            {properties.map((p: any) => <SelectItem key={p.id} value={p.id}>{p.title || p.address}</SelectItem>)}
+          </SelectContent>
+        </Select>
+        <div className="flex gap-1.5">
+          <Button size="sm" variant={showKinds.includes("booking") ? "default" : "outline"} onClick={() => toggleKind("booking")} className="gap-1">
+            <Badge style={{ background: "hsl(220 80% 55%)" }} className="h-2.5 w-2.5 rounded-full p-0" /> Bookings
+          </Button>
+          <Button size="sm" variant={showKinds.includes("cleaning") ? "default" : "outline"} onClick={() => toggleKind("cleaning")} className="gap-1">
+            <Badge style={{ background: "hsl(140 60% 40%)" }} className="h-2.5 w-2.5 rounded-full p-0" /> Cleaning
+          </Button>
+          <Button size="sm" variant={showKinds.includes("owner") ? "default" : "outline"} onClick={() => toggleKind("owner")} className="gap-1">
+            <Badge style={{ background: "hsl(40 90% 50%)" }} className="h-2.5 w-2.5 rounded-full p-0" /> Owner
+          </Button>
+          <Button size="sm" variant={showKinds.includes("maintenance") ? "default" : "outline"} onClick={() => toggleKind("maintenance")} className="gap-1">
+            <Badge style={{ background: "hsl(0 70% 50%)" }} className="h-2.5 w-2.5 rounded-full p-0" /> Maintenance
+          </Button>
+        </div>
       </div>
 
       <Card className="border-0 shadow-card overflow-hidden">
