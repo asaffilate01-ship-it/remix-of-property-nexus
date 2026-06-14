@@ -7,6 +7,18 @@ import { toast } from "sonner";
 
 export type ListingPhoto = { url: string; path?: string | null; room?: string | null };
 
+function extractListingPhotoPath(url: string): string | null {
+  if (!url) return null;
+  if (url.startsWith("listing-photos://")) return decodeURIComponent(url.slice("listing-photos://".length));
+  const match = url.match(/\/storage\/v1\/object\/(?:sign|public|authenticated)\/listing-photos\/([^?#]+)/);
+  if (match?.[1]) return decodeURIComponent(match[1]);
+  return null;
+}
+
+function toListingPhotoRef(path: string): string {
+  return `listing-photos://${encodeURIComponent(path)}`;
+}
+
 // Renders a storage-backed thumbnail by re-signing on demand, so a long-lived
 // signed URL from upload time never blocks the preview.
 function Thumb({ photo }: { photo: ListingPhoto }) {
@@ -14,8 +26,9 @@ function Thumb({ photo }: { photo: ListingPhoto }) {
   const [failed, setFailed] = useState(false);
   useEffect(() => {
     let alive = true;
-    if (photo.path) {
-      supabase.storage.from("listing-photos").createSignedUrl(photo.path, 3600)
+    const path = photo.path ?? extractListingPhotoPath(photo.url);
+    if (path) {
+      supabase.storage.from("listing-photos").createSignedUrl(path, 3600)
         .then(({ data, error }) => {
           if (!alive) return;
           if (error || !data?.signedUrl) { setFailed(true); return; }
@@ -42,8 +55,6 @@ type Props = {
   roomOptions?: string[];
   onUploadingChange?: (uploading: boolean) => void;
 };
-
-const LONG_TTL = 60 * 60 * 24 * 365; // 1 year (max Supabase signed-URL TTL on most plans)
 
 export function PhotoUploader({ photos, onChange, coverIndex, onCoverChange, roomOptions = [], onUploadingChange }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
@@ -74,13 +85,7 @@ export function PhotoUploader({ photos, onChange, coverIndex, onCoverChange, roo
           toast.error(`Upload failed: ${upErr.message}`);
           continue;
         }
-        const { data: signed, error: sErr } = await supabase.storage.from("listing-photos").createSignedUrl(path, LONG_TTL);
-        if (sErr || !signed?.signedUrl) {
-          console.error("[PhotoUploader] signed-url failed", sErr);
-          toast.error(`Couldn't preview ${file.name}: ${sErr?.message ?? "no URL"}`);
-          continue;
-        }
-        added.push({ url: signed.signedUrl, path, room: null });
+        added.push({ url: toListingPhotoRef(path), path, room: null });
       }
       if (added.length) {
         onChange([...photos, ...added]);
