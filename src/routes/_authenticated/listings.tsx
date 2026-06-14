@@ -229,7 +229,7 @@ function ListingsPage() {
       }
       toast.success("Listing created");
     }
-    setOpen(false); setForm(empty); load();
+    setOpen(false); setForm(empty); setFilter("all"); await load();
     setSaving(false);
   };
 
