@@ -126,6 +126,8 @@ export function GeoMediaUpload({ workOrderId, propertyId, visitId, stage, label,
         await save({ data: {
           work_order_id: workOrderId ?? null,
           property_id: propertyId ?? null,
+          visit_id: visitId ?? null,
+          stage: stage ?? null,
           kind: isVideo ? "video" : "photo",
           storage_path: path,
           mime_type: mime,
