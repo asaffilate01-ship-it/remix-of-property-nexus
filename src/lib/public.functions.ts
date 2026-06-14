@@ -80,7 +80,7 @@ export const fetchListings = createServerFn({ method: "GET" })
     else if (data?.city && radius > 0) centroid = await geocodeUK(data.city);
 
     let query = supabaseAdmin.from("listings")
-      .select("id, slug, title, listing_type, purpose, price, price_qualifier, currency, bedrooms, bathrooms, receptions, city, postcode, latitude, longitude, cover_image, is_hmo, features, epc_rating, tenure, floor_area_sqft, status, agency_id, created_at, view_count, verified, photos_verified, last_verified_at, properties!inner(property_type)")
+      .select("id, slug, title, listing_type, purpose, price, price_qualifier, currency, bedrooms, bathrooms, receptions, city, postcode, latitude, longitude, cover_image, is_hmo, features, epc_rating, tenure, floor_area_sqft, status, agency_id, created_at, view_count, verified, photos_verified, last_verified_at, properties(property_type)")
       .in("status", ["published", "under_offer", "let_agreed"])
       .eq("marketplace_publish", true)
       .limit(centroid && radius ? 500 : 120);

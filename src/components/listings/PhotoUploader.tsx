@@ -10,6 +10,7 @@ export type ListingPhoto = { url: string; path?: string | null; room?: string | 
 const MAX_PARALLEL_UPLOADS = 3;
 const MAX_IMAGE_EDGE = 2200;
 const COMPRESS_AFTER_BYTES = 2 * 1024 * 1024;
+const SIGN_RETRY_DELAYS_MS = [0, 300, 900, 1800];
 
 function extractListingPhotoPath(url: string): string | null {
   if (!url) return null;
@@ -95,13 +96,19 @@ function Thumb({ photo }: { photo: ListingPhoto }) {
     let alive = true;
     const path = photo.path ?? extractListingPhotoPath(photo.url);
     if (path) {
-      supabase.storage.from("listing-photos").createSignedUrl(path, 3600)
-        .then(({ data, error }) => {
+      const signWithRetry = async () => {
+        for (const delay of SIGN_RETRY_DELAYS_MS) {
+          if (delay > 0) await new Promise((resolve) => setTimeout(resolve, delay));
+          const { data, error } = await supabase.storage.from("listing-photos").createSignedUrl(path, 3600);
           if (!alive) return;
-          if (error || !data?.signedUrl) { setFailed(true); return; }
-          setSrc(data.signedUrl);
-        })
-        .catch(() => { if (alive) setFailed(true); });
+          if (!error && data?.signedUrl) {
+            setSrc(data.signedUrl);
+            return;
+          }
+        }
+        if (alive) setFailed(true);
+      };
+      void signWithRetry();
     } else {
       setSrc(photo.url || null);
     }
