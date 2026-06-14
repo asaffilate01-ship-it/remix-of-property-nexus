@@ -84,7 +84,9 @@ import { Route as AuthenticatedAiCopyRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedAgencyRouteImport } from './routes/_authenticated/agency'
 import { Route as AuthenticatedAutomationsIndexRouteImport } from './routes/_authenticated/automations.index'
 import { Route as ApiPublicReferencingWebhookRouteImport } from './routes/api/public/referencing-webhook'
+import { Route as AuthenticatedWorkOrdersIdRouteImport } from './routes/_authenticated/work-orders.$id'
 import { Route as AuthenticatedTenanciesIdRouteImport } from './routes/_authenticated/tenancies.$id'
+import { Route as AuthenticatedLeadsIdRouteImport } from './routes/_authenticated/leads.$id'
 import { Route as AuthenticatedAutomationsRunsRouteImport } from './routes/_authenticated/automations.runs'
 import { Route as AuthenticatedAutomationsIdRouteImport } from './routes/_authenticated/automations.$id'
 import { Route as ApiPublicHooksProcessTracksRouteImport } from './routes/api/public/hooks/process-tracks'
@@ -476,12 +478,23 @@ const ApiPublicReferencingWebhookRoute =
     path: '/api/public/referencing-webhook',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AuthenticatedWorkOrdersIdRoute =
+  AuthenticatedWorkOrdersIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedWorkOrdersRoute,
+  } as any)
 const AuthenticatedTenanciesIdRoute =
   AuthenticatedTenanciesIdRouteImport.update({
     id: '/$id',
     path: '/$id',
     getParentRoute: () => AuthenticatedTenanciesRoute,
   } as any)
+const AuthenticatedLeadsIdRoute = AuthenticatedLeadsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AuthenticatedLeadsRoute,
+} as any)
 const AuthenticatedAutomationsRunsRoute =
   AuthenticatedAutomationsRunsRouteImport.update({
     id: '/runs',
@@ -559,7 +572,7 @@ export interface FileRoutesByFullPath {
   '/hmo': typeof AuthenticatedHmoRoute
   '/holiday-lets': typeof AuthenticatedHolidayLetsRoute
   '/inspections': typeof AuthenticatedInspectionsRoute
-  '/leads': typeof AuthenticatedLeadsRoute
+  '/leads': typeof AuthenticatedLeadsRouteWithChildren
   '/leasehold': typeof AuthenticatedLeaseholdRoute
   '/listings': typeof AuthenticatedListingsRoute
   '/media': typeof AuthenticatedMediaRoute
@@ -581,7 +594,7 @@ export interface FileRoutesByFullPath {
   '/tenancies': typeof AuthenticatedTenanciesRouteWithChildren
   '/vendor-portal': typeof AuthenticatedVendorPortalRoute
   '/viewings': typeof AuthenticatedViewingsRoute
-  '/work-orders': typeof AuthenticatedWorkOrdersRoute
+  '/work-orders': typeof AuthenticatedWorkOrdersRouteWithChildren
   '/agencies/$slug': typeof AgenciesSlugRoute
   '/area-guides/$slug': typeof AreaGuidesSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -594,7 +607,9 @@ export interface FileRoutesByFullPath {
   '/marketplace/': typeof MarketplaceIndexRoute
   '/automations/$id': typeof AuthenticatedAutomationsIdRoute
   '/automations/runs': typeof AuthenticatedAutomationsRunsRoute
+  '/leads/$id': typeof AuthenticatedLeadsIdRoute
   '/tenancies/$id': typeof AuthenticatedTenanciesIdRoute
+  '/work-orders/$id': typeof AuthenticatedWorkOrdersIdRoute
   '/api/public/referencing-webhook': typeof ApiPublicReferencingWebhookRoute
   '/automations/': typeof AuthenticatedAutomationsIndexRoute
   '/listing/$id/window-card': typeof AuthenticatedListingIdWindowCardRoute
@@ -639,7 +654,7 @@ export interface FileRoutesByTo {
   '/hmo': typeof AuthenticatedHmoRoute
   '/holiday-lets': typeof AuthenticatedHolidayLetsRoute
   '/inspections': typeof AuthenticatedInspectionsRoute
-  '/leads': typeof AuthenticatedLeadsRoute
+  '/leads': typeof AuthenticatedLeadsRouteWithChildren
   '/leasehold': typeof AuthenticatedLeaseholdRoute
   '/listings': typeof AuthenticatedListingsRoute
   '/media': typeof AuthenticatedMediaRoute
@@ -661,7 +676,7 @@ export interface FileRoutesByTo {
   '/tenancies': typeof AuthenticatedTenanciesRouteWithChildren
   '/vendor-portal': typeof AuthenticatedVendorPortalRoute
   '/viewings': typeof AuthenticatedViewingsRoute
-  '/work-orders': typeof AuthenticatedWorkOrdersRoute
+  '/work-orders': typeof AuthenticatedWorkOrdersRouteWithChildren
   '/agencies/$slug': typeof AgenciesSlugRoute
   '/area-guides/$slug': typeof AreaGuidesSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -674,7 +689,9 @@ export interface FileRoutesByTo {
   '/marketplace': typeof MarketplaceIndexRoute
   '/automations/$id': typeof AuthenticatedAutomationsIdRoute
   '/automations/runs': typeof AuthenticatedAutomationsRunsRoute
+  '/leads/$id': typeof AuthenticatedLeadsIdRoute
   '/tenancies/$id': typeof AuthenticatedTenanciesIdRoute
+  '/work-orders/$id': typeof AuthenticatedWorkOrdersIdRoute
   '/api/public/referencing-webhook': typeof ApiPublicReferencingWebhookRoute
   '/automations': typeof AuthenticatedAutomationsIndexRoute
   '/listing/$id/window-card': typeof AuthenticatedListingIdWindowCardRoute
@@ -724,7 +741,7 @@ export interface FileRoutesById {
   '/_authenticated/hmo': typeof AuthenticatedHmoRoute
   '/_authenticated/holiday-lets': typeof AuthenticatedHolidayLetsRoute
   '/_authenticated/inspections': typeof AuthenticatedInspectionsRoute
-  '/_authenticated/leads': typeof AuthenticatedLeadsRoute
+  '/_authenticated/leads': typeof AuthenticatedLeadsRouteWithChildren
   '/_authenticated/leasehold': typeof AuthenticatedLeaseholdRoute
   '/_authenticated/listings': typeof AuthenticatedListingsRoute
   '/_authenticated/media': typeof AuthenticatedMediaRoute
@@ -746,7 +763,7 @@ export interface FileRoutesById {
   '/_authenticated/tenancies': typeof AuthenticatedTenanciesRouteWithChildren
   '/_authenticated/vendor-portal': typeof AuthenticatedVendorPortalRoute
   '/_authenticated/viewings': typeof AuthenticatedViewingsRoute
-  '/_authenticated/work-orders': typeof AuthenticatedWorkOrdersRoute
+  '/_authenticated/work-orders': typeof AuthenticatedWorkOrdersRouteWithChildren
   '/agencies/$slug': typeof AgenciesSlugRoute
   '/area-guides/$slug': typeof AreaGuidesSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -759,7 +776,9 @@ export interface FileRoutesById {
   '/marketplace/': typeof MarketplaceIndexRoute
   '/_authenticated/automations/$id': typeof AuthenticatedAutomationsIdRoute
   '/_authenticated/automations/runs': typeof AuthenticatedAutomationsRunsRoute
+  '/_authenticated/leads/$id': typeof AuthenticatedLeadsIdRoute
   '/_authenticated/tenancies/$id': typeof AuthenticatedTenanciesIdRoute
+  '/_authenticated/work-orders/$id': typeof AuthenticatedWorkOrdersIdRoute
   '/api/public/referencing-webhook': typeof ApiPublicReferencingWebhookRoute
   '/_authenticated/automations/': typeof AuthenticatedAutomationsIndexRoute
   '/_authenticated/listing/$id/window-card': typeof AuthenticatedListingIdWindowCardRoute
@@ -844,7 +863,9 @@ export interface FileRouteTypes {
     | '/marketplace/'
     | '/automations/$id'
     | '/automations/runs'
+    | '/leads/$id'
     | '/tenancies/$id'
+    | '/work-orders/$id'
     | '/api/public/referencing-webhook'
     | '/automations/'
     | '/listing/$id/window-card'
@@ -924,7 +945,9 @@ export interface FileRouteTypes {
     | '/marketplace'
     | '/automations/$id'
     | '/automations/runs'
+    | '/leads/$id'
     | '/tenancies/$id'
+    | '/work-orders/$id'
     | '/api/public/referencing-webhook'
     | '/automations'
     | '/listing/$id/window-card'
@@ -1008,7 +1031,9 @@ export interface FileRouteTypes {
     | '/marketplace/'
     | '/_authenticated/automations/$id'
     | '/_authenticated/automations/runs'
+    | '/_authenticated/leads/$id'
     | '/_authenticated/tenancies/$id'
+    | '/_authenticated/work-orders/$id'
     | '/api/public/referencing-webhook'
     | '/_authenticated/automations/'
     | '/_authenticated/listing/$id/window-card'
@@ -1577,12 +1602,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicReferencingWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/work-orders/$id': {
+      id: '/_authenticated/work-orders/$id'
+      path: '/$id'
+      fullPath: '/work-orders/$id'
+      preLoaderRoute: typeof AuthenticatedWorkOrdersIdRouteImport
+      parentRoute: typeof AuthenticatedWorkOrdersRoute
+    }
     '/_authenticated/tenancies/$id': {
       id: '/_authenticated/tenancies/$id'
       path: '/$id'
       fullPath: '/tenancies/$id'
       preLoaderRoute: typeof AuthenticatedTenanciesIdRouteImport
       parentRoute: typeof AuthenticatedTenanciesRoute
+    }
+    '/_authenticated/leads/$id': {
+      id: '/_authenticated/leads/$id'
+      path: '/$id'
+      fullPath: '/leads/$id'
+      preLoaderRoute: typeof AuthenticatedLeadsIdRouteImport
+      parentRoute: typeof AuthenticatedLeadsRoute
     }
     '/_authenticated/automations/runs': {
       id: '/_authenticated/automations/runs'
@@ -1647,6 +1686,17 @@ const AuthenticatedAutomationsRouteWithChildren =
     AuthenticatedAutomationsRouteChildren,
   )
 
+interface AuthenticatedLeadsRouteChildren {
+  AuthenticatedLeadsIdRoute: typeof AuthenticatedLeadsIdRoute
+}
+
+const AuthenticatedLeadsRouteChildren: AuthenticatedLeadsRouteChildren = {
+  AuthenticatedLeadsIdRoute: AuthenticatedLeadsIdRoute,
+}
+
+const AuthenticatedLeadsRouteWithChildren =
+  AuthenticatedLeadsRoute._addFileChildren(AuthenticatedLeadsRouteChildren)
+
 interface AuthenticatedTenanciesRouteChildren {
   AuthenticatedTenanciesIdRoute: typeof AuthenticatedTenanciesIdRoute
 }
@@ -1659,6 +1709,20 @@ const AuthenticatedTenanciesRouteChildren: AuthenticatedTenanciesRouteChildren =
 const AuthenticatedTenanciesRouteWithChildren =
   AuthenticatedTenanciesRoute._addFileChildren(
     AuthenticatedTenanciesRouteChildren,
+  )
+
+interface AuthenticatedWorkOrdersRouteChildren {
+  AuthenticatedWorkOrdersIdRoute: typeof AuthenticatedWorkOrdersIdRoute
+}
+
+const AuthenticatedWorkOrdersRouteChildren: AuthenticatedWorkOrdersRouteChildren =
+  {
+    AuthenticatedWorkOrdersIdRoute: AuthenticatedWorkOrdersIdRoute,
+  }
+
+const AuthenticatedWorkOrdersRouteWithChildren =
+  AuthenticatedWorkOrdersRoute._addFileChildren(
+    AuthenticatedWorkOrdersRouteChildren,
   )
 
 interface AuthenticatedRouteRouteChildren {
@@ -1681,7 +1745,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedHmoRoute: typeof AuthenticatedHmoRoute
   AuthenticatedHolidayLetsRoute: typeof AuthenticatedHolidayLetsRoute
   AuthenticatedInspectionsRoute: typeof AuthenticatedInspectionsRoute
-  AuthenticatedLeadsRoute: typeof AuthenticatedLeadsRoute
+  AuthenticatedLeadsRoute: typeof AuthenticatedLeadsRouteWithChildren
   AuthenticatedLeaseholdRoute: typeof AuthenticatedLeaseholdRoute
   AuthenticatedListingsRoute: typeof AuthenticatedListingsRoute
   AuthenticatedMediaRoute: typeof AuthenticatedMediaRoute
@@ -1703,7 +1767,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedTenanciesRoute: typeof AuthenticatedTenanciesRouteWithChildren
   AuthenticatedVendorPortalRoute: typeof AuthenticatedVendorPortalRoute
   AuthenticatedViewingsRoute: typeof AuthenticatedViewingsRoute
-  AuthenticatedWorkOrdersRoute: typeof AuthenticatedWorkOrdersRoute
+  AuthenticatedWorkOrdersRoute: typeof AuthenticatedWorkOrdersRouteWithChildren
   AuthenticatedListingIdWindowCardRoute: typeof AuthenticatedListingIdWindowCardRoute
 }
 
@@ -1728,7 +1792,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedHmoRoute: AuthenticatedHmoRoute,
   AuthenticatedHolidayLetsRoute: AuthenticatedHolidayLetsRoute,
   AuthenticatedInspectionsRoute: AuthenticatedInspectionsRoute,
-  AuthenticatedLeadsRoute: AuthenticatedLeadsRoute,
+  AuthenticatedLeadsRoute: AuthenticatedLeadsRouteWithChildren,
   AuthenticatedLeaseholdRoute: AuthenticatedLeaseholdRoute,
   AuthenticatedListingsRoute: AuthenticatedListingsRoute,
   AuthenticatedMediaRoute: AuthenticatedMediaRoute,
@@ -1750,7 +1814,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedTenanciesRoute: AuthenticatedTenanciesRouteWithChildren,
   AuthenticatedVendorPortalRoute: AuthenticatedVendorPortalRoute,
   AuthenticatedViewingsRoute: AuthenticatedViewingsRoute,
-  AuthenticatedWorkOrdersRoute: AuthenticatedWorkOrdersRoute,
+  AuthenticatedWorkOrdersRoute: AuthenticatedWorkOrdersRouteWithChildren,
   AuthenticatedListingIdWindowCardRoute: AuthenticatedListingIdWindowCardRoute,
 }
 

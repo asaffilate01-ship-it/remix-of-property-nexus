@@ -25,7 +25,8 @@ export const Route = createFileRoute("/_authenticated/leads/$id")({
   notFoundComponent: () => <div className="p-6">Lead not found.</div>,
 });
 
-const STATUS_OPTIONS = ["new", "contacted", "qualified", "viewing_booked", "offer", "won", "lost"] as const;
+type LeadStatus = "new" | "contacted" | "qualified" | "viewing_booked" | "offer" | "closed_won" | "closed_lost";
+const STATUS_OPTIONS: LeadStatus[] = ["new", "contacted", "qualified", "viewing_booked", "offer", "closed_won", "closed_lost"];
 
 function LeadDetail() {
   const { id } = Route.useParams();
@@ -45,7 +46,7 @@ function LeadDetail() {
   });
 
   const updateStatus = useMutation({
-    mutationFn: async (status: string) => {
+    mutationFn: async (status: LeadStatus) => {
       const { error } = await supabase.from("leads").update({ status }).eq("id", id);
       if (error) throw error;
     },
@@ -83,7 +84,7 @@ function LeadDetail() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Select value={data.status} onValueChange={(v) => updateStatus.mutate(v)}>
+          <Select value={data.status} onValueChange={(v) => updateStatus.mutate(v as LeadStatus)}>
             <SelectTrigger className="w-44 h-9"><SelectValue /></SelectTrigger>
             <SelectContent>
               {STATUS_OPTIONS.map((s) => (
