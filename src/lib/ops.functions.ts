@@ -234,10 +234,14 @@ export const saveJobMedia = createServerFn({ method: "POST" })
 
 export const signMediaUrl = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(z.object({ path: z.string().min(1).max(500), expires: z.number().int().min(60).max(3600).optional() }))
+  .inputValidator(z.object({
+    bucket: z.enum(["job-media", "listing-photos"]).optional(),
+    path: z.string().min(1).max(500),
+    expires: z.number().int().min(60).max(3600).optional(),
+  }))
   .handler(async ({ data, context }) => {
     const { data: signed, error } = await context.supabase.storage
-      .from("job-media")
+      .from(data.bucket ?? "job-media")
       .createSignedUrl(data.path, data.expires ?? 600);
     if (error) throw new Error(error.message);
     return { url: signed.signedUrl };
