@@ -186,11 +186,24 @@ export const deleteSeller = createServerFn({ method: "POST" })
 export const fetchTemplates = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const [templates, instances] = await Promise.all([
+    const [templates, instances, properties, tenancies, contacts, bookings, signatures] = await Promise.all([
       context.supabase.from("templates").select("*").eq("active", true).order("category").order("name"),
       context.supabase.from("template_instances").select("*").order("created_at", { ascending: false }).limit(100),
+      context.supabase.from("properties").select("id, address, city, title").order("address"),
+      context.supabase.from("tenancies").select("id, tenant_name, property_id"),
+      context.supabase.from("contacts").select("id, full_name, email, contact_type"),
+      context.supabase.from("holiday_bookings").select("id, guest_name, property_id, check_in, check_out"),
+      context.supabase.from("template_signatures").select("instance_id, signer_name, signer_role, status, token, signed_at"),
     ]);
-    return { templates: templates.data ?? [], instances: instances.data ?? [] };
+    return {
+      templates: templates.data ?? [],
+      instances: instances.data ?? [],
+      properties: properties.data ?? [],
+      tenancies: tenancies.data ?? [],
+      contacts: contacts.data ?? [],
+      bookings: bookings.data ?? [],
+      signatures: signatures.data ?? [],
+    };
   });
 
 const instanceSchema = z.object({
