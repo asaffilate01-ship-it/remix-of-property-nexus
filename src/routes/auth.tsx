@@ -36,9 +36,15 @@ function AuthPage() {
   const demoLogin = async (acct: typeof DEMO_ACCOUNTS[number]) => {
     setBusy(true);
     try {
-      await ensureDemo({ data: undefined as never });
-      const { error } = await supabase.auth.signInWithPassword({ email: acct.email, password: acct.password });
-      if (error) throw error;
+      // Try sign-in first — demo accounts almost always already exist.
+      let { error } = await supabase.auth.signInWithPassword({ email: acct.email, password: acct.password });
+      if (error) {
+        // Seed accounts on the server, then retry once.
+        try { await ensureDemo({ data: undefined as never }); }
+        catch (seedErr) { console.warn("ensureDemoUsers failed", seedErr); }
+        ({ error } = await supabase.auth.signInWithPassword({ email: acct.email, password: acct.password }));
+        if (error) throw error;
+      }
       toast.success(`Signed in as ${acct.name}`);
       navigate({ to: "/dashboard" });
     } catch (e: unknown) {
