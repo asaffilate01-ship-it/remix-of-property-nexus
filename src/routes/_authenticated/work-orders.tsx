@@ -11,11 +11,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Plus, MapPin, Clock, AlertTriangle, Wrench, Camera } from "lucide-react";
+import { Plus, MapPin, Clock, AlertTriangle, Wrench, Camera, Link2, Copy } from "lucide-react";
 import { toast } from "sonner";
 import { fetchOpsData, saveWorkOrder, addWorkOrderUpdate } from "@/lib/ops.functions";
+import { createShareToken } from "@/lib/visits.functions";
 import { GeoMediaUpload } from "@/components/GeoMediaUpload";
 import { SignedMedia } from "@/components/SignedMedia";
+import { VisitPanel } from "@/components/VisitPanel";
 
 export const Route = createFileRoute("/_authenticated/work-orders")({ component: WorkOrdersPage });
 
