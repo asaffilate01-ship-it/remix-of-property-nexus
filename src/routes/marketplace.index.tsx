@@ -8,7 +8,7 @@ import { ListingCard } from "@/components/ListingCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
@@ -18,7 +18,8 @@ import { fetchListings, fetchMarketplaceMeta } from "@/lib/public.functions";
 import { saveSearch as saveSearchRemoteFn } from "@/lib/saved-searches.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
-import { Search, SlidersHorizontal, MapPin, Building2, Sparkles, X, ArrowUpDown, Bookmark, LayoutGrid, Map as MapIcon } from "lucide-react";
+import { Search, SlidersHorizontal, MapPin, Building2, Sparkles, X, ArrowUpDown, Bookmark, LayoutGrid, Map as MapIcon, ChevronRight, Columns2 } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { GoogleListingsMap } from "@/components/GoogleListingsMap";
 import { toast } from "sonner";
 
@@ -93,7 +94,9 @@ function MarketplacePage() {
   const [where, setWhere] = useState(s.postcode ?? s.city ?? "");
   const category: Category = s.category ?? "all";
   const sort: SortKey = s.sort ?? "newest";
-  const [view, setView] = useState<"grid" | "map">("grid");
+  const isMobile = useIsMobile();
+  const [view, setView] = useState<"grid" | "map" | "split">("grid");
+  useEffect(() => { setView(isMobile ? "grid" : "split"); }, [isMobile]);
 
   const setSearch = (patch: Partial<SearchParams>) => navigate({ search: (prev: SearchParams) => ({ ...prev, ...patch }) });
 
@@ -175,16 +178,33 @@ function MarketplacePage() {
       <main className="flex-1">
         <section className="brand-gradient relative overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.18),transparent_60%)]" />
-          <div className="container mx-auto px-4 py-10 sm:py-14 md:py-20 relative">
+          <div className="container mx-auto px-4 py-8 sm:py-12 md:py-16 relative">
             <div className="inline-flex items-center gap-2 rounded-full bg-white/10 text-white text-[11px] sm:text-xs font-medium px-3 py-1 backdrop-blur mb-4">
               <Sparkles className="h-3 w-3" /> Smarter than the portals
             </div>
-            <h1 className="font-display text-[28px] leading-[1.1] sm:text-4xl md:text-5xl font-bold mb-3 tracking-tight max-w-3xl text-white">
+            <h1 className="font-display text-[26px] leading-[1.1] sm:text-4xl md:text-5xl font-bold mb-2 tracking-tight max-w-3xl text-white">
               Find your next home, room or investment.
             </h1>
-            <p className="text-white/85 mb-6 md:mb-8 text-sm sm:text-base md:text-lg max-w-2xl">
+            <p className="text-white/85 mb-5 md:mb-6 text-sm sm:text-base md:text-lg max-w-2xl">
               Direct from verified UK agents and landlords. Zero spam, zero phantom listings.
             </p>
+
+            {/* Bayut-style purpose pills */}
+            <div className="inline-flex rounded-full bg-white/15 backdrop-blur p-1 mb-3 ring-1 ring-white/20">
+              {tabs.map((t) => {
+                const active = category === t.value;
+                return (
+                  <button
+                    key={t.value}
+                    type="button"
+                    onClick={() => setSearch({ category: t.value === "all" ? undefined : (t.value as Category) })}
+                    className={`px-3 sm:px-4 h-9 text-xs sm:text-sm font-semibold rounded-full transition-colors ${active ? "bg-white text-primary shadow-sm" : "text-white/90 hover:text-white"}`}
+                  >
+                    {t.label}
+                  </button>
+                );
+              })}
+            </div>
 
             <SearchBar
               q={q} setQ={setQ}
@@ -192,6 +212,35 @@ function MarketplacePage() {
               radius={s.radius ?? 0} setRadius={(r) => setSearch({ radius: r || undefined })}
               onSubmit={() => { setSearch({ q: q || undefined }); onSubmitWhere(); }}
             />
+
+            {/* Quick chips: property type + beds */}
+            <div className="mt-3 flex flex-wrap items-center gap-1.5">
+              <span className="text-[11px] uppercase tracking-wide text-white/70 font-semibold mr-1">Type</span>
+              {(["any","house","flat","studio","room","commercial"] as PropertyType[]).map((t) => {
+                const active = (s.property_type ?? "any") === t;
+                return (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => setSearch({ property_type: t === "any" ? undefined : t })}
+                    className={`h-7 px-2.5 rounded-full text-[11px] sm:text-xs font-medium capitalize border transition-colors ${active ? "bg-white text-primary border-white" : "bg-white/10 text-white border-white/30 hover:bg-white/20"}`}
+                  >{t === "any" ? "Any" : t}</button>
+                );
+              })}
+              <span className="text-[11px] uppercase tracking-wide text-white/70 font-semibold ml-2 mr-1">Beds</span>
+              {[0,1,2,3,4,5].map((n) => {
+                const active = (s.beds ?? 0) === n;
+                return (
+                  <button
+                    key={n}
+                    type="button"
+                    onClick={() => setSearch({ beds: n === 0 ? undefined : n })}
+                    className={`h-7 min-w-[2rem] px-2 rounded-full text-[11px] sm:text-xs font-semibold border transition-colors ${active ? "bg-white text-primary border-white" : "bg-white/10 text-white border-white/30 hover:bg-white/20"}`}
+                  >{n === 0 ? "Any" : `${n}+`}</button>
+                );
+              })}
+            </div>
+
             {data?.centroid && s.radius ? (
               <div className="mt-3 text-xs text-white/80">
                 Showing properties within {s.radius} miles of <strong>{data.centroid.label}</strong>
@@ -199,7 +248,7 @@ function MarketplacePage() {
             ) : null}
 
             {meta.data && (
-              <div className="mt-5 sm:mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs sm:text-sm text-white/90">
+              <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs sm:text-sm text-white/90">
                 <div className="inline-flex items-center gap-1.5"><Building2 className="h-4 w-4" /> {meta.data.total.toLocaleString()} listings</div>
                 <div className="inline-flex items-center gap-1.5"><MapPin className="h-4 w-4" /> {meta.data.cityCount} towns & cities</div>
                 <div className="hidden sm:block">{meta.data.agencyCount} verified agencies</div>
@@ -224,38 +273,59 @@ function MarketplacePage() {
           </section>
         )}
 
+        {/* Popular areas — Bayut-style recommended carousel */}
+        {meta.data && meta.data.topCities && meta.data.topCities.length > 0 && !s.city && !s.postcode && (
+          <section className="container mx-auto px-4 pt-6 sm:pt-8">
+            <div className="flex items-baseline justify-between mb-3">
+              <h2 className="font-display text-lg sm:text-xl font-semibold tracking-tight">Popular areas in the UK</h2>
+              <Link to="/area-guides" className="text-xs sm:text-sm text-primary inline-flex items-center gap-1 hover:underline">All areas <ChevronRight className="h-3.5 w-3.5" /></Link>
+            </div>
+            <div className="flex gap-3 overflow-x-auto no-scrollbar -mx-4 px-4 pb-2 snap-x snap-mandatory">
+              {meta.data.topCities.map((c) => (
+                <button
+                  key={c.name}
+                  type="button"
+                  onClick={() => { setWhere(c.name); setSearch({ city: c.name, postcode: undefined }); }}
+                  className="snap-start group relative shrink-0 w-[180px] sm:w-[220px] aspect-[4/3] rounded-2xl overflow-hidden border bg-muted text-left hover:shadow-xl transition-all"
+                >
+                  {c.cover ? (
+                    <img src={c.cover} alt={c.name} className="absolute inset-0 h-full w-full object-cover group-hover:scale-105 transition duration-500" loading="lazy" />
+                  ) : <div className="absolute inset-0 brand-gradient opacity-40" />}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                  <div className="absolute bottom-0 inset-x-0 p-3 text-white">
+                    <div className="font-display font-semibold text-base sm:text-lg leading-tight">{c.name}</div>
+                    <div className="text-[11px] sm:text-xs opacity-90">{c.count} listing{c.count === 1 ? "" : "s"}</div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </section>
+        )}
+
         <section className="container mx-auto px-4 py-5 sm:py-6">
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <Tabs
-              value={category}
-              onValueChange={(v) => setSearch({ category: v === "all" ? undefined : (v as Category) })}
-              className="-mx-4 md:mx-0"
-            >
-              <div className="overflow-x-auto no-scrollbar px-4 md:px-0">
-                <TabsList className="inline-flex w-auto">
-                  {tabs.map((t) => <TabsTrigger key={t.value} value={t.value} className="whitespace-nowrap">{t.label}</TabsTrigger>)}
-                </TabsList>
-              </div>
-            </Tabs>
+            <div className="text-xs sm:text-sm text-muted-foreground">
+              {data?.listings.length ?? 0} listing{(data?.listings.length ?? 0) === 1 ? "" : "s"}{isFetching ? " · updating…" : ""}
+              {(s.city || s.postcode) && <span className="ml-1">in <strong className="text-foreground">{s.postcode ?? s.city}</strong></span>}
+            </div>
 
             <div className="flex items-center gap-2">
               <div className="hidden sm:inline-flex rounded-md border bg-card p-0.5">
-                <button
-                  type="button"
-                  onClick={() => setView("grid")}
-                  className={`h-8 px-2.5 rounded inline-flex items-center text-xs font-medium transition-colors ${view === "grid" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
-                  aria-label="Grid view"
-                >
-                  <LayoutGrid className="h-3.5 w-3.5 sm:mr-1" /><span className="hidden md:inline">Grid</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setView("map")}
-                  className={`h-8 px-2.5 rounded inline-flex items-center text-xs font-medium transition-colors ${view === "map" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
-                  aria-label="Map view"
-                >
-                  <MapIcon className="h-3.5 w-3.5 sm:mr-1" /><span className="hidden md:inline">Map</span>
-                </button>
+                {([
+                  { v: "grid", label: "Grid", icon: LayoutGrid },
+                  { v: "split", label: "Split", icon: Columns2 },
+                  { v: "map", label: "Map", icon: MapIcon },
+                ] as const).map((opt) => (
+                  <button
+                    key={opt.v}
+                    type="button"
+                    onClick={() => setView(opt.v)}
+                    className={`h-8 px-2.5 rounded inline-flex items-center text-xs font-medium transition-colors ${view === opt.v ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                    aria-label={`${opt.label} view`}
+                  >
+                    <opt.icon className="h-3.5 w-3.5 sm:mr-1" /><span className="hidden lg:inline">{opt.label}</span>
+                  </button>
+                ))}
               </div>
               <FiltersSheet s={s} setSearch={setSearch} category={category} />
               <Select value={sort} onValueChange={(v) => setSearch({ sort: v as SortKey })}>
@@ -285,9 +355,9 @@ function MarketplacePage() {
           )}
         </section>
 
-        <section className="container mx-auto px-4 pb-16">
+        <section className={view === "split" ? "px-4 pb-16" : "container mx-auto px-4 pb-16"}>
           {isLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            <div className="container mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {Array.from({ length: 6 }).map((_, i) => (
                 <Card key={i} className="border-0 shadow-card overflow-hidden animate-pulse">
                   <div className="aspect-[4/3] bg-muted" />
@@ -300,18 +370,15 @@ function MarketplacePage() {
               ))}
             </div>
           ) : data?.listings.length ? (
-            <>
-              <div className="text-xs sm:text-sm text-muted-foreground mb-4">
-                {data.listings.length} listing{data.listings.length === 1 ? "" : "s"}{isFetching ? " · updating…" : ""}
+            view === "map" ? (
+              <div className="container mx-auto"><MapView listings={data.listings} /></div>
+            ) : view === "split" ? (
+              <SplitView listings={data.listings} />
+            ) : (
+              <div className="container mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                {data.listings.map((l) => <ListingCard key={l.id} l={l} />)}
               </div>
-              {view === "map" ? (
-                <MapView listings={data.listings} />
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                  {data.listings.map((l) => <ListingCard key={l.id} l={l} />)}
-                </div>
-              )}
-            </>
+            )
           ) : (
             <div className="text-center py-16 sm:py-20">
               <div className="mx-auto h-14 w-14 rounded-2xl bg-muted flex items-center justify-center mb-3"><Search className="h-6 w-6 text-muted-foreground" /></div>
@@ -327,6 +394,21 @@ function MarketplacePage() {
     </div>
   );
 }
+
+function SplitView({ listings }: { listings: MapListing[] }) {
+  return (
+    <div className="mx-auto max-w-[1600px] grid lg:grid-cols-[minmax(0,1fr)_minmax(420px,46%)] gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:max-h-[calc(100vh-180px)] lg:overflow-y-auto pr-1">
+        {listings.map((l) => <ListingCard key={l.id} l={l as never} />)}
+      </div>
+      <div className="hidden lg:block lg:sticky lg:top-20 lg:self-start lg:h-[calc(100vh-180px)] rounded-2xl overflow-hidden border bg-muted">
+        <GoogleListingsMap listings={listings} />
+      </div>
+    </div>
+  );
+}
+
+
 
 function SearchBar({ q, setQ, where, setWhere, radius, setRadius, onSubmit }: { q: string; setQ: (v: string) => void; where: string; setWhere: (v: string) => void; radius: number; setRadius: (r: number) => void; onSubmit: () => void }) {
   return (
