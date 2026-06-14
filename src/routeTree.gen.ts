@@ -14,6 +14,7 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SavedSearchesRouteImport } from './routes/saved-searches'
 import { Route as ReferencingRouteImport } from './routes/referencing'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PlatformRouteImport } from './routes/platform'
 import { Route as MortgageRouteImport } from './routes/mortgage'
 import { Route as MarketplaceRouteImport } from './routes/marketplace'
@@ -102,6 +103,11 @@ const ReferencingRoute = ReferencingRouteImport.update({
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PlatformRoute = PlatformRouteImport.update({
@@ -449,6 +455,7 @@ export interface FileRoutesByFullPath {
   '/marketplace': typeof MarketplaceRouteWithChildren
   '/mortgage': typeof MortgageRoute
   '/platform': typeof PlatformRoute
+  '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/referencing': typeof ReferencingRoute
   '/saved-searches': typeof SavedSearchesRoute
@@ -517,6 +524,7 @@ export interface FileRoutesByTo {
   '/for-landlords': typeof ForLandlordsRoute
   '/mortgage': typeof MortgageRoute
   '/platform': typeof PlatformRoute
+  '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/referencing': typeof ReferencingRoute
   '/saved-searches': typeof SavedSearchesRoute
@@ -589,6 +597,7 @@ export interface FileRoutesById {
   '/marketplace': typeof MarketplaceRouteWithChildren
   '/mortgage': typeof MortgageRoute
   '/platform': typeof PlatformRoute
+  '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/referencing': typeof ReferencingRoute
   '/saved-searches': typeof SavedSearchesRoute
@@ -661,6 +670,7 @@ export interface FileRouteTypes {
     | '/marketplace'
     | '/mortgage'
     | '/platform'
+    | '/pricing'
     | '/privacy'
     | '/referencing'
     | '/saved-searches'
@@ -729,6 +739,7 @@ export interface FileRouteTypes {
     | '/for-landlords'
     | '/mortgage'
     | '/platform'
+    | '/pricing'
     | '/privacy'
     | '/referencing'
     | '/saved-searches'
@@ -800,6 +811,7 @@ export interface FileRouteTypes {
     | '/marketplace'
     | '/mortgage'
     | '/platform'
+    | '/pricing'
     | '/privacy'
     | '/referencing'
     | '/saved-searches'
@@ -872,6 +884,7 @@ export interface RootRouteChildren {
   MarketplaceRoute: typeof MarketplaceRouteWithChildren
   MortgageRoute: typeof MortgageRoute
   PlatformRoute: typeof PlatformRoute
+  PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
   ReferencingRoute: typeof ReferencingRoute
   SavedSearchesRoute: typeof SavedSearchesRoute
@@ -919,6 +932,13 @@ declare module '@tanstack/react-router' {
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/platform': {
@@ -1528,6 +1548,7 @@ const rootRouteChildren: RootRouteChildren = {
   MarketplaceRoute: MarketplaceRouteWithChildren,
   MortgageRoute: MortgageRoute,
   PlatformRoute: PlatformRoute,
+  PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
   ReferencingRoute: ReferencingRoute,
   SavedSearchesRoute: SavedSearchesRoute,
