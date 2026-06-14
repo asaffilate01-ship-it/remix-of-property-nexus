@@ -80,7 +80,7 @@ export const fetchListings = createServerFn({ method: "GET" })
     else if (data?.city && radius > 0) centroid = await geocodeUK(data.city);
 
     let query = supabaseAdmin.from("listings")
-      .select("id, slug, title, listing_type, purpose, price, price_qualifier, currency, bedrooms, bathrooms, receptions, city, postcode, latitude, longitude, cover_image, is_hmo, features, epc_rating, tenure, floor_area_sqft, status, agency_id, created_at, view_count, properties!inner(property_type)")
+      .select("id, slug, title, listing_type, purpose, price, price_qualifier, currency, bedrooms, bathrooms, receptions, city, postcode, latitude, longitude, cover_image, is_hmo, features, epc_rating, tenure, floor_area_sqft, status, agency_id, created_at, view_count, verified, photos_verified, last_verified_at, properties!inner(property_type)")
       .in("status", ["published", "under_offer", "let_agreed"])
       .eq("marketplace_publish", true)
       .limit(centroid && radius ? 500 : 120);
@@ -168,7 +168,7 @@ export const fetchListing = createServerFn({ method: "GET" })
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: row, error } = await supabaseAdmin.from("listings")
-      .select("*, agencies(id, name, slug, logo_url, phone, email, website, city), properties(property_type, listing_purpose)")
+      .select("*, agencies(id, name, slug, logo_url, phone, email, website, city, verified, rating, review_count, languages, specialties), properties(property_type, listing_purpose)")
       .eq("slug", data.slug)
       .maybeSingle();
     if (error) throw new Error(error.message);
@@ -176,7 +176,7 @@ export const fetchListing = createServerFn({ method: "GET" })
     await supabaseAdmin.from("listings").update({ view_count: (row.view_count ?? 0) + 1 }).eq("id", row.id);
 
     let similarQ = supabaseAdmin.from("listings")
-      .select("id, slug, title, listing_type, purpose, price, price_qualifier, currency, bedrooms, bathrooms, city, cover_image, is_hmo, created_at")
+      .select("id, slug, title, listing_type, purpose, price, price_qualifier, currency, bedrooms, bathrooms, city, cover_image, is_hmo, created_at, verified, photos_verified")
       .in("status", ["published", "under_offer", "let_agreed"])
       .eq("marketplace_publish", true)
       .neq("id", row.id)
@@ -190,11 +190,27 @@ export const fetchListing = createServerFn({ method: "GET" })
 export const fetchAgencies = createServerFn({ method: "GET" }).handler(async () => {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data, error } = await supabaseAdmin.from("agencies")
-    .select("id, name, slug, logo_url, description, city, cover_image")
+    .select("id, name, slug, logo_url, description, city, cover_image, verified, rating, review_count, languages, specialties")
     .eq("is_published", true)
+    .order("verified", { ascending: false })
+    .order("rating", { ascending: false, nullsFirst: false })
     .order("name");
   if (error) throw new Error(error.message);
-  return { agencies: data ?? [] };
+  const agencies = data ?? [];
+  // Count live listings per agency
+  const ids = agencies.map((a) => a.id);
+  const counts: Record<string, number> = {};
+  if (ids.length) {
+    const { data: rows } = await supabaseAdmin.from("listings")
+      .select("agency_id")
+      .in("agency_id", ids)
+      .in("status", ["published", "under_offer", "let_agreed"])
+      .eq("marketplace_publish", true);
+    for (const r of rows ?? []) {
+      if (r.agency_id) counts[r.agency_id] = (counts[r.agency_id] ?? 0) + 1;
+    }
+  }
+  return { agencies: agencies.map((a) => ({ ...a, listing_count: counts[a.id] ?? 0 })) };
 });
 
 export const fetchAgency = createServerFn({ method: "GET" })

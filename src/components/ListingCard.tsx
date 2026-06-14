@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Bed, Bath, MapPin } from "lucide-react";
 import { SaveListingButton } from "@/components/marketplace/SaveListingButton";
+import { VerifiedBadge } from "@/components/VerifiedBadge";
 
 export type ListingCardData = {
   id: string;
@@ -19,6 +20,8 @@ export type ListingCardData = {
   cover_image: string | null;
   is_hmo?: boolean;
   created_at?: string | null;
+  verified?: boolean | null;
+  photos_verified?: boolean | null;
 };
 
 const typeLabel: Record<string, string> = { sale: "For sale", rent: "To let", room: "HMO room" };
@@ -48,7 +51,11 @@ export function ListingCard({ l }: { l: ListingCardData }) {
               <Badge className="bg-card/95 text-foreground backdrop-blur border-0">{typeLabel[l.listing_type]}</Badge>
               {l.is_hmo && <Badge className="bg-accent text-accent-foreground border-0">HMO</Badge>}
             </div>
-            {isNew(l.created_at) && <Badge className="bg-success text-success-foreground border-0">New</Badge>}
+            <div className="flex flex-col items-end gap-1">
+              {isNew(l.created_at) && <Badge className="bg-success text-success-foreground border-0">New</Badge>}
+              {l.verified && <VerifiedBadge kind="verified" />}
+              {l.photos_verified && <VerifiedBadge kind="photos" />}
+            </div>
           </div>
         </div>
         <CardContent className="p-4 space-y-1.5">

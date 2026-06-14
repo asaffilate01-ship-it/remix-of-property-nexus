@@ -13,7 +13,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { fetchListing, submitLead } from "@/lib/public.functions";
-import { Bed, Bath, MapPin, Calendar, Ruler, Zap, Shield, ChevronLeft, Share2, Mail, Globe, Calculator, Sparkles, Home, Building2 } from "lucide-react";
+import { Bed, Bath, MapPin, Calendar, Ruler, Zap, Shield, ChevronLeft, Share2, Mail, Globe, Calculator, Sparkles, Home, Building2, Star } from "lucide-react";
+import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { PhoneReveal } from "@/components/PhoneReveal";
 import { GoogleListingsMap } from "@/components/GoogleListingsMap";
 
@@ -188,6 +189,8 @@ function ListingDetail() {
               {l.is_hmo && <Badge className="bg-accent text-accent-foreground">HMO</Badge>}
               {l.status !== "published" && <Badge variant="outline" className="capitalize">{l.status?.replace(/_/g, " ")}</Badge>}
               {l.epc_rating && <Badge variant="outline">EPC {l.epc_rating}</Badge>}
+              {l.verified && <VerifiedBadge kind="verified" />}
+              {l.photos_verified && <VerifiedBadge kind="photos" />}
             </div>
             <div className="flex flex-wrap items-baseline justify-between gap-3">
               <div>
@@ -273,7 +276,17 @@ function ListingDetail() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="text-xs text-muted-foreground">Listed by</div>
-                    <Link to="/agencies/$slug" params={{ slug: l.agencies.slug }} className="font-semibold hover:underline">{l.agencies.name}</Link>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <Link to="/agencies/$slug" params={{ slug: l.agencies.slug }} className="font-semibold hover:underline">{l.agencies.name}</Link>
+                      {l.agencies.verified && <VerifiedBadge kind="agency" compact />}
+                    </div>
+                    {l.agencies.rating != null && (
+                      <div className="mt-0.5 inline-flex items-center gap-1 text-xs">
+                        <Star className="h-3 w-3 fill-warning text-warning" />
+                        <span className="font-medium">{Number(l.agencies.rating).toFixed(1)}</span>
+                        <span className="text-muted-foreground">({l.agencies.review_count ?? 0} reviews)</span>
+                      </div>
+                    )}
                   </div>
                 </div>
                 <PhoneReveal
@@ -360,11 +373,18 @@ type ListingRecord = {
 };
 
 function KeyFacts({ l }: { l: ListingRecord }) {
+  const [units, setUnits] = useState<"sqft" | "sqm">("sqft");
+  const area = l.floor_area_sqft != null
+    ? units === "sqft"
+      ? `${Number(l.floor_area_sqft).toLocaleString()} sq ft`
+      : `${Math.round(Number(l.floor_area_sqft) * 0.092903).toLocaleString()} sq m`
+    : null;
+
   const facts = [
     { icon: Bed, label: "Bedrooms", value: l.bedrooms?.toString() },
     { icon: Bath, label: "Bathrooms", value: l.bathrooms?.toString() },
     { icon: Home, label: "Receptions", value: l.receptions?.toString() },
-    { icon: Ruler, label: "Floor area", value: l.floor_area_sqft ? `${Number(l.floor_area_sqft).toLocaleString()} sq ft` : null },
+    { icon: Ruler, label: "Floor area", value: area },
     { icon: Zap, label: "EPC rating", value: l.epc_rating },
     { icon: Shield, label: "Tenure", value: l.tenure?.replace(/_/g, " ") },
     { icon: Home, label: "Furnishing", value: l.furnished?.replace(/_/g, " ") },
@@ -376,14 +396,30 @@ function KeyFacts({ l }: { l: ListingRecord }) {
 
   if (!facts.length) return null;
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-      {facts.map((f, i) => (
-        <div key={i} className="rounded-xl border bg-card p-3">
-          <f.icon className="h-4 w-4 text-accent mb-1.5" />
-          <div className="text-xs text-muted-foreground">{f.label}</div>
-          <div className="font-semibold capitalize">{f.value}</div>
+    <div className="space-y-3">
+      {l.floor_area_sqft != null && (
+        <div className="flex justify-end">
+          <div className="inline-flex rounded-full border bg-muted p-0.5 text-xs">
+            <button
+              onClick={() => setUnits("sqft")}
+              className={`px-3 py-1 rounded-full transition ${units === "sqft" ? "bg-card shadow-sm font-medium" : "text-muted-foreground"}`}
+            >sq ft</button>
+            <button
+              onClick={() => setUnits("sqm")}
+              className={`px-3 py-1 rounded-full transition ${units === "sqm" ? "bg-card shadow-sm font-medium" : "text-muted-foreground"}`}
+            >sq m</button>
+          </div>
         </div>
-      ))}
+      )}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+        {facts.map((f, i) => (
+          <div key={i} className="rounded-xl border bg-card p-3">
+            <f.icon className="h-4 w-4 text-accent mb-1.5" />
+            <div className="text-xs text-muted-foreground">{f.label}</div>
+            <div className="font-semibold capitalize">{f.value}</div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

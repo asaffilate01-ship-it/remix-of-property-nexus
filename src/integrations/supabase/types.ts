@@ -26,15 +26,21 @@ export type Database = {
           hmo_module_enabled: boolean
           id: string
           is_published: boolean
+          languages: string[]
+          last_active_at: string | null
           lettings_module_enabled: boolean
           logo_url: string | null
           name: string
           owner_id: string
           phone: string | null
           postcode: string | null
+          rating: number | null
+          review_count: number
           sales_module_enabled: boolean
           slug: string
+          specialties: string[]
           updated_at: string
+          verified: boolean
           website: string | null
         }
         Insert: {
@@ -48,15 +54,21 @@ export type Database = {
           hmo_module_enabled?: boolean
           id?: string
           is_published?: boolean
+          languages?: string[]
+          last_active_at?: string | null
           lettings_module_enabled?: boolean
           logo_url?: string | null
           name: string
           owner_id: string
           phone?: string | null
           postcode?: string | null
+          rating?: number | null
+          review_count?: number
           sales_module_enabled?: boolean
           slug: string
+          specialties?: string[]
           updated_at?: string
+          verified?: boolean
           website?: string | null
         }
         Update: {
@@ -70,15 +82,21 @@ export type Database = {
           hmo_module_enabled?: boolean
           id?: string
           is_published?: boolean
+          languages?: string[]
+          last_active_at?: string | null
           lettings_module_enabled?: boolean
           logo_url?: string | null
           name?: string
           owner_id?: string
           phone?: string | null
           postcode?: string | null
+          rating?: number | null
+          review_count?: number
           sales_module_enabled?: boolean
           slug?: string
+          specialties?: string[]
           updated_at?: string
+          verified?: boolean
           website?: string | null
         }
         Relationships: []
@@ -862,6 +880,7 @@ export type Database = {
           furnished: string | null
           id: string
           is_hmo: boolean
+          last_verified_at: string | null
           latitude: number | null
           lease_term_months: number | null
           listing_type: Database["public"]["Enums"]["listing_type"]
@@ -869,6 +888,7 @@ export type Database = {
           marketplace_publish: boolean
           owner_id: string
           photos: Json
+          photos_verified: boolean
           postcode: string | null
           price: number | null
           price_qualifier: Database["public"]["Enums"]["price_qualifier"] | null
@@ -884,6 +904,8 @@ export type Database = {
           tour_image_path: string | null
           tour_url: string | null
           updated_at: string
+          verified: boolean
+          verified_at: string | null
           view_count: number
         }
         Insert: {
@@ -914,6 +936,7 @@ export type Database = {
           furnished?: string | null
           id?: string
           is_hmo?: boolean
+          last_verified_at?: string | null
           latitude?: number | null
           lease_term_months?: number | null
           listing_type: Database["public"]["Enums"]["listing_type"]
@@ -921,6 +944,7 @@ export type Database = {
           marketplace_publish?: boolean
           owner_id: string
           photos?: Json
+          photos_verified?: boolean
           postcode?: string | null
           price?: number | null
           price_qualifier?:
@@ -938,6 +962,8 @@ export type Database = {
           tour_image_path?: string | null
           tour_url?: string | null
           updated_at?: string
+          verified?: boolean
+          verified_at?: string | null
           view_count?: number
         }
         Update: {
@@ -968,6 +994,7 @@ export type Database = {
           furnished?: string | null
           id?: string
           is_hmo?: boolean
+          last_verified_at?: string | null
           latitude?: number | null
           lease_term_months?: number | null
           listing_type?: Database["public"]["Enums"]["listing_type"]
@@ -975,6 +1002,7 @@ export type Database = {
           marketplace_publish?: boolean
           owner_id?: string
           photos?: Json
+          photos_verified?: boolean
           postcode?: string | null
           price?: number | null
           price_qualifier?:
@@ -992,6 +1020,8 @@ export type Database = {
           tour_image_path?: string | null
           tour_url?: string | null
           updated_at?: string
+          verified?: boolean
+          verified_at?: string | null
           view_count?: number
         }
         Relationships: [
