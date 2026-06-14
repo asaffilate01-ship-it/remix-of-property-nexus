@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { fetchOpsData, saveContact, deleteContact } from "@/lib/ops.functions";
 import { PageHeader } from "@/components/PageHeader";
 import { QuickContactActions } from "@/components/QuickContactActions";
+import { AddressLookup } from "@/components/address/AddressLookup";
 
 export const Route = createFileRoute("/_authenticated/contacts")({ component: ContactsPage });
 
