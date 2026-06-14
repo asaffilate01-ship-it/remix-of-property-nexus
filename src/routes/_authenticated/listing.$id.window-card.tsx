@@ -95,7 +95,7 @@ function WindowCardPage() {
         {/* Cover image */}
         {cover && (
           <div className="w-full overflow-hidden rounded-sm border border-neutral-200 mb-3" style={{ height: "110mm" }}>
-            <img src={cover} alt={l.title} className="w-full h-full object-cover" />
+            <ListingImage src={cover} alt={l.title} className="w-full h-full object-cover" />
           </div>
         )}
 
