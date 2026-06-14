@@ -51,7 +51,7 @@ function TemplatesPage() {
   const sendDraft = async (status: "draft" | "sent") => {
     if (!active) return;
     try {
-      await create({ data: { template_id: active.id, values, status } });
+      await create({ data: { template_id: active.id, values, status, recipient_contact_ids: [] } });
       toast.success(status === "sent" ? "Sent" : "Saved as draft");
       setActive(null);
       qc.invalidateQueries({ queryKey: ["templates"] });
