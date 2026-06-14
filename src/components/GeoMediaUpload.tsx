@@ -73,7 +73,7 @@ function getBrowserLocation(): Promise<GeolocationPosition | null> {
   });
 }
 
-export function GeoMediaUpload({ workOrderId, propertyId, onUploaded }: Props) {
+export function GeoMediaUpload({ workOrderId, propertyId, visitId, stage, label, onUploaded }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const save = useServerFn(saveJobMedia);
