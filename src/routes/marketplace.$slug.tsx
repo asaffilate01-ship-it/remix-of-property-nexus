@@ -13,10 +13,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { fetchListing, submitLead } from "@/lib/public.functions";
-import { Bed, Bath, MapPin, Calendar, Ruler, Zap, Shield, ChevronLeft, Share2, Mail, Globe, Calculator, Sparkles, Home, Building2, Star } from "lucide-react";
+import { fetchNearby } from "@/lib/nearby.functions";
+import { Bed, Bath, MapPin, Calendar, Ruler, Zap, Shield, ChevronLeft, ChevronRight, Share2, Mail, Globe, Calculator, Sparkles, Home, Building2, Star, GraduationCap, Train, ShoppingCart, Utensils, Trees, Dumbbell, X } from "lucide-react";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { PhoneReveal } from "@/components/PhoneReveal";
 import { GoogleListingsMap } from "@/components/GoogleListingsMap";
+import { useEffect } from "react";
 
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -215,6 +217,7 @@ function ListingDetail() {
               {(l.floorplan_url || l.tour_url) && <TabsTrigger value="tour">Floorplan & tour</TabsTrigger>}
               {isSale && <TabsTrigger value="mortgage">Mortgage</TabsTrigger>}
               <TabsTrigger value="area">Area</TabsTrigger>
+              <TabsTrigger value="nearby">Nearby</TabsTrigger>
             </TabsList>
             <TabsContent value="overview" className="pt-4">
               {l.description ? (
@@ -262,6 +265,9 @@ function ListingDetail() {
             {isSale && <TabsContent value="mortgage" className="pt-4"><MortgageEstimator price={Number(l.price ?? 0)} /></TabsContent>}
             <TabsContent value="area" className="pt-4">
               <AreaMap lat={l.latitude} lng={l.longitude} postcode={l.postcode} />
+            </TabsContent>
+            <TabsContent value="nearby" className="pt-4">
+              <Nearby lat={l.latitude} lng={l.longitude} />
             </TabsContent>
           </Tabs>
         </div>
@@ -328,6 +334,7 @@ function ListingDetail() {
 }
 
 function Gallery({ photos, title, isHmo, purpose }: { photos: string[]; title: string; isHmo: boolean; purpose: string | null }) {
+  const [openAt, setOpenAt] = useState<number | null>(null);
   const main = photos[0];
   const thumbs = photos.slice(1, 5);
   if (!main) {
@@ -336,31 +343,114 @@ function Gallery({ photos, title, isHmo, purpose }: { photos: string[]; title: s
   return (
     <div className="container mx-auto px-4 mt-4">
       <div className="grid grid-cols-4 grid-rows-2 gap-2 h-[280px] md:h-[460px] rounded-2xl overflow-hidden">
-        <Dialog>
-          <DialogTrigger asChild>
-            <button className="col-span-4 md:col-span-2 row-span-2 relative bg-muted group">
-              <img src={main} alt={title} className="h-full w-full object-cover group-hover:scale-[1.02] transition-transform duration-500" />
-              <div className="absolute inset-0 bg-gradient-to-t from-foreground/40 via-transparent to-transparent" />
-              <div className="absolute top-3 left-3 flex gap-2">
-                <Badge className="bg-card/95 text-foreground border-0">{purpose === "sale" ? "For sale" : "To let"}</Badge>
-                {isHmo && <Badge className="bg-accent text-accent-foreground">HMO</Badge>}
-              </div>
-            </button>
-          </DialogTrigger>
-          <DialogContent className="max-w-5xl"><img src={main} alt={title} className="w-full h-auto rounded-md" /></DialogContent>
-        </Dialog>
-        {[0,1,2,3].map((i) => (
-          <Dialog key={i}>
-            <DialogTrigger asChild>
-              <button className="hidden md:block bg-muted relative group">
-                {thumbs[i] ? <img src={thumbs[i]} alt="" className="h-full w-full object-cover group-hover:scale-[1.03] transition-transform duration-500" /> : <div className="h-full w-full brand-gradient opacity-20" />}
-                {i === 3 && photos.length > 5 && <div className="absolute inset-0 bg-foreground/60 flex items-center justify-center text-background font-semibold">+{photos.length - 5} photos</div>}
-              </button>
-            </DialogTrigger>
-            {thumbs[i] && <DialogContent className="max-w-5xl"><img src={thumbs[i]} alt="" className="w-full h-auto rounded-md" /></DialogContent>}
-          </Dialog>
+        <button onClick={() => setOpenAt(0)} className="col-span-4 md:col-span-2 row-span-2 relative bg-muted group">
+          <img src={main} alt={title} className="h-full w-full object-cover group-hover:scale-[1.02] transition-transform duration-500" />
+          <div className="absolute inset-0 bg-gradient-to-t from-foreground/40 via-transparent to-transparent" />
+          <div className="absolute top-3 left-3 flex gap-2">
+            <Badge className="bg-card/95 text-foreground border-0">{purpose === "sale" ? "For sale" : "To let"}</Badge>
+            {isHmo && <Badge className="bg-accent text-accent-foreground">HMO</Badge>}
+          </div>
+        </button>
+        {[0, 1, 2, 3].map((i) => (
+          <button key={i} onClick={() => thumbs[i] && setOpenAt(i + 1)} className="hidden md:block bg-muted relative group">
+            {thumbs[i] ? <img src={thumbs[i]} alt="" className="h-full w-full object-cover group-hover:scale-[1.03] transition-transform duration-500" /> : <div className="h-full w-full brand-gradient opacity-20" />}
+            {i === 3 && photos.length > 5 && <div className="absolute inset-0 bg-foreground/60 flex items-center justify-center text-background font-semibold">+{photos.length - 5} photos</div>}
+          </button>
         ))}
       </div>
+      <Lightbox photos={photos} index={openAt} onChange={setOpenAt} title={title} />
+    </div>
+  );
+}
+
+function Lightbox({ photos, index, onChange, title }: { photos: string[]; index: number | null; onChange: (i: number | null) => void; title: string }) {
+  const open = index !== null;
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onChange(null);
+      if (e.key === "ArrowLeft") onChange(((index ?? 0) - 1 + photos.length) % photos.length);
+      if (e.key === "ArrowRight") onChange(((index ?? 0) + 1) % photos.length);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, index, photos.length, onChange]);
+
+  if (!open || index === null) return null;
+  const prev = () => onChange((index - 1 + photos.length) % photos.length);
+  const next = () => onChange((index + 1) % photos.length);
+  return (
+    <Dialog open={open} onOpenChange={(o) => !o && onChange(null)}>
+      <DialogContent className="max-w-6xl p-0 bg-background/95 border-0 [&>button]:hidden">
+        <div className="relative">
+          <img src={photos[index]} alt={`${title} – photo ${index + 1}`} className="w-full max-h-[85vh] object-contain rounded-md" />
+          <button onClick={() => onChange(null)} className="absolute top-3 right-3 h-10 w-10 rounded-full bg-foreground/70 text-background hover:bg-foreground inline-flex items-center justify-center" aria-label="Close"><X className="h-5 w-5" /></button>
+          {photos.length > 1 && (
+            <>
+              <button onClick={prev} className="absolute left-3 top-1/2 -translate-y-1/2 h-11 w-11 rounded-full bg-foreground/70 text-background hover:bg-foreground inline-flex items-center justify-center" aria-label="Previous"><ChevronLeft className="h-5 w-5" /></button>
+              <button onClick={next} className="absolute right-3 top-1/2 -translate-y-1/2 h-11 w-11 rounded-full bg-foreground/70 text-background hover:bg-foreground inline-flex items-center justify-center" aria-label="Next"><ChevronRight className="h-5 w-5" /></button>
+              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-foreground/70 text-background text-xs px-3 py-1">{index + 1} / {photos.length}</div>
+            </>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+const NEARBY_META: Record<string, { label: string; Icon: typeof GraduationCap }> = {
+  school: { label: "Schools", Icon: GraduationCap },
+  transit: { label: "Transport", Icon: Train },
+  supermarket: { label: "Supermarkets", Icon: ShoppingCart },
+  restaurant: { label: "Restaurants & cafés", Icon: Utensils },
+  park: { label: "Parks", Icon: Trees },
+  gym: { label: "Gyms", Icon: Dumbbell },
+};
+
+function Nearby({ lat, lng }: { lat: number | null; lng: number | null }) {
+  const fn = useServerFn(fetchNearby);
+  const { data, isLoading } = useQuery({
+    queryKey: ["nearby", lat, lng],
+    queryFn: () => fn({ data: { lat: lat!, lng: lng!, radius_m: 1500 } }),
+    enabled: lat != null && lng != null,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  if (lat == null || lng == null) return <p className="text-muted-foreground">Nearby places appear once a location is set.</p>;
+  if (isLoading) return <div className="grid sm:grid-cols-2 gap-3">{Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-32 rounded-xl bg-muted animate-pulse" />)}</div>;
+
+  const places = data?.places ?? [];
+  if (!places.length) return <p className="text-muted-foreground">No nearby places returned for this location.</p>;
+
+  const grouped = places.reduce<Record<string, typeof places>>((acc, p) => {
+    (acc[p.category] ??= []).push(p);
+    return acc;
+  }, {});
+
+  return (
+    <div className="grid sm:grid-cols-2 gap-4">
+      {Object.entries(grouped).map(([cat, items]) => {
+        const meta = NEARBY_META[cat];
+        if (!meta) return null;
+        return (
+          <Card key={cat} className="border-0 shadow-card">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2 mb-3 font-semibold"><meta.Icon className="h-4 w-4 text-accent" />{meta.label}</div>
+              <ul className="space-y-2">
+                {items.slice(0, 4).map((p) => (
+                  <li key={p.id} className="flex items-start justify-between gap-3 text-sm">
+                    <div className="min-w-0">
+                      <div className="font-medium truncate">{p.name}</div>
+                      {p.rating != null && <div className="text-xs text-muted-foreground inline-flex items-center gap-1"><Star className="h-3 w-3 fill-warning text-warning" />{p.rating.toFixed(1)}</div>}
+                    </div>
+                    <div className="text-xs text-muted-foreground shrink-0">{p.distance_m < 1000 ? `${p.distance_m} m` : `${(p.distance_m / 1000).toFixed(1)} km`}</div>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+        );
+      })}
     </div>
   );
 }
