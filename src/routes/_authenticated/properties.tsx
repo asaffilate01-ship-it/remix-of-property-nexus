@@ -113,6 +113,7 @@ function PropertiesPage() {
       city: form.city || null,
       postcode: form.postcode || null,
       property_type: form.property_type || null,
+      property_type_code: form.property_type || null,
       bedrooms: form.bedrooms ? Number(form.bedrooms) : null,
       bathrooms: form.bathrooms ? Number(form.bathrooms) : null,
       is_hmo: form.is_hmo,
