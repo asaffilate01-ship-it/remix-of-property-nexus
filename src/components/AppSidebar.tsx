@@ -5,7 +5,7 @@ import {
   ClipboardList, CalendarDays, Gavel, Receipt, BarChart3, Sparkles, Eye, Bookmark,
   RefreshCcw, Vault, UserCheck, FilePenLine, Hammer, Banknote, Image as ImageIcon,
   Landmark, Briefcase, Smartphone, PackageOpen, FolderLock, Camera, ScrollText,
-  ChevronRight, Bell, Sun, Workflow,
+  ChevronRight, Bell, Sun, Workflow, Clock,
 } from "lucide-react";
 import { BranchSwitcher } from "@/components/BranchSwitcher";
 import {
@@ -18,7 +18,8 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { useUserRole, type AppRole } from "@/hooks/useUserRole";
-import { useMemo, useState } from "react";
+import { useRecentRoutes, trackRoute } from "@/hooks/useRecentRoutes";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 type NavItem = { to: string; label: string; icon: typeof LayoutDashboard };
