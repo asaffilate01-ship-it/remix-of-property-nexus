@@ -251,7 +251,11 @@ function ListingsPage() {
     if (error) toast.error(error.message); else { toast.success(l.marketplace_publish ? "Hidden from marketplace" : "Visible on marketplace"); load(); }
   };
 
-  const filtered = rows.filter((l) => filter === "all" ? true : l.status === filter);
+  const filtered = rows.filter((l) => {
+    if (filter === "all") return true;
+    if (filter === "holiday") return l.listing_type === "holiday";
+    return l.status === filter;
+  });
 
   return (
     <div className="space-y-6">
