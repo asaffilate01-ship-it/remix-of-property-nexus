@@ -104,7 +104,7 @@ function ListingsPage() {
     const { data: u } = await supabase.auth.getUser();
     if (!u.user) {
       setRows([]);
-      return;
+      return [] as Listing[];
     }
     const managedAgencyIds = new Set(agencies.map((a) => a.id));
     const { data } = await supabase
@@ -113,6 +113,7 @@ function ListingsPage() {
       .order("created_at", { ascending: false });
     const visible = ((data as Listing[]) ?? []).filter((listing) => listing.owner_id === u.user.id || (!!listing.agency_id && managedAgencyIds.has(listing.agency_id)));
     setRows(visible);
+    return visible;
   };
   const loadAgencies = async () => {
     const { data: u } = await supabase.auth.getUser();
@@ -226,22 +227,32 @@ function ListingsPage() {
       agency_id: currentForm.agency_id || null,
     };
 
+    let savedId: string | null = null;
+
     if (currentForm.id) {
-      const { error } = await supabase.from("listings").update(payload).eq("id", currentForm.id);
-      if (error) {
+      const { data: updatedRow, error } = await supabase.from("listings").update(payload).eq("id", currentForm.id).select("id").single();
+      if (error || !updatedRow?.id) {
         setSaving(false);
-        return toast.error(error.message);
+        return toast.error(error?.message ?? "Could not save listing");
       }
-      toast.success("Listing updated");
+      savedId = updatedRow.id;
     } else {
-      const { error } = await supabase.from("listings").insert({ ...payload, owner_id: u.user.id, slug: slugify(currentForm.title) });
-      if (error) {
+      const { data: insertedRow, error } = await supabase.from("listings").insert({ ...payload, owner_id: u.user.id, slug: slugify(currentForm.title) }).select("id").single();
+      if (error || !insertedRow?.id) {
         setSaving(false);
-        return toast.error(error.message);
+        return toast.error(error?.message ?? "Could not create listing");
       }
-      toast.success("Listing created");
+      savedId = insertedRow.id;
     }
-    setOpen(false); updateForm(empty); setFilter("all"); await load();
+
+    const refreshed = await load();
+    if (!savedId || !refreshed.some((row) => row.id === savedId)) {
+      setSaving(false);
+      return toast.error("Save did not fully confirm, so the form has been kept open.");
+    }
+
+    toast.success(currentForm.id ? "Listing updated" : "Listing created");
+    setOpen(false); updateForm(empty); setFilter("all");
     setSaving(false);
   };
 

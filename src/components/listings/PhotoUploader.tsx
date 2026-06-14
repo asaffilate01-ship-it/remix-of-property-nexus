@@ -87,6 +87,15 @@ async function runWithConcurrency<T>(items: T[], limit: number, worker: (item: T
   await Promise.all(runners);
 }
 
+async function waitForSignedPreview(path: string): Promise<string | null> {
+  for (const delay of SIGN_RETRY_DELAYS_MS) {
+    if (delay > 0) await new Promise((resolve) => setTimeout(resolve, delay));
+    const { data, error } = await supabase.storage.from("listing-photos").createSignedUrl(path, 3600);
+    if (!error && data?.signedUrl) return data.signedUrl;
+  }
+  return null;
+}
+
 // Renders a storage-backed thumbnail by re-signing on demand, so a long-lived
 // signed URL from upload time never blocks the preview.
 function Thumb({ photo }: { photo: ListingPhoto }) {
@@ -183,7 +192,13 @@ export function PhotoUploader({ photos, onChange, coverIndex, onCoverChange, roo
           console.error("[PhotoUploader] upload failed", upErr);
           toast.error(`Upload failed: ${upErr.message}`);
         } else {
-          added[index] = { url: toListingPhotoRef(path), path, room: null };
+          const previewUrl = await waitForSignedPreview(path);
+          if (!previewUrl) {
+            console.error("[PhotoUploader] upload verification failed", { path });
+            toast.error(`Upload failed to verify: ${file.name}`);
+          } else {
+            added[index] = { url: toListingPhotoRef(path), path, room: null };
+          }
         }
 
         setProgress((prev) => (prev ? { ...prev, done: prev.done + 1 } : prev));
