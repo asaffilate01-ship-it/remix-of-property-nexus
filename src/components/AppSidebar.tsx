@@ -235,6 +235,21 @@ export function AppSidebar() {
   const { role, name } = useUserRole();
   const sections = sectionsFor(role);
   const [query, setQuery] = useState("");
+  const { items: recent } = useRecentRoutes();
+
+  // Track route visits using the best label match from any section item.
+  useEffect(() => {
+    if (!path) return;
+    const all = sections.flatMap((s) => s.items);
+    const exact = all.find((i) => i.to === path);
+    if (exact) {
+      trackRoute(exact.to, exact.label);
+      return;
+    }
+    // For detail routes (e.g. /leads/abc), track the parent with a "… detail" suffix
+    const parent = all.find((i) => path.startsWith(i.to + "/"));
+    if (parent) trackRoute(path, `${parent.label} detail`);
+  }, [path, sections]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
