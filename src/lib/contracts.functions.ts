@@ -92,7 +92,7 @@ export const prefillTemplateValues = createServerFn({ method: "POST" })
         values.client_name = c.full_name;
         values.contractor_name = c.full_name;
         values.provider_name = c.full_name;
-        if (c.email) signers.push({ role: c.kind ?? "party", name: c.full_name, email: c.email });
+        if (c.email) signers.push({ role: c.contact_type ?? "party", name: c.full_name, email: c.email });
       }
     }
 
