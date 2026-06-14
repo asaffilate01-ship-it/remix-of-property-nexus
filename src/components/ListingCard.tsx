@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Bed, Bath, MapPin } from "lucide-react";
 import { SaveListingButton } from "@/components/marketplace/SaveListingButton";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
+import { ListingImage } from "@/components/ListingImage";
 
 export type ListingCardData = {
   id: string;
@@ -42,7 +43,7 @@ export function ListingCard({ l }: { l: ListingCardData }) {
       <Card className="overflow-hidden border-0 shadow-card hover:shadow-xl hover:-translate-y-0.5 transition-all">
         <div className="aspect-[4/3] bg-muted relative overflow-hidden">
           {l.cover_image ? (
-            <img src={l.cover_image} alt={l.title} loading="lazy" className="h-full w-full object-cover group-hover:scale-105 transition duration-500" />
+            <ListingImage src={l.cover_image} alt={l.title} className="h-full w-full object-cover group-hover:scale-105 transition duration-500" />
           ) : (
             <div className="brand-gradient h-full w-full opacity-30" />
           )}

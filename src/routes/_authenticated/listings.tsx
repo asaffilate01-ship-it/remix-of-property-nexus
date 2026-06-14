@@ -18,6 +18,7 @@ import {
 import { Plus, Tag, ExternalLink, Pencil, Trash2, Eye, EyeOff, Globe, Printer } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/PageHeader";
+import { ListingImage } from "@/components/ListingImage";
 import { PhotoUploader, type ListingPhoto } from "@/components/listings/PhotoUploader";
 import { RoomsEditor, type HmoRoom } from "@/components/listings/RoomsEditor";
 import { ComplianceEditor, type ComplianceMap } from "@/components/listings/ComplianceEditor";
@@ -296,7 +297,7 @@ function ListingsPage() {
           {filtered.map((l) => (
             <Card key={l.id} className="border-0 shadow-card overflow-hidden">
               <div className="aspect-[16/10] bg-muted relative">
-                {l.cover_image && <img src={l.cover_image} alt="" className="h-full w-full object-cover" />}
+                {l.cover_image && <ListingImage src={l.cover_image} alt="" className="h-full w-full object-cover" />}
                 <div className="absolute top-2 left-2 flex flex-wrap gap-1.5">
                   <Badge variant="secondary" className="capitalize">{l.purpose}</Badge>
                   <Badge variant={l.status === "published" ? "default" : "outline"}>{l.status}</Badge>

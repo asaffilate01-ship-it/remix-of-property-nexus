@@ -16,6 +16,7 @@ import { fetchListing, submitLead } from "@/lib/public.functions";
 import { fetchNearby } from "@/lib/nearby.functions";
 import { Bed, Bath, MapPin, Calendar, Ruler, Zap, Shield, ChevronLeft, ChevronRight, Share2, Mail, Globe, Calculator, Sparkles, Home, Building2, Star, GraduationCap, Train, ShoppingCart, Utensils, Trees, Dumbbell, X } from "lucide-react";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
+import { ListingImage } from "@/components/ListingImage";
 import { PhoneReveal } from "@/components/PhoneReveal";
 import { GoogleListingsMap } from "@/components/GoogleListingsMap";
 import { useEffect } from "react";
@@ -344,7 +345,7 @@ function Gallery({ photos, title, isHmo, purpose }: { photos: string[]; title: s
     <div className="container mx-auto px-4 mt-4">
       <div className="grid grid-cols-4 grid-rows-2 gap-2 h-[280px] md:h-[460px] rounded-2xl overflow-hidden">
         <button onClick={() => setOpenAt(0)} className="col-span-4 md:col-span-2 row-span-2 relative bg-muted group">
-          <img src={main} alt={title} className="h-full w-full object-cover group-hover:scale-[1.02] transition-transform duration-500" />
+          <ListingImage src={main} alt={title} className="h-full w-full object-cover group-hover:scale-[1.02] transition-transform duration-500" />
           <div className="absolute inset-0 bg-gradient-to-t from-foreground/40 via-transparent to-transparent" />
           <div className="absolute top-3 left-3 flex gap-2">
             <Badge className="bg-card/95 text-foreground border-0">{purpose === "sale" ? "For sale" : "To let"}</Badge>
@@ -353,7 +354,7 @@ function Gallery({ photos, title, isHmo, purpose }: { photos: string[]; title: s
         </button>
         {[0, 1, 2, 3].map((i) => (
           <button key={i} onClick={() => thumbs[i] && setOpenAt(i + 1)} className="hidden md:block bg-muted relative group">
-            {thumbs[i] ? <img src={thumbs[i]} alt="" className="h-full w-full object-cover group-hover:scale-[1.03] transition-transform duration-500" /> : <div className="h-full w-full brand-gradient opacity-20" />}
+            {thumbs[i] ? <ListingImage src={thumbs[i]} alt="" className="h-full w-full object-cover group-hover:scale-[1.03] transition-transform duration-500" /> : <div className="h-full w-full brand-gradient opacity-20" />}
             {i === 3 && photos.length > 5 && <div className="absolute inset-0 bg-foreground/60 flex items-center justify-center text-background font-semibold">+{photos.length - 5} photos</div>}
           </button>
         ))}
@@ -383,7 +384,7 @@ function Lightbox({ photos, index, onChange, title }: { photos: string[]; index:
     <Dialog open={open} onOpenChange={(o) => !o && onChange(null)}>
       <DialogContent className="max-w-6xl p-0 bg-background/95 border-0 [&>button]:hidden">
         <div className="relative">
-          <img src={photos[index]} alt={`${title} – photo ${index + 1}`} className="w-full max-h-[85vh] object-contain rounded-md" />
+          <ListingImage src={photos[index]} alt={`${title} – photo ${index + 1}`} className="w-full max-h-[85vh] object-contain rounded-md" />
           <button onClick={() => onChange(null)} className="absolute top-3 right-3 h-10 w-10 rounded-full bg-foreground/70 text-background hover:bg-foreground inline-flex items-center justify-center" aria-label="Close"><X className="h-5 w-5" /></button>
           {photos.length > 1 && (
             <>

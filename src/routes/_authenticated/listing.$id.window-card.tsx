@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Printer, ArrowLeft, Bed, Bath, Sofa, Ruler, Zap, Home } from "lucide-react";
+import { ListingImage } from "@/components/ListingImage";
 
 export const Route = createFileRoute("/_authenticated/listing/$id/window-card")({
   component: WindowCardPage,
@@ -94,7 +95,7 @@ function WindowCardPage() {
         {/* Cover image */}
         {cover && (
           <div className="w-full overflow-hidden rounded-sm border border-neutral-200 mb-3" style={{ height: "110mm" }}>
-            <img src={cover} alt={l.title} className="w-full h-full object-cover" />
+            <ListingImage src={cover} alt={l.title} className="w-full h-full object-cover" />
           </div>
         )}
 
@@ -112,7 +113,7 @@ function WindowCardPage() {
           <div className="grid grid-cols-4 gap-2 mb-4">
             {extras.map((p) => (
               <div key={p} className="aspect-[4/3] overflow-hidden rounded-sm border border-neutral-200">
-                <img src={p} alt="" className="w-full h-full object-cover" />
+                <ListingImage src={p} alt="" className="w-full h-full object-cover" />
               </div>
             ))}
           </div>
