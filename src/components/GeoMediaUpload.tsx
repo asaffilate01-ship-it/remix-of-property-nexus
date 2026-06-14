@@ -165,7 +165,7 @@ export function GeoMediaUpload({ workOrderId, propertyId, visitId, stage, label,
       />
       <Button type="button" onClick={onPick} disabled={busy} variant="default" size="sm">
         {busy ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Camera className="h-4 w-4 mr-2" />}
-        Capture photo / video
+        {label ?? "Capture photo / video"}
         <MapPin className="h-3 w-3 ml-2 opacity-60" />
       </Button>
     </>
