@@ -266,6 +266,9 @@ function ListingDetail() {
             <TabsContent value="area" className="pt-4">
               <AreaMap lat={l.latitude} lng={l.longitude} postcode={l.postcode} />
             </TabsContent>
+            <TabsContent value="nearby" className="pt-4">
+              <Nearby lat={l.latitude} lng={l.longitude} />
+            </TabsContent>
           </Tabs>
         </div>
 
