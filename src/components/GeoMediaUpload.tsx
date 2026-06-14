@@ -10,6 +10,9 @@ import exifr from "exifr";
 type Props = {
   workOrderId?: string | null;
   propertyId?: string | null;
+  visitId?: string | null;
+  stage?: "before" | "progress" | "after" | null;
+  label?: string;
   onUploaded?: () => void;
 };
 
