@@ -167,7 +167,15 @@ function ListingDetail() {
   const l = data?.listing;
   if (!l) return <ListingNotFound />;
 
-  const photos: string[] = Array.isArray(l.photos) ? (l.photos as unknown[]).filter((p): p is string => typeof p === "string") : [];
+  const photos: string[] = Array.isArray(l.photos)
+    ? (l.photos as unknown[])
+        .map((p) => {
+          if (typeof p === "string") return p;
+          if (p && typeof p === "object" && "url" in (p as any)) return String((p as any).url);
+          return null;
+        })
+        .filter((p): p is string => !!p)
+    : [];
   const allPhotos = [l.cover_image, ...photos].filter((p): p is string => !!p);
   const features: string[] = Array.isArray(l.features) ? (l.features as unknown[]).filter((f): f is string => typeof f === "string") : [];
   const price = fmt(l.price, l.currency || "GBP");
