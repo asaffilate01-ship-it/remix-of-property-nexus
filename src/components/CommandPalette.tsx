@@ -10,13 +10,19 @@ import {
   CommandSeparator,
 } from "@/components/ui/command";
 import { supabase } from "@/integrations/supabase/client";
+import { useRecentRoutes } from "@/hooks/useRecentRoutes";
 import {
   Home, Building2, Users, FileText, Banknote, ClipboardList,
   CalendarClock, Wrench, Shield, Mail, Settings, Plus, ArrowRight,
+  Clock,
 } from "lucide-react";
 
 type Hit = {
-  id: string; label: string; sub?: string; to: string; params?: Record<string, string>;
+  id: string;
+  label: string;
+  sub?: string;
+  to: string;
+  params?: Record<string, string>;
   icon: typeof Home;
 };
 
@@ -49,6 +55,7 @@ export function CommandPalette() {
   const [q, setQ] = useState("");
   const [hits, setHits] = useState<Hit[]>([]);
   const navigate = useNavigate();
+  const { items: recent } = useRecentRoutes();
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -68,17 +75,46 @@ export function CommandPalette() {
   const search = useCallback(async (term: string) => {
     if (!term || term.length < 2) { setHits([]); return; }
     const like = `%${term}%`;
-    const [p, c, l] = await Promise.all([
-      supabase.from("properties").select("id,title,address,city").or(`title.ilike.${like},address.ilike.${like},city.ilike.${like}`).limit(5),
-      supabase.from("contacts").select("id,full_name,email").or(`full_name.ilike.${like},email.ilike.${like}`).limit(5),
-      supabase.from("listings").select("id,title,city").or(`title.ilike.${like},city.ilike.${like}`).limit(5),
+    const [props, contacts, listings, leads, workOrders, tenancies] = await Promise.all([
+      supabase.from("properties").select("id,title,address,city").or(`title.ilike.${like},address.ilike.${like},city.ilike.${like}`).limit(4),
+      supabase.from("contacts").select("id,full_name,email").or(`full_name.ilike.${like},email.ilike.${like}`).limit(4),
+      supabase.from("listings").select("id,slug,title,city").or(`title.ilike.${like},city.ilike.${like}`).limit(4),
+      supabase.from("leads").select("id,name,email,status").or(`name.ilike.${like},email.ilike.${like}`).limit(4),
+      supabase.from("work_orders").select("id,title,status").ilike("title", like).limit(4),
+      supabase.from("tenancies").select("id,property_id").limit(0), // placeholder; tenancies have no name field
     ]);
+    void tenancies;
     const out: Hit[] = [];
-    (p.data ?? []).forEach((r) =>
+    (props.data ?? []).forEach((r) =>
       out.push({ id: "p" + r.id, label: r.title ?? r.address ?? "Property", sub: r.city ?? "Property", to: "/properties", icon: Building2 }));
-    (l.data ?? []).forEach((r) =>
-      out.push({ id: "l" + r.id, label: r.title ?? "Listing", sub: r.city ?? "Listing", to: "/listings", icon: FileText }));
-    (c.data ?? []).forEach((r) =>
+    (listings.data ?? []).forEach((r) =>
+      out.push({
+        id: "l" + r.id,
+        label: r.title ?? "Listing",
+        sub: r.city ?? "Listing",
+        to: "/marketplace/$slug",
+        params: { slug: r.slug },
+        icon: FileText,
+      }));
+    (leads.data ?? []).forEach((r) =>
+      out.push({
+        id: "ld" + r.id,
+        label: r.name,
+        sub: (r.status ?? "lead").replace(/_/g, " "),
+        to: "/leads/$id",
+        params: { id: r.id },
+        icon: Mail,
+      }));
+    (workOrders.data ?? []).forEach((r) =>
+      out.push({
+        id: "wo" + r.id,
+        label: r.title,
+        sub: (r.status ?? "open").replace(/_/g, " "),
+        to: "/work-orders/$id",
+        params: { id: r.id },
+        icon: Wrench,
+      }));
+    (contacts.data ?? []).forEach((r) =>
       out.push({ id: "c" + r.id, label: r.full_name ?? r.email ?? "Contact", sub: r.email ?? "Contact", to: "/contacts", icon: Users }));
     setHits(out);
   }, []);
@@ -96,9 +132,23 @@ export function CommandPalette() {
 
   return (
     <CommandDialog open={open} onOpenChange={setOpen}>
-      <CommandInput placeholder="Search properties, contacts, listings, tenancies…" value={q} onValueChange={setQ} />
+      <CommandInput placeholder="Search properties, listings, leads, work orders, contacts…" value={q} onValueChange={setQ} />
       <CommandList>
         <CommandEmpty>{q.length < 2 ? "Start typing to search…" : "No results."}</CommandEmpty>
+        {q.length < 2 && recent.length > 0 && (
+          <>
+            <CommandGroup heading="Recent">
+              {recent.map((r) => (
+                <CommandItem key={r.to} onSelect={() => { setOpen(false); navigate({ to: r.to } as never); }}>
+                  <Clock className="h-4 w-4 mr-2 opacity-60" />
+                  <span className="flex-1 capitalize">{r.label}</span>
+                  <span className="text-xs text-muted-foreground">{r.to}</span>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+            <CommandSeparator />
+          </>
+        )}
         {hits.length > 0 && (
           <CommandGroup heading="Records">
             {hits.map((h) => {
@@ -107,7 +157,7 @@ export function CommandPalette() {
                 <CommandItem key={h.id} onSelect={() => go(h)}>
                   <Icon className="h-4 w-4 mr-2 opacity-60" />
                   <span className="flex-1">{h.label}</span>
-                  {h.sub && <span className="text-xs text-muted-foreground">{h.sub}</span>}
+                  {h.sub && <span className="text-xs text-muted-foreground capitalize">{h.sub}</span>}
                   <ArrowRight className="h-3 w-3 ml-2 opacity-40" />
                 </CommandItem>
               );
