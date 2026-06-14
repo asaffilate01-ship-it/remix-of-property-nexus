@@ -26,7 +26,7 @@ import { AddressLookup } from "@/components/address/AddressLookup";
 
 type Listing = {
   id: string; owner_id: string; slug: string; title: string; description: string | null;
-  listing_type: "sale" | "rent" | "room"; purpose: "sale" | "rent";
+  listing_type: "sale" | "rent" | "room" | "holiday"; purpose: "sale" | "rent";
   status: string; price: number | null; price_qualifier: string | null;
   bedrooms: number | null; bathrooms: number | null; receptions: number | null;
   city: string | null; postcode: string | null; address: string | null;
