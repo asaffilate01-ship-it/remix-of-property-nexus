@@ -52,7 +52,7 @@ export const saveBooking = createServerFn({ method: "POST" })
       .maybeSingle();
     if (overlap.data && overlap.data.id !== data.id) throw new Error("Dates clash with another booking");
 
-    const row: any = { ...data, email: data.guest_email || null };
+    const row: any = { ...data, guest_email: data.guest_email || null };
     delete row.id;
     if (data.id) {
       const { error } = await context.supabase.from("holiday_bookings").update(row).eq("id", data.id);
