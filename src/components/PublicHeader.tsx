@@ -29,8 +29,16 @@ const groups: Group[] = [
   {
     label: "For business",
     items: [
+      { to: "/business", label: "For agents & landlords", desc: "All-in-one CRM, compliance & marketplace", icon: Briefcase },
       { to: "/agencies", label: "Agencies directory", desc: "Verified UK agents", icon: Users },
-      { to: "/business", label: "For agents & landlords", desc: "All-in-one CRM & marketplace", icon: Briefcase },
+      { to: "/pricing", label: "Pricing", desc: "From £29.99 per branch — 30 days free", icon: Tag },
+    ],
+  },
+  {
+    label: "Company",
+    items: [
+      { to: "/about", label: "About Estately", desc: "Our story and team", icon: Info },
+      { to: "/contact", label: "Contact us", desc: "Talk to sales or support", icon: Mail },
     ],
   },
 ];
