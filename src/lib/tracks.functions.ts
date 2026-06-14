@@ -127,9 +127,9 @@ export const saveSteps = createServerFn({ method: "POST" })
       delay_amount: s.delay_amount,
       delay_unit: s.delay_unit,
       action_type: s.action_type,
-      action_config: s.action_config ?? {},
+      action_config: (s.action_config ?? {}) as any,
     }));
-    const { error } = await context.supabase.from("track_steps").insert(rows);
+    const { error } = await context.supabase.from("track_steps").insert(rows as any);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -146,7 +146,7 @@ export const listRuns = createServerFn({ method: "GET" })
       .eq("agency_id", agencyId)
       .order("started_at", { ascending: false })
       .limit(200);
-    if (data.status) q = q.eq("status", data.status);
+    if (data.status) q = q.eq("status", data.status as any);
     const { data: runs, error } = await q;
     if (error) throw new Error(error.message);
     return { runs: runs ?? [] };
