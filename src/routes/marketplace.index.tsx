@@ -18,7 +18,8 @@ import { fetchListings, fetchMarketplaceMeta } from "@/lib/public.functions";
 import { saveSearch as saveSearchRemoteFn } from "@/lib/saved-searches.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
-import { Search, SlidersHorizontal, MapPin, Building2, Sparkles, X, ArrowUpDown, Bookmark, LayoutGrid, Map as MapIcon } from "lucide-react";
+import { Search, SlidersHorizontal, MapPin, Building2, Sparkles, X, ArrowUpDown, Bookmark, LayoutGrid, Map as MapIcon, Home, Bed, ChevronRight, Columns2 } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { GoogleListingsMap } from "@/components/GoogleListingsMap";
 import { toast } from "sonner";
 
