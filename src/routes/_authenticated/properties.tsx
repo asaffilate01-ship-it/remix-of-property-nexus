@@ -47,6 +47,7 @@ const PURPOSES = [
   { v: "both", l: "Sale & rent" },
   { v: "short_let", l: "Short-let (Airbnb-style)" },
 ] as const;
+// Loaded from DB via fetchPropertyTypes (see persistence.functions.ts) — kept as fallback list.
 const PROPERTY_TYPES = ["house", "flat", "studio", "hmo", "bungalow", "commercial", "land"] as const;
 
 const emptyProp = {
