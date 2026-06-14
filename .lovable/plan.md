@@ -1,78 +1,53 @@
-# Marketplace upgrade + Corporate split + Public polish
+# Persistence Audit & Migration Plan
 
-Big-picture: today `/` redirects to `/marketplace`, and corporate pages (for-agents, for-landlords, platform, business) are scattered. We'll restructure into two clear products — a Rightmove-style **portal** and a separate **corporate site** — then polish.
+Goal: every entity in the app reads/writes Lovable Cloud (Postgres + Storage), with RLS, and pages work together via real foreign keys.
 
-## 1. New route architecture
+## What already persists (no work needed)
+Properties, listings, tenancies, rooms, contacts, leads, offers, deals, sales_deals, viewings, work_orders, compliance_records, documents (+ storage), job_media, survey_captures, saved_searches, saved_listings, agencies, branches, agency_members, rent_schedule, bank_transactions, profiles, user_roles, referencing_cases.
 
-```text
-/                       Corporate landing (NEW — replace the redirect)
-/about                  Company / mission / team
-/products               Product overview (umbrella for agents / landlords / platform)
-/products/agents        (move from /for-agents)
-/products/landlords     (move from /for-landlords)
-/products/platform      (move from /platform)
-/pricing                (new — pulled from /business)
-/customers              Case studies (new — light placeholder content)
-/contact                Contact form + offices
-/legal/privacy, /legal/terms, /legal/cookies, /legal/complaints   (moved under /legal)
+## What's currently mock / not persistent (will fix)
+1. **Templates** (`templates.tsx`) — entire `TEMPLATES` array hard-coded; no instances saved when "sent". Needs `templates` + `template_instances` tables, seed the system templates, and wire generate/sign flow.
+2. **Buyers & Sellers** — currently inferred from `contacts.kind` strings and `sales_deals` columns. Promote to first-class with `buyer_profiles` and `seller_profiles` linked to `contacts` + `properties` + `sales_deals`.
+3. **Property types taxonomy** — `properties.property_type` / `listings.property_type` are free strings. Add `property_types` lookup with seed data, keep text column but validated against lookup.
+4. **Tenants as first-class** — today `tenancies.tenant_name` is a string with optional `tenant_user_id`. Add a real `tenants` table (linkable to a user) and use it from `tenancies.tenant_id`.
+5. **Photo persistence audit** — confirm `listing-photos`, `job-media`, `survey-media` buckets are wired everywhere (listings editor, work orders, inspections, captures). Replace any in-memory previews with uploads.
+6. **Inspections** — verify rooms/captures persist (already partly wired via survey).
+7. **Saved searches alert toggle** (route `saved-searches.tsx`) — uses local state, no DB flag.
+8. **Cookie banner / branch switcher** — `localStorage` only; that's correct (UI prefs), leave alone.
 
-/marketplace            Property portal (was /)
-/marketplace/$slug      Listing detail
-/marketplace/saved      Saved searches & alerts (logged in)
-```
+## Schema migration (one big migration)
+- **property_types** (lookup): code, label, category (residential/commercial/land), order. Seed ~30 UK types.
+- **tenants**: id, full_name, email, phone, user_id (nullable FK to auth.users), agency_id, dob, notes. Backfill from `tenancies.tenant_name`.
+- **buyer_profiles**: id, contact_id, agency_id, budget_min, budget_max, areas[], property_types[], bedrooms_min, finance_status (cash/mortgage/aip), chain_status, notes.
+- **seller_profiles**: id, contact_id, property_id, agency_id, asking_price, reason, target_completion, chain_status, notes.
+- **templates**: id, code (unique), name, category, jurisdiction, authority, description, body_md, fields jsonb, signers text[], pages int, is_system bool, agency_id (null = system), version int, active bool.
+- **template_instances**: id, template_id, agency_id, property_id, tenancy_id, deal_id, recipient_contact_ids uuid[], values jsonb, status (draft/sent/signed/void), pdf_storage_path, created_by, sent_at, signed_at.
+- Add FKs: `tenancies.tenant_id -> tenants.id` (keep `tenant_name` for back-compat), `properties.property_type_code -> property_types.code`, `listings.property_type_code -> property_types.code`.
+- GRANTs + RLS for every new table (authenticated owner/agency scoped, service_role full).
+- Seed: property_types, system templates (AST, Section 21, Section 8, Deposit prescribed info, Right to Rent check, Sales memo of sale, Inventory, Gas Safety reminder, EPC request, Maintenance work order, Offer letter, Completion statement, ~15 total).
 
-Old URLs (`/for-agents` etc.) keep working via `redirect()` so existing links don't break.
+## Code changes
+- New server fns: `src/lib/templates.functions.ts`, `src/lib/tenants.functions.ts`, `src/lib/buyers-sellers.functions.ts`, `src/lib/property-types.functions.ts`.
+- Rewrite `routes/_authenticated/templates.tsx` to read from DB, allow agency-scoped clones, render send dialog that creates a `template_instances` row + PDF in `documents` bucket.
+- Rewrite `routes/_authenticated/contacts.tsx` to show buyer/seller tabs sourced from new tables.
+- Add `routes/_authenticated/buyers.tsx` and `sellers.tsx` (lightweight CRUD).
+- Update property/listing forms to use `property_types` select.
+- Update `tenancies` create/edit dialog (`AddTenancyDialog.tsx`) to pick/create a `tenants` row instead of free-text name.
+- `saved-searches.tsx`: persist `alerts_enabled` toggle to DB column (already exists as `notify_email` — just wire it).
 
-## 2. Rightmove-style marketplace upgrades
+## Out of scope (this turn)
+- Custom template editor UI (just CRUD for now, body_md is editable textarea).
+- E-sign provider integration (status flow only; PDF stored in documents).
+- Multi-currency.
 
-**Browse page (`/marketplace`)**
-- **Split map + list view**: toggle Grid / List / Map. Map uses the existing Google Maps loader with pins clustering by price; clicking a pin opens a mini card; hovering a list item highlights its pin.
-- **Sticky filter bar**: price range, beds (1+/2+/3+/4+), property type, purpose (sale/rent/room), added-since (24h/7d/14d/auto), radius around postcode, "must include" keywords, sort (newest / price asc / price desc).
-- All filter state moves into URL search params via `validateSearch` + `zodValidator` so links are shareable and back/forward works.
-- "Save this search" button → writes to existing `saved_searches` table with current filters; signed-out users get an inline "sign in to save" CTA.
+## Order of execution
+1. Run schema migration (creates tables, GRANTs, RLS, seeds).
+2. After approval & types regen, add server fns.
+3. Rewrite pages (templates, contacts, tenancies dialog, listings/property forms, add buyers/sellers routes).
+4. Verify build + spot-check pages.
 
-**Listing detail (`/marketplace/$slug`)**
-- Photo gallery lightbox (keyboard nav, fullscreen, swipe on mobile).
-- Tabs: Overview · Floorplan · Map & nearby · EPC.
-- Key features chips + room dimensions table for HMOs.
-- "Nearby" section: schools, stations, supermarkets (Google Places Nearby via gateway, cached).
-- Mortgage calculator (sale listings only): deposit / term / rate sliders → monthly payment.
-- "Similar properties" rail (same city, ±20% price, same beds).
-- Sticky bottom action bar (mobile): Save · Share · Contact agent.
-
-**Saved searches & alerts (`/marketplace/saved`)**
-- List of the user's saved searches with last-run match count.
-- Toggle email alerts per search (writes `notify` flag).
-- Reuses existing `saved_search_matches` table; new public cron endpoint `/api/public/cron/match-saved-searches` triggers daily (existing hook already exists — we just expose UI).
-
-## 3. Polish pass — public pages
-
-Keeping the current palette/fonts. Tightening:
-- **Consistent page shell**: shared `<PublicHeader />` (logo, primary nav, sign in CTA) + `<PublicFooter />` used on every public page.
-- **Spacing rhythm**: 96px top section padding desktop / 56px mobile, 24px gutters, max-w-6xl content.
-- **Typography**: H1 clamp(2rem,5vw,3.5rem), H2 clamp(1.5rem,3vw,2.25rem), body 16px/1.6, muted captions 13px.
-- **Cards & buttons**: single shadow token (`--shadow-card`), single radius token (`rounded-2xl` for cards, `rounded-lg` for inputs/buttons), consistent hover lift.
-- **Forms** (auth, contact, valuation, referencing): unified `<Field>` wrapper with consistent label/help/error layout; large 44px touch targets.
-- **Empty states & loading**: skeletons not spinners for grids; friendly empty illustrations.
-- **SEO**: per-route `head()` with title, description, og:title, og:description — leaf pages also get `og:image` (existing first-listing photo for marketplace, hero image for corporate).
-- **Mobile**: every header row uses the responsive `grid-cols-[minmax(0,1fr)_auto]` pattern so labels don't clip.
-
-## 4. Technical notes
-
-- All filter state on `/marketplace` uses `validateSearch` + `zodValidator` + `loaderDeps`; the loader primes a Query cache keyed on the filter object.
-- Map uses the existing `loadGoogleMaps()` helper (already loads `places` library). Listings without lat/lng are geocoded on save via a small server fn so the map always has coordinates.
-- Listing detail loader uses `ensureQueryData`; "similar properties" is a non-blocking `prefetchQuery`.
-- Saved-search alerts: the existing `/api/public/hooks/match-saved-searches.ts` already does the matching; we add a UI to enable/disable per search and a small server fn to upsert `saved_searches.notify_email`.
-- No schema changes needed beyond a single `saved_searches.notify` boolean column (default false) and an optional `last_match_count` int — one tiny migration.
-
-## 5. Suggested rollout order
-
-1. Route restructure + redirects (no UI change, just plumbing).
-2. New corporate landing `/` + `/about` + `/contact` (replaces redirect).
-3. Marketplace filter bar in URL state + sort.
-4. Marketplace map view + list/grid/map toggle.
-5. Listing detail upgrades (gallery, tabs, nearby, similar, mortgage).
-6. Saved-searches UI + alert toggle + tiny migration.
-7. Public polish pass (shared shell, typography, spacing, SEO heads).
-
-This is ~7 focused PRs of work. I'll do them in order in subsequent turns — happy to start with step 1+2 (the corporate split) since that unblocks everything else, or jump straight to the marketplace map+filters if you'd rather see the user-visible wins first.
+## Technical details
+- Use `is_agency_member(agency_id, auth.uid())` for RLS scoping on new agency-owned tables.
+- System templates: `is_system = true AND agency_id IS NULL`, readable by all authenticated users; agency clones are writable by agency members only.
+- `tenant_id` on `tenancies` nullable initially; backfill creates a tenant per existing tenancy where `tenant_name` non-null.
+- Keep existing `tenant_name` column to avoid breaking the many places it's read; new code writes both.
