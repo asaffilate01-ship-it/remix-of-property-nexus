@@ -61,21 +61,23 @@ function AuthedLayout() {
         <div className="flex-1 flex flex-col min-w-0">
           <header className="h-14 sm:h-16 flex items-center gap-3 border-b border-border/60 bg-card/70 backdrop-blur-md px-3 sm:px-6 sticky top-0 z-20">
             <SidebarTrigger className="shrink-0" />
-            <nav aria-label="Breadcrumb" className="hidden sm:flex items-center gap-1.5 text-xs font-medium text-muted-foreground min-w-0">
-              {crumbs.map((c, i) => {
-                const last = i === crumbs.length - 1;
-                return (
-                  <span key={c.to} className="flex items-center gap-1.5 min-w-0">
-                    {i > 0 && <ChevronRight className="h-3 w-3 opacity-50 shrink-0" />}
-                    {last ? (
-                      <span className="text-foreground truncate capitalize">{c.label}</span>
-                    ) : (
-                      <Link to={c.to} className="hover:text-foreground truncate capitalize">{c.label}</Link>
-                    )}
-                  </span>
-                );
-              })}
-            </nav>
+            {crumbs.length > 1 && (
+              <nav aria-label="Breadcrumb" className="hidden sm:flex items-center gap-1.5 text-xs font-medium text-muted-foreground min-w-0">
+                {crumbs.map((c, i) => {
+                  const last = i === crumbs.length - 1;
+                  return (
+                    <span key={c.to} className="flex items-center gap-1.5 min-w-0">
+                      {i > 0 && <ChevronRight className="h-3 w-3 opacity-50 shrink-0" />}
+                      {last ? (
+                        <span className="text-foreground truncate capitalize">{c.label}</span>
+                      ) : (
+                        <Link to={c.to} className="hover:text-foreground truncate capitalize">{c.label}</Link>
+                      )}
+                    </span>
+                  );
+                })}
+              </nav>
+            )}
             <div className="flex-1" />
             <Button
               variant="outline"
