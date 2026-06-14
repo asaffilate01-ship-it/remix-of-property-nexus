@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Bed, Bath, MapPin } from "lucide-react";
 import { SaveListingButton } from "@/components/marketplace/SaveListingButton";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
+import { ListingImage } from "@/components/ListingImage";
 
 export type ListingCardData = {
   id: string;
