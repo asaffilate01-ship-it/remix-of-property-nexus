@@ -46,6 +46,7 @@ import { Route as AuthenticatedTemplatesRouteImport } from './routes/_authentica
 import { Route as AuthenticatedSurveyRouteImport } from './routes/_authenticated/survey'
 import { Route as AuthenticatedStatementsRouteImport } from './routes/_authenticated/statements'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
+import { Route as AuthenticatedSellersRouteImport } from './routes/_authenticated/sellers'
 import { Route as AuthenticatedSalesRouteImport } from './routes/_authenticated/sales'
 import { Route as AuthenticatedRightToRentRouteImport } from './routes/_authenticated/right-to-rent'
 import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
@@ -264,6 +265,11 @@ const AuthenticatedStatementsRoute = AuthenticatedStatementsRouteImport.update({
 const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSellersRoute = AuthenticatedSellersRouteImport.update({
+  id: '/sellers',
+  path: '/sellers',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedSalesRoute = AuthenticatedSalesRouteImport.update({
@@ -497,6 +503,7 @@ export interface FileRoutesByFullPath {
   '/reports': typeof AuthenticatedReportsRoute
   '/right-to-rent': typeof AuthenticatedRightToRentRoute
   '/sales': typeof AuthenticatedSalesRoute
+  '/sellers': typeof AuthenticatedSellersRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/statements': typeof AuthenticatedStatementsRoute
   '/survey': typeof AuthenticatedSurveyRoute
@@ -567,6 +574,7 @@ export interface FileRoutesByTo {
   '/reports': typeof AuthenticatedReportsRoute
   '/right-to-rent': typeof AuthenticatedRightToRentRoute
   '/sales': typeof AuthenticatedSalesRoute
+  '/sellers': typeof AuthenticatedSellersRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/statements': typeof AuthenticatedStatementsRoute
   '/survey': typeof AuthenticatedSurveyRoute
@@ -641,6 +649,7 @@ export interface FileRoutesById {
   '/_authenticated/reports': typeof AuthenticatedReportsRoute
   '/_authenticated/right-to-rent': typeof AuthenticatedRightToRentRoute
   '/_authenticated/sales': typeof AuthenticatedSalesRoute
+  '/_authenticated/sellers': typeof AuthenticatedSellersRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/statements': typeof AuthenticatedStatementsRoute
   '/_authenticated/survey': typeof AuthenticatedSurveyRoute
@@ -715,6 +724,7 @@ export interface FileRouteTypes {
     | '/reports'
     | '/right-to-rent'
     | '/sales'
+    | '/sellers'
     | '/settings'
     | '/statements'
     | '/survey'
@@ -785,6 +795,7 @@ export interface FileRouteTypes {
     | '/reports'
     | '/right-to-rent'
     | '/sales'
+    | '/sellers'
     | '/settings'
     | '/statements'
     | '/survey'
@@ -858,6 +869,7 @@ export interface FileRouteTypes {
     | '/_authenticated/reports'
     | '/_authenticated/right-to-rent'
     | '/_authenticated/sales'
+    | '/_authenticated/sellers'
     | '/_authenticated/settings'
     | '/_authenticated/statements'
     | '/_authenticated/survey'
@@ -1170,6 +1182,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/sellers': {
+      id: '/_authenticated/sellers'
+      path: '/sellers'
+      fullPath: '/sellers'
+      preLoaderRoute: typeof AuthenticatedSellersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/sales': {
       id: '/_authenticated/sales'
       path: '/sales'
@@ -1456,6 +1475,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
   AuthenticatedRightToRentRoute: typeof AuthenticatedRightToRentRoute
   AuthenticatedSalesRoute: typeof AuthenticatedSalesRoute
+  AuthenticatedSellersRoute: typeof AuthenticatedSellersRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedStatementsRoute: typeof AuthenticatedStatementsRoute
   AuthenticatedSurveyRoute: typeof AuthenticatedSurveyRoute
@@ -1499,6 +1519,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedReportsRoute: AuthenticatedReportsRoute,
   AuthenticatedRightToRentRoute: AuthenticatedRightToRentRoute,
   AuthenticatedSalesRoute: AuthenticatedSalesRoute,
+  AuthenticatedSellersRoute: AuthenticatedSellersRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedStatementsRoute: AuthenticatedStatementsRoute,
   AuthenticatedSurveyRoute: AuthenticatedSurveyRoute,
