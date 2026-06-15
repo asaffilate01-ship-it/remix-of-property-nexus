@@ -28,24 +28,58 @@ export const Route = createFileRoute("/api/public/hooks/expiry-reminders")({
           ]);
 
           for (const c of contracts.data ?? []) {
+            await tryAlert(supabaseAdmin, {
+              agency_id: (c as any).agency_id, kind: "contract_expiring",
+              severity: days <= 7 ? "critical" : "warning",
+              title: `Contract expires in ${days} day${days === 1 ? "" : "s"}`,
+              body: (c as any).title ?? (c as any).templates?.name ?? "Contract",
+              link: `/contracts/${c.id}`, entity_type: "contract", entity_id: c.id,
+              dedupe_key: `expiry-contract-${c.id}-${days}`, out,
+            });
             for (const s of ((c as any).signers_meta ?? [])) {
               if (!s.email) continue;
               await tryEnqueue(supabaseAdmin, {
-                templateName: "contract-expiry-reminder",
-                recipientEmail: s.email,
+                templateName: "contract-expiry-reminder", recipientEmail: s.email,
                 idempotencyKey: `expiry-contract-${c.id}-${days}`,
                 templateData: { recipient: s.name, item: (c as any).templates?.name ?? c.title ?? "Contract", days, expires_on: c.expires_on },
                 out,
               });
             }
           }
+          for (const d of docs.data ?? []) {
+            await tryAlert(supabaseAdmin, {
+              agency_id: (d as any).agency_id, kind: "document_expiring",
+              severity: days <= 7 ? "critical" : "warning",
+              title: `Document expires in ${days} day${days === 1 ? "" : "s"}`,
+              body: (d as any).name, link: `/documents`,
+              entity_type: "document", entity_id: d.id,
+              dedupe_key: `expiry-document-${d.id}-${days}`, out,
+            });
+          }
+          for (const r of compliance.data ?? []) {
+            await tryAlert(supabaseAdmin, {
+              agency_id: (r as any).agency_id, kind: "compliance_expiring",
+              severity: days <= 7 ? "critical" : "warning",
+              title: `${(r as any).type} expires in ${days} day${days === 1 ? "" : "s"}`,
+              body: `Compliance record due ${(r as any).expires_on}`,
+              link: `/compliance`, entity_type: "compliance_record", entity_id: r.id,
+              dedupe_key: `expiry-compliance-${r.id}-${days}`, out,
+            });
+          }
           for (const t of tenancies.data ?? []) {
+            await tryAlert(supabaseAdmin, {
+              agency_id: (t as any).agency_id, kind: "tenancy_ending",
+              severity: days <= 14 ? "warning" : "info",
+              title: `Tenancy ends in ${days} day${days === 1 ? "" : "s"}`,
+              body: (t as any).tenant_name ?? "Tenancy", link: `/renewals`,
+              entity_type: "tenancy", entity_id: t.id,
+              dedupe_key: `expiry-tenancy-${t.id}-${days}`, out,
+            });
             if (!(t as any).tenant_email) continue;
             await tryEnqueue(supabaseAdmin, {
-              templateName: "contract-expiry-reminder",
-              recipientEmail: (t as any).tenant_email,
+              templateName: "contract-expiry-reminder", recipientEmail: (t as any).tenant_email,
               idempotencyKey: `expiry-tenancy-${t.id}-${days}`,
-              templateData: { recipient: t.tenant_name, item: "Tenancy", days, expires_on: t.end_date },
+              templateData: { recipient: (t as any).tenant_name, item: "Tenancy", days, expires_on: (t as any).end_date },
               out,
             });
           }
@@ -57,6 +91,22 @@ export const Route = createFileRoute("/api/public/hooks/expiry-reminders")({
     },
   },
 });
+
+async function tryAlert(sb: any, args: { agency_id: string; kind: string; severity: string; title: string; body?: string; link?: string; entity_type?: string; entity_id?: string; dedupe_key: string; out: any[] }) {
+  if (!args.agency_id) return;
+  try {
+    const { error } = await sb.from("alerts").upsert({
+      agency_id: args.agency_id, kind: args.kind, severity: args.severity,
+      title: args.title, body: args.body ?? null, link: args.link ?? null,
+      entity_type: args.entity_type ?? null, entity_id: args.entity_id ?? null,
+      dedupe_key: args.dedupe_key,
+    }, { onConflict: "agency_id,dedupe_key", ignoreDuplicates: true });
+    args.out.push({ alert: args.dedupe_key, error: error?.message ?? null });
+  } catch (e: any) {
+    args.out.push({ alert: args.dedupe_key, error: e.message });
+  }
+}
+
 
 async function tryEnqueue(sb: any, args: { templateName: string; recipientEmail: string; idempotencyKey: string; templateData: any; out: any[] }) {
   // Best-effort: enqueue_email RPC exists only when email infra is set up.
