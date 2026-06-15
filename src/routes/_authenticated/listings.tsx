@@ -100,44 +100,44 @@ function ListingsPage() {
     if (search.new) { updateForm(empty); setOpen(true); }
   }, [search.new]);
 
+  const fetchManagedAgencies = async (userId: string) => {
+    const [{ data: owned }, { data: memberships }] = await Promise.all([
+      supabase.from("agencies").select("id,name").eq("owner_id", userId),
+      supabase.from("agency_members").select("agency_id").eq("user_id", userId),
+    ]);
+    const memberIds = (memberships ?? []).map((m) => m.agency_id).filter(Boolean) as string[];
+    let memberAgencies: { id: string; name: string }[] = [];
+    if (memberIds.length) {
+      const { data } = await supabase.from("agencies").select("id,name").in("id", memberIds);
+      memberAgencies = data ?? [];
+    }
+    return [...(owned ?? []), ...memberAgencies].filter(
+      (a, i, all) => all.findIndex((c) => c.id === a.id) === i,
+    );
+  };
+
   const load = async () => {
     const { data: u } = await supabase.auth.getUser();
     if (!u.user) {
       setRows([]);
+      setAgencies([]);
       return [] as Listing[];
     }
-    const managedAgencyIds = new Set(agencies.map((a) => a.id));
+    const managed = await fetchManagedAgencies(u.user.id);
+    setAgencies(managed);
+    const managedIds = new Set(managed.map((a) => a.id));
     const { data } = await supabase
       .from("listings")
       .select("*")
       .order("created_at", { ascending: false });
-    const visible = ((data as Listing[]) ?? []).filter((listing) => listing.owner_id === u.user.id || (!!listing.agency_id && managedAgencyIds.has(listing.agency_id)));
+    const visible = ((data as Listing[]) ?? []).filter(
+      (l) => l.owner_id === u.user!.id || (!!l.agency_id && managedIds.has(l.agency_id)),
+    );
     setRows(visible);
     return visible;
   };
-  const loadAgencies = async () => {
-    const { data: u } = await supabase.auth.getUser();
-    if (!u.user) {
-      setAgencies([]);
-      return;
-    }
-    const [{ data: owned }, { data: memberships }] = await Promise.all([
-      supabase.from("agencies").select("id,name").eq("owner_id", u.user.id),
-      supabase.from("agency_members").select("agency_id").eq("user_id", u.user.id),
-    ]);
-    const memberAgencyIds = (memberships ?? []).map((m) => m.agency_id).filter(Boolean);
-    if (memberAgencyIds.length === 0) {
-      setAgencies(owned ?? []);
-      return;
-    }
-    const { data: memberAgencies } = await supabase.from("agencies").select("id,name").in("id", memberAgencyIds);
-    const merged = [...(owned ?? []), ...(memberAgencies ?? [])].filter(
-      (agency, index, all) => all.findIndex((candidate) => candidate.id === agency.id) === index,
-    );
-    setAgencies(merged);
-  };
-  useEffect(() => { void loadAgencies(); }, []);
-  useEffect(() => { void load(); }, [agencies]);
+
+  useEffect(() => { void load(); }, []);
 
   useEffect(() => {
     const channel = supabase
