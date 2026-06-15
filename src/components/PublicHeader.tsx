@@ -185,8 +185,17 @@ export function PublicHeader() {
               ))}
             </div>
             <div className="border-t p-3 flex flex-col gap-2 bg-background">
-              <Button asChild variant="outline"><Link to="/auth" onClick={() => setOpen(false)}>Sign in</Link></Button>
-              <Button asChild><Link to="/auth" search={{ mode: "signup" } as never} onClick={() => setOpen(false)}>Get started</Link></Button>
+              {signedIn ? (
+                <>
+                  <Button asChild variant="outline"><Link to="/dashboard" onClick={() => setOpen(false)}><LayoutDashboard className="h-4 w-4 mr-1.5" />Dashboard</Link></Button>
+                  <Button onClick={handleSignOut}><LogOut className="h-4 w-4 mr-1.5" />Sign out</Button>
+                </>
+              ) : (
+                <>
+                  <Button asChild variant="outline"><Link to="/auth" onClick={() => setOpen(false)}>Sign in</Link></Button>
+                  <Button asChild><Link to="/auth" search={{ mode: "signup" } as never} onClick={() => setOpen(false)}>Get started</Link></Button>
+                </>
+              )}
             </div>
           </SheetContent>
         </Sheet>
