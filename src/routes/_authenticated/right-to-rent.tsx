@@ -1,102 +1,62 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ShieldCheck, AlertTriangle, RefreshCw, FileCheck2 } from "lucide-react";
-import { toast } from "sonner";
+import { UserCheck, Plus } from "lucide-react";
+import { PageHeader } from "@/components/PageHeader";
 
 export const Route = createFileRoute("/_authenticated/right-to-rent")({
   head: () => ({ meta: [{ title: "Right to Rent — Estately" }] }),
-  component: RtRPage,
+  component: RtrPage,
 });
 
-type Status = "verified" | "share_code_pending" | "expiring" | "expired" | "follow_up";
-type Row = { id: string; tenant: string; property: string; method: "Passport" | "Share code" | "BRP" | "ID verification provider"; expiry?: string; status: Status; nextCheck?: string };
+type Row = { id: string; type: string; status: string; issued_on: string | null; expires_on: string | null; reference: string | null; properties: { address: string | null; city: string | null } | null };
 
-const SEED: Row[] = [
-  { id: "RTR-301", tenant: "Sarah Mitchell", property: "12 Acacia Avenue, M14", method: "Passport", status: "verified", nextCheck: "—" },
-  { id: "RTR-302", tenant: "Yusuf Demir", property: "Flat 4, Quay View, M50", method: "Share code", expiry: "2026-09-30", status: "expiring", nextCheck: "2026-08-30" },
-  { id: "RTR-303", tenant: "Maria Souza", property: "8 Cromwell Road, M16", method: "BRP", expiry: "2026-05-12", status: "expired", nextCheck: "Immediate" },
-  { id: "RTR-304", tenant: "Daniel O'Connor", property: "27 King's Crescent, M20", method: "ID verification provider", status: "verified", nextCheck: "—" },
-  { id: "RTR-305", tenant: "Aisha Khan", property: "Apt 11, The Mill, M3", method: "Share code", status: "share_code_pending", nextCheck: "Awaiting code" },
-];
+function RtrPage() {
+  const [rows, setRows] = useState<Row[]>([]);
+  const [loading, setLoading] = useState(true);
 
-const TONE: Record<Status, string> = {
-  verified: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  share_code_pending: "bg-amber-50 text-amber-700 border-amber-200",
-  expiring: "bg-amber-50 text-amber-700 border-amber-200",
-  expired: "bg-red-50 text-red-700 border-red-200",
-  follow_up: "bg-blue-50 text-blue-700 border-blue-200",
-};
-const LABEL: Record<Status, string> = { verified: "Verified", share_code_pending: "Share code pending", expiring: "Expiring soon", expired: "Expired", follow_up: "Follow‑up check due" };
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase
+        .from("compliance_records")
+        .select("id, type, status, issued_on, expires_on, reference, properties(address, city)")
+        .in("type", ["right_to_rent", "right_to_rent_followup"])
+        .order("expires_on", { nullsFirst: false });
+      setRows((data as any) ?? []); setLoading(false);
+    })();
+  }, []);
 
-function RtRPage() {
-  const [rows] = useState(SEED);
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-display text-2xl md:text-3xl font-bold tracking-tight">Right to Rent</h1>
-        <p className="text-muted-foreground mt-1">Section 22 Immigration Act 2014 — verify before any tenancy begins and diarise follow‑ups for time‑limited statuses.</p>
-      </div>
+      <PageHeader title="Right to Rent" description="Statutory tenant identity checks (England)." actions={
+        <Button asChild><Link to="/compliance"><Plus className="mr-2 h-4 w-4" /> Add check</Link></Button>
+      } />
 
-      <Card className="border-0 shadow-card bg-amber-50/60 border-l-4 border-l-amber-500">
-        <CardContent className="p-4 flex items-start gap-3">
-          <AlertTriangle className="h-5 w-5 text-amber-700 mt-0.5" />
-          <div className="text-sm">
-            <div className="font-semibold text-amber-900">Penalties of up to £20,000 per tenant for breaches</div>
-            <div className="text-amber-800/80">Re‑check time‑limited rights either 12 months from the original check or when leave expires — whichever is later.</div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="border-0 shadow-card">
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-muted/40 text-xs uppercase tracking-wide text-muted-foreground">
-                <tr>
-                  <th className="text-left p-3">Ref</th>
-                  <th className="text-left p-3">Tenant / Property</th>
-                  <th className="text-left p-3">Method</th>
-                  <th className="text-left p-3">Expiry</th>
-                  <th className="text-left p-3">Follow‑up</th>
-                  <th className="text-left p-3">Status</th>
-                  <th className="text-right p-3">Actions</th>
+      {loading ? <Card className="animate-pulse"><CardContent className="h-32" /></Card> :
+       rows.length === 0 ? (
+        <Card className="border-dashed border-2 bg-transparent"><CardContent className="p-12 text-center text-muted-foreground"><UserCheck className="mx-auto h-10 w-10 mb-3 opacity-40" /><div>No Right to Rent checks recorded yet.</div></CardContent></Card>
+      ) : (
+        <Card className="border-0 shadow-card"><CardContent className="p-0">
+          <table className="w-full text-sm">
+            <thead><tr className="border-b text-xs text-muted-foreground"><th className="text-left p-3">Property</th><th className="text-left p-3">Type</th><th className="text-left p-3">Reference</th><th className="text-left p-3">Issued</th><th className="text-left p-3">Followup</th><th className="text-left p-3">Status</th></tr></thead>
+            <tbody>
+              {rows.map((r) => (
+                <tr key={r.id} className="border-b hover:bg-muted/30">
+                  <td className="p-3 font-medium">{[r.properties?.address, r.properties?.city].filter(Boolean).join(", ")}</td>
+                  <td className="p-3 text-xs">{r.type.replaceAll("_"," ")}</td>
+                  <td className="p-3 text-xs">{r.reference ?? "—"}</td>
+                  <td className="p-3 text-xs">{r.issued_on ? new Date(r.issued_on).toLocaleDateString() : "—"}</td>
+                  <td className="p-3 text-xs">{r.expires_on ? new Date(r.expires_on).toLocaleDateString() : "—"}</td>
+                  <td className="p-3"><Badge variant="outline" className="capitalize">{r.status}</Badge></td>
                 </tr>
-              </thead>
-              <tbody>
-                {rows.map((r) => (
-                  <tr key={r.id} className="border-t hover:bg-muted/30">
-                    <td className="p-3 font-mono text-xs">{r.id}</td>
-                    <td className="p-3"><div className="font-medium">{r.tenant}</div><div className="text-xs text-muted-foreground">{r.property}</div></td>
-                    <td className="p-3">{r.method}</td>
-                    <td className="p-3">{r.expiry ? new Date(r.expiry).toLocaleDateString("en-GB") : "—"}</td>
-                    <td className="p-3 text-xs">{r.nextCheck}</td>
-                    <td className="p-3"><Badge variant="outline" className={TONE[r.status]}>{LABEL[r.status]}</Badge></td>
-                    <td className="p-3 text-right">
-                      <Button size="sm" variant="ghost" onClick={() => toast.success("Share‑code verified with Home Office")}><FileCheck2 className="h-3.5 w-3.5 mr-1" /> Verify</Button>
-                      <Button size="sm" variant="ghost" onClick={() => toast.success("Reminder scheduled")}><RefreshCw className="h-3.5 w-3.5 mr-1" /> Re‑check</Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="border-0 shadow-card">
-        <CardContent className="p-5">
-          <div className="flex items-start gap-3">
-            <div className="h-10 w-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center"><ShieldCheck className="h-5 w-5" /></div>
-            <div className="text-sm">
-              <div className="font-semibold">Accepted evidence</div>
-              <div className="text-muted-foreground mt-1">UK/Irish passport · UK birth certificate + NI proof · Biometric Residence Permit · Home Office share code · Certified IDSP digital identity check.</div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+              ))}
+            </tbody>
+          </table>
+        </CardContent></Card>
+      )}
     </div>
   );
 }
