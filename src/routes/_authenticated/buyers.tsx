@@ -1,188 +1,134 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useServerFn } from "@tanstack/react-start";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
-import { PageHeader } from "@/components/PageHeader";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Pencil, Trash2, Banknote } from "lucide-react";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Plus, Trash2, Users, Mail, Phone } from "lucide-react";
 import { toast } from "sonner";
-import { fetchBuyers, saveBuyer, deleteBuyer, fetchPropertyTypes } from "@/lib/persistence.functions";
+import { PageHeader } from "@/components/PageHeader";
 
-export const Route = createFileRoute("/_authenticated/buyers")({ component: BuyersPage });
+export const Route = createFileRoute("/_authenticated/buyers")({
+  head: () => ({ meta: [{ title: "Buyers — Estately" }] }),
+  component: BuyersPage,
+});
 
-const empty = {
-  id: undefined as string | undefined,
-  full_name: "", email: "", phone: "",
-  budget_min: "" as string, budget_max: "" as string,
-  areas: "" as string, property_type_codes: [] as string[],
-  bedrooms_min: "" as string,
-  finance_status: "unknown" as "cash"|"mortgage"|"aip"|"unknown",
-  chain_status: "unknown" as "no-chain"|"in-chain"|"first-time-buyer"|"unknown",
-  notes: "", active: true,
+type Buyer = {
+  id: string; full_name: string | null; email: string | null; phone: string | null;
+  budget_min: number | null; budget_max: number | null; bedrooms_min: number | null;
+  finance_status: string | null; chain_status: string | null; notes: string | null;
+  areas: string[] | null; active: boolean;
 };
 
+const empty = { full_name: "", email: "", phone: "", budget_min: 0, budget_max: 0, bedrooms_min: 0, finance_status: "", chain_status: "", areas: "", notes: "" };
+
 function BuyersPage() {
-  const qc = useQueryClient();
-  const load = useServerFn(fetchBuyers);
-  const save = useServerFn(saveBuyer);
-  const del = useServerFn(deleteBuyer);
-  const loadTypes = useServerFn(fetchPropertyTypes);
-  const { data, isLoading } = useQuery({ queryKey: ["buyers"], queryFn: () => load() });
-  const { data: typesData } = useQuery({ queryKey: ["property-types"], queryFn: () => loadTypes() });
-  const types = typesData?.types ?? [];
-  const [q, setQ] = useState("");
+  const [rows, setRows] = useState<Buyer[]>([]);
+  const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
-  const [f, setF] = useState(empty);
+  const [form, setForm] = useState(empty);
+  const [saving, setSaving] = useState(false);
+  const [agencyId, setAgencyId] = useState<string | null>(null);
 
-  const filtered = useMemo(() => {
-    const list = data?.buyers ?? [];
-    if (!q.trim()) return list;
-    const t = q.toLowerCase();
-    return list.filter((b: any) => [b.full_name, b.email, b.phone, b.notes, ...(b.areas ?? [])].filter(Boolean).join(" ").toLowerCase().includes(t));
-  }, [data, q]);
+  const load = async () => {
+    setLoading(true);
+    const { data: u } = await supabase.auth.getUser();
+    if (u.user) {
+      const { data: ag } = await supabase.from("agencies").select("id").eq("owner_id", u.user.id).maybeSingle();
+      setAgencyId(ag?.id ?? null);
+    }
+    const { data, error } = await supabase.from("buyer_profiles").select("*").eq("active", true).order("created_at", { ascending: false });
+    if (error) toast.error(error.message);
+    setRows((data as any) ?? []); setLoading(false);
+  };
+  useEffect(() => { void load(); }, []);
 
-  const submit = async () => {
-    if (!f.full_name.trim()) return toast.error("Name required");
-    try {
-      await save({ data: {
-        id: f.id,
-        full_name: f.full_name.trim(),
-        email: f.email,
-        phone: f.phone,
-        budget_min: f.budget_min ? Number(f.budget_min) : null,
-        budget_max: f.budget_max ? Number(f.budget_max) : null,
-        areas: f.areas.split(",").map(s => s.trim()).filter(Boolean),
-        property_type_codes: f.property_type_codes,
-        bedrooms_min: f.bedrooms_min ? Number(f.bedrooms_min) : null,
-        finance_status: f.finance_status,
-        chain_status: f.chain_status,
-        notes: f.notes,
-        active: f.active,
-      }});
-      toast.success("Saved");
-      setOpen(false); setF(empty);
-      qc.invalidateQueries({ queryKey: ["buyers"] });
-    } catch (e: any) { toast.error(e.message); }
+  const save = async () => {
+    if (!form.full_name.trim()) return toast.error("Name required");
+    setSaving(true);
+    const payload: any = {
+      agency_id: agencyId,
+      full_name: form.full_name.trim(),
+      email: form.email || null, phone: form.phone || null,
+      budget_min: form.budget_min || null, budget_max: form.budget_max || null,
+      bedrooms_min: form.bedrooms_min || null,
+      finance_status: form.finance_status || null, chain_status: form.chain_status || null,
+      areas: form.areas ? form.areas.split(",").map((s) => s.trim()).filter(Boolean) : null,
+      notes: form.notes || null,
+    };
+    const { error } = await supabase.from("buyer_profiles").insert(payload);
+    setSaving(false);
+    if (error) return toast.error(error.message);
+    toast.success("Buyer added");
+    setOpen(false); setForm(empty); void load();
   };
 
-  const edit = (b: any) => {
-    setF({
-      id: b.id, full_name: b.full_name, email: b.email ?? "", phone: b.phone ?? "",
-      budget_min: b.budget_min?.toString() ?? "", budget_max: b.budget_max?.toString() ?? "",
-      areas: (b.areas ?? []).join(", "), property_type_codes: b.property_type_codes ?? [],
-      bedrooms_min: b.bedrooms_min?.toString() ?? "",
-      finance_status: b.finance_status ?? "unknown", chain_status: b.chain_status ?? "unknown",
-      notes: b.notes ?? "", active: b.active,
-    });
-    setOpen(true);
+  const remove = async (id: string) => {
+    if (!confirm("Archive this buyer?")) return;
+    const { error } = await supabase.from("buyer_profiles").update({ active: false }).eq("id", id);
+    if (error) return toast.error(error.message);
+    void load();
   };
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Buyers" description="Active buyer requirements and matching criteria"
-        actions={<Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setF(empty); }}>
-          <DialogTrigger asChild><Button><Plus className="h-4 w-4 mr-2" /> Add buyer</Button></DialogTrigger>
-          <DialogContent className="max-w-xl max-h-[92vh] overflow-y-auto">
-            <DialogHeader><DialogTitle>{f.id ? "Edit buyer" : "New buyer"}</DialogTitle></DialogHeader>
-            <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
-                <div><Label>Name *</Label><Input value={f.full_name} onChange={e => setF({ ...f, full_name: e.target.value })} /></div>
-                <div><Label>Email</Label><Input value={f.email} onChange={e => setF({ ...f, email: e.target.value })} /></div>
-                <div><Label>Phone</Label><Input value={f.phone} onChange={e => setF({ ...f, phone: e.target.value })} /></div>
-                <div><Label>Min bedrooms</Label><Input type="number" value={f.bedrooms_min} onChange={e => setF({ ...f, bedrooms_min: e.target.value })} /></div>
-                <div><Label>Budget min (£)</Label><Input type="number" value={f.budget_min} onChange={e => setF({ ...f, budget_min: e.target.value })} /></div>
-                <div><Label>Budget max (£)</Label><Input type="number" value={f.budget_max} onChange={e => setF({ ...f, budget_max: e.target.value })} /></div>
-                <div>
-                  <Label>Finance</Label>
-                  <Select value={f.finance_status} onValueChange={(v: any) => setF({ ...f, finance_status: v })}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="cash">Cash</SelectItem>
-                      <SelectItem value="mortgage">Mortgage</SelectItem>
-                      <SelectItem value="aip">AIP in place</SelectItem>
-                      <SelectItem value="unknown">Unknown</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label>Chain</Label>
-                  <Select value={f.chain_status} onValueChange={(v: any) => setF({ ...f, chain_status: v })}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="no-chain">No chain</SelectItem>
-                      <SelectItem value="in-chain">In chain</SelectItem>
-                      <SelectItem value="first-time-buyer">First-time buyer</SelectItem>
-                      <SelectItem value="unknown">Unknown</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div><Label>Areas (comma-separated)</Label><Input value={f.areas} onChange={e => setF({ ...f, areas: e.target.value })} placeholder="Camden, Islington" /></div>
-              <div>
-                <Label>Property types</Label>
-                <div className="flex flex-wrap gap-1.5 mt-1.5">
-                  {types.map((t: any) => {
-                    const on = f.property_type_codes.includes(t.code);
-                    return (
-                      <Badge key={t.code} variant={on ? "default" : "outline"} className="cursor-pointer"
-                        onClick={() => setF({ ...f, property_type_codes: on ? f.property_type_codes.filter(c => c !== t.code) : [...f.property_type_codes, t.code] })}>
-                        {t.label}
-                      </Badge>
-                    );
-                  })}
-                </div>
-              </div>
-              <div><Label>Notes</Label><Textarea rows={3} value={f.notes} onChange={e => setF({ ...f, notes: e.target.value })} /></div>
-            </div>
-            <DialogFooter><Button onClick={submit}>Save</Button></DialogFooter>
-          </DialogContent>
-        </Dialog>}
-      />
-      <Input placeholder="Search buyers…" value={q} onChange={(e) => setQ(e.target.value)} className="max-w-sm" />
-      {isLoading ? <div className="text-sm text-muted-foreground">Loading…</div> : (
-        <div className="grid gap-3 md:grid-cols-2">
-          {filtered.map((b: any) => (
+      <PageHeader title="Buyers" description="Registered buyers, budgets and search criteria." actions={
+        <Button onClick={() => { setForm(empty); setOpen(true); }}><Plus className="mr-2 h-4 w-4" /> Add buyer</Button>
+      } />
+
+      {loading ? (
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">{Array.from({ length: 6 }).map((_, i) => <Card key={i} className="animate-pulse"><CardContent className="p-5 h-32" /></Card>)}</div>
+      ) : rows.length === 0 ? (
+        <Card className="border-dashed border-2 bg-transparent"><CardContent className="p-12 text-center text-muted-foreground"><Users className="mx-auto h-10 w-10 mb-3 opacity-40" /><div>No buyers yet.</div></CardContent></Card>
+      ) : (
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {rows.map((b) => (
             <Card key={b.id} className="border-0 shadow-card">
-              <CardContent className="p-4 space-y-2">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <div className="font-semibold">{b.full_name}</div>
-                    <div className="text-xs text-muted-foreground">{b.email} {b.phone && `· ${b.phone}`}</div>
-                  </div>
-                  <div className="flex gap-1">
-                    <Button size="icon" variant="ghost" onClick={() => edit(b)}><Pencil className="h-3 w-3" /></Button>
-                    <Button size="icon" variant="ghost" className="text-destructive" onClick={async () => {
-                      if (!confirm("Delete buyer?")) return;
-                      await del({ data: { id: b.id } });
-                      qc.invalidateQueries({ queryKey: ["buyers"] });
-                    }}><Trash2 className="h-3 w-3" /></Button>
-                  </div>
+              <CardContent className="p-5 space-y-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="font-semibold truncate">{b.full_name}</div>
+                  <Button size="icon" variant="ghost" className="text-destructive h-7 w-7" onClick={() => remove(b.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
                 </div>
-                {(b.budget_min || b.budget_max) && (
-                  <div className="text-sm flex items-center gap-1"><Banknote className="h-3 w-3 text-muted-foreground" />
-                    £{(b.budget_min ?? 0).toLocaleString()} – £{(b.budget_max ?? 0).toLocaleString()}
-                    {b.bedrooms_min && <span className="text-muted-foreground ml-2">{b.bedrooms_min}+ beds</span>}
-                  </div>
-                )}
-                <div className="flex flex-wrap gap-1">
-                  {(b.areas ?? []).map((a: string) => <Badge key={a} variant="secondary" className="text-[10px]">{a}</Badge>)}
-                  {b.finance_status && b.finance_status !== "unknown" && <Badge variant="outline" className="text-[10px]">{b.finance_status}</Badge>}
-                  {b.chain_status && b.chain_status !== "unknown" && <Badge variant="outline" className="text-[10px]">{b.chain_status}</Badge>}
+                <div className="text-xs text-muted-foreground space-y-0.5">
+                  {b.email && <div className="flex items-center gap-1.5 truncate"><Mail className="h-3 w-3 shrink-0" />{b.email}</div>}
+                  {b.phone && <div className="flex items-center gap-1.5"><Phone className="h-3 w-3" />{b.phone}</div>}
                 </div>
-                {b.notes && <div className="text-xs text-muted-foreground">{b.notes}</div>}
+                {(b.budget_min || b.budget_max) ? <div className="text-sm font-medium">£{Number(b.budget_min ?? 0).toLocaleString()} – £{Number(b.budget_max ?? 0).toLocaleString()}</div> : null}
+                <div className="flex flex-wrap gap-1.5 text-xs">
+                  {b.bedrooms_min ? <Badge variant="secondary" className="font-normal">{b.bedrooms_min}+ bed</Badge> : null}
+                  {b.finance_status && <Badge variant="secondary" className="font-normal">{b.finance_status}</Badge>}
+                  {b.chain_status && <Badge variant="secondary" className="font-normal">{b.chain_status}</Badge>}
+                  {b.areas?.slice(0, 3).map((a) => <Badge key={a} variant="outline" className="font-normal">{a}</Badge>)}
+                </div>
+                {b.notes && <p className="text-xs text-muted-foreground line-clamp-2">{b.notes}</p>}
               </CardContent>
             </Card>
           ))}
-          {filtered.length === 0 && <div className="col-span-2 text-sm text-muted-foreground text-center py-12 border border-dashed rounded-lg">No buyers yet</div>}
         </div>
       )}
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader><DialogTitle>Add buyer</DialogTitle></DialogHeader>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="col-span-2"><Label>Full name *</Label><Input value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} /></div>
+            <div><Label>Email</Label><Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></div>
+            <div><Label>Phone</Label><Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></div>
+            <div><Label>Budget min (£)</Label><Input type="number" value={form.budget_min} onChange={(e) => setForm({ ...form, budget_min: Number(e.target.value) })} /></div>
+            <div><Label>Budget max (£)</Label><Input type="number" value={form.budget_max} onChange={(e) => setForm({ ...form, budget_max: Number(e.target.value) })} /></div>
+            <div><Label>Min bedrooms</Label><Input type="number" value={form.bedrooms_min} onChange={(e) => setForm({ ...form, bedrooms_min: Number(e.target.value) })} /></div>
+            <div><Label>Finance status</Label><Input placeholder="cash / AIP / mortgage" value={form.finance_status} onChange={(e) => setForm({ ...form, finance_status: e.target.value })} /></div>
+            <div><Label>Chain status</Label><Input placeholder="no chain / under offer" value={form.chain_status} onChange={(e) => setForm({ ...form, chain_status: e.target.value })} /></div>
+            <div><Label>Areas (comma sep)</Label><Input value={form.areas} onChange={(e) => setForm({ ...form, areas: e.target.value })} /></div>
+            <div className="col-span-2"><Label>Notes</Label><Textarea rows={3} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} /></div>
+          </div>
+          <DialogFooter><Button onClick={save} disabled={saving || !form.full_name.trim()}>{saving ? "Saving…" : "Save"}</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
