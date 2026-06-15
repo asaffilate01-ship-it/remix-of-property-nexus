@@ -143,7 +143,7 @@ function CompliancePage() {
             <div><Label>Status</Label>
               <Select value={form.status} onValueChange={(val) => setForm({ ...form, status: val })}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>{["valid","expiring","expired","missing"].map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+                <SelectContent>{["valid","due_soon","expired","missing"].map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
               </Select>
             </div>
             <div className="col-span-2"><Label>Property *</Label>

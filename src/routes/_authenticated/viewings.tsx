@@ -33,7 +33,6 @@ type Viewing = {
   feedback: string | null;
 };
 
-const STATUSES = ["pending","confirmed","completed","cancelled","no_show"] as const;
 type VStatus = typeof STATUSES[number];
 const empty = { applicant_name: "", applicant_email: "", applicant_phone: "", agent_name: "", scheduled_at: "", duration_minutes: 30, status: "pending" as VStatus, notes: "", listing_id: "" };
 
@@ -138,7 +137,7 @@ function ViewingsPage() {
                     <Select value={v.status} onValueChange={(val) => setStatus(v.id, val)}>
                       <SelectTrigger className="h-8 text-xs flex-1"><SelectValue /></SelectTrigger>
                       <SelectContent>
-                        {["requested","confirmed","completed","cancelled","no_show"].map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                        {["pending","confirmed","completed","cancelled","no_show"].map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
                       </SelectContent>
                     </Select>
                     <Button size="icon" variant="ghost" className="text-destructive h-8 w-8" onClick={() => remove(v.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
@@ -169,7 +168,7 @@ function ViewingsPage() {
             <div><Label>Status</Label>
               <Select value={form.status} onValueChange={(val) => setForm({ ...form, status: val })}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>{["requested","confirmed","completed","cancelled","no_show"].map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+                <SelectContent>{["pending","confirmed","completed","cancelled","no_show"].map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
               </Select>
             </div>
             <div className="col-span-2"><Label>Notes</Label><Textarea rows={3} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} /></div>

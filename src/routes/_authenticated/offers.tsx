@@ -25,7 +25,7 @@ type Offer = {
   financing: string | null; position_in_chain: number | null;
 };
 
-const empty = { buyer_name: "", buyer_email: "", buyer_phone: "", amount: 0, status: "submitted", notes: "", listing_id: "", financing: "", position_in_chain: 0 };
+const empty = { buyer_name: "", buyer_email: "", buyer_phone: "", amount: 0, status: "pending", notes: "", listing_id: "", financing: "", position_in_chain: 0 };
 
 function OffersPage() {
   const [rows, setRows] = useState<Offer[]>([]);
@@ -132,7 +132,7 @@ function OffersPage() {
                   <div className="flex gap-1 pt-1 border-t">
                     <Select value={o.status} onValueChange={(val) => setStatus(o.id, val)}>
                       <SelectTrigger className="h-8 text-xs flex-1"><SelectValue /></SelectTrigger>
-                      <SelectContent>{["submitted","countered","accepted","rejected","withdrawn"].map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+                      <SelectContent>{["pending","countered","accepted","rejected","withdrawn"].map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
                     </Select>
                     <Button size="icon" variant="ghost" className="text-destructive h-8 w-8" onClick={() => remove(o.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
                   </div>
@@ -162,7 +162,7 @@ function OffersPage() {
             <div className="col-span-2"><Label>Status</Label>
               <Select value={form.status} onValueChange={(val) => setForm({ ...form, status: val })}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>{["submitted","countered","accepted","rejected","withdrawn"].map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+                <SelectContent>{["pending","countered","accepted","rejected","withdrawn"].map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
               </Select>
             </div>
             <div className="col-span-2"><Label>Notes</Label><Textarea rows={3} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} /></div>

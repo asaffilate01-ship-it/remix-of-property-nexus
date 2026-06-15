@@ -89,7 +89,7 @@ function WorkOrdersPage() {
     "bg-amber-50 text-amber-700 border-amber-200";
 
   const priColor = (p: string) =>
-    p === "urgent" ? "bg-red-50 text-red-700 border-red-200" :
+    p === "emergency" ? "bg-red-50 text-red-700 border-red-200" :
     p === "high" ? "bg-orange-50 text-orange-700 border-orange-200" :
     "bg-gray-50 text-gray-600 border-gray-200";
 
@@ -153,7 +153,7 @@ function WorkOrdersPage() {
             <div><Label>Priority</Label>
               <Select value={form.priority} onValueChange={(val) => setForm({ ...form, priority: val })}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>{["low","medium","high","urgent"].map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+                <SelectContent>{["low","medium","high","emergency"].map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
               </Select>
             </div>
             <div className="col-span-2"><Label>Property</Label>
