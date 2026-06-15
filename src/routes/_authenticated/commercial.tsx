@@ -13,36 +13,39 @@ export const Route = createFileRoute("/_authenticated/commercial")({
 
 const COMMERCIAL_TYPES = ["office","retail","industrial","warehouse","mixed-use","hospitality","healthcare","leisure"];
 
-type Property = { id: string; address: string | null; city: string | null; postcode: string | null; property_type: string | null; size_sqft: number | null; price: number | null };
+type Listing = { id: string; title: string | null; address: string | null; city: string | null; postcode: string | null; property_type_code: string | null; floor_area_sqft: number | null; price: number | null };
 
 function CommercialPage() {
-  const [rows, setRows] = useState<Property[]>([]);
+  const [rows, setRows] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase.from("properties").select("id, address, city, postcode, property_type, size_sqft, price").in("property_type", COMMERCIAL_TYPES);
+      const { data } = await supabase
+        .from("listings")
+        .select("id, title, address, city, postcode, property_type_code, floor_area_sqft, price")
+        .in("property_type_code", COMMERCIAL_TYPES);
       setRows((data as any) ?? []); setLoading(false);
     })();
   }, []);
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Commercial" description="Offices, retail, industrial and other commercial property." />
+      <PageHeader title="Commercial" description="Offices, retail, industrial and other commercial listings." />
 
       {loading ? <Card className="animate-pulse"><CardContent className="h-32" /></Card> :
        rows.length === 0 ? (
-        <Card className="border-dashed border-2 bg-transparent"><CardContent className="p-12 text-center text-muted-foreground"><Briefcase className="mx-auto h-10 w-10 mb-3 opacity-40" /><div>No commercial properties. Set property type to office, retail, warehouse, etc.</div></CardContent></Card>
+        <Card className="border-dashed border-2 bg-transparent"><CardContent className="p-12 text-center text-muted-foreground"><Briefcase className="mx-auto h-10 w-10 mb-3 opacity-40" /><div>No commercial listings yet. Create a listing with a commercial property type.</div></CardContent></Card>
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {rows.map((p) => (
             <Card key={p.id} className="border-0 shadow-card">
               <CardContent className="p-5 space-y-2">
-                <Link to="/properties" className="font-semibold hover:underline truncate block">{[p.address, p.city].filter(Boolean).join(", ")}</Link>
+                <Link to="/listings" className="font-semibold hover:underline truncate block">{p.title || [p.address, p.city].filter(Boolean).join(", ")}</Link>
                 <div className="text-xs text-muted-foreground">{p.postcode}</div>
                 <div className="flex flex-wrap gap-1.5 text-xs">
-                  <Badge variant="outline" className="capitalize">{p.property_type?.replace("-"," ")}</Badge>
-                  {p.size_sqft ? <Badge variant="secondary" className="font-normal">{p.size_sqft.toLocaleString()} sqft</Badge> : null}
+                  {p.property_type_code && <Badge variant="outline" className="capitalize">{p.property_type_code.replace("-"," ")}</Badge>}
+                  {p.floor_area_sqft ? <Badge variant="secondary" className="font-normal">{p.floor_area_sqft.toLocaleString()} sqft</Badge> : null}
                 </div>
                 {p.price ? <div className="text-lg font-bold">£{Number(p.price).toLocaleString()}</div> : null}
               </CardContent>

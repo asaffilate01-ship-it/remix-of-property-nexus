@@ -11,15 +11,15 @@ export const Route = createFileRoute("/_authenticated/media")({
   component: MediaPage,
 });
 
-type Property = { id: string; address: string | null; city: string | null; floorplan_url: string | null; epc_url: string | null; photos: any };
+type Listing = { id: string; title: string | null; address: string | null; city: string | null; floorplan_url: string | null; epc_rating: string | null; photos: any; photos_verified: boolean | null };
 
 function MediaPage() {
-  const [rows, setRows] = useState<Property[]>([]);
+  const [rows, setRows] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase.from("properties").select("id, address, city, floorplan_url, epc_url, photos");
+      const { data } = await supabase.from("listings").select("id, title, address, city, floorplan_url, epc_rating, photos, photos_verified");
       setRows((data as any) ?? []); setLoading(false);
     })();
   }, []);
@@ -28,23 +28,23 @@ function MediaPage() {
     total: rows.length,
     photos: rows.filter((r) => Array.isArray(r.photos) && r.photos.length > 0).length,
     floorplans: rows.filter((r) => r.floorplan_url).length,
-    epcs: rows.filter((r) => r.epc_url).length,
+    epcs: rows.filter((r) => r.epc_rating).length,
   };
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Floorplans & EPC" description="Photo, floorplan and EPC coverage across your portfolio." />
+      <PageHeader title="Floorplans & EPC" description="Photo, floorplan and EPC coverage across your listings." />
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <Card className="border-0 shadow-card"><CardContent className="p-4"><div className="text-xs text-muted-foreground">Properties</div><div className="text-xl font-bold">{stats.total}</div></CardContent></Card>
+        <Card className="border-0 shadow-card"><CardContent className="p-4"><div className="text-xs text-muted-foreground">Listings</div><div className="text-xl font-bold">{stats.total}</div></CardContent></Card>
         <Card className="border-0 shadow-card"><CardContent className="p-4"><div className="text-xs text-muted-foreground">With photos</div><div className="text-xl font-bold">{stats.photos}</div></CardContent></Card>
         <Card className="border-0 shadow-card"><CardContent className="p-4"><div className="text-xs text-muted-foreground">Floorplans</div><div className="text-xl font-bold">{stats.floorplans}</div></CardContent></Card>
-        <Card className="border-0 shadow-card"><CardContent className="p-4"><div className="text-xs text-muted-foreground">EPC certs</div><div className="text-xl font-bold">{stats.epcs}</div></CardContent></Card>
+        <Card className="border-0 shadow-card"><CardContent className="p-4"><div className="text-xs text-muted-foreground">EPC ratings</div><div className="text-xl font-bold">{stats.epcs}</div></CardContent></Card>
       </div>
 
       {loading ? <Card className="animate-pulse"><CardContent className="h-32" /></Card> :
        rows.length === 0 ? (
-        <Card className="border-dashed border-2 bg-transparent"><CardContent className="p-12 text-center text-muted-foreground"><ImageIcon className="mx-auto h-10 w-10 mb-3 opacity-40" /><div>No properties yet.</div></CardContent></Card>
+        <Card className="border-dashed border-2 bg-transparent"><CardContent className="p-12 text-center text-muted-foreground"><ImageIcon className="mx-auto h-10 w-10 mb-3 opacity-40" /><div>No listings yet.</div></CardContent></Card>
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {rows.map((p) => {
@@ -52,11 +52,11 @@ function MediaPage() {
             return (
               <Card key={p.id} className="border-0 shadow-card">
                 <CardContent className="p-5 space-y-3">
-                  <Link to="/properties" className="font-semibold hover:underline truncate block">{[p.address, p.city].filter(Boolean).join(", ")}</Link>
+                  <Link to="/listings" className="font-semibold hover:underline truncate block">{p.title || [p.address, p.city].filter(Boolean).join(", ")}</Link>
                   <div className="flex flex-wrap gap-1.5 text-xs">
-                    <Badge variant={photoCount > 0 ? "default" : "outline"} className={photoCount === 0 ? "border-amber-300 text-amber-700" : "font-normal"}>{photoCount} photos</Badge>
+                    <Badge variant={photoCount > 0 ? "default" : "outline"} className={photoCount === 0 ? "border-amber-300 text-amber-700" : "font-normal"}>{photoCount} photos{p.photos_verified ? " ✓" : ""}</Badge>
                     <Badge variant="outline" className={p.floorplan_url ? "border-emerald-300 text-emerald-700" : "border-amber-300 text-amber-700"}>{p.floorplan_url ? "Floorplan ✓" : "No floorplan"}</Badge>
-                    <Badge variant="outline" className={p.epc_url ? "border-emerald-300 text-emerald-700" : "border-amber-300 text-amber-700"}>{p.epc_url ? "EPC ✓" : "No EPC"}</Badge>
+                    <Badge variant="outline" className={p.epc_rating ? "border-emerald-300 text-emerald-700" : "border-amber-300 text-amber-700"}>{p.epc_rating ? `EPC ${p.epc_rating}` : "No EPC"}</Badge>
                   </div>
                 </CardContent>
               </Card>

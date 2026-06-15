@@ -11,42 +11,46 @@ export const Route = createFileRoute("/_authenticated/leasehold")({
   component: LeaseholdPage,
 });
 
-type Property = { id: string; address: string | null; city: string | null; postcode: string | null; tenure: string | null; lease_years_remaining: number | null; ground_rent: number | null; service_charge: number | null };
+type Listing = { id: string; title: string | null; address: string | null; city: string | null; postcode: string | null; tenure: string | null; lease_term_months: number | null; service_charge_pa: number | null };
 
 function LeaseholdPage() {
-  const [rows, setRows] = useState<Property[]>([]);
+  const [rows, setRows] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
       const { data } = await supabase
-        .from("properties")
-        .select("id, address, city, postcode, tenure, lease_years_remaining, ground_rent, service_charge")
+        .from("listings")
+        .select("id, title, address, city, postcode, tenure, lease_term_months, service_charge_pa")
         .eq("tenure", "leasehold");
       setRows((data as any) ?? []); setLoading(false);
     })();
   }, []);
 
+  const years = (m: number | null) => m ? Math.round(m / 12) : null;
+
   return (
     <div className="space-y-6">
-      <PageHeader title="Leasehold register" description="Leasehold properties with remaining term, ground rent and service charges." />
+      <PageHeader title="Leasehold register" description="Leasehold listings with remaining term and service charge." />
 
       {loading ? <Card className="animate-pulse"><CardContent className="h-32" /></Card> :
        rows.length === 0 ? (
-        <Card className="border-dashed border-2 bg-transparent"><CardContent className="p-12 text-center text-muted-foreground"><Landmark className="mx-auto h-10 w-10 mb-3 opacity-40" /><div>No leasehold properties on file.</div></CardContent></Card>
+        <Card className="border-dashed border-2 bg-transparent"><CardContent className="p-12 text-center text-muted-foreground"><Landmark className="mx-auto h-10 w-10 mb-3 opacity-40" /><div>No leasehold listings on file.</div></CardContent></Card>
       ) : (
         <Card className="border-0 shadow-card"><CardContent className="p-0">
           <table className="w-full text-sm">
-            <thead><tr className="border-b text-xs text-muted-foreground"><th className="text-left p-3">Property</th><th className="text-right p-3">Years left</th><th className="text-right p-3">Ground rent</th><th className="text-right p-3">Service charge</th></tr></thead>
+            <thead><tr className="border-b text-xs text-muted-foreground"><th className="text-left p-3">Listing</th><th className="text-right p-3">Years left</th><th className="text-right p-3">Service charge p.a.</th></tr></thead>
             <tbody>
-              {rows.map((p) => (
-                <tr key={p.id} className="border-b hover:bg-muted/30">
-                  <td className="p-3"><Link to="/properties" className="font-medium hover:underline">{[p.address, p.city].filter(Boolean).join(", ")}</Link><div className="text-xs text-muted-foreground">{p.postcode}</div></td>
-                  <td className="p-3 text-right">{p.lease_years_remaining ?? "—"}{p.lease_years_remaining !== null && p.lease_years_remaining < 80 && <Badge variant="outline" className="ml-2 border-red-300 text-red-700">Short</Badge>}</td>
-                  <td className="p-3 text-right">{p.ground_rent ? `£${p.ground_rent}` : "—"}</td>
-                  <td className="p-3 text-right">{p.service_charge ? `£${p.service_charge}` : "—"}</td>
-                </tr>
-              ))}
+              {rows.map((p) => {
+                const yrs = years(p.lease_term_months);
+                return (
+                  <tr key={p.id} className="border-b hover:bg-muted/30">
+                    <td className="p-3"><Link to="/listings" className="font-medium hover:underline">{p.title || [p.address, p.city].filter(Boolean).join(", ")}</Link><div className="text-xs text-muted-foreground">{p.postcode}</div></td>
+                    <td className="p-3 text-right">{yrs ?? "—"}{yrs !== null && yrs < 80 && <Badge variant="outline" className="ml-2 border-red-300 text-red-700">Short</Badge>}</td>
+                    <td className="p-3 text-right">{p.service_charge_pa ? `£${Number(p.service_charge_pa).toLocaleString()}` : "—"}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </CardContent></Card>
