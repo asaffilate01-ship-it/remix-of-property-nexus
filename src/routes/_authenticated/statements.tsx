@@ -27,7 +27,7 @@ function StatementsPage() {
 
       const [rentRes, woRes] = await Promise.all([
         supabase.from("rent_schedule")
-          .select("amount, paid_on, due_on, tenancies(properties(id, address, city))")
+          .select("amount, paid_at, due_date, tenancies(properties(id, address, city))")
           .gte("due_date", s).lt("due_date", e),
         supabase.from("work_orders")
           .select("actual_cost, completed_at, property_id, properties(address, city)")

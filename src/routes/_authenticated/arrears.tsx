@@ -21,7 +21,7 @@ function ArrearsPage() {
     (async () => {
       const { data, error } = await supabase
         .from("rent_schedule")
-        .select("tenancy_id, due_on, amount, paid_on, tenancies(properties(address, city), tenants(full_name))")
+        .select("tenancy_id, due_date, amount, paid_at, tenancies(properties(address, city), tenants(full_name))")
         .is("paid_at", null)
         .lte("due_date", new Date().toISOString().slice(0, 10));
       if (error) { setLoading(false); return; }

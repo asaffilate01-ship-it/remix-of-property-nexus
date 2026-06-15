@@ -25,7 +25,7 @@ function AlertsPage() {
       const [comp, tens, rent, view] = await Promise.all([
         supabase.from("compliance_records").select("id, type, expires_on, properties(address, city)").not("expires_on", "is", null),
         supabase.from("tenancies").select("id, end_date, status, tenants(full_name), properties(address, city)").eq("status", "active").not("end_date", "is", null),
-        supabase.from("rent_schedule").select("id, due_on, amount, paid_on, tenancies(tenants(full_name), properties(address, city))").is("paid_at", null).lte("due_date", new Date().toISOString().slice(0, 10)),
+        supabase.from("rent_schedule").select("id, due_date, amount, paid_at, tenancies(tenants(full_name), properties(address, city))").is("paid_at", null).lte("due_date", new Date().toISOString().slice(0, 10)),
         supabase.from("viewings").select("id, scheduled_at, applicant_name, status").eq("status", "pending").gt("scheduled_at", new Date().toISOString()),
       ]);
 
