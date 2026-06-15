@@ -33,7 +33,9 @@ type Viewing = {
   feedback: string | null;
 };
 
-const empty = { applicant_name: "", applicant_email: "", applicant_phone: "", agent_name: "", scheduled_at: "", duration_minutes: 30, status: "requested", notes: "", listing_id: "" };
+const STATUSES = ["pending","confirmed","completed","cancelled","no_show"] as const;
+type VStatus = typeof STATUSES[number];
+const empty = { applicant_name: "", applicant_email: "", applicant_phone: "", agent_name: "", scheduled_at: "", duration_minutes: 30, status: "pending" as VStatus, notes: "", listing_id: "" };
 
 function ViewingsPage() {
   const [rows, setRows] = useState<Viewing[]>([]);
@@ -85,7 +87,7 @@ function ViewingsPage() {
   };
 
   const setStatus = async (id: string, status: string) => {
-    const { error } = await supabase.from("viewings").update({ status }).eq("id", id);
+    const { error } = await supabase.from("viewings").update({ status: status as VStatus }).eq("id", id);
     if (error) return toast.error(error.message);
     void load();
   };
