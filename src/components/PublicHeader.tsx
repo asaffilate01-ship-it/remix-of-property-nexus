@@ -1,9 +1,12 @@
-import { Link } from "@tanstack/react-router";
-import { Building2, Menu, ChevronDown, Search, Bookmark, Calculator, Banknote, MapPin, ClipboardCheck, Briefcase, Users, BookOpen, Info, Mail, Tag } from "lucide-react";
-import { useState } from "react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { Building2, Menu, ChevronDown, Search, Bookmark, Calculator, Banknote, MapPin, ClipboardCheck, Briefcase, Users, BookOpen, Info, Mail, Tag, LogOut, LayoutDashboard } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 type Item = { to: string; label: string; desc?: string; icon: typeof Search };
 type Group = { label: string; items: Item[] };
@@ -45,6 +48,36 @@ const groups: Group[] = [
 
 export function PublicHeader() {
   const [open, setOpen] = useState(false);
+  const [signedIn, setSignedIn] = useState(false);
+  const navigate = useNavigate();
+  const qc = useQueryClient();
+
+  useEffect(() => {
+    let active = true;
+    supabase.auth.getSession().then(({ data }) => {
+      if (active) setSignedIn(!!data.session);
+    });
+    const { data } = supabase.auth.onAuthStateChange((_e, session) => {
+      setSignedIn(!!session);
+    });
+    return () => {
+      active = false;
+      data.subscription.unsubscribe();
+    };
+  }, []);
+
+  const handleSignOut = async () => {
+    try {
+      await qc.cancelQueries();
+      qc.clear();
+      const { error } = await supabase.auth.signOut({ scope: "local" });
+      if (error) throw error;
+      setOpen(false);
+      navigate({ to: "/auth", replace: true });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Sign out failed");
+    }
+  };
   return (
     <header className="sticky top-0 z-40 border-b bg-background/70 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto flex h-16 items-center justify-between gap-4 px-4">
@@ -93,8 +126,17 @@ export function PublicHeader() {
         </nav>
 
         <div className="hidden md:flex items-center gap-2">
-          <Button asChild variant="ghost" size="sm"><Link to="/auth">Sign in</Link></Button>
-          <Button asChild size="sm"><Link to="/auth" search={{ mode: "signup" } as never}>Get started</Link></Button>
+          {signedIn ? (
+            <>
+              <Button asChild variant="ghost" size="sm"><Link to="/dashboard"><LayoutDashboard className="h-4 w-4 mr-1.5" />Dashboard</Link></Button>
+              <Button variant="outline" size="sm" onClick={handleSignOut}><LogOut className="h-4 w-4 mr-1.5" />Sign out</Button>
+            </>
+          ) : (
+            <>
+              <Button asChild variant="ghost" size="sm"><Link to="/auth">Sign in</Link></Button>
+              <Button asChild size="sm"><Link to="/auth" search={{ mode: "signup" } as never}>Get started</Link></Button>
+            </>
+          )}
         </div>
 
         <Sheet open={open} onOpenChange={setOpen}>
@@ -143,8 +185,17 @@ export function PublicHeader() {
               ))}
             </div>
             <div className="border-t p-3 flex flex-col gap-2 bg-background">
-              <Button asChild variant="outline"><Link to="/auth" onClick={() => setOpen(false)}>Sign in</Link></Button>
-              <Button asChild><Link to="/auth" search={{ mode: "signup" } as never} onClick={() => setOpen(false)}>Get started</Link></Button>
+              {signedIn ? (
+                <>
+                  <Button asChild variant="outline"><Link to="/dashboard" onClick={() => setOpen(false)}><LayoutDashboard className="h-4 w-4 mr-1.5" />Dashboard</Link></Button>
+                  <Button onClick={handleSignOut}><LogOut className="h-4 w-4 mr-1.5" />Sign out</Button>
+                </>
+              ) : (
+                <>
+                  <Button asChild variant="outline"><Link to="/auth" onClick={() => setOpen(false)}>Sign in</Link></Button>
+                  <Button asChild><Link to="/auth" search={{ mode: "signup" } as never} onClick={() => setOpen(false)}>Get started</Link></Button>
+                </>
+              )}
             </div>
           </SheetContent>
         </Sheet>
