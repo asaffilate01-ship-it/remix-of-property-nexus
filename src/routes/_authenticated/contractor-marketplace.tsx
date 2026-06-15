@@ -28,7 +28,7 @@ function ContractorMarketplacePage() {
       const { data } = await supabase
         .from("contacts")
         .select("id, contact_type, full_name, company_name, email, phone, hourly_rate, rating, is_preferred, postcode")
-        .in("contact_type", TRADES)
+        .in("contact_type", TRADES as any)
         .eq("is_active", true)
         .order("is_preferred", { ascending: false }).order("rating", { ascending: false, nullsFirst: false });
       setRows(((data as any) ?? []).map((r: any) => ({ ...r, city: null }))); setLoading(false);

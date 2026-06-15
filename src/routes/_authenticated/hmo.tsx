@@ -23,7 +23,7 @@ function HmoPage() {
   useEffect(() => {
     (async () => {
       const [p, r] = await Promise.all([
-        supabase.from("properties").select("id, address, city, bedrooms, property_type").eq("property_type", "hmo"),
+        supabase.from("properties").select("id, address, city, bedrooms, property_type").eq("is_hmo", true),
         supabase.from("rooms").select("id, name, rent_pcm, status, en_suite, property_id"),
       ]);
       setProperties((p.data as any) ?? []);

@@ -24,7 +24,7 @@ function MovePage() {
       const { data } = await supabase
         .from("tenancy_events")
         .select("id, kind, summary, occurred_at, tenancies(properties(address, city), tenants(full_name))")
-        .in("kind", MOVE_KINDS)
+        .in("kind", MOVE_KINDS as any)
         .order("occurred_at", { ascending: false })
         .limit(50);
       setRows((data as any) ?? []); setLoading(false);
