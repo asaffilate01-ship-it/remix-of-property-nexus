@@ -1,223 +1,164 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useServerFn } from "@tanstack/react-start";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import { Plus, Star, Phone, Mail, Trash2, Pencil } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Plus, Pencil, Trash2, Contact as ContactIcon, Mail, Phone, Star } from "lucide-react";
 import { toast } from "sonner";
-import { fetchOpsData, saveContact, deleteContact } from "@/lib/ops.functions";
 import { PageHeader } from "@/components/PageHeader";
-import { QuickContactActions } from "@/components/QuickContactActions";
-import { AddressLookup } from "@/components/address/AddressLookup";
 
-export const Route = createFileRoute("/_authenticated/contacts")({ component: ContactsPage });
+export const Route = createFileRoute("/_authenticated/contacts")({
+  head: () => ({ meta: [{ title: "Contacts — Estately" }] }),
+  component: ContactsPage,
+});
 
-const CONTACT_TYPES = [
-  "conveyancer", "solicitor", "plumber", "electrician", "gas_engineer", "builder",
-  "cleaner", "handyman", "locksmith", "roofer", "painter", "gardener",
-  "inventory_clerk", "epc_assessor", "utilities", "council", "referencing", "insurance", "other",
-];
-
-const TYPE_LABEL: Record<string, string> = {
-  conveyancer: "Conveyancer", solicitor: "Solicitor", plumber: "Plumber", electrician: "Electrician",
-  gas_engineer: "Gas Engineer", builder: "Builder", cleaner: "Cleaner", handyman: "Handyman",
-  locksmith: "Locksmith", roofer: "Roofer", painter: "Painter", gardener: "Gardener",
-  inventory_clerk: "Inventory Clerk", epc_assessor: "EPC Assessor", utilities: "Utilities",
-  council: "Council", referencing: "Referencing", insurance: "Insurance", other: "Other",
+type Contact = {
+  id: string; contact_type: string; full_name: string; company_name: string | null;
+  email: string | null; phone: string | null; address: string | null; postcode: string | null;
+  notes: string | null; rating: number | null; hourly_rate: number | null; is_preferred: boolean; is_active: boolean;
 };
 
-const empty = {
-  id: undefined as string | undefined,
-  contact_type: "plumber",
-  company_name: "",
-  full_name: "",
-  email: "",
-  phone: "",
-  address: "",
-  postcode: "",
-  notes: "",
-  rating: "" as string,
-  hourly_rate: "" as string,
-  insurance_expires_at: "",
-  is_preferred: false,
-  is_active: true,
-};
+const TYPES = ["landlord","tenant","contractor","supplier","applicant","vendor","conveyancer","other"];
+const empty = { id: "", contact_type: "contractor", full_name: "", company_name: "", email: "", phone: "", address: "", postcode: "", notes: "", rating: 0, hourly_rate: 0, is_preferred: false };
 
 function ContactsPage() {
-  const qc = useQueryClient();
-  const load = useServerFn(fetchOpsData);
-  const save = useServerFn(saveContact);
-  const del = useServerFn(deleteContact);
-  const { data, isLoading } = useQuery({ queryKey: ["ops"], queryFn: () => load() });
-
+  const [rows, setRows] = useState<Contact[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [q, setQ] = useState("");
+  const [type, setType] = useState("all");
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(empty);
-  const [q, setQ] = useState("");
-  const [typeFilter, setTypeFilter] = useState<string>("all");
+  const [saving, setSaving] = useState(false);
 
-  const contacts = (data?.contacts ?? []) as any[];
+  const load = async () => {
+    setLoading(true);
+    const { data, error } = await supabase.from("contacts").select("*").eq("is_active", true).order("full_name");
+    if (error) toast.error(error.message);
+    setRows((data as any) ?? []); setLoading(false);
+  };
+  useEffect(() => { void load(); }, []);
+
   const filtered = useMemo(() => {
-    return contacts.filter((c) => {
-      if (typeFilter !== "all" && c.contact_type !== typeFilter) return false;
-      if (!q.trim()) return true;
-      const s = q.toLowerCase();
-      return [c.full_name, c.company_name, c.email, c.phone, c.postcode].some((v) => v?.toLowerCase().includes(s));
-    });
-  }, [contacts, q, typeFilter]);
+    let r = rows;
+    if (type !== "all") r = r.filter((c) => c.contact_type === type);
+    if (q) { const s = q.toLowerCase(); r = r.filter((c) => c.full_name.toLowerCase().includes(s) || (c.company_name ?? "").toLowerCase().includes(s) || (c.email ?? "").toLowerCase().includes(s)); }
+    return r;
+  }, [rows, q, type]);
 
-  const submit = async () => {
+  const save = async () => {
     if (!form.full_name.trim()) return toast.error("Name required");
-    try {
-      await save({ data: {
-        id: form.id,
-        contact_type: form.contact_type,
-        company_name: form.company_name || null,
-        full_name: form.full_name,
-        email: form.email || null,
-        phone: form.phone || null,
-        address: form.address || null,
-        postcode: form.postcode || null,
-        notes: form.notes || null,
-        rating: form.rating ? Number(form.rating) : null,
-        hourly_rate: form.hourly_rate ? Number(form.hourly_rate) : null,
-        insurance_expires_at: form.insurance_expires_at || null,
-        is_preferred: form.is_preferred,
-        is_active: form.is_active,
-      }});
-      toast.success("Contact saved");
-      setOpen(false); setForm(empty);
-      qc.invalidateQueries({ queryKey: ["ops"] });
-    } catch (e: any) { toast.error(e.message); }
+    setSaving(true);
+    const payload: any = {
+      contact_type: form.contact_type, full_name: form.full_name.trim(),
+      company_name: form.company_name || null, email: form.email || null, phone: form.phone || null,
+      address: form.address || null, postcode: form.postcode || null, notes: form.notes || null,
+      rating: form.rating || null, hourly_rate: form.hourly_rate || null, is_preferred: form.is_preferred,
+    };
+    const { error } = form.id
+      ? await supabase.from("contacts").update(payload).eq("id", form.id)
+      : await supabase.from("contacts").insert(payload);
+    setSaving(false);
+    if (error) return toast.error(error.message);
+    toast.success(form.id ? "Updated" : "Contact added");
+    setOpen(false); setForm(empty); void load();
   };
 
-  const remove = async (id: string) => {
-    if (!confirm("Delete contact?")) return;
-    try { await del({ data: { id } }); qc.invalidateQueries({ queryKey: ["ops"] }); toast.success("Deleted"); }
-    catch (e: any) { toast.error(e.message); }
-  };
-
-  const edit = (c: any) => {
+  const startEdit = (c: Contact) => {
     setForm({
-      id: c.id, contact_type: c.contact_type, company_name: c.company_name ?? "", full_name: c.full_name,
-      email: c.email ?? "", phone: c.phone ?? "", address: c.address ?? "", postcode: c.postcode ?? "",
-      notes: c.notes ?? "", rating: c.rating?.toString() ?? "", hourly_rate: c.hourly_rate?.toString() ?? "",
-      insurance_expires_at: c.insurance_expires_at ?? "", is_preferred: c.is_preferred, is_active: c.is_active,
+      id: c.id, contact_type: c.contact_type, full_name: c.full_name,
+      company_name: c.company_name ?? "", email: c.email ?? "", phone: c.phone ?? "",
+      address: c.address ?? "", postcode: c.postcode ?? "", notes: c.notes ?? "",
+      rating: c.rating ?? 0, hourly_rate: Number(c.hourly_rate ?? 0), is_preferred: c.is_preferred,
     });
     setOpen(true);
   };
 
+  const remove = async (id: string) => {
+    if (!confirm("Archive this contact?")) return;
+    const { error } = await supabase.from("contacts").update({ is_active: false }).eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success("Archived"); void load();
+  };
+
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Contacts directory"
-        description="Conveyancers, trades and third parties"
-        actions={
-          <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) setForm(empty); }}>
-            <DialogTrigger asChild><Button><Plus className="h-4 w-4 mr-2" /> Add contact</Button></DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader><DialogTitle>{form.id ? "Edit" : "New"} contact</DialogTitle></DialogHeader>
-              <div className="grid sm:grid-cols-2 gap-3">
-                <div><Label>Type</Label>
-                  <Select value={form.contact_type} onValueChange={(v) => setForm({ ...form, contact_type: v })}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>{CONTACT_TYPES.map((t) => <SelectItem key={t} value={t}>{TYPE_LABEL[t]}</SelectItem>)}</SelectContent>
-                  </Select>
-                </div>
-                <div><Label>Full name *</Label><Input value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} /></div>
-                <div><Label>Company</Label><Input value={form.company_name} onChange={(e) => setForm({ ...form, company_name: e.target.value })} /></div>
-                <div><Label>Email</Label><Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></div>
-                <div><Label>Phone</Label><Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></div>
-                <div className="sm:col-span-2">
-                  <AddressLookup
-                    onResolve={(a) => setForm({
-                      ...form,
-                      address: a.line1 || form.address,
-                      postcode: a.postcode || form.postcode,
-                    })}
-                  />
-                </div>
-                <div><Label>Postcode</Label><Input value={form.postcode} onChange={(e) => setForm({ ...form, postcode: e.target.value })} /></div>
-                <div className="sm:col-span-2"><Label>Address</Label><Input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} /></div>
-                <div><Label>Hourly rate (£)</Label><Input type="number" value={form.hourly_rate} onChange={(e) => setForm({ ...form, hourly_rate: e.target.value })} /></div>
-                <div><Label>Rating (1-5)</Label><Input type="number" min={1} max={5} value={form.rating} onChange={(e) => setForm({ ...form, rating: e.target.value })} /></div>
-                <div><Label>Insurance expires</Label><Input type="date" value={form.insurance_expires_at} onChange={(e) => setForm({ ...form, insurance_expires_at: e.target.value })} /></div>
-                <div className="flex items-center gap-3 pt-6">
-                  <Switch checked={form.is_preferred} onCheckedChange={(v) => setForm({ ...form, is_preferred: v })} />
-                  <Label>Preferred supplier</Label>
-                </div>
-                <div className="sm:col-span-2"><Label>Notes</Label><Textarea rows={3} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} /></div>
-              </div>
-              <DialogFooter><Button onClick={submit}>Save</Button></DialogFooter>
-            </DialogContent>
-          </Dialog>
-        }
-      />
+      <PageHeader title="Contacts" description="Landlords, tenants, contractors, suppliers — your CRM directory." actions={
+        <Button onClick={() => { setForm(empty); setOpen(true); }}><Plus className="mr-2 h-4 w-4" /> Add contact</Button>
+      } />
 
-
-      <div className="flex flex-col sm:flex-row gap-3">
-        <Input placeholder="Search name, company, email..." value={q} onChange={(e) => setQ(e.target.value)} className="max-w-sm" />
-        <Select value={typeFilter} onValueChange={setTypeFilter}>
-          <SelectTrigger className="w-[200px]"><SelectValue /></SelectTrigger>
+      <div className="flex flex-wrap items-center gap-2">
+        <Input placeholder="Search…" value={q} onChange={(e) => setQ(e.target.value)} className="max-w-xs" />
+        <Select value={type} onValueChange={setType}>
+          <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All types</SelectItem>
-            {CONTACT_TYPES.map((t) => <SelectItem key={t} value={t}>{TYPE_LABEL[t]}</SelectItem>)}
+            {TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
           </SelectContent>
         </Select>
+        <div className="text-xs text-muted-foreground ml-auto">{filtered.length} of {rows.length}</div>
       </div>
 
-      {isLoading ? (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <Card key={i} className="animate-pulse">
-              <CardContent className="p-4 space-y-2">
-                <div className="h-5 w-32 bg-muted rounded" />
-                <div className="h-4 w-3/4 bg-muted rounded" />
-                <div className="h-3 w-1/2 bg-muted rounded" />
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+      {loading ? (
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">{Array.from({ length: 6 }).map((_, i) => <Card key={i} className="animate-pulse"><CardContent className="p-5 h-32" /></Card>)}</div>
       ) : filtered.length === 0 ? (
-        <Card><CardContent className="py-12 text-center text-muted-foreground">No contacts yet. Add your first supplier above.</CardContent></Card>
+        <Card className="border-dashed border-2 bg-transparent"><CardContent className="p-12 text-center text-muted-foreground"><ContactIcon className="mx-auto h-10 w-10 mb-3 opacity-40" /><div>{rows.length === 0 ? "No contacts yet." : "No matches."}</div></CardContent></Card>
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filtered.map((c) => (
-            <Card key={c.id} className="group hover:shadow-md transition-shadow">
-              <CardContent className="p-4 space-y-2">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <div className="flex items-center gap-2"><span className="font-semibold">{c.full_name}</span>
-                      {c.is_preferred && <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />}
-                    </div>
-                    {c.company_name && <div className="text-sm text-muted-foreground">{c.company_name}</div>}
+            <Card key={c.id} className="border-0 shadow-card">
+              <CardContent className="p-5 space-y-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <div className="font-semibold truncate flex items-center gap-1.5">{c.full_name} {c.is_preferred && <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />}</div>
+                    {c.company_name && <div className="text-xs text-muted-foreground truncate">{c.company_name}</div>}
                   </div>
-                  <Badge variant="secondary">{TYPE_LABEL[c.contact_type] ?? c.contact_type}</Badge>
+                  <Badge variant="outline" className="capitalize">{c.contact_type}</Badge>
                 </div>
-                <div className="space-y-1 text-sm">
-                  {c.phone && <a href={`tel:${c.phone}`} className="flex items-center gap-2 hover:text-primary"><Phone className="h-3 w-3" /> {c.phone}</a>}
-                  {c.email && <a href={`mailto:${c.email}`} className="flex items-center gap-2 hover:text-primary truncate"><Mail className="h-3 w-3 shrink-0" /> <span className="truncate">{c.email}</span></a>}
+                <div className="text-xs text-muted-foreground space-y-0.5">
+                  {c.email && <div className="flex items-center gap-1.5 truncate"><Mail className="h-3 w-3 shrink-0" />{c.email}</div>}
+                  {c.phone && <div className="flex items-center gap-1.5"><Phone className="h-3 w-3" />{c.phone}</div>}
                 </div>
-                {c.hourly_rate && <div className="text-xs text-muted-foreground">£{c.hourly_rate}/hr</div>}
-                <div className="flex items-center justify-between pt-2">
-                  <QuickContactActions phone={c.phone} email={c.email} />
-                  <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button size="sm" variant="outline" onClick={() => edit(c)}><Pencil className="h-3 w-3" /></Button>
-                    <Button size="sm" variant="outline" onClick={() => remove(c.id)}><Trash2 className="h-3 w-3" /></Button>
-                  </div>
+                {c.hourly_rate ? <div className="text-xs text-muted-foreground">£{c.hourly_rate}/hr</div> : null}
+                {c.notes && <p className="text-xs text-muted-foreground line-clamp-2">{c.notes}</p>}
+                <div className="flex gap-1 pt-1 border-t">
+                  <Button size="sm" variant="ghost" onClick={() => startEdit(c)} className="flex-1"><Pencil className="mr-1 h-3.5 w-3.5" /> Edit</Button>
+                  <Button size="icon" variant="ghost" className="text-destructive h-8 w-8" onClick={() => remove(c.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
                 </div>
               </CardContent>
             </Card>
           ))}
         </div>
       )}
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader><DialogTitle>{form.id ? "Edit contact" : "Add contact"}</DialogTitle></DialogHeader>
+          <div className="grid grid-cols-2 gap-3">
+            <div><Label>Type</Label>
+              <Select value={form.contact_type} onValueChange={(val) => setForm({ ...form, contact_type: val })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>{TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
+              </Select>
+            </div>
+            <div><Label>Hourly rate (£)</Label><Input type="number" value={form.hourly_rate} onChange={(e) => setForm({ ...form, hourly_rate: Number(e.target.value) })} /></div>
+            <div className="col-span-2"><Label>Full name *</Label><Input value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} /></div>
+            <div className="col-span-2"><Label>Company</Label><Input value={form.company_name} onChange={(e) => setForm({ ...form, company_name: e.target.value })} /></div>
+            <div><Label>Email</Label><Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></div>
+            <div><Label>Phone</Label><Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></div>
+            <div className="col-span-2"><Label>Address</Label><Input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} /></div>
+            <div><Label>Postcode</Label><Input value={form.postcode} onChange={(e) => setForm({ ...form, postcode: e.target.value })} /></div>
+            <div className="flex items-end gap-2"><label className="text-sm flex items-center gap-2"><input type="checkbox" checked={form.is_preferred} onChange={(e) => setForm({ ...form, is_preferred: e.target.checked })} /> Preferred</label></div>
+            <div className="col-span-2"><Label>Notes</Label><Textarea rows={3} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} /></div>
+          </div>
+          <DialogFooter><Button onClick={save} disabled={saving || !form.full_name.trim()}>{saving ? "Saving…" : "Save"}</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

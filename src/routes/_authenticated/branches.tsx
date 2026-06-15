@@ -1,168 +1,131 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Building2, Plus, Pencil, Trash2, MapPin } from "lucide-react";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Plus, Pencil, Trash2, Building2, Mail, Phone } from "lucide-react";
 import { toast } from "sonner";
-import { listBranches, saveBranch, deleteBranch } from "@/lib/branches.functions";
-import { AddressLookup } from "@/components/address/AddressLookup";
+import { PageHeader } from "@/components/PageHeader";
 
 export const Route = createFileRoute("/_authenticated/branches")({
   head: () => ({ meta: [{ title: "Branches — Estately" }] }),
   component: BranchesPage,
 });
 
-type Branch = {
-  id: string;
-  name: string;
-  address: string | null;
-  city: string | null;
-  postcode: string | null;
-  phone: string | null;
-  email: string | null;
-  is_primary: boolean;
-};
+type Branch = { id: string; name: string; address: string | null; city: string | null; postcode: string | null; phone: string | null; email: string | null; is_primary: boolean; agency_id: string };
 
-const empty: Branch = { id: "", name: "", address: "", city: "", postcode: "", phone: "", email: "", is_primary: false };
+const empty = { id: "", name: "", address: "", city: "", postcode: "", phone: "", email: "", is_primary: false };
 
 function BranchesPage() {
-  const fetch = useServerFn(listBranches);
-  const save = useServerFn(saveBranch);
-  const del = useServerFn(deleteBranch);
-  const [items, setItems] = useState<Branch[]>([]);
+  const [rows, setRows] = useState<Branch[]>([]);
+  const [agencyId, setAgencyId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
-  const [draft, setDraft] = useState<Branch>(empty);
+  const [form, setForm] = useState(empty);
+  const [saving, setSaving] = useState(false);
 
-  const reload = async () => {
-    const r = await fetch({});
-    setItems((r.branches ?? []) as Branch[]);
-    setLoading(false);
+  const load = async () => {
+    setLoading(true);
+    const { data: u } = await supabase.auth.getUser();
+    if (!u.user) { setLoading(false); return; }
+    const { data: ag } = await supabase.from("agencies").select("id").eq("owner_id", u.user.id).maybeSingle();
+    const aid = ag?.id ?? null;
+    setAgencyId(aid);
+    if (!aid) { setRows([]); setLoading(false); return; }
+    const { data, error } = await supabase.from("branches").select("*").eq("agency_id", aid).order("is_primary", { ascending: false }).order("name");
+    if (error) toast.error(error.message);
+    setRows((data as any) ?? []); setLoading(false);
   };
-  useEffect(() => { reload(); }, []);
+  useEffect(() => { void load(); }, []);
 
-  const submit = async () => {
-    if (!draft.name) { toast.error("Branch name is required"); return; }
-    try {
-      await save({ data: {
-        id: draft.id || undefined,
-        name: draft.name,
-        address: draft.address || null,
-        city: draft.city || null,
-        postcode: draft.postcode || null,
-        phone: draft.phone || null,
-        email: draft.email || null,
-        is_primary: draft.is_primary,
-      } });
-      setOpen(false); setDraft(empty); await reload();
-      toast.success("Saved");
-    } catch (e) { toast.error(e instanceof Error ? e.message : "Failed"); }
+  const save = async () => {
+    if (!form.name.trim()) return toast.error("Name required");
+    if (!agencyId) return toast.error("No agency — only agency owners can manage branches.");
+    setSaving(true);
+    const payload: any = {
+      agency_id: agencyId, name: form.name.trim(),
+      address: form.address || null, city: form.city || null, postcode: form.postcode || null,
+      phone: form.phone || null, email: form.email || null, is_primary: form.is_primary,
+    };
+    const { error } = form.id
+      ? await supabase.from("branches").update(payload).eq("id", form.id)
+      : await supabase.from("branches").insert(payload);
+    setSaving(false);
+    if (error) return toast.error(error.message);
+    toast.success(form.id ? "Updated" : "Branch added");
+    setOpen(false); setForm(empty); void load();
+  };
+
+  const startEdit = (b: Branch) => {
+    setForm({ id: b.id, name: b.name, address: b.address ?? "", city: b.city ?? "", postcode: b.postcode ?? "", phone: b.phone ?? "", email: b.email ?? "", is_primary: b.is_primary });
+    setOpen(true);
   };
 
   const remove = async (id: string) => {
-    if (!confirm("Delete this branch? Listings/leads attached to it will be unlinked.")) return;
-    await del({ data: { id } });
-    await reload();
-    toast.success("Deleted");
+    if (!confirm("Delete this branch?")) return;
+    const { error } = await supabase.from("branches").delete().eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success("Deleted"); void load();
   };
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="font-display text-2xl md:text-3xl font-bold tracking-tight">Branches</h1>
-          <p className="text-muted-foreground mt-1">Run multiple offices under one account. Pricing is per branch.</p>
-        </div>
-        <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setDraft(empty); }}>
-          <DialogTrigger asChild>
-            <Button onClick={() => setDraft(empty)}><Plus className="h-4 w-4 mr-1" /> Add branch</Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-lg">
-            <DialogHeader><DialogTitle>{draft.id ? "Edit branch" : "Add branch"}</DialogTitle></DialogHeader>
-            <div className="space-y-3">
-              <Field label="Branch name"><Input value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} placeholder="Manchester — Deansgate" /></Field>
-              <AddressLookup
-                onResolve={(a) => setDraft({
-                  ...draft,
-                  address: a.line1 || draft.address,
-                  city: a.city || draft.city,
-                  postcode: a.postcode || draft.postcode,
-                })}
-              />
-              <div className="grid grid-cols-2 gap-3">
-                <Field label="City"><Input value={draft.city ?? ""} onChange={(e) => setDraft({ ...draft, city: e.target.value })} /></Field>
-                <Field label="Postcode"><Input value={draft.postcode ?? ""} onChange={(e) => setDraft({ ...draft, postcode: e.target.value })} /></Field>
-              </div>
-              <Field label="Address"><Input value={draft.address ?? ""} onChange={(e) => setDraft({ ...draft, address: e.target.value })} /></Field>
-              <div className="grid grid-cols-2 gap-3">
-                <Field label="Phone"><Input value={draft.phone ?? ""} onChange={(e) => setDraft({ ...draft, phone: e.target.value })} /></Field>
-                <Field label="Email"><Input type="email" value={draft.email ?? ""} onChange={(e) => setDraft({ ...draft, email: e.target.value })} /></Field>
-              </div>
-              <label className="flex items-center justify-between rounded-md border p-3">
-                <span className="text-sm">Set as head office</span>
-                <Switch checked={draft.is_primary} onCheckedChange={(v) => setDraft({ ...draft, is_primary: v })} />
-              </label>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-              <Button onClick={submit}>Save</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </div>
+      <PageHeader title="Branches" description="Office locations under your agency." actions={
+        <Button onClick={() => { setForm(empty); setOpen(true); }} disabled={!agencyId}><Plus className="mr-2 h-4 w-4" /> Add branch</Button>
+      } />
+
+      {!agencyId && !loading && (
+        <Card className="border-dashed border-2 bg-transparent"><CardContent className="p-12 text-center text-muted-foreground">Only agency owners can manage branches. Set up your agency under Settings first.</CardContent></Card>
+      )}
 
       {loading ? (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <Card key={i} className="animate-pulse">
-              <CardContent className="p-5 space-y-2">
-                <div className="h-5 w-32 bg-muted rounded" />
-                <div className="h-4 w-3/4 bg-muted rounded" />
-                <div className="h-3 w-1/2 bg-muted rounded" />
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      ) : items.length === 0 ? (
-        <Card className="border-dashed"><CardContent className="p-10 text-center">
-          <div className="mx-auto h-14 w-14 rounded-2xl bg-muted flex items-center justify-center mb-3"><Building2 className="h-6 w-6 text-muted-foreground" /></div>
-          <p className="font-medium">No branches yet</p>
-          <p className="text-sm text-muted-foreground mt-1">Add your first branch to get started.</p>
-        </CardContent></Card>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">{Array.from({ length: 3 }).map((_, i) => <Card key={i} className="animate-pulse"><CardContent className="p-5 h-32" /></Card>)}</div>
+      ) : agencyId && rows.length === 0 ? (
+        <Card className="border-dashed border-2 bg-transparent"><CardContent className="p-12 text-center text-muted-foreground"><Building2 className="mx-auto h-10 w-10 mb-3 opacity-40" /><div>No branches yet. Add your first office.</div></CardContent></Card>
       ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {items.map((b) => (
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {rows.map((b) => (
             <Card key={b.id} className="border-0 shadow-card">
-              <CardContent className="p-5">
-                <div className="flex items-start justify-between gap-2 mb-2">
+              <CardContent className="p-5 space-y-3">
+                <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
-                    <div className="font-semibold truncate">{b.name}</div>
-                    {b.postcode && <div className="text-xs text-muted-foreground inline-flex items-center gap-1 mt-1"><MapPin className="h-3 w-3" />{b.postcode}</div>}
+                    <div className="font-semibold flex items-center gap-2 truncate">{b.name} {b.is_primary && <Badge variant="secondary">Primary</Badge>}</div>
+                    <div className="text-xs text-muted-foreground mt-0.5 truncate">{[b.address, b.city, b.postcode].filter(Boolean).join(", ")}</div>
                   </div>
-                  {b.is_primary && <Badge variant="secondary">Head office</Badge>}
                 </div>
-                {b.address && <div className="text-sm text-muted-foreground">{b.address}{b.city ? `, ${b.city}` : ""}</div>}
-                {b.phone && <div className="text-sm mt-1">{b.phone}</div>}
-                {b.email && <div className="text-sm text-muted-foreground">{b.email}</div>}
-                <div className="flex gap-2 mt-4">
-                  <Button size="sm" variant="outline" onClick={() => { setDraft(b); setOpen(true); }}><Pencil className="h-3.5 w-3.5 mr-1" /> Edit</Button>
-                  <Button size="sm" variant="ghost" onClick={() => remove(b.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
+                <div className="text-xs text-muted-foreground space-y-0.5">
+                  {b.email && <div className="flex items-center gap-1.5 truncate"><Mail className="h-3 w-3 shrink-0" />{b.email}</div>}
+                  {b.phone && <div className="flex items-center gap-1.5"><Phone className="h-3 w-3" />{b.phone}</div>}
+                </div>
+                <div className="flex gap-1 pt-1 border-t">
+                  <Button size="sm" variant="ghost" onClick={() => startEdit(b)} className="flex-1"><Pencil className="mr-1 h-3.5 w-3.5" /> Edit</Button>
+                  <Button size="icon" variant="ghost" className="text-destructive h-8 w-8" onClick={() => remove(b.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
                 </div>
               </CardContent>
             </Card>
           ))}
         </div>
       )}
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader><DialogTitle>{form.id ? "Edit branch" : "Add branch"}</DialogTitle></DialogHeader>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="col-span-2"><Label>Name *</Label><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
+            <div className="col-span-2"><Label>Address</Label><Input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} /></div>
+            <div><Label>City</Label><Input value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} /></div>
+            <div><Label>Postcode</Label><Input value={form.postcode} onChange={(e) => setForm({ ...form, postcode: e.target.value })} /></div>
+            <div><Label>Phone</Label><Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></div>
+            <div><Label>Email</Label><Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></div>
+            <label className="col-span-2 text-sm flex items-center gap-2"><input type="checkbox" checked={form.is_primary} onChange={(e) => setForm({ ...form, is_primary: e.target.checked })} /> Primary branch</label>
+          </div>
+          <DialogFooter><Button onClick={save} disabled={saving || !form.name.trim()}>{saving ? "Saving…" : "Save"}</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return <div><Label className="text-xs uppercase tracking-wide text-muted-foreground">{label}</Label><div className="mt-1.5">{children}</div></div>;
 }
