@@ -33,6 +33,7 @@ type Viewing = {
   feedback: string | null;
 };
 
+const STATUSES = ["pending","confirmed","completed","cancelled","no_show"] as const;
 type VStatus = typeof STATUSES[number];
 const empty = { applicant_name: "", applicant_email: "", applicant_phone: "", agent_name: "", scheduled_at: "", duration_minutes: 30, status: "pending" as VStatus, notes: "", listing_id: "" };
 
