@@ -142,7 +142,7 @@ function ContactsPage() {
           <DialogHeader><DialogTitle>{form.id ? "Edit contact" : "Add contact"}</DialogTitle></DialogHeader>
           <div className="grid grid-cols-2 gap-3">
             <div><Label>Type</Label>
-              <Select value={form.contact_type} onValueChange={(val) => setForm({ ...form, contact_type: val })}>
+              <Select value={form.contact_type} onValueChange={(val) => setForm({ ...form, contact_type: val as CType })}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>{TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
               </Select>
