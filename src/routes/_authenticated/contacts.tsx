@@ -24,8 +24,9 @@ type Contact = {
   notes: string | null; rating: number | null; hourly_rate: number | null; is_preferred: boolean; is_active: boolean;
 };
 
-const TYPES = ["landlord","tenant","contractor","supplier","applicant","vendor","conveyancer","other"];
-const empty = { id: "", contact_type: "contractor", full_name: "", company_name: "", email: "", phone: "", address: "", postcode: "", notes: "", rating: 0, hourly_rate: 0, is_preferred: false };
+const TYPES = ["plumber","electrician","gas_engineer","builder","roofer","painter","handyman","cleaner","gardener","locksmith","epc_assessor","inventory_clerk","solicitor","conveyancer","referencing","insurance","utilities","council","other"] as const;
+type CType = typeof TYPES[number];
+const empty = { id: "", contact_type: "plumber" as CType, full_name: "", company_name: "", email: "", phone: "", address: "", postcode: "", notes: "", rating: 0, hourly_rate: 0, is_preferred: false };
 
 function ContactsPage() {
   const [rows, setRows] = useState<Contact[]>([]);
