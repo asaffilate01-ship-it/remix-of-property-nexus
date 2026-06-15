@@ -29,10 +29,10 @@ function ReportsPage() {
       const [props, lists, tens, leads, wos, expired] = counts.map((r) => r.count ?? 0);
 
       const [{ data: rent }, { data: arr }] = await Promise.all([
-        supabase.from("rent_schedule").select("amount, paid_on").gte("due_on", new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().slice(0, 10)),
-        supabase.from("rent_schedule").select("amount").is("paid_on", null).lte("due_on", new Date().toISOString().slice(0, 10)),
+        supabase.from("rent_schedule").select("amount, paid_on").gte("due_date", new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().slice(0, 10)),
+        supabase.from("rent_schedule").select("amount").is("paid_at", null).lte("due_date", new Date().toISOString().slice(0, 10)),
       ]);
-      const rentReceived = (rent ?? []).filter((r: any) => r.paid_on).reduce((s: number, r: any) => s + Number(r.amount ?? 0), 0);
+      const rentReceived = (rent ?? []).filter((r: any) => r.paid_at).reduce((s: number, r: any) => s + Number(r.amount ?? 0), 0);
       const arrears = (arr ?? []).reduce((s: number, r: any) => s + Number(r.amount ?? 0), 0);
 
       setStats([

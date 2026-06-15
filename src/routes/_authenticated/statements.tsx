@@ -28,7 +28,7 @@ function StatementsPage() {
       const [rentRes, woRes] = await Promise.all([
         supabase.from("rent_schedule")
           .select("amount, paid_on, due_on, tenancies(properties(id, address, city))")
-          .gte("due_on", s).lt("due_on", e),
+          .gte("due_date", s).lt("due_date", e),
         supabase.from("work_orders")
           .select("actual_cost, completed_at, property_id, properties(address, city)")
           .not("actual_cost", "is", null)
@@ -40,7 +40,7 @@ function StatementsPage() {
         const key = [r.tenancies?.properties?.address, r.tenancies?.properties?.city].filter(Boolean).join(", ") || "Unknown";
         const cur = map.get(key) ?? { property: key, rent_received: 0, rent_due: 0, expenses: 0, net: 0 };
         cur.rent_due += Number(r.amount ?? 0);
-        if (r.paid_on) cur.rent_received += Number(r.amount ?? 0);
+        if (r.paid_at) cur.rent_received += Number(r.amount ?? 0);
         map.set(key, cur);
       }
       for (const w of (woRes.data as any[]) ?? []) {

@@ -22,8 +22,8 @@ function ArrearsPage() {
       const { data, error } = await supabase
         .from("rent_schedule")
         .select("tenancy_id, due_on, amount, paid_on, tenancies(properties(address, city), tenants(full_name))")
-        .is("paid_on", null)
-        .lte("due_on", new Date().toISOString().slice(0, 10));
+        .is("paid_at", null)
+        .lte("due_date", new Date().toISOString().slice(0, 10));
       if (error) { setLoading(false); return; }
       const map = new Map<string, Row>();
       for (const r of (data as any[]) ?? []) {
@@ -32,11 +32,11 @@ function ArrearsPage() {
           tenancy_id: id,
           property: [r.tenancies?.properties?.address, r.tenancies?.properties?.city].filter(Boolean).join(", ") || "Unknown property",
           tenant: r.tenancies?.tenants?.full_name ?? "Tenant",
-          due_total: 0, oldest_due: r.due_on, periods: 0,
+          due_total: 0, oldest_due: r.due_date, periods: 0,
         };
         cur.due_total += Number(r.amount ?? 0);
         cur.periods += 1;
-        if (!cur.oldest_due || r.due_on < cur.oldest_due) cur.oldest_due = r.due_on;
+        if (!cur.oldest_due || r.due_date < cur.oldest_due) cur.oldest_due = r.due_date;
         map.set(id, cur);
       }
       setRows(Array.from(map.values()).sort((a, b) => b.due_total - a.due_total));

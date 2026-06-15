@@ -25,7 +25,7 @@ function AlertsPage() {
       const [comp, tens, rent, view] = await Promise.all([
         supabase.from("compliance_records").select("id, type, expires_on, properties(address, city)").not("expires_on", "is", null),
         supabase.from("tenancies").select("id, end_date, status, tenants(full_name), properties(address, city)").eq("status", "active").not("end_date", "is", null),
-        supabase.from("rent_schedule").select("id, due_on, amount, paid_on, tenancies(tenants(full_name), properties(address, city))").is("paid_on", null).lte("due_on", new Date().toISOString().slice(0, 10)),
+        supabase.from("rent_schedule").select("id, due_on, amount, paid_on, tenancies(tenants(full_name), properties(address, city))").is("paid_at", null).lte("due_date", new Date().toISOString().slice(0, 10)),
         supabase.from("viewings").select("id, scheduled_at, applicant_name, status").eq("status", "pending").gt("scheduled_at", new Date().toISOString()),
       ]);
 
@@ -39,7 +39,7 @@ function AlertsPage() {
         if (ms < 90 * 86400000 && ms > 0) items.push({ id: `t-${t.id}`, kind: "renewal", title: `${t.tenants?.full_name ?? "Tenant"} ending in ${Math.ceil(ms / 86400000)}d`, subtitle: [t.properties?.address, t.properties?.city].filter(Boolean).join(", "), severity: ms < 30 * 86400000 ? "warn" : "info", href: `/tenancies/${t.id}` });
       }
       for (const r of (rent.data as any[]) ?? []) {
-        const days = Math.floor((now - new Date(r.due_on).getTime()) / 86400000);
+        const days = Math.floor((now - new Date(r.due_date).getTime()) / 86400000);
         items.push({ id: `r-${r.id}`, kind: "arrears", title: `£${Number(r.amount).toLocaleString()} overdue · ${days}d`, subtitle: `${r.tenancies?.tenants?.full_name ?? "Tenant"} · ${[r.tenancies?.properties?.address, r.tenancies?.properties?.city].filter(Boolean).join(", ")}`, severity: days > 30 ? "danger" : "warn", href: "/arrears" });
       }
       for (const v of (view.data as any[]) ?? []) {
