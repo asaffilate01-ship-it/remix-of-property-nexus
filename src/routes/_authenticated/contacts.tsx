@@ -72,7 +72,7 @@ function ContactsPage() {
 
   const startEdit = (c: Contact) => {
     setForm({
-      id: c.id, contact_type: c.contact_type, full_name: c.full_name,
+      id: c.id, contact_type: c.contact_type as CType, full_name: c.full_name,
       company_name: c.company_name ?? "", email: c.email ?? "", phone: c.phone ?? "",
       address: c.address ?? "", postcode: c.postcode ?? "", notes: c.notes ?? "",
       rating: c.rating ?? 0, hourly_rate: Number(c.hourly_rate ?? 0), is_preferred: c.is_preferred,
