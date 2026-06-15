@@ -1,9 +1,12 @@
-import { Link } from "@tanstack/react-router";
-import { Building2, Menu, ChevronDown, Search, Bookmark, Calculator, Banknote, MapPin, ClipboardCheck, Briefcase, Users, BookOpen, Info, Mail, Tag } from "lucide-react";
-import { useState } from "react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { Building2, Menu, ChevronDown, Search, Bookmark, Calculator, Banknote, MapPin, ClipboardCheck, Briefcase, Users, BookOpen, Info, Mail, Tag, LogOut, LayoutDashboard } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 type Item = { to: string; label: string; desc?: string; icon: typeof Search };
 type Group = { label: string; items: Item[] };
