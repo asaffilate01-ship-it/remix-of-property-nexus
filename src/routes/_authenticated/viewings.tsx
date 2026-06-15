@@ -167,7 +167,7 @@ function ViewingsPage() {
             <div><Label>Duration (min)</Label><Input type="number" value={form.duration_minutes} onChange={(e) => setForm({ ...form, duration_minutes: Number(e.target.value) })} /></div>
             <div><Label>Agent</Label><Input value={form.agent_name} onChange={(e) => setForm({ ...form, agent_name: e.target.value })} /></div>
             <div><Label>Status</Label>
-              <Select value={form.status} onValueChange={(val) => setForm({ ...form, status: val })}>
+              <Select value={form.status} onValueChange={(val) => setForm({ ...form, status: val as VStatus })}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>{["pending","confirmed","completed","cancelled","no_show"].map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
               </Select>
