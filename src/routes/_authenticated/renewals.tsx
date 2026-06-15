@@ -24,7 +24,7 @@ function RenewalsPage() {
       const { data } = await supabase
         .from("tenancies")
         .select("id, end_date, rent_amount, status, properties(address, city), tenants(full_name)")
-        .in("status", ["active"])
+        .in("status", ["active"] as any)
         .lte("end_date", cutoff.toISOString().slice(0, 10))
         .order("end_date");
       setRows((data as any) ?? []);

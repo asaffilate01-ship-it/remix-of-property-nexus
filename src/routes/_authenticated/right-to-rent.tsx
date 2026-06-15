@@ -23,7 +23,7 @@ function RtrPage() {
       const { data } = await supabase
         .from("compliance_records")
         .select("id, type, status, issued_on, expires_on, reference, properties(address, city)")
-        .in("type", ["right_to_rent", "right_to_rent_followup"])
+        .in("type", ["right_to_rent","right_to_rent_followup"] as any)
         .order("expires_on", { nullsFirst: false });
       setRows((data as any) ?? []); setLoading(false);
     })();
