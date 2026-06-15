@@ -126,8 +126,17 @@ export function PublicHeader() {
         </nav>
 
         <div className="hidden md:flex items-center gap-2">
-          <Button asChild variant="ghost" size="sm"><Link to="/auth">Sign in</Link></Button>
-          <Button asChild size="sm"><Link to="/auth" search={{ mode: "signup" } as never}>Get started</Link></Button>
+          {signedIn ? (
+            <>
+              <Button asChild variant="ghost" size="sm"><Link to="/dashboard"><LayoutDashboard className="h-4 w-4 mr-1.5" />Dashboard</Link></Button>
+              <Button variant="outline" size="sm" onClick={handleSignOut}><LogOut className="h-4 w-4 mr-1.5" />Sign out</Button>
+            </>
+          ) : (
+            <>
+              <Button asChild variant="ghost" size="sm"><Link to="/auth">Sign in</Link></Button>
+              <Button asChild size="sm"><Link to="/auth" search={{ mode: "signup" } as never}>Get started</Link></Button>
+            </>
+          )}
         </div>
 
         <Sheet open={open} onOpenChange={setOpen}>
