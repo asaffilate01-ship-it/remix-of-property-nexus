@@ -101,7 +101,8 @@ const FULL: NavSection[] = [
 ];
 
 const TENANT: NavSection[] = [{ label: "Home", defaultOpen: true, items: [
-  { to: "/dashboard", label: "My home", icon: Home },
+  { to: "/portal/tenant", label: "My tenancy", icon: Home },
+  { to: "/inbox", label: "Messages", icon: Inbox },
   { to: "/work-orders", label: "Repair requests", icon: Wrench },
   { to: "/survey", label: "Photo / video capture", icon: Camera },
   { to: "/evidence", label: "Photo / video proof", icon: Camera },
@@ -186,7 +187,8 @@ const AGENT: NavSection[] = [
 // Landlord = portfolio-first (slimmer than agent)
 const LANDLORD: NavSection[] = [
   { label: "Portfolio", defaultOpen: true, items: [
-    { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { to: "/portal/landlord", label: "Overview", icon: LayoutDashboard },
+    { to: "/inbox", label: "Messages", icon: Inbox },
     { to: "/properties", label: "Properties", icon: Building2 },
     { to: "/hmo", label: "HMO & rooms", icon: BedDouble },
     { to: "/listings", label: "Listings", icon: Tag },
