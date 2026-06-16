@@ -93,7 +93,7 @@ import { Route as AuthenticatedPortalLandlordRouteImport } from './routes/_authe
 import { Route as AuthenticatedLeadsIdRouteImport } from './routes/_authenticated/leads.$id'
 import { Route as AuthenticatedAutomationsRunsRouteImport } from './routes/_authenticated/automations.runs'
 import { Route as AuthenticatedAutomationsIdRouteImport } from './routes/_authenticated/automations.$id'
-import { Route as ApiPublicWebhooksStripeRouteImport } from './routes/api/public/webhooks/stripe'
+import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 import { Route as ApiPublicHooksProcessTracksRouteImport } from './routes/api/public/hooks/process-tracks'
 import { Route as ApiPublicHooksMatchSavedSearchesRouteImport } from './routes/api/public/hooks/match-saved-searches'
 import { Route as ApiPublicHooksExpiryRemindersRouteImport } from './routes/api/public/hooks/expiry-reminders'
@@ -534,11 +534,12 @@ const AuthenticatedAutomationsIdRoute =
     path: '/$id',
     getParentRoute: () => AuthenticatedAutomationsRoute,
   } as any)
-const ApiPublicWebhooksStripeRoute = ApiPublicWebhooksStripeRouteImport.update({
-  id: '/api/public/webhooks/stripe',
-  path: '/api/public/webhooks/stripe',
-  getParentRoute: () => rootRouteImport,
-} as any)
+const ApiPublicPaymentsWebhookRoute =
+  ApiPublicPaymentsWebhookRouteImport.update({
+    id: '/api/public/payments/webhook',
+    path: '/api/public/payments/webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksProcessTracksRoute =
   ApiPublicHooksProcessTracksRouteImport.update({
     id: '/api/public/hooks/process-tracks',
@@ -652,7 +653,7 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/expiry-reminders': typeof ApiPublicHooksExpiryRemindersRoute
   '/api/public/hooks/match-saved-searches': typeof ApiPublicHooksMatchSavedSearchesRoute
   '/api/public/hooks/process-tracks': typeof ApiPublicHooksProcessTracksRoute
-  '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -739,7 +740,7 @@ export interface FileRoutesByTo {
   '/api/public/hooks/expiry-reminders': typeof ApiPublicHooksExpiryRemindersRoute
   '/api/public/hooks/match-saved-searches': typeof ApiPublicHooksMatchSavedSearchesRoute
   '/api/public/hooks/process-tracks': typeof ApiPublicHooksProcessTracksRoute
-  '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -831,7 +832,7 @@ export interface FileRoutesById {
   '/api/public/hooks/expiry-reminders': typeof ApiPublicHooksExpiryRemindersRoute
   '/api/public/hooks/match-saved-searches': typeof ApiPublicHooksMatchSavedSearchesRoute
   '/api/public/hooks/process-tracks': typeof ApiPublicHooksProcessTracksRoute
-  '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -923,7 +924,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/expiry-reminders'
     | '/api/public/hooks/match-saved-searches'
     | '/api/public/hooks/process-tracks'
-    | '/api/public/webhooks/stripe'
+    | '/api/public/payments/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -1010,7 +1011,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/expiry-reminders'
     | '/api/public/hooks/match-saved-searches'
     | '/api/public/hooks/process-tracks'
-    | '/api/public/webhooks/stripe'
+    | '/api/public/payments/webhook'
   id:
     | '__root__'
     | '/'
@@ -1101,7 +1102,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/expiry-reminders'
     | '/api/public/hooks/match-saved-searches'
     | '/api/public/hooks/process-tracks'
-    | '/api/public/webhooks/stripe'
+    | '/api/public/payments/webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1135,7 +1136,7 @@ export interface RootRouteChildren {
   ApiPublicHooksExpiryRemindersRoute: typeof ApiPublicHooksExpiryRemindersRoute
   ApiPublicHooksMatchSavedSearchesRoute: typeof ApiPublicHooksMatchSavedSearchesRoute
   ApiPublicHooksProcessTracksRoute: typeof ApiPublicHooksProcessTracksRoute
-  ApiPublicWebhooksStripeRoute: typeof ApiPublicWebhooksStripeRoute
+  ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1728,11 +1729,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAutomationsIdRouteImport
       parentRoute: typeof AuthenticatedAutomationsRoute
     }
-    '/api/public/webhooks/stripe': {
-      id: '/api/public/webhooks/stripe'
-      path: '/api/public/webhooks/stripe'
-      fullPath: '/api/public/webhooks/stripe'
-      preLoaderRoute: typeof ApiPublicWebhooksStripeRouteImport
+    '/api/public/payments/webhook': {
+      id: '/api/public/payments/webhook'
+      path: '/api/public/payments/webhook'
+      fullPath: '/api/public/payments/webhook'
+      preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/hooks/process-tracks': {
@@ -1998,7 +1999,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksExpiryRemindersRoute: ApiPublicHooksExpiryRemindersRoute,
   ApiPublicHooksMatchSavedSearchesRoute: ApiPublicHooksMatchSavedSearchesRoute,
   ApiPublicHooksProcessTracksRoute: ApiPublicHooksProcessTracksRoute,
-  ApiPublicWebhooksStripeRoute: ApiPublicWebhooksStripeRoute,
+  ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

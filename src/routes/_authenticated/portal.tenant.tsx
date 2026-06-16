@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Home, FileText, Wrench, CreditCard, MessageSquare } from "lucide-react";
+import { RentCheckoutDialog } from "@/components/RentCheckoutDialog";
+import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 
 export const Route = createFileRoute("/_authenticated/portal/tenant")({
   component: TenantPortal,
@@ -69,19 +71,7 @@ function TenantPortal() {
     setWorkOrders(wos ?? []);
   };
 
-  const payRent = async (rent: any) => {
-    setPayingId(rent.id);
-    try {
-      const { createRentPaymentLink } = await import("@/lib/payments.functions");
-      const { url } = await createRentPaymentLink({ data: { rentScheduleId: rent.id } });
-      if (url) window.location.href = url;
-      else toast.error("Payment unavailable — ask your agency to enable rent payments");
-    } catch (e: any) {
-      toast.error(e?.message ?? "Could not start payment");
-    } finally {
-      setPayingId(null);
-    }
-  };
+  const payRent = (rent: any) => setPayingId(rent.id);
 
   if (loading) return <div className="p-8 text-muted-foreground">Loading…</div>;
   if (!tenancy) return (
@@ -96,6 +86,8 @@ function TenantPortal() {
 
   return (
     <div className="space-y-6">
+      <PaymentTestModeBanner />
+      <RentCheckoutDialog rentScheduleId={payingId} onClose={() => setPayingId(null)} />
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold">My tenancy</h1>
