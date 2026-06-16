@@ -90,6 +90,16 @@ function ReportsPage() {
     <div className="space-y-6">
       <PageHeader title="Reports" description="Portfolio at a glance — counts and cash flow from your live data." />
 
+      <Card className="border-0 shadow-card">
+        <CardContent className="p-4 flex flex-wrap items-center gap-2">
+          <div className="text-sm font-medium mr-2 flex items-center gap-2"><Download className="h-4 w-4" /> Export CSV</div>
+          {(["properties", "listings", "tenancies", "leads", "work_orders", "rent_schedule"] as const).map((t) => (
+            <Button key={t} size="sm" variant="outline" onClick={() => exportTable(t)}>{t.replace("_", " ")}</Button>
+          ))}
+        </CardContent>
+      </Card>
+
+
       {loading ? (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">{Array.from({ length: 8 }).map((_, i) => <Card key={i} className="animate-pulse"><CardContent className="h-24" /></Card>)}</div>
       ) : (
