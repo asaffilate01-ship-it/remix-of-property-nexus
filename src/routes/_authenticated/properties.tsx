@@ -530,6 +530,10 @@ function TenanciesPanel({ propertyId, isHmo }: { propertyId: string; isHmo: bool
   const [rooms, setRooms] = useState<Room[]>([]);
   const [editing, setEditing] = useState<(typeof emptyTenancy & { tenant_id?: string }) | null>(null);
   const [tenantsList, setTenantsList] = useState<{ id: string; full_name: string; email: string | null; phone: string | null }[]>([]);
+  const [coTenants, setCoTenants] = useState<Record<string, { id: string; tenant_id: string; full_name: string; email: string | null }[]>>({});
+  const [addCoOpen, setAddCoOpen] = useState(false);
+  const [addCoPick, setAddCoPick] = useState("");
+  const [addCoNew, setAddCoNew] = useState({ full_name: "", email: "", phone: "" });
 
   const load = async () => {
     const [t, r, tl] = await Promise.all([
@@ -540,8 +544,46 @@ function TenanciesPanel({ propertyId, isHmo }: { propertyId: string; isHmo: bool
     setTenancies((t.data as Tenancy[]) ?? []);
     setRooms((r.data as Room[]) ?? []);
     setTenantsList((tl.data as any) ?? []);
+    const ids = ((t.data as Tenancy[]) ?? []).map((x) => x.id);
+    if (ids.length) {
+      const { data: links } = await supabase
+        .from("tenancy_tenants")
+        .select("id,tenancy_id,tenant_id,tenants:tenant_id(full_name,email)")
+        .in("tenancy_id", ids);
+      const map: Record<string, { id: string; tenant_id: string; full_name: string; email: string | null }[]> = {};
+      for (const l of (links as any[]) ?? []) {
+        (map[l.tenancy_id] ||= []).push({ id: l.id, tenant_id: l.tenant_id, full_name: l.tenants?.full_name ?? "Tenant", email: l.tenants?.email ?? null });
+      }
+      setCoTenants(map);
+    } else setCoTenants({});
   };
   useEffect(() => { load(); }, [propertyId]);
+
+  const addCoTenant = async (tenancyId: string) => {
+    let tenantId = addCoPick;
+    if (!tenantId && addCoNew.full_name.trim()) {
+      const { data: newT, error } = await supabase.from("tenants").insert({
+        full_name: addCoNew.full_name.trim(),
+        email: addCoNew.email || null,
+        phone: addCoNew.phone || null,
+      }).select("id").single();
+      if (error || !newT) return toast.error(error?.message ?? "Could not create tenant");
+      tenantId = newT.id;
+    }
+    if (!tenantId) return toast.error("Pick or add a tenant");
+    const { error } = await supabase.from("tenancy_tenants").insert({ tenancy_id: tenancyId, tenant_id: tenantId });
+    if (error) return toast.error(error.message);
+    toast.success("Co-tenant added");
+    setAddCoOpen(false); setAddCoPick(""); setAddCoNew({ full_name: "", email: "", phone: "" });
+    load();
+  };
+
+  const removeCoTenant = async (id: string) => {
+    const { error } = await supabase.from("tenancy_tenants").delete().eq("id", id);
+    if (error) return toast.error(error.message);
+    load();
+  };
+
 
   const pickExisting = (id: string) => {
     if (!editing) return;
