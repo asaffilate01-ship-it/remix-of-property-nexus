@@ -269,9 +269,16 @@ export function AppSidebar() {
     try {
       await qc.cancelQueries();
       qc.clear();
-      const { error } = await supabase.auth.signOut({ scope: "local" });
-      if (error) throw error;
-      navigate({ to: "/auth", replace: true });
+      await supabase.auth.signOut().catch(() => {
+        // Fall back to local sign-out if the global call fails (expired token, offline).
+        return supabase.auth.signOut({ scope: "local" });
+      });
+      // Hard reload to /auth to drop any stale SW caches and in-memory state.
+      if (typeof window !== "undefined") {
+        window.location.replace("/auth");
+      } else {
+        navigate({ to: "/auth", replace: true });
+      }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Sign out failed");
     }
