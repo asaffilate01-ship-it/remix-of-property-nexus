@@ -65,6 +65,7 @@ import { Route as AuthenticatedListingsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedLeaseholdRouteImport } from './routes/_authenticated/leasehold'
 import { Route as AuthenticatedLeadsRouteImport } from './routes/_authenticated/leads'
 import { Route as AuthenticatedInspectionsRouteImport } from './routes/_authenticated/inspections'
+import { Route as AuthenticatedInboxRouteImport } from './routes/_authenticated/inbox'
 import { Route as AuthenticatedHolidayLetsRouteImport } from './routes/_authenticated/holiday-lets'
 import { Route as AuthenticatedHmoRouteImport } from './routes/_authenticated/hmo'
 import { Route as AuthenticatedEvidenceRouteImport } from './routes/_authenticated/evidence'
@@ -87,9 +88,12 @@ import { Route as AuthenticatedAutomationsIndexRouteImport } from './routes/_aut
 import { Route as ApiPublicReferencingWebhookRouteImport } from './routes/api/public/referencing-webhook'
 import { Route as AuthenticatedWorkOrdersIdRouteImport } from './routes/_authenticated/work-orders.$id'
 import { Route as AuthenticatedTenanciesIdRouteImport } from './routes/_authenticated/tenancies.$id'
+import { Route as AuthenticatedPortalTenantRouteImport } from './routes/_authenticated/portal.tenant'
+import { Route as AuthenticatedPortalLandlordRouteImport } from './routes/_authenticated/portal.landlord'
 import { Route as AuthenticatedLeadsIdRouteImport } from './routes/_authenticated/leads.$id'
 import { Route as AuthenticatedAutomationsRunsRouteImport } from './routes/_authenticated/automations.runs'
 import { Route as AuthenticatedAutomationsIdRouteImport } from './routes/_authenticated/automations.$id'
+import { Route as ApiPublicWebhooksStripeRouteImport } from './routes/api/public/webhooks/stripe'
 import { Route as ApiPublicHooksProcessTracksRouteImport } from './routes/api/public/hooks/process-tracks'
 import { Route as ApiPublicHooksMatchSavedSearchesRouteImport } from './routes/api/public/hooks/match-saved-searches'
 import { Route as ApiPublicHooksExpiryRemindersRouteImport } from './routes/api/public/hooks/expiry-reminders'
@@ -379,6 +383,11 @@ const AuthenticatedInspectionsRoute =
     path: '/inspections',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedInboxRoute = AuthenticatedInboxRouteImport.update({
+  id: '/inbox',
+  path: '/inbox',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedHolidayLetsRoute =
   AuthenticatedHolidayLetsRouteImport.update({
     id: '/holiday-lets',
@@ -496,6 +505,18 @@ const AuthenticatedTenanciesIdRoute =
     path: '/$id',
     getParentRoute: () => AuthenticatedTenanciesRoute,
   } as any)
+const AuthenticatedPortalTenantRoute =
+  AuthenticatedPortalTenantRouteImport.update({
+    id: '/portal/tenant',
+    path: '/portal/tenant',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedPortalLandlordRoute =
+  AuthenticatedPortalLandlordRouteImport.update({
+    id: '/portal/landlord',
+    path: '/portal/landlord',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedLeadsIdRoute = AuthenticatedLeadsIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -513,6 +534,11 @@ const AuthenticatedAutomationsIdRoute =
     path: '/$id',
     getParentRoute: () => AuthenticatedAutomationsRoute,
   } as any)
+const ApiPublicWebhooksStripeRoute = ApiPublicWebhooksStripeRouteImport.update({
+  id: '/api/public/webhooks/stripe',
+  path: '/api/public/webhooks/stripe',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicHooksProcessTracksRoute =
   ApiPublicHooksProcessTracksRouteImport.update({
     id: '/api/public/hooks/process-tracks',
@@ -577,6 +603,7 @@ export interface FileRoutesByFullPath {
   '/evidence': typeof AuthenticatedEvidenceRoute
   '/hmo': typeof AuthenticatedHmoRoute
   '/holiday-lets': typeof AuthenticatedHolidayLetsRoute
+  '/inbox': typeof AuthenticatedInboxRoute
   '/inspections': typeof AuthenticatedInspectionsRoute
   '/leads': typeof AuthenticatedLeadsRouteWithChildren
   '/leasehold': typeof AuthenticatedLeaseholdRoute
@@ -615,6 +642,8 @@ export interface FileRoutesByFullPath {
   '/automations/$id': typeof AuthenticatedAutomationsIdRoute
   '/automations/runs': typeof AuthenticatedAutomationsRunsRoute
   '/leads/$id': typeof AuthenticatedLeadsIdRoute
+  '/portal/landlord': typeof AuthenticatedPortalLandlordRoute
+  '/portal/tenant': typeof AuthenticatedPortalTenantRoute
   '/tenancies/$id': typeof AuthenticatedTenanciesIdRoute
   '/work-orders/$id': typeof AuthenticatedWorkOrdersIdRoute
   '/api/public/referencing-webhook': typeof ApiPublicReferencingWebhookRoute
@@ -623,6 +652,7 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/expiry-reminders': typeof ApiPublicHooksExpiryRemindersRoute
   '/api/public/hooks/match-saved-searches': typeof ApiPublicHooksMatchSavedSearchesRoute
   '/api/public/hooks/process-tracks': typeof ApiPublicHooksProcessTracksRoute
+  '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -660,6 +690,7 @@ export interface FileRoutesByTo {
   '/evidence': typeof AuthenticatedEvidenceRoute
   '/hmo': typeof AuthenticatedHmoRoute
   '/holiday-lets': typeof AuthenticatedHolidayLetsRoute
+  '/inbox': typeof AuthenticatedInboxRoute
   '/inspections': typeof AuthenticatedInspectionsRoute
   '/leads': typeof AuthenticatedLeadsRouteWithChildren
   '/leasehold': typeof AuthenticatedLeaseholdRoute
@@ -698,6 +729,8 @@ export interface FileRoutesByTo {
   '/automations/$id': typeof AuthenticatedAutomationsIdRoute
   '/automations/runs': typeof AuthenticatedAutomationsRunsRoute
   '/leads/$id': typeof AuthenticatedLeadsIdRoute
+  '/portal/landlord': typeof AuthenticatedPortalLandlordRoute
+  '/portal/tenant': typeof AuthenticatedPortalTenantRoute
   '/tenancies/$id': typeof AuthenticatedTenanciesIdRoute
   '/work-orders/$id': typeof AuthenticatedWorkOrdersIdRoute
   '/api/public/referencing-webhook': typeof ApiPublicReferencingWebhookRoute
@@ -706,6 +739,7 @@ export interface FileRoutesByTo {
   '/api/public/hooks/expiry-reminders': typeof ApiPublicHooksExpiryRemindersRoute
   '/api/public/hooks/match-saved-searches': typeof ApiPublicHooksMatchSavedSearchesRoute
   '/api/public/hooks/process-tracks': typeof ApiPublicHooksProcessTracksRoute
+  '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -748,6 +782,7 @@ export interface FileRoutesById {
   '/_authenticated/evidence': typeof AuthenticatedEvidenceRoute
   '/_authenticated/hmo': typeof AuthenticatedHmoRoute
   '/_authenticated/holiday-lets': typeof AuthenticatedHolidayLetsRoute
+  '/_authenticated/inbox': typeof AuthenticatedInboxRoute
   '/_authenticated/inspections': typeof AuthenticatedInspectionsRoute
   '/_authenticated/leads': typeof AuthenticatedLeadsRouteWithChildren
   '/_authenticated/leasehold': typeof AuthenticatedLeaseholdRoute
@@ -786,6 +821,8 @@ export interface FileRoutesById {
   '/_authenticated/automations/$id': typeof AuthenticatedAutomationsIdRoute
   '/_authenticated/automations/runs': typeof AuthenticatedAutomationsRunsRoute
   '/_authenticated/leads/$id': typeof AuthenticatedLeadsIdRoute
+  '/_authenticated/portal/landlord': typeof AuthenticatedPortalLandlordRoute
+  '/_authenticated/portal/tenant': typeof AuthenticatedPortalTenantRoute
   '/_authenticated/tenancies/$id': typeof AuthenticatedTenanciesIdRoute
   '/_authenticated/work-orders/$id': typeof AuthenticatedWorkOrdersIdRoute
   '/api/public/referencing-webhook': typeof ApiPublicReferencingWebhookRoute
@@ -794,6 +831,7 @@ export interface FileRoutesById {
   '/api/public/hooks/expiry-reminders': typeof ApiPublicHooksExpiryRemindersRoute
   '/api/public/hooks/match-saved-searches': typeof ApiPublicHooksMatchSavedSearchesRoute
   '/api/public/hooks/process-tracks': typeof ApiPublicHooksProcessTracksRoute
+  '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -836,6 +874,7 @@ export interface FileRouteTypes {
     | '/evidence'
     | '/hmo'
     | '/holiday-lets'
+    | '/inbox'
     | '/inspections'
     | '/leads'
     | '/leasehold'
@@ -874,6 +913,8 @@ export interface FileRouteTypes {
     | '/automations/$id'
     | '/automations/runs'
     | '/leads/$id'
+    | '/portal/landlord'
+    | '/portal/tenant'
     | '/tenancies/$id'
     | '/work-orders/$id'
     | '/api/public/referencing-webhook'
@@ -882,6 +923,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/expiry-reminders'
     | '/api/public/hooks/match-saved-searches'
     | '/api/public/hooks/process-tracks'
+    | '/api/public/webhooks/stripe'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -919,6 +961,7 @@ export interface FileRouteTypes {
     | '/evidence'
     | '/hmo'
     | '/holiday-lets'
+    | '/inbox'
     | '/inspections'
     | '/leads'
     | '/leasehold'
@@ -957,6 +1000,8 @@ export interface FileRouteTypes {
     | '/automations/$id'
     | '/automations/runs'
     | '/leads/$id'
+    | '/portal/landlord'
+    | '/portal/tenant'
     | '/tenancies/$id'
     | '/work-orders/$id'
     | '/api/public/referencing-webhook'
@@ -965,6 +1010,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/expiry-reminders'
     | '/api/public/hooks/match-saved-searches'
     | '/api/public/hooks/process-tracks'
+    | '/api/public/webhooks/stripe'
   id:
     | '__root__'
     | '/'
@@ -1006,6 +1052,7 @@ export interface FileRouteTypes {
     | '/_authenticated/evidence'
     | '/_authenticated/hmo'
     | '/_authenticated/holiday-lets'
+    | '/_authenticated/inbox'
     | '/_authenticated/inspections'
     | '/_authenticated/leads'
     | '/_authenticated/leasehold'
@@ -1044,6 +1091,8 @@ export interface FileRouteTypes {
     | '/_authenticated/automations/$id'
     | '/_authenticated/automations/runs'
     | '/_authenticated/leads/$id'
+    | '/_authenticated/portal/landlord'
+    | '/_authenticated/portal/tenant'
     | '/_authenticated/tenancies/$id'
     | '/_authenticated/work-orders/$id'
     | '/api/public/referencing-webhook'
@@ -1052,6 +1101,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/expiry-reminders'
     | '/api/public/hooks/match-saved-searches'
     | '/api/public/hooks/process-tracks'
+    | '/api/public/webhooks/stripe'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1085,6 +1135,7 @@ export interface RootRouteChildren {
   ApiPublicHooksExpiryRemindersRoute: typeof ApiPublicHooksExpiryRemindersRoute
   ApiPublicHooksMatchSavedSearchesRoute: typeof ApiPublicHooksMatchSavedSearchesRoute
   ApiPublicHooksProcessTracksRoute: typeof ApiPublicHooksProcessTracksRoute
+  ApiPublicWebhooksStripeRoute: typeof ApiPublicWebhooksStripeRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1481,6 +1532,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedInspectionsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/inbox': {
+      id: '/_authenticated/inbox'
+      path: '/inbox'
+      fullPath: '/inbox'
+      preLoaderRoute: typeof AuthenticatedInboxRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/holiday-lets': {
       id: '/_authenticated/holiday-lets'
       path: '/holiday-lets'
@@ -1635,6 +1693,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTenanciesIdRouteImport
       parentRoute: typeof AuthenticatedTenanciesRoute
     }
+    '/_authenticated/portal/tenant': {
+      id: '/_authenticated/portal/tenant'
+      path: '/portal/tenant'
+      fullPath: '/portal/tenant'
+      preLoaderRoute: typeof AuthenticatedPortalTenantRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/portal/landlord': {
+      id: '/_authenticated/portal/landlord'
+      path: '/portal/landlord'
+      fullPath: '/portal/landlord'
+      preLoaderRoute: typeof AuthenticatedPortalLandlordRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/leads/$id': {
       id: '/_authenticated/leads/$id'
       path: '/$id'
@@ -1655,6 +1727,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/automations/$id'
       preLoaderRoute: typeof AuthenticatedAutomationsIdRouteImport
       parentRoute: typeof AuthenticatedAutomationsRoute
+    }
+    '/api/public/webhooks/stripe': {
+      id: '/api/public/webhooks/stripe'
+      path: '/api/public/webhooks/stripe'
+      fullPath: '/api/public/webhooks/stripe'
+      preLoaderRoute: typeof ApiPublicWebhooksStripeRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/public/hooks/process-tracks': {
       id: '/api/public/hooks/process-tracks'
@@ -1763,6 +1842,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedEvidenceRoute: typeof AuthenticatedEvidenceRoute
   AuthenticatedHmoRoute: typeof AuthenticatedHmoRoute
   AuthenticatedHolidayLetsRoute: typeof AuthenticatedHolidayLetsRoute
+  AuthenticatedInboxRoute: typeof AuthenticatedInboxRoute
   AuthenticatedInspectionsRoute: typeof AuthenticatedInspectionsRoute
   AuthenticatedLeadsRoute: typeof AuthenticatedLeadsRouteWithChildren
   AuthenticatedLeaseholdRoute: typeof AuthenticatedLeaseholdRoute
@@ -1788,6 +1868,8 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedVendorPortalRoute: typeof AuthenticatedVendorPortalRoute
   AuthenticatedViewingsRoute: typeof AuthenticatedViewingsRoute
   AuthenticatedWorkOrdersRoute: typeof AuthenticatedWorkOrdersRouteWithChildren
+  AuthenticatedPortalLandlordRoute: typeof AuthenticatedPortalLandlordRoute
+  AuthenticatedPortalTenantRoute: typeof AuthenticatedPortalTenantRoute
   AuthenticatedListingIdWindowCardRoute: typeof AuthenticatedListingIdWindowCardRoute
 }
 
@@ -1811,6 +1893,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedEvidenceRoute: AuthenticatedEvidenceRoute,
   AuthenticatedHmoRoute: AuthenticatedHmoRoute,
   AuthenticatedHolidayLetsRoute: AuthenticatedHolidayLetsRoute,
+  AuthenticatedInboxRoute: AuthenticatedInboxRoute,
   AuthenticatedInspectionsRoute: AuthenticatedInspectionsRoute,
   AuthenticatedLeadsRoute: AuthenticatedLeadsRouteWithChildren,
   AuthenticatedLeaseholdRoute: AuthenticatedLeaseholdRoute,
@@ -1836,6 +1919,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedVendorPortalRoute: AuthenticatedVendorPortalRoute,
   AuthenticatedViewingsRoute: AuthenticatedViewingsRoute,
   AuthenticatedWorkOrdersRoute: AuthenticatedWorkOrdersRouteWithChildren,
+  AuthenticatedPortalLandlordRoute: AuthenticatedPortalLandlordRoute,
+  AuthenticatedPortalTenantRoute: AuthenticatedPortalTenantRoute,
   AuthenticatedListingIdWindowCardRoute: AuthenticatedListingIdWindowCardRoute,
 }
 
@@ -1913,6 +1998,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksExpiryRemindersRoute: ApiPublicHooksExpiryRemindersRoute,
   ApiPublicHooksMatchSavedSearchesRoute: ApiPublicHooksMatchSavedSearchesRoute,
   ApiPublicHooksProcessTracksRoute: ApiPublicHooksProcessTracksRoute,
+  ApiPublicWebhooksStripeRoute: ApiPublicWebhooksStripeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
