@@ -1292,6 +1292,103 @@ export type Database = {
           },
         ]
       }
+      message_threads: {
+        Row: {
+          agency_id: string | null
+          created_at: string
+          created_by: string
+          id: string
+          last_message_at: string
+          property_id: string | null
+          subject: string
+          tenancy_id: string | null
+          work_order_id: string | null
+        }
+        Insert: {
+          agency_id?: string | null
+          created_at?: string
+          created_by: string
+          id?: string
+          last_message_at?: string
+          property_id?: string | null
+          subject: string
+          tenancy_id?: string | null
+          work_order_id?: string | null
+        }
+        Update: {
+          agency_id?: string | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          last_message_at?: string
+          property_id?: string | null
+          subject?: string
+          tenancy_id?: string | null
+          work_order_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_threads_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "message_threads_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "message_threads_tenancy_id_fkey"
+            columns: ["tenancy_id"]
+            isOneToOne: false
+            referencedRelation: "tenancies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "message_threads_work_order_id_fkey"
+            columns: ["work_order_id"]
+            isOneToOne: false
+            referencedRelation: "work_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          sender_id: string
+          thread_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          sender_id: string
+          thread_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          sender_id?: string
+          thread_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "message_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       offers: {
         Row: {
           agency_id: string | null
@@ -1782,6 +1879,69 @@ export type Database = {
             columns: ["case_id"]
             isOneToOne: false
             referencedRelation: "referencing_cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rent_invoices: {
+        Row: {
+          amount: number
+          checkout_url: string | null
+          created_at: string
+          currency: string
+          id: string
+          paid_at: string | null
+          provider: string | null
+          provider_payment_intent: string | null
+          provider_session_id: string | null
+          rent_schedule_id: string
+          status: string
+          tenancy_id: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          checkout_url?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          paid_at?: string | null
+          provider?: string | null
+          provider_payment_intent?: string | null
+          provider_session_id?: string | null
+          rent_schedule_id: string
+          status?: string
+          tenancy_id: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          checkout_url?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          paid_at?: string | null
+          provider?: string | null
+          provider_payment_intent?: string | null
+          provider_session_id?: string | null
+          rent_schedule_id?: string
+          status?: string
+          tenancy_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rent_invoices_rent_schedule_id_fkey"
+            columns: ["rent_schedule_id"]
+            isOneToOne: false
+            referencedRelation: "rent_schedule"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rent_invoices_tenancy_id_fkey"
+            columns: ["tenancy_id"]
+            isOneToOne: false
+            referencedRelation: "tenancies"
             referencedColumns: ["id"]
           },
         ]
@@ -2927,6 +3087,35 @@ export type Database = {
           },
         ]
       }
+      thread_participants: {
+        Row: {
+          added_at: string
+          role: string
+          thread_id: string
+          user_id: string
+        }
+        Insert: {
+          added_at?: string
+          role?: string
+          thread_id: string
+          user_id: string
+        }
+        Update: {
+          added_at?: string
+          role?: string
+          thread_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "thread_participants_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "message_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       track_run_steps: {
         Row: {
           created_at: string
@@ -3612,6 +3801,10 @@ export type Database = {
       }
       is_agency_member: {
         Args: { _agency: string; _user: string }
+        Returns: boolean
+      }
+      is_thread_participant: {
+        Args: { _thread: string; _user: string }
         Returns: boolean
       }
     }
