@@ -2838,6 +2838,48 @@ export type Database = {
           },
         ]
       }
+      tenancy_tenants: {
+        Row: {
+          created_at: string
+          id: string
+          is_lead: boolean
+          rent_share: number | null
+          tenancy_id: string
+          tenant_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_lead?: boolean
+          rent_share?: number | null
+          tenancy_id: string
+          tenant_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_lead?: boolean
+          rent_share?: number | null
+          tenancy_id?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenancy_tenants_tenancy_id_fkey"
+            columns: ["tenancy_id"]
+            isOneToOne: false
+            referencedRelation: "tenancies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tenancy_tenants_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tenants: {
         Row: {
           agency_id: string | null
