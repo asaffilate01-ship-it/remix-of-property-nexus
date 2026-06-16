@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,7 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
-import { Plus, Building2, Pencil, Trash2, BedDouble, Users, PoundSterling, Calendar, FileText, ShieldCheck, Sun } from "lucide-react";
+import { Plus, Building2, Pencil, Trash2, BedDouble, Users, PoundSterling, Calendar, FileText, ShieldCheck, Sun, Tag } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/PageHeader";
 import { FeatureMultiSelect } from "@/components/properties/FeatureMultiSelect";
@@ -61,6 +61,42 @@ const emptyRoom = { id: "", name: "", room_number: "", rent_pcm: "", status: "va
 const emptyTenancy = { id: "", room_id: "", tenant_name: "", tenant_email: "", tenant_phone: "", start_date: "", end_date: "", rent_amount: "", rent_frequency: "monthly" as "weekly" | "monthly", deposit: "", status: "draft", bio: {} as TenantBio, tenant_compliance: {} as TenantComplianceMap };
 
 function PropertiesPage() {
+  const navigate = useNavigate();
+  const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60) + "-" + Math.random().toString(36).slice(2, 7);
+
+  const listProperty = async (p: Property) => {
+    const { data: u } = await supabase.auth.getUser();
+    if (!u.user) return toast.error("Sign in required");
+    // Reuse existing listing if already linked
+    const { data: existing } = await supabase.from("listings").select("id").eq("property_id", p.id).maybeSingle();
+    if (existing?.id) {
+      toast.success("Opening existing listing");
+      return navigate({ to: "/listings" });
+    }
+    const purpose: "rent" | "sale" = p.listing_purpose === "sale" ? "sale" : "rent";
+    const listing_type: "sale" | "rent" | "room" = p.is_hmo ? "room" : purpose;
+    const { error } = await supabase.from("listings").insert({
+      owner_id: u.user.id,
+      property_id: p.id,
+      slug: slugify(p.title || "listing"),
+      title: p.title,
+      listing_type,
+      purpose,
+      status: "draft",
+      address: p.address,
+      city: p.city,
+      postcode: p.postcode,
+      bedrooms: p.bedrooms,
+      bathrooms: p.bathrooms,
+      is_hmo: p.is_hmo,
+      features: (p.features ?? []) as any,
+      price: p.listing_purpose === "short_let" ? p.nightly_rate : null,
+    });
+    if (error) return toast.error(error.message);
+    toast.success("Draft listing created — finish details & publish");
+    navigate({ to: "/listings" });
+  };
+
   const [rows, setRows] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
@@ -264,6 +300,9 @@ function PropertiesPage() {
                 <div className="mt-3 pt-3 border-t flex gap-2">
                   <Button size="sm" variant="outline" className="flex-1" onClick={(e) => { e.stopPropagation(); setActive(p); setInitialTab("tenancies"); }}>
                     <Users className="h-3 w-3 mr-1" /> Assign tenant
+                  </Button>
+                  <Button size="sm" variant="outline" className="flex-1" onClick={(e) => { e.stopPropagation(); void listProperty(p); }} title="Create a marketplace listing from this property">
+                    <Tag className="h-3 w-3 mr-1" /> List it
                   </Button>
                 </div>
               </CardContent>
