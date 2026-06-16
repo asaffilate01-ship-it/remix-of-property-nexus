@@ -57,11 +57,13 @@ export const createRentCheckoutSession = createServerFn({ method: "POST" })
           },
         }],
         payment_intent_data: { description },
+        managed_payments: { enabled: true },
         metadata: {
           rent_schedule_id: rent.id,
           invoice_id: invoice!.id,
           tenancy_id: tenancy.id,
           userId,
+          managed_payments: "true",
         },
       } as any);
 
