@@ -688,9 +688,48 @@ function TenanciesPanel({ propertyId, isHmo }: { propertyId: string; isHmo: bool
             </div>
           </div>
           <div className="text-xs text-muted-foreground">£{Number(t.rent_amount).toLocaleString()} {t.rent_frequency} • {t.start_date}{t.end_date ? ` → ${t.end_date}` : ""} {t.room_id && `• ${rooms.find((r) => r.id === t.room_id)?.name ?? ""}`}</div>
+          <div className="flex flex-wrap items-center gap-1 pt-1">
+            <Badge variant="secondary" className="text-[10px]">Lead: {t.tenant_name}</Badge>
+            {(coTenants[t.id] ?? []).map((c) => (
+              <Badge key={c.id} variant="outline" className="text-[10px] gap-1">
+                {c.full_name}
+                <button onClick={() => removeCoTenant(c.id)} className="ml-1 hover:text-destructive" title="Remove co-tenant">×</button>
+              </Badge>
+            ))}
+            <Button size="sm" variant="ghost" className="h-6 px-2 text-[11px]" onClick={() => { setAddCoOpen(true); setEditing({ ...emptyTenancy, id: t.id }); }}>
+              <Plus className="h-3 w-3 mr-0.5" /> Co-tenant
+            </Button>
+          </div>
         </CardContent></Card>
       ))}
       {tenancies.length === 0 && <div className="text-sm text-muted-foreground text-center py-6 border border-dashed rounded-md">No tenants yet — click "Add tenant" above</div>}
+
+      <Dialog open={addCoOpen} onOpenChange={(o) => { setAddCoOpen(o); if (!o) { setAddCoPick(""); setAddCoNew({ full_name: "", email: "", phone: "" }); } }}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Add co-tenant</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            {tenantsList.length > 0 && (
+              <div>
+                <Label className="text-xs">Pick from directory</Label>
+                <Select value={addCoPick} onValueChange={setAddCoPick}>
+                  <SelectTrigger><SelectValue placeholder="Choose existing tenant…" /></SelectTrigger>
+                  <SelectContent>
+                    {tenantsList.map((t) => <SelectItem key={t.id} value={t.id}>{t.full_name}{t.email ? ` · ${t.email}` : ""}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            <div className="text-xs text-muted-foreground text-center">— or add new —</div>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="col-span-2"><Label className="text-xs">Full name</Label><Input value={addCoNew.full_name} onChange={(e) => setAddCoNew({ ...addCoNew, full_name: e.target.value })} /></div>
+              <div><Label className="text-xs">Email</Label><Input type="email" value={addCoNew.email} onChange={(e) => setAddCoNew({ ...addCoNew, email: e.target.value })} /></div>
+              <div><Label className="text-xs">Phone</Label><Input value={addCoNew.phone} onChange={(e) => setAddCoNew({ ...addCoNew, phone: e.target.value })} /></div>
+            </div>
+          </div>
+          <DialogFooter><Button onClick={() => editing?.id && addCoTenant(editing.id)}>Add</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
+
 
       <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
         <DialogContent className="max-w-3xl max-h-[92vh] overflow-y-auto">
