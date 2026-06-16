@@ -247,10 +247,10 @@ export const signMediaUrl = createServerFn({ method: "POST" })
   });
 
 export const signListingPhotoUrl = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator(z.object({ path: z.string().min(1).max(500), expires: z.number().int().min(60).max(3600).optional() }))
-  .handler(async ({ data }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: signed, error } = await supabaseAdmin.storage
+  .handler(async ({ data, context }) => {
+    const { data: signed, error } = await context.supabase.storage
       .from("listing-photos")
       .createSignedUrl(data.path, data.expires ?? 600);
     if (error) throw new Error(error.message);
