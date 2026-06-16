@@ -48,14 +48,19 @@ export const Route = createFileRoute("/api/public/webhooks/stripe")({
           }).eq("id", rentScheduleId);
           // Bank txn row
           if (tenancyId) {
-            await supabaseAdmin.from("bank_transactions").insert({
-              tenancy_id: tenancyId,
-              amount: (session.amount_total ?? 0) / 100,
-              direction: "credit",
-              source: "stripe",
-              reference: session.id,
-              occurred_at: new Date().toISOString(),
-            });
+            const { data: ten } = await supabaseAdmin.from("tenancies").select("agency_id").eq("id", tenancyId).single();
+            if (ten?.agency_id) {
+              await supabaseAdmin.from("bank_transactions").insert({
+                agency_id: ten.agency_id,
+                amount: (session.amount_total ?? 0) / 100,
+                source: "stripe",
+                reference: session.id,
+                posted_at: new Date().toISOString(),
+                matched_tenancy_id: tenancyId,
+                matched_rent_schedule_id: rentScheduleId,
+                matched_at: new Date().toISOString(),
+              });
+            }
           }
         }
         return new Response("ok");

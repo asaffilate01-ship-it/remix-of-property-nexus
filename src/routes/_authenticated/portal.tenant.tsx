@@ -59,7 +59,7 @@ function TenantPortal() {
       title: newIssue.title,
       description: newIssue.description,
       priority: newIssue.priority as any,
-      status: "new",
+      status: "open",
       reported_by: user?.id,
     });
     if (error) return toast.error(error.message);
