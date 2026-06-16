@@ -69,19 +69,7 @@ function TenantPortal() {
     setWorkOrders(wos ?? []);
   };
 
-  const payRent = async (rent: any) => {
-    setPayingId(rent.id);
-    try {
-      const { createRentPaymentLink } = await import("@/lib/payments.functions");
-      const { url } = await createRentPaymentLink({ data: { rentScheduleId: rent.id } });
-      if (url) window.location.href = url;
-      else toast.error("Payment unavailable — ask your agency to enable rent payments");
-    } catch (e: any) {
-      toast.error(e?.message ?? "Could not start payment");
-    } finally {
-      setPayingId(null);
-    }
-  };
+  const payRent = (rent: any) => setPayingId(rent.id);
 
   if (loading) return <div className="p-8 text-muted-foreground">Loading…</div>;
   if (!tenancy) return (
