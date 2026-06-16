@@ -2,13 +2,50 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
-import { BarChart3, Building2, Tag, Inbox, Wrench, ShieldCheck, Home, Banknote } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { BarChart3, Building2, Tag, Inbox, Wrench, ShieldCheck, Home, Banknote, Download } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/reports")({
   head: () => ({ meta: [{ title: "Reports — Estately" }] }),
   component: ReportsPage,
 });
+
+function toCSV(rows: Array<Record<string, unknown>>): string {
+  if (rows.length === 0) return "";
+  const cols = Array.from(new Set(rows.flatMap((r) => Object.keys(r))));
+  const esc = (v: unknown) => {
+    if (v == null) return "";
+    const s = typeof v === "object" ? JSON.stringify(v) : String(v);
+    return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  };
+  return [cols.join(","), ...rows.map((r) => cols.map((c) => esc(r[c])).join(","))].join("\n");
+}
+
+function downloadCSV(filename: string, rows: Array<Record<string, unknown>>) {
+  if (rows.length === 0) {
+    toast.info("Nothing to export");
+    return;
+  }
+  const blob = new Blob([toCSV(rows)], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+async function exportTable(table: "properties" | "listings" | "tenancies" | "leads" | "work_orders" | "rent_schedule") {
+  const { data, error } = await supabase.from(table).select("*").limit(5000);
+  if (error) {
+    toast.error(error.message);
+    return;
+  }
+  downloadCSV(`${table}-${new Date().toISOString().slice(0, 10)}.csv`, (data ?? []) as Array<Record<string, unknown>>);
+}
+
 
 type Stat = { label: string; value: number | string; icon: typeof BarChart3; sub?: string };
 
