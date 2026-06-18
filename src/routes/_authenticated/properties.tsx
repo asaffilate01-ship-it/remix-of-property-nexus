@@ -27,6 +27,8 @@ import { StreetViewThumb } from "@/components/properties/StreetViewThumb";
 import { TenantBioEditor, type TenantBio } from "@/components/tenancy/TenantBioEditor";
 import { TenantComplianceEditor, type TenantComplianceMap } from "@/components/tenancy/TenantComplianceEditor";
 import { TenantDocsMini } from "@/components/tenancy/TenantDocsMini";
+import { PhotoUploader, type ListingPhoto } from "@/components/listings/PhotoUploader";
+import { ComplianceEditor, type ComplianceMap } from "@/components/listings/ComplianceEditor";
 
 export const Route = createFileRoute("/_authenticated/properties")({ component: PropertiesPage });
 
@@ -37,6 +39,10 @@ type Property = {
   listing_purpose: "rent" | "sale" | "both" | "short_let"; notes: string | null;
   features: string[] | null;
   nightly_rate: number | null; min_stay_nights: number | null; cleaning_fee: number | null;
+  description: string | null; epc_rating: string | null; tenure: string | null; furnished: string | null;
+  council_tax_band: string | null; floor_area_sqft: number | null; bills_included: boolean;
+  available_from: string | null; cover_image: string | null; photos: unknown; compliance: unknown;
+  price: number | null; price_qualifier: string | null;
 };
 type Room = { id: string; property_id: string; name: string; room_number: string | null; rent_pcm: number | null; status: string; en_suite: boolean | null; bills_included: boolean | null; available_from: string | null };
 type Tenancy = { id: string; property_id: string; room_id: string | null; tenant_name: string; tenant_email: string | null; tenant_phone: string | null; start_date: string; end_date: string | null; rent_amount: number; rent_frequency: "weekly" | "monthly"; deposit: number | null; status: string; bio?: TenantBio | null; tenant_compliance?: TenantComplianceMap | null };
@@ -56,6 +62,11 @@ const emptyProp = {
   listing_purpose: "rent" as Property["listing_purpose"], notes: "",
   features: [] as string[],
   nightly_rate: "", min_stay_nights: "", cleaning_fee: "",
+  description: "", epc_rating: "", tenure: "", furnished: "", council_tax_band: "",
+  floor_area_sqft: "", bills_included: false, available_from: "",
+  cover_image: "", photos: [] as ListingPhoto[], cover_index: 0,
+  compliance: {} as ComplianceMap,
+  price: "", price_qualifier: "none",
 };
 const emptyRoom = { id: "", name: "", room_number: "", rent_pcm: "", status: "vacant", en_suite: false, bills_included: true, available_from: "" };
 const emptyTenancy = { id: "", room_id: "", tenant_name: "", tenant_email: "", tenant_phone: "", start_date: "", end_date: "", rent_amount: "", rent_frequency: "monthly" as "weekly" | "monthly", deposit: "", status: "draft", bio: {} as TenantBio, tenant_compliance: {} as TenantComplianceMap };
@@ -67,19 +78,20 @@ function PropertiesPage() {
   const listProperty = async (p: Property) => {
     const { data: u } = await supabase.auth.getUser();
     if (!u.user) return toast.error("Sign in required");
-    // Reuse existing listing if already linked
     const { data: existing } = await supabase.from("listings").select("id").eq("property_id", p.id).maybeSingle();
     if (existing?.id) {
       toast.success("Opening existing listing");
       return navigate({ to: "/listings" });
     }
     const purpose: "rent" | "sale" = p.listing_purpose === "sale" ? "sale" : "rent";
-    const listing_type: "sale" | "rent" | "room" = p.is_hmo ? "room" : purpose;
+    const listing_type = (p.listing_purpose === "short_let" ? "rent" : (p.is_hmo ? "room" : purpose)) as "sale" | "rent" | "room";
+    const price = p.listing_purpose === "short_let" ? p.nightly_rate : p.price;
     const { error } = await supabase.from("listings").insert({
       owner_id: u.user.id,
       property_id: p.id,
       slug: slugify(p.title || "listing"),
       title: p.title,
+      description: p.description,
       listing_type,
       purpose,
       status: "draft",
@@ -89,8 +101,19 @@ function PropertiesPage() {
       bedrooms: p.bedrooms,
       bathrooms: p.bathrooms,
       is_hmo: p.is_hmo,
+      bills_included: p.bills_included,
       features: (p.features ?? []) as any,
-      price: p.listing_purpose === "short_let" ? p.nightly_rate : null,
+      photos: (p.photos ?? []) as any,
+      cover_image: p.cover_image,
+      epc_rating: p.epc_rating,
+      tenure: p.tenure as any,
+      furnished: p.furnished,
+      council_tax_band: p.council_tax_band,
+      floor_area_sqft: p.floor_area_sqft,
+      available_from: p.available_from,
+      compliance: (p.compliance ?? {}) as any,
+      price,
+      price_qualifier: p.price_qualifier as any,
     });
     if (error) return toast.error(error.message);
     toast.success("Draft listing created — finish details & publish");
@@ -138,6 +161,14 @@ function PropertiesPage() {
 
   const startNew = () => { setForm(emptyProp); setOpen(true); };
   const startEdit = (p: Property) => {
+    const photos: ListingPhoto[] = Array.isArray(p.photos)
+      ? (p.photos as unknown[]).map((x) => {
+          if (typeof x === "string") return { url: x, room: null };
+          const o = x as any;
+          return { url: String(o?.url ?? ""), path: o?.path ?? null, room: o?.room ?? null };
+        }).filter((x) => x.url)
+      : [];
+    const coverIdx = Math.max(0, photos.findIndex((x) => x.url === p.cover_image));
     setForm({
       id: p.id, title: p.title, address: p.address ?? "", city: p.city ?? "", postcode: p.postcode ?? "",
       property_type: p.property_type ?? "", bedrooms: p.bedrooms?.toString() ?? "", bathrooms: p.bathrooms?.toString() ?? "",
@@ -147,12 +178,27 @@ function PropertiesPage() {
       nightly_rate: p.nightly_rate?.toString() ?? "",
       min_stay_nights: p.min_stay_nights?.toString() ?? "",
       cleaning_fee: p.cleaning_fee?.toString() ?? "",
+      description: p.description ?? "",
+      epc_rating: p.epc_rating ?? "",
+      tenure: p.tenure ?? "",
+      furnished: p.furnished ?? "",
+      council_tax_band: p.council_tax_band ?? "",
+      floor_area_sqft: p.floor_area_sqft?.toString() ?? "",
+      bills_included: !!p.bills_included,
+      available_from: p.available_from ?? "",
+      cover_image: p.cover_image ?? "",
+      photos,
+      cover_index: coverIdx >= 0 ? coverIdx : 0,
+      compliance: (p.compliance && typeof p.compliance === "object" ? p.compliance : {}) as ComplianceMap,
+      price: p.price?.toString() ?? "",
+      price_qualifier: p.price_qualifier ?? "none",
     });
     setOpen(true);
   };
 
   const save = async () => {
     if (!form.title.trim()) return toast.error("Title required");
+    const coverUrl = form.photos[form.cover_index]?.url ?? form.photos[0]?.url ?? form.cover_image ?? null;
     const payload: any = {
       title: form.title.trim(),
       address: form.address || null,
@@ -171,6 +217,19 @@ function PropertiesPage() {
       nightly_rate: form.listing_purpose === "short_let" && form.nightly_rate ? Number(form.nightly_rate) : null,
       min_stay_nights: form.listing_purpose === "short_let" && form.min_stay_nights ? Number(form.min_stay_nights) : null,
       cleaning_fee: form.listing_purpose === "short_let" && form.cleaning_fee ? Number(form.cleaning_fee) : null,
+      description: form.description || null,
+      epc_rating: form.epc_rating || null,
+      tenure: form.tenure || null,
+      furnished: form.furnished || null,
+      council_tax_band: form.council_tax_band || null,
+      floor_area_sqft: form.floor_area_sqft ? Number(form.floor_area_sqft) : null,
+      bills_included: form.bills_included,
+      available_from: form.available_from || null,
+      cover_image: coverUrl,
+      photos: form.photos as any,
+      compliance: form.compliance as any,
+      price: form.price ? Number(form.price) : null,
+      price_qualifier: form.price_qualifier === "none" ? null : form.price_qualifier,
     };
     try {
       if (form.id) {
@@ -387,7 +446,86 @@ function PropertiesPage() {
                 </div>
               )}
             </>)}
-            <div className="sm:col-span-2"><Label>Notes</Label><Textarea rows={3} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} /></div>
+
+            <div className="sm:col-span-2 pt-3 border-t text-xs font-medium text-muted-foreground uppercase tracking-wide">Marketing & specs</div>
+            <div className="sm:col-span-2"><Label>Description</Label><Textarea rows={4} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Long-form property description used on listings…" /></div>
+            <div><Label>Asking price (£)</Label><Input type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} /></div>
+            <div><Label>Price qualifier</Label>
+              <Select value={form.price_qualifier} onValueChange={(v) => setForm({ ...form, price_qualifier: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No qualifier</SelectItem>
+                  <SelectItem value="guide_price">Guide price</SelectItem>
+                  <SelectItem value="offers_over">Offers over</SelectItem>
+                  <SelectItem value="offers_in_region">Offers in region of</SelectItem>
+                  <SelectItem value="poa">POA</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div><Label>EPC</Label>
+              <Select value={form.epc_rating || "none"} onValueChange={(v) => setForm({ ...form, epc_rating: v === "none" ? "" : v })}>
+                <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">—</SelectItem>
+                  {["A","B","C","D","E","F","G"].map((g) => <SelectItem key={g} value={g}>{g}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div><Label>Council tax band</Label>
+              <Select value={form.council_tax_band || "none"} onValueChange={(v) => setForm({ ...form, council_tax_band: v === "none" ? "" : v })}>
+                <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">—</SelectItem>
+                  {["A","B","C","D","E","F","G","H"].map((g) => <SelectItem key={g} value={g}>{g}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div><Label>Tenure</Label>
+              <Select value={form.tenure || "none"} onValueChange={(v) => setForm({ ...form, tenure: v === "none" ? "" : v })}>
+                <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">—</SelectItem>
+                  <SelectItem value="freehold">Freehold</SelectItem>
+                  <SelectItem value="leasehold">Leasehold</SelectItem>
+                  <SelectItem value="share_of_freehold">Share of freehold</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div><Label>Furnishing</Label>
+              <Select value={form.furnished || "none"} onValueChange={(v) => setForm({ ...form, furnished: v === "none" ? "" : v })}>
+                <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">—</SelectItem>
+                  <SelectItem value="furnished">Furnished</SelectItem>
+                  <SelectItem value="part_furnished">Part furnished</SelectItem>
+                  <SelectItem value="unfurnished">Unfurnished</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div><Label>Floor area (sq ft)</Label><Input type="number" value={form.floor_area_sqft} onChange={(e) => setForm({ ...form, floor_area_sqft: e.target.value })} /></div>
+            <div><Label>Available from</Label><Input type="date" value={form.available_from} onChange={(e) => setForm({ ...form, available_from: e.target.value })} /></div>
+            <div className="sm:col-span-2 flex items-center gap-3">
+              <Switch checked={form.bills_included} onCheckedChange={(v) => setForm({ ...form, bills_included: v })} />
+              <Label>Bills included</Label>
+            </div>
+
+            <div className="sm:col-span-2">
+              <Label>Photos</Label>
+              <p className="text-xs text-muted-foreground mb-2">Click the star to set the cover image. These photos flow through to any listing for this property.</p>
+              <PhotoUploader
+                photos={form.photos}
+                onChange={(photos) => setForm((f) => ({ ...f, photos }))}
+                coverIndex={form.cover_index}
+                onCoverChange={(i) => setForm((f) => ({ ...f, cover_index: i }))}
+              />
+            </div>
+
+            <div className="sm:col-span-2">
+              <ComplianceEditor value={form.compliance} onChange={(c) => setForm({ ...form, compliance: c })} isHmo={form.is_hmo} />
+            </div>
+
+            <div className="sm:col-span-2"><Label>Internal notes</Label><Textarea rows={3} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} /></div>
+
           </div>
           <DialogFooter><Button onClick={save} disabled={!form.title.trim()}>Save</Button></DialogFooter>
         </DialogContent>

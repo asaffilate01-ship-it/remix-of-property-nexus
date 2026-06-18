@@ -1142,6 +1142,7 @@ export type Database = {
           verified: boolean
           verified_at: string | null
           view_count: number
+          website_publish: boolean
         }
         Insert: {
           address?: string | null
@@ -1201,6 +1202,7 @@ export type Database = {
           verified?: boolean
           verified_at?: string | null
           view_count?: number
+          website_publish?: boolean
         }
         Update: {
           address?: string | null
@@ -1260,6 +1262,7 @@ export type Database = {
           verified?: boolean
           verified_at?: string | null
           view_count?: number
+          website_publish?: boolean
         }
         Relationships: [
           {
@@ -1535,13 +1538,22 @@ export type Database = {
         Row: {
           address: string | null
           agency_id: string | null
+          available_from: string | null
           bathrooms: number | null
           bedrooms: number | null
+          bills_included: boolean
           branch_id: string | null
           city: string | null
           cleaning_fee: number | null
+          compliance: Json
+          council_tax_band: string | null
+          cover_image: string | null
           created_at: string
+          description: string | null
+          epc_rating: string | null
           features: string[]
+          floor_area_sqft: number | null
+          furnished: string | null
           hmo_licence_expires: string | null
           hmo_licence_number: string | null
           id: string
@@ -1553,22 +1565,35 @@ export type Database = {
           nightly_rate: number | null
           notes: string | null
           owner_id: string
+          photos: Json
           postcode: string | null
+          price: number | null
+          price_qualifier: string | null
           property_type: string | null
           property_type_code: string | null
+          tenure: string | null
           title: string
           updated_at: string
         }
         Insert: {
           address?: string | null
           agency_id?: string | null
+          available_from?: string | null
           bathrooms?: number | null
           bedrooms?: number | null
+          bills_included?: boolean
           branch_id?: string | null
           city?: string | null
           cleaning_fee?: number | null
+          compliance?: Json
+          council_tax_band?: string | null
+          cover_image?: string | null
           created_at?: string
+          description?: string | null
+          epc_rating?: string | null
           features?: string[]
+          floor_area_sqft?: number | null
+          furnished?: string | null
           hmo_licence_expires?: string | null
           hmo_licence_number?: string | null
           id?: string
@@ -1580,22 +1605,35 @@ export type Database = {
           nightly_rate?: number | null
           notes?: string | null
           owner_id: string
+          photos?: Json
           postcode?: string | null
+          price?: number | null
+          price_qualifier?: string | null
           property_type?: string | null
           property_type_code?: string | null
+          tenure?: string | null
           title: string
           updated_at?: string
         }
         Update: {
           address?: string | null
           agency_id?: string | null
+          available_from?: string | null
           bathrooms?: number | null
           bedrooms?: number | null
+          bills_included?: boolean
           branch_id?: string | null
           city?: string | null
           cleaning_fee?: number | null
+          compliance?: Json
+          council_tax_band?: string | null
+          cover_image?: string | null
           created_at?: string
+          description?: string | null
+          epc_rating?: string | null
           features?: string[]
+          floor_area_sqft?: number | null
+          furnished?: string | null
           hmo_licence_expires?: string | null
           hmo_licence_number?: string | null
           id?: string
@@ -1607,9 +1645,13 @@ export type Database = {
           nightly_rate?: number | null
           notes?: string | null
           owner_id?: string
+          photos?: Json
           postcode?: string | null
+          price?: number | null
+          price_qualifier?: string | null
           property_type?: string | null
           property_type_code?: string | null
+          tenure?: string | null
           title?: string
           updated_at?: string
         }
