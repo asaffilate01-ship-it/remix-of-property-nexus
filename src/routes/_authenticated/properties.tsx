@@ -149,6 +149,14 @@ function PropertiesPage() {
 
   const startNew = () => { setForm(emptyProp); setOpen(true); };
   const startEdit = (p: Property) => {
+    const photos: ListingPhoto[] = Array.isArray(p.photos)
+      ? (p.photos as unknown[]).map((x) => {
+          if (typeof x === "string") return { url: x, room: null };
+          const o = x as any;
+          return { url: String(o?.url ?? ""), path: o?.path ?? null, room: o?.room ?? null };
+        }).filter((x) => x.url)
+      : [];
+    const coverIdx = Math.max(0, photos.findIndex((x) => x.url === p.cover_image));
     setForm({
       id: p.id, title: p.title, address: p.address ?? "", city: p.city ?? "", postcode: p.postcode ?? "",
       property_type: p.property_type ?? "", bedrooms: p.bedrooms?.toString() ?? "", bathrooms: p.bathrooms?.toString() ?? "",
@@ -158,6 +166,20 @@ function PropertiesPage() {
       nightly_rate: p.nightly_rate?.toString() ?? "",
       min_stay_nights: p.min_stay_nights?.toString() ?? "",
       cleaning_fee: p.cleaning_fee?.toString() ?? "",
+      description: p.description ?? "",
+      epc_rating: p.epc_rating ?? "",
+      tenure: p.tenure ?? "",
+      furnished: p.furnished ?? "",
+      council_tax_band: p.council_tax_band ?? "",
+      floor_area_sqft: p.floor_area_sqft?.toString() ?? "",
+      bills_included: !!p.bills_included,
+      available_from: p.available_from ?? "",
+      cover_image: p.cover_image ?? "",
+      photos,
+      cover_index: coverIdx >= 0 ? coverIdx : 0,
+      compliance: (p.compliance && typeof p.compliance === "object" ? p.compliance : {}) as ComplianceMap,
+      price: p.price?.toString() ?? "",
+      price_qualifier: p.price_qualifier ?? "none",
     });
     setOpen(true);
   };
