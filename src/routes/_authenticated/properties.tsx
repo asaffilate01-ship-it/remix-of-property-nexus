@@ -434,7 +434,86 @@ function PropertiesPage() {
                 </div>
               )}
             </>)}
-            <div className="sm:col-span-2"><Label>Notes</Label><Textarea rows={3} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} /></div>
+
+            <div className="sm:col-span-2 pt-3 border-t text-xs font-medium text-muted-foreground uppercase tracking-wide">Marketing & specs</div>
+            <div className="sm:col-span-2"><Label>Description</Label><Textarea rows={4} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Long-form property description used on listings…" /></div>
+            <div><Label>Asking price (£)</Label><Input type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} /></div>
+            <div><Label>Price qualifier</Label>
+              <Select value={form.price_qualifier} onValueChange={(v) => setForm({ ...form, price_qualifier: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No qualifier</SelectItem>
+                  <SelectItem value="guide_price">Guide price</SelectItem>
+                  <SelectItem value="offers_over">Offers over</SelectItem>
+                  <SelectItem value="offers_in_region">Offers in region of</SelectItem>
+                  <SelectItem value="poa">POA</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div><Label>EPC</Label>
+              <Select value={form.epc_rating || "none"} onValueChange={(v) => setForm({ ...form, epc_rating: v === "none" ? "" : v })}>
+                <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">—</SelectItem>
+                  {["A","B","C","D","E","F","G"].map((g) => <SelectItem key={g} value={g}>{g}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div><Label>Council tax band</Label>
+              <Select value={form.council_tax_band || "none"} onValueChange={(v) => setForm({ ...form, council_tax_band: v === "none" ? "" : v })}>
+                <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">—</SelectItem>
+                  {["A","B","C","D","E","F","G","H"].map((g) => <SelectItem key={g} value={g}>{g}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div><Label>Tenure</Label>
+              <Select value={form.tenure || "none"} onValueChange={(v) => setForm({ ...form, tenure: v === "none" ? "" : v })}>
+                <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">—</SelectItem>
+                  <SelectItem value="freehold">Freehold</SelectItem>
+                  <SelectItem value="leasehold">Leasehold</SelectItem>
+                  <SelectItem value="share_of_freehold">Share of freehold</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div><Label>Furnishing</Label>
+              <Select value={form.furnished || "none"} onValueChange={(v) => setForm({ ...form, furnished: v === "none" ? "" : v })}>
+                <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">—</SelectItem>
+                  <SelectItem value="furnished">Furnished</SelectItem>
+                  <SelectItem value="part_furnished">Part furnished</SelectItem>
+                  <SelectItem value="unfurnished">Unfurnished</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div><Label>Floor area (sq ft)</Label><Input type="number" value={form.floor_area_sqft} onChange={(e) => setForm({ ...form, floor_area_sqft: e.target.value })} /></div>
+            <div><Label>Available from</Label><Input type="date" value={form.available_from} onChange={(e) => setForm({ ...form, available_from: e.target.value })} /></div>
+            <div className="sm:col-span-2 flex items-center gap-3">
+              <Switch checked={form.bills_included} onCheckedChange={(v) => setForm({ ...form, bills_included: v })} />
+              <Label>Bills included</Label>
+            </div>
+
+            <div className="sm:col-span-2">
+              <Label>Photos</Label>
+              <p className="text-xs text-muted-foreground mb-2">Click the star to set the cover image. These photos flow through to any listing for this property.</p>
+              <PhotoUploader
+                photos={form.photos}
+                onChange={(photos) => setForm((f) => ({ ...f, photos }))}
+                coverIndex={form.cover_index}
+                onCoverChange={(i) => setForm((f) => ({ ...f, cover_index: i }))}
+              />
+            </div>
+
+            <div className="sm:col-span-2">
+              <ComplianceEditor value={form.compliance} onChange={(c) => setForm({ ...form, compliance: c })} isHmo={form.is_hmo} />
+            </div>
+
+            <div className="sm:col-span-2"><Label>Internal notes</Label><Textarea rows={3} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} /></div>
+
           </div>
           <DialogFooter><Button onClick={save} disabled={!form.title.trim()}>Save</Button></DialogFooter>
         </DialogContent>
