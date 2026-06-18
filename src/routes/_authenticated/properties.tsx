@@ -27,6 +27,8 @@ import { StreetViewThumb } from "@/components/properties/StreetViewThumb";
 import { TenantBioEditor, type TenantBio } from "@/components/tenancy/TenantBioEditor";
 import { TenantComplianceEditor, type TenantComplianceMap } from "@/components/tenancy/TenantComplianceEditor";
 import { TenantDocsMini } from "@/components/tenancy/TenantDocsMini";
+import { PhotoUploader, type ListingPhoto } from "@/components/listings/PhotoUploader";
+import { ComplianceEditor, type ComplianceMap } from "@/components/listings/ComplianceEditor";
 
 export const Route = createFileRoute("/_authenticated/properties")({ component: PropertiesPage });
 
