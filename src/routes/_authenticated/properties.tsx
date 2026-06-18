@@ -186,6 +186,7 @@ function PropertiesPage() {
 
   const save = async () => {
     if (!form.title.trim()) return toast.error("Title required");
+    const coverUrl = form.photos[form.cover_index]?.url ?? form.photos[0]?.url ?? form.cover_image ?? null;
     const payload: any = {
       title: form.title.trim(),
       address: form.address || null,
@@ -204,6 +205,19 @@ function PropertiesPage() {
       nightly_rate: form.listing_purpose === "short_let" && form.nightly_rate ? Number(form.nightly_rate) : null,
       min_stay_nights: form.listing_purpose === "short_let" && form.min_stay_nights ? Number(form.min_stay_nights) : null,
       cleaning_fee: form.listing_purpose === "short_let" && form.cleaning_fee ? Number(form.cleaning_fee) : null,
+      description: form.description || null,
+      epc_rating: form.epc_rating || null,
+      tenure: form.tenure || null,
+      furnished: form.furnished || null,
+      council_tax_band: form.council_tax_band || null,
+      floor_area_sqft: form.floor_area_sqft ? Number(form.floor_area_sqft) : null,
+      bills_included: form.bills_included,
+      available_from: form.available_from || null,
+      cover_image: coverUrl,
+      photos: form.photos as any,
+      compliance: form.compliance as any,
+      price: form.price ? Number(form.price) : null,
+      price_qualifier: form.price_qualifier === "none" ? null : form.price_qualifier,
     };
     try {
       if (form.id) {
