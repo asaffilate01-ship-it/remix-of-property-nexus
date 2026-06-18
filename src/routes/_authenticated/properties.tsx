@@ -39,6 +39,10 @@ type Property = {
   listing_purpose: "rent" | "sale" | "both" | "short_let"; notes: string | null;
   features: string[] | null;
   nightly_rate: number | null; min_stay_nights: number | null; cleaning_fee: number | null;
+  description: string | null; epc_rating: string | null; tenure: string | null; furnished: string | null;
+  council_tax_band: string | null; floor_area_sqft: number | null; bills_included: boolean;
+  available_from: string | null; cover_image: string | null; photos: unknown; compliance: unknown;
+  price: number | null; price_qualifier: string | null;
 };
 type Room = { id: string; property_id: string; name: string; room_number: string | null; rent_pcm: number | null; status: string; en_suite: boolean | null; bills_included: boolean | null; available_from: string | null };
 type Tenancy = { id: string; property_id: string; room_id: string | null; tenant_name: string; tenant_email: string | null; tenant_phone: string | null; start_date: string; end_date: string | null; rent_amount: number; rent_frequency: "weekly" | "monthly"; deposit: number | null; status: string; bio?: TenantBio | null; tenant_compliance?: TenantComplianceMap | null };
