@@ -3803,6 +3803,10 @@ export type Database = {
         Args: { _agency: string; _user: string }
         Returns: boolean
       }
+      is_property_tenant: {
+        Args: { _property: string; _user: string }
+        Returns: boolean
+      }
       is_thread_participant: {
         Args: { _thread: string; _user: string }
         Returns: boolean
