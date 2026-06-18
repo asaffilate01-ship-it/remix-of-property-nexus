@@ -182,9 +182,17 @@ function PropertiesPage() {
         if (authErr) throw authErr;
         if (!u.user) return toast.error("Sign in required");
         payload.owner_id = u.user.id;
-        const { error } = await supabase.from("properties").insert(payload);
+        const { data: inserted, error } = await supabase.from("properties").insert(payload).select("*").single();
         if (error) throw error;
-        toast.success("Property added");
+        toast.success(form.is_hmo ? "HMO added — now add its rooms" : "Property added");
+        setOpen(false);
+        setForm(emptyProp);
+        await load();
+        if (form.is_hmo && inserted) {
+          setActive(inserted as Property);
+          setInitialTab("rooms");
+        }
+        return;
       }
       setOpen(false); setForm(emptyProp); load();
     } catch (e: any) {
