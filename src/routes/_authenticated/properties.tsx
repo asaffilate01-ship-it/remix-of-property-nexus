@@ -381,6 +381,11 @@ function PropertiesPage() {
             {form.is_hmo && (<>
               <div><Label>HMO licence #</Label><Input value={form.hmo_licence_number} onChange={(e) => setForm({ ...form, hmo_licence_number: e.target.value })} /></div>
               <div><Label>HMO licence expires</Label><Input type="date" value={form.hmo_licence_expires} onChange={(e) => setForm({ ...form, hmo_licence_expires: e.target.value })} /></div>
+              {!form.id && (
+                <div className="sm:col-span-2 text-xs text-muted-foreground bg-muted/40 rounded-md p-2 flex items-center gap-2">
+                  <BedDouble className="h-3.5 w-3.5" /> After saving, you'll be taken to the Rooms tab to add each lettable room.
+                </div>
+              )}
             </>)}
             <div className="sm:col-span-2"><Label>Notes</Label><Textarea rows={3} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} /></div>
           </div>
