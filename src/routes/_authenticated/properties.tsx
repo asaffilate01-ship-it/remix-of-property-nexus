@@ -78,19 +78,21 @@ function PropertiesPage() {
   const listProperty = async (p: Property) => {
     const { data: u } = await supabase.auth.getUser();
     if (!u.user) return toast.error("Sign in required");
-    // Reuse existing listing if already linked
     const { data: existing } = await supabase.from("listings").select("id").eq("property_id", p.id).maybeSingle();
     if (existing?.id) {
       toast.success("Opening existing listing");
       return navigate({ to: "/listings" });
     }
     const purpose: "rent" | "sale" = p.listing_purpose === "sale" ? "sale" : "rent";
-    const listing_type: "sale" | "rent" | "room" = p.is_hmo ? "room" : purpose;
+    const listing_type: "sale" | "rent" | "room" | "holiday" =
+      p.listing_purpose === "short_let" ? "holiday" : (p.is_hmo ? "room" : purpose);
+    const price = p.listing_purpose === "short_let" ? p.nightly_rate : p.price;
     const { error } = await supabase.from("listings").insert({
       owner_id: u.user.id,
       property_id: p.id,
       slug: slugify(p.title || "listing"),
       title: p.title,
+      description: p.description,
       listing_type,
       purpose,
       status: "draft",
@@ -100,8 +102,19 @@ function PropertiesPage() {
       bedrooms: p.bedrooms,
       bathrooms: p.bathrooms,
       is_hmo: p.is_hmo,
+      bills_included: p.bills_included,
       features: (p.features ?? []) as any,
-      price: p.listing_purpose === "short_let" ? p.nightly_rate : null,
+      photos: (p.photos ?? []) as any,
+      cover_image: p.cover_image,
+      epc_rating: p.epc_rating,
+      tenure: p.tenure as any,
+      furnished: p.furnished,
+      council_tax_band: p.council_tax_band,
+      floor_area_sqft: p.floor_area_sqft,
+      available_from: p.available_from,
+      compliance: (p.compliance ?? {}) as any,
+      price,
+      price_qualifier: p.price_qualifier as any,
     });
     if (error) return toast.error(error.message);
     toast.success("Draft listing created — finish details & publish");
