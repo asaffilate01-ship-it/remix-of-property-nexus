@@ -336,7 +336,7 @@ function PropertiesPage() {
               onResolve={(info) => setForm({ ...form, postcode: form.postcode.toUpperCase(), city: form.city || info.city })}
             />
             <div><Label>Type</Label>
-              <Select value={form.property_type} onValueChange={(v) => setForm({ ...form, property_type: v })}>
+              <Select value={form.property_type} onValueChange={(v) => setForm({ ...form, property_type: v, is_hmo: v === "hmo" ? true : form.is_hmo })}>
                 <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
                 <SelectContent className="max-h-72">
                   {(ptypes.length ? ptypes.map(t => ({ v: t.code, l: t.label })) : PROPERTY_TYPES.map(t => ({ v: t, l: t })))
