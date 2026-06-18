@@ -15,77 +15,67 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Plus, Tag, ExternalLink, Pencil, Trash2, Eye, EyeOff, Globe, Printer } from "lucide-react";
+import { Plus, Tag, ExternalLink, Pencil, Trash2, Eye, EyeOff, Globe, Printer, Building2 } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/PageHeader";
 import { ListingImage } from "@/components/ListingImage";
-import { PhotoUploader, type ListingPhoto } from "@/components/listings/PhotoUploader";
-import { RoomsEditor, type HmoRoom } from "@/components/listings/RoomsEditor";
-import { ComplianceEditor, type ComplianceMap } from "@/components/listings/ComplianceEditor";
-import { FeatureMultiSelect } from "@/components/properties/FeatureMultiSelect";
-import { AddressLookup } from "@/components/address/AddressLookup";
 
 type Listing = {
   id: string; owner_id: string; slug: string; title: string; description: string | null;
-  listing_type: "sale" | "rent" | "room" | "holiday"; purpose: "sale" | "rent";
+  listing_type: "sale" | "rent" | "room"; purpose: "sale" | "rent";
   status: string; price: number | null; price_qualifier: string | null;
   bedrooms: number | null; bathrooms: number | null; receptions: number | null;
   city: string | null; postcode: string | null; address: string | null;
   cover_image: string | null; photos: unknown; features: unknown;
-  is_hmo: boolean; bills_included: boolean; marketplace_publish: boolean;
+  is_hmo: boolean; bills_included: boolean; marketplace_publish: boolean; website_publish: boolean;
   available_from: string | null; epc_rating: string | null; tenure: string | null;
   floor_area_sqft: number | null; council_tax_band: string | null; furnished: string | null;
-  agency_id: string | null; view_count: number;
+  agency_id: string | null; property_id: string | null; view_count: number;
   rooms?: unknown; compliance?: unknown;
+};
+
+type PropertyOption = {
+  id: string; title: string; address: string | null; city: string | null; postcode: string | null;
+  property_type: string | null; bedrooms: number | null; bathrooms: number | null;
+  is_hmo: boolean; listing_purpose: string;
+  description: string | null; epc_rating: string | null; tenure: string | null; furnished: string | null;
+  council_tax_band: string | null; floor_area_sqft: number | null; bills_included: boolean;
+  available_from: string | null; cover_image: string | null; photos: unknown; features: unknown;
+  compliance: unknown; price: number | null; price_qualifier: string | null;
+  nightly_rate: number | null;
 };
 
 const empty = {
   id: undefined as string | undefined,
-  title: "", description: "",
-  listing_type: "rent" as "sale" | "rent" | "room" | "holiday",
-  purpose: "rent" as "sale" | "rent",
-  price: "", price_qualifier: "none",
-  bedrooms: "", bathrooms: "", receptions: "",
-  address: "", city: "", postcode: "",
-  cover_image: "",
-  photos: [] as ListingPhoto[],
-  cover_index: 0,
-  features: [] as string[],
-  rooms: [] as HmoRoom[],
-  compliance: {} as ComplianceMap,
-  is_hmo: false, bills_included: false,
-  marketplace_publish: true, publish: true,
-  available_from: "", epc_rating: "", tenure: "",
-  floor_area_sqft: "", council_tax_band: "", furnished: "",
-  agency_id: "" as string,
+  property_id: "",
+  title_override: "",
+  description_override: "",
+  price: "",
+  price_qualifier: "none",
+  agency_id: "",
+  marketplace_publish: true,
+  website_publish: true,
+  publish: true,
 };
 
-const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60) + "-" + Math.random().toString(36).slice(2, 7);
-
-function normalizePhotos(raw: unknown): ListingPhoto[] {
-  if (!Array.isArray(raw)) return [];
-  const out: ListingPhoto[] = [];
-  for (const p of raw as unknown[]) {
-    if (typeof p === "string") out.push({ url: p, room: null });
-    else if (p && typeof p === "object" && "url" in (p as any)) out.push({ url: String((p as any).url), room: (p as any).room ?? null });
-  }
-  return out;
-}
+const slugify = (s: string) =>
+  s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60) +
+  "-" + Math.random().toString(36).slice(2, 7);
 
 export const Route = createFileRoute("/_authenticated/listings")({ component: ListingsPage });
 
 type Form = typeof empty;
-type StatusFilter = "all" | "published" | "draft" | "off_market" | "holiday";
+type StatusFilter = "all" | "published" | "draft";
 
 function ListingsPage() {
   const search = useSearch({ from: "/_authenticated/listings" });
   const [rows, setRows] = useState<Listing[]>([]);
+  const [properties, setProperties] = useState<PropertyOption[]>([]);
   const [agencies, setAgencies] = useState<{ id: string; name: string }[]>([]);
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<Form>(empty);
   const [filter, setFilter] = useState<StatusFilter>("all");
   const [saving, setSaving] = useState(false);
-  const [uploadingPhotos, setUploadingPhotos] = useState(false);
   const formRef = useRef<Form>(empty);
 
   const updateForm: React.Dispatch<React.SetStateAction<Form>> = (next) => {
@@ -118,22 +108,19 @@ function ListingsPage() {
 
   const load = async () => {
     const { data: u } = await supabase.auth.getUser();
-    if (!u.user) {
-      setRows([]);
-      setAgencies([]);
-      return [] as Listing[];
-    }
+    if (!u.user) { setRows([]); setAgencies([]); setProperties([]); return [] as Listing[]; }
     const managed = await fetchManagedAgencies(u.user.id);
     setAgencies(managed);
     const managedIds = new Set(managed.map((a) => a.id));
-    const { data } = await supabase
-      .from("listings")
-      .select("*")
-      .order("created_at", { ascending: false });
-    const visible = ((data as Listing[]) ?? []).filter(
+    const [{ data: listingData }, { data: propData }] = await Promise.all([
+      supabase.from("listings").select("*").order("created_at", { ascending: false }),
+      supabase.from("properties").select("*").order("created_at", { ascending: false }),
+    ]);
+    const visible = ((listingData as Listing[]) ?? []).filter(
       (l) => l.owner_id === u.user!.id || (!!l.agency_id && managedIds.has(l.agency_id)),
     );
     setRows(visible);
+    setProperties((propData as PropertyOption[]) ?? []);
     return visible;
   };
 
@@ -158,151 +145,101 @@ function ListingsPage() {
       .channel(`listings-${Math.random().toString(36).slice(2, 8)}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "listings" }, () => void load())
       .subscribe();
-
-    return () => {
-      void supabase.removeChannel(channel);
-    };
+    return () => { void supabase.removeChannel(channel); };
   }, []);
 
   const openNew = () => { updateForm(empty); setOpen(true); };
   const openEdit = (l: Listing) => {
-    const photos = normalizePhotos(l.photos);
-    const features = Array.isArray(l.features) ? (l.features as unknown[]).filter((f): f is string => typeof f === "string") : [];
-    const rooms = Array.isArray(l.rooms) ? (l.rooms as HmoRoom[]) : [];
-    const compliance = (l.compliance && typeof l.compliance === "object" ? l.compliance : {}) as ComplianceMap;
-    const coverIdx = Math.max(0, photos.findIndex((p) => p.url === l.cover_image));
     updateForm({
       id: l.id,
-      title: l.title, description: l.description ?? "",
-      listing_type: l.listing_type, purpose: l.purpose,
-      price: l.price?.toString() ?? "", price_qualifier: l.price_qualifier ?? "none",
-      bedrooms: l.bedrooms?.toString() ?? "", bathrooms: l.bathrooms?.toString() ?? "", receptions: l.receptions?.toString() ?? "",
-      address: l.address ?? "", city: l.city ?? "", postcode: l.postcode ?? "",
-      cover_image: l.cover_image ?? "",
-      photos,
-      cover_index: coverIdx >= 0 ? coverIdx : 0,
-      features,
-      rooms,
-      compliance,
-      is_hmo: l.is_hmo, bills_included: l.bills_included,
-      marketplace_publish: l.marketplace_publish, publish: l.status === "published",
-      available_from: l.available_from ?? "", epc_rating: l.epc_rating ?? "",
-      tenure: l.tenure ?? "", floor_area_sqft: l.floor_area_sqft?.toString() ?? "",
-      council_tax_band: l.council_tax_band ?? "", furnished: l.furnished ?? "",
+      property_id: l.property_id ?? "",
+      title_override: l.title ?? "",
+      description_override: l.description ?? "",
+      price: l.price?.toString() ?? "",
+      price_qualifier: l.price_qualifier ?? "none",
       agency_id: l.agency_id ?? "",
+      marketplace_publish: l.marketplace_publish,
+      website_publish: l.website_publish ?? true,
+      publish: l.status === "published",
     });
     setOpen(true);
   };
 
   const save = async () => {
-    if (saving || uploadingPhotos) return;
+    if (saving) return;
+    const f = formRef.current;
+    if (!f.property_id) return toast.error("Select a property");
     setSaving(true);
     const { data: u } = await supabase.auth.getUser();
-    if (!u.user) {
-      setSaving(false);
-      return;
-    }
-    const currentForm = formRef.current;
-    const photos = currentForm.photos;
-    const coverUrl = photos[currentForm.cover_index]?.url ?? photos[0]?.url ?? currentForm.cover_image ?? null;
-    // If HMO, infer bedrooms from rooms count
-    const bedroomsValue = currentForm.is_hmo
-      ? (currentForm.rooms.length || (currentForm.bedrooms ? Number(currentForm.bedrooms) : null))
-      : (currentForm.bedrooms ? Number(currentForm.bedrooms) : null);
-    // Sync epc_rating top-level if compliance has one (keep existing field too)
+    if (!u.user) { setSaving(false); return; }
+    const prop = properties.find((p) => p.id === f.property_id);
+    if (!prop) { setSaving(false); return toast.error("Property not found"); }
+
+    const purpose: "sale" | "rent" = prop.listing_purpose === "sale" ? "sale" : "rent";
+    const listing_type: "sale" | "rent" | "room" = prop.is_hmo ? "room" : purpose;
+    const defaultPrice = prop.listing_purpose === "short_let" ? prop.nightly_rate : prop.price;
+    const finalPrice = f.price ? Number(f.price) : defaultPrice;
+
     const payload: any = {
-      title: currentForm.title,
-      description: currentForm.description || null,
-      listing_type: currentForm.listing_type,
-      purpose: currentForm.purpose,
-      status: (currentForm.publish ? "published" : "draft") as "published" | "draft",
-      price: currentForm.price ? Number(currentForm.price) : null,
-      price_qualifier: (currentForm.price_qualifier === "none" ? null : currentForm.price_qualifier),
-      bedrooms: bedroomsValue,
-      bathrooms: currentForm.bathrooms ? Number(currentForm.bathrooms) : null,
-      receptions: currentForm.receptions ? Number(currentForm.receptions) : null,
-      address: currentForm.address || null,
-      city: currentForm.city || null,
-      postcode: currentForm.postcode || null,
-      cover_image: coverUrl,
-      photos: photos as any,
-      features: currentForm.features as any,
-      rooms: currentForm.rooms as any,
-      compliance: currentForm.compliance as any,
-      is_hmo: currentForm.is_hmo,
-      bills_included: currentForm.bills_included,
-      marketplace_publish: currentForm.marketplace_publish,
-      available_from: currentForm.available_from || null,
-      epc_rating: currentForm.epc_rating || null,
-      tenure: currentForm.tenure || null,
-      floor_area_sqft: currentForm.floor_area_sqft ? Number(currentForm.floor_area_sqft) : null,
-      council_tax_band: currentForm.council_tax_band || null,
-      furnished: currentForm.furnished || null,
-      agency_id: currentForm.agency_id || null,
+      property_id: prop.id,
+      title: (f.title_override || prop.title || "").trim(),
+      description: f.description_override || prop.description,
+      listing_type,
+      purpose,
+      status: f.publish ? "published" : "draft",
+      price: finalPrice,
+      price_qualifier: f.price_qualifier === "none" ? (prop.price_qualifier ?? null) : f.price_qualifier,
+      address: prop.address,
+      city: prop.city,
+      postcode: prop.postcode,
+      bedrooms: prop.bedrooms,
+      bathrooms: prop.bathrooms,
+      is_hmo: prop.is_hmo,
+      bills_included: prop.bills_included,
+      features: (prop.features ?? []) as any,
+      photos: (prop.photos ?? []) as any,
+      cover_image: prop.cover_image,
+      epc_rating: prop.epc_rating,
+      tenure: prop.tenure as any,
+      furnished: prop.furnished,
+      council_tax_band: prop.council_tax_band,
+      floor_area_sqft: prop.floor_area_sqft,
+      available_from: prop.available_from,
+      compliance: (prop.compliance ?? {}) as any,
+      marketplace_publish: f.marketplace_publish,
+      website_publish: f.website_publish,
+      agency_id: f.agency_id || null,
     };
 
-    // Geocode postcode/city so the listing shows on the map
+    // Geocode from postcode
     try {
-      const pc = (currentForm.postcode || "").trim();
-      const city = (currentForm.city || "").trim();
-      let geo: { latitude: number; longitude: number } | null = null;
+      const pc = (prop.postcode || "").trim();
       if (pc) {
         const r = await fetch(`https://api.postcodes.io/postcodes/${encodeURIComponent(pc)}`);
         if (r.ok) {
           const j = await r.json();
-          if (j?.result) geo = { latitude: j.result.latitude, longitude: j.result.longitude };
+          if (j?.result) { payload.latitude = j.result.latitude; payload.longitude = j.result.longitude; }
         }
-        if (!geo) {
-          const outcode = pc.split(/\s+/)[0];
-          const r2 = await fetch(`https://api.postcodes.io/outcodes/${encodeURIComponent(outcode)}`);
-          if (r2.ok) {
-            const j2 = await r2.json();
-            if (j2?.result) geo = { latitude: j2.result.latitude, longitude: j2.result.longitude };
-          }
-        }
-      }
-      if (!geo && city) {
-        const r3 = await fetch(`https://api.postcodes.io/places?q=${encodeURIComponent(city)}&limit=1`);
-        if (r3.ok) {
-          const j3 = await r3.json();
-          if (j3?.result?.[0]) geo = { latitude: j3.result[0].latitude, longitude: j3.result[0].longitude };
-        }
-      }
-      if (geo) {
-        payload.latitude = geo.latitude;
-        payload.longitude = geo.longitude;
       }
     } catch { /* non-fatal */ }
 
-    let savedId: string | null = null;
-
-    if (currentForm.id) {
-      const { data: updatedRow, error } = await supabase.from("listings").update(payload).eq("id", currentForm.id).select("id").single();
-      if (error || !updatedRow?.id) {
-        setSaving(false);
-        return toast.error(error?.message ?? "Could not save listing");
-      }
-      savedId = updatedRow.id;
+    if (f.id) {
+      const { error } = await supabase.from("listings").update(payload).eq("id", f.id).select("id").single();
+      if (error) { setSaving(false); return toast.error(error.message); }
     } else {
-      const { data: insertedRow, error } = await supabase.from("listings").insert({ ...payload, owner_id: u.user.id, slug: slugify(currentForm.title) }).select("id").single();
-      if (error || !insertedRow?.id) {
-        setSaving(false);
-        return toast.error(error?.message ?? "Could not create listing");
-      }
-      savedId = insertedRow.id;
+      const { error } = await supabase.from("listings").insert({
+        ...payload,
+        owner_id: u.user.id,
+        slug: slugify(payload.title || prop.title || "listing"),
+      }).select("id").single();
+      if (error) { setSaving(false); return toast.error(error.message); }
     }
 
-    const refreshed = await load();
-    if (!savedId || !refreshed.some((row) => row.id === savedId)) {
-      setSaving(false);
-      return toast.error("Save did not fully confirm, so the form has been kept open.");
-    }
-
-    toast.success(currentForm.id ? "Listing updated" : "Listing created");
+    toast.success(f.id ? "Listing updated" : "Listing created");
+    await load();
     setOpen(false); updateForm(empty); setFilter("all");
     setSaving(false);
   };
-
 
   const remove = async (id: string) => {
     const { error } = await supabase.from("listings").delete().eq("id", id);
@@ -320,36 +257,51 @@ function ListingsPage() {
     if (error) toast.error(error.message); else { toast.success(l.marketplace_publish ? "Hidden from marketplace" : "Visible on marketplace"); load(); }
   };
 
-  const filtered = rows.filter((l) => {
-    if (filter === "all") return true;
-    if (filter === "holiday") return l.listing_type === "holiday";
-    return l.status === filter;
-  });
+  const filtered = rows.filter((l) => filter === "all" ? true : l.status === filter);
+  const usedPropertyIds = new Set(rows.map((r) => r.property_id).filter(Boolean) as string[]);
+  const availableProps = properties.filter((p) => form.id || !usedPropertyIds.has(p.id) || p.id === form.property_id);
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Listings"
-        description="Publish to the Estately marketplace and your own agency page."
+        description="Pick a property and publish it to the Estately marketplace and/or your own agency website."
         actions={
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild><Button onClick={openNew}><Plus className="mr-2 h-4 w-4" /> New listing</Button></DialogTrigger>
-              <DialogContent className="max-w-2xl max-h-[92vh] overflow-y-auto">
+            <DialogContent className="max-w-xl max-h-[92vh] overflow-y-auto">
               <DialogHeader><DialogTitle>{form.id ? "Edit listing" : "New listing"}</DialogTitle></DialogHeader>
-                <ListingForm form={form} setForm={updateForm} agencies={agencies} onUploadingChange={setUploadingPhotos} />
-                <DialogFooter><Button onClick={save} disabled={!form.title || saving || uploadingPhotos}>{uploadingPhotos ? "Uploading photos…" : saving ? "Saving…" : form.id ? "Save changes" : "Create listing"}</Button></DialogFooter>
+              <ListingForm
+                form={form}
+                setForm={updateForm}
+                properties={availableProps}
+                agencies={agencies}
+              />
+              <DialogFooter>
+                <Button onClick={save} disabled={!form.property_id || saving}>
+                  {saving ? "Saving…" : form.id ? "Save changes" : "Create listing"}
+                </Button>
+              </DialogFooter>
             </DialogContent>
           </Dialog>
         }
       />
 
+      {properties.length === 0 && (
+        <Card className="border-dashed border-2 bg-transparent">
+          <CardContent className="p-8 text-center text-muted-foreground">
+            <Building2 className="mx-auto h-10 w-10 mb-3 opacity-40" />
+            <div className="mb-3">You need a property before creating a listing.</div>
+            <Button asChild><Link to="/properties">Add a property first</Link></Button>
+          </CardContent>
+        </Card>
+      )}
 
       <Tabs value={filter} onValueChange={(v) => setFilter(v as StatusFilter)}>
         <TabsList>
           <TabsTrigger value="all">All ({rows.length})</TabsTrigger>
           <TabsTrigger value="published">Published ({rows.filter((r) => r.status === "published").length})</TabsTrigger>
           <TabsTrigger value="draft">Drafts ({rows.filter((r) => r.status === "draft").length})</TabsTrigger>
-          <TabsTrigger value="holiday">Holiday ({rows.filter((r) => r.listing_type === "holiday").length})</TabsTrigger>
         </TabsList>
       </Tabs>
 
@@ -370,11 +322,11 @@ function ListingsPage() {
                   <Badge variant="secondary" className="capitalize">{l.purpose}</Badge>
                   <Badge variant={l.status === "published" ? "default" : "outline"}>{l.status}</Badge>
                   {l.is_hmo && <Badge className="bg-accent text-accent-foreground">HMO</Badge>}
-                  {l.listing_type === "holiday" && <Badge className="bg-amber-500 text-white border-0">Holiday</Badge>}
                 </div>
-                {!l.marketplace_publish && (
-                  <div className="absolute top-2 right-2"><Badge variant="outline" className="bg-card/90 backdrop-blur"><EyeOff className="h-3 w-3 mr-1" />Off marketplace</Badge></div>
-                )}
+                <div className="absolute top-2 right-2 flex flex-col gap-1 items-end">
+                  {!l.marketplace_publish && <Badge variant="outline" className="bg-card/90 backdrop-blur"><EyeOff className="h-3 w-3 mr-1" />Off marketplace</Badge>}
+                  {l.website_publish === false && <Badge variant="outline" className="bg-card/90 backdrop-blur"><EyeOff className="h-3 w-3 mr-1" />Off website</Badge>}
+                </div>
               </div>
               <CardContent className="p-4 space-y-2">
                 <div className="font-semibold line-clamp-1">{l.title}</div>
@@ -415,47 +367,75 @@ function ListingsPage() {
   );
 }
 
-function ListingForm({ form, setForm, agencies, onUploadingChange }: { form: Form; setForm: React.Dispatch<React.SetStateAction<Form>>; agencies: { id: string; name: string }[]; onUploadingChange?: (uploading: boolean) => void }) {
+function ListingForm({
+  form, setForm, properties, agencies,
+}: {
+  form: Form;
+  setForm: React.Dispatch<React.SetStateAction<Form>>;
+  properties: PropertyOption[];
+  agencies: { id: string; name: string }[];
+}) {
   const u = <K extends keyof Form>(k: K, v: Form[K]) => setForm((prev) => ({ ...prev, [k]: v }));
+  const selected = properties.find((p) => p.id === form.property_id) ?? null;
+
   return (
     <div className="space-y-4 pr-1">
-      <div><Label>Title *</Label><Input value={form.title} onChange={(e) => u("title", e.target.value)} placeholder="2 bed modern flat with balcony" /></div>
+      <div>
+        <Label>Property *</Label>
+        <Select value={form.property_id} onValueChange={(v) => {
+          const p = properties.find((x) => x.id === v);
+          setForm((prev) => ({
+            ...prev,
+            property_id: v,
+            price: prev.price || (p?.listing_purpose === "short_let" ? p?.nightly_rate?.toString() ?? "" : p?.price?.toString() ?? ""),
+            price_qualifier: prev.price_qualifier === "none" ? (p?.price_qualifier ?? "none") : prev.price_qualifier,
+          }));
+        }}>
+          <SelectTrigger className="mt-1.5"><SelectValue placeholder="Choose a property…" /></SelectTrigger>
+          <SelectContent>
+            {properties.length === 0 && <div className="text-xs text-muted-foreground p-2">No properties available. Add one from the Properties page first.</div>}
+            {properties.map((p) => (
+              <SelectItem key={p.id} value={p.id}>
+                {p.title} {p.postcode ? `· ${p.postcode}` : ""}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <p className="text-xs text-muted-foreground mt-1.5">All photos, features, EPC, compliance & details come from the selected property. Update them on the Properties page.</p>
+      </div>
+
+      {selected && (
+        <Card className="bg-muted/40 border-0">
+          <CardContent className="p-3 text-xs space-y-1">
+            <div className="flex flex-wrap gap-1.5 mb-1">
+              <Badge variant="secondary" className="capitalize">{selected.listing_purpose.replace("_", " ")}</Badge>
+              {selected.is_hmo && <Badge className="bg-accent text-accent-foreground">HMO</Badge>}
+              {selected.bills_included && <Badge variant="outline">Bills inc.</Badge>}
+              {selected.epc_rating && <Badge variant="outline">EPC {selected.epc_rating}</Badge>}
+              {selected.tenure && <Badge variant="outline" className="capitalize">{selected.tenure.replace("_", " ")}</Badge>}
+              {selected.furnished && <Badge variant="outline" className="capitalize">{selected.furnished.replace("_", " ")}</Badge>}
+            </div>
+            <div className="text-muted-foreground">{[selected.address, selected.city, selected.postcode].filter(Boolean).join(", ") || "No address"}</div>
+            <div className="text-muted-foreground">
+              {selected.bedrooms ?? "—"} bed · {selected.bathrooms ?? "—"} bath
+              {selected.floor_area_sqft ? ` · ${selected.floor_area_sqft} sq ft` : ""}
+              {Array.isArray(selected.photos) ? ` · ${(selected.photos as unknown[]).length} photos` : ""}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      <div>
+        <Label>Title (optional override)</Label>
+        <Input value={form.title_override} onChange={(e) => u("title_override", e.target.value)} placeholder={selected?.title ?? "Listing title"} />
+      </div>
 
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <Label>Purpose</Label>
-          <Select value={form.purpose} onValueChange={(v) => u("purpose", v as Form["purpose"])}>
-            <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="sale">For sale</SelectItem>
-              <SelectItem value="rent">To let</SelectItem>
-              
-            </SelectContent>
-          </Select>
+          <Label>Price (£)</Label>
+          <Input type="number" value={form.price} onChange={(e) => u("price", e.target.value)} placeholder={selected?.price?.toString() ?? ""} />
         </div>
         <div>
-          <Label>Listing type</Label>
-          <Select
-            value={form.listing_type}
-            onValueChange={(v) => {
-              const next = v as Form["listing_type"];
-              setForm((prev) => ({ ...prev, listing_type: next, is_hmo: next === "room" ? true : prev.is_hmo }));
-            }}
-          >
-            <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="sale">Sale</SelectItem>
-              <SelectItem value="rent">Whole property let</SelectItem>
-              <SelectItem value="room">Room (HMO)</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-
-      <div className="grid grid-cols-3 gap-3">
-        <div><Label>Price (£)</Label><Input type="number" value={form.price} onChange={(e) => u("price", e.target.value)} /></div>
-        <div className="col-span-2">
           <Label>Price qualifier</Label>
           <Select value={form.price_qualifier} onValueChange={(v) => u("price_qualifier", v)}>
             <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
@@ -470,110 +450,14 @@ function ListingForm({ form, setForm, agencies, onUploadingChange }: { form: For
         </div>
       </div>
 
-      {form.is_hmo ? (
-        <>
-          <div className="grid grid-cols-2 gap-3">
-            <div><Label>Baths</Label><Input type="number" value={form.bathrooms} onChange={(e) => u("bathrooms", e.target.value)} /></div>
-            <div><Label>Receptions</Label><Input type="number" value={form.receptions} onChange={(e) => u("receptions", e.target.value)} /></div>
-          </div>
-          <RoomsEditor rooms={form.rooms} onChange={(rooms) => u("rooms", rooms)} />
-        </>
-      ) : (
-        <div className="grid grid-cols-3 gap-3">
-          <div><Label>Beds</Label><Input type="number" value={form.bedrooms} onChange={(e) => u("bedrooms", e.target.value)} /></div>
-          <div><Label>Baths</Label><Input type="number" value={form.bathrooms} onChange={(e) => u("bathrooms", e.target.value)} /></div>
-          <div><Label>Receptions</Label><Input type="number" value={form.receptions} onChange={(e) => u("receptions", e.target.value)} /></div>
-        </div>
-      )}
-
-      <div className="grid grid-cols-2 gap-3">
-        <div className="col-span-2">
-          <AddressLookup
-            onResolve={(a) => setForm((prev) => ({
-              ...prev,
-              address: a.line1 || prev.address,
-              city: a.city || prev.city,
-              postcode: a.postcode || prev.postcode,
-            }))}
-          />
-        </div>
-        <div className="col-span-2"><Label>Address</Label><Input value={form.address} onChange={(e) => u("address", e.target.value)} placeholder="12 High Street" /></div>
-        <div><Label>City</Label><Input value={form.city} onChange={(e) => u("city", e.target.value)} placeholder="London" /></div>
-        <div><Label>Postcode</Label><Input value={form.postcode} onChange={(e) => u("postcode", e.target.value)} placeholder="SW1A 1AA" /></div>
-      </div>
-
       <div>
-        <Label>Photos</Label>
-        <p className="text-xs text-muted-foreground mb-2">Drag & drop or upload. Click the star to set the cover image, then add where in the property each image was taken.</p>
-        <PhotoUploader
-          photos={form.photos}
-          onChange={(photos) => u("photos", photos)}
-          coverIndex={form.cover_index}
-          onCoverChange={(i) => u("cover_index", i)}
-          roomOptions={form.is_hmo ? form.rooms.map((r) => `Room ${r.room_number}${r.name ? ` – ${r.name}` : ""}`) : []}
-          onUploadingChange={onUploadingChange}
-        />
+        <Label>Description (optional override)</Label>
+        <Textarea rows={4} value={form.description_override} onChange={(e) => u("description_override", e.target.value)} placeholder={selected?.description ?? "Use the property description"} />
       </div>
-
-      <div>
-        <Label>Features</Label>
-        <FeatureMultiSelect value={form.features} onChange={(features) => u("features", features)} />
-      </div>
-
-      <ComplianceEditor value={form.compliance} onChange={(c) => u("compliance", c)} isHmo={form.is_hmo} />
-
-
-      <div className="grid grid-cols-3 gap-3">
-        <div><Label>EPC</Label>
-          <Select value={form.epc_rating || "none"} onValueChange={(v) => u("epc_rating", v === "none" ? "" : v)}>
-            <SelectTrigger className="mt-1.5"><SelectValue placeholder="—" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="none">—</SelectItem>
-              {["A","B","C","D","E","F","G"].map((g) => <SelectItem key={g} value={g}>{g}</SelectItem>)}
-            </SelectContent>
-          </Select>
-        </div>
-        <div><Label>Floor area (sq ft)</Label><Input type="number" value={form.floor_area_sqft} onChange={(e) => u("floor_area_sqft", e.target.value)} /></div>
-        <div><Label>Council tax</Label>
-          <Select value={form.council_tax_band || "none"} onValueChange={(v) => u("council_tax_band", v === "none" ? "" : v)}>
-            <SelectTrigger className="mt-1.5"><SelectValue placeholder="—" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="none">—</SelectItem>
-              {["A","B","C","D","E","F","G","H"].map((g) => <SelectItem key={g} value={g}>{g}</SelectItem>)}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
-        <div><Label>Tenure</Label>
-          <Select value={form.tenure || "none"} onValueChange={(v) => u("tenure", v === "none" ? "" : v)}>
-            <SelectTrigger className="mt-1.5"><SelectValue placeholder="—" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="none">—</SelectItem>
-              <SelectItem value="freehold">Freehold</SelectItem>
-              <SelectItem value="leasehold">Leasehold</SelectItem>
-              <SelectItem value="share_of_freehold">Share of freehold</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div><Label>Furnishing</Label>
-          <Select value={form.furnished || "none"} onValueChange={(v) => u("furnished", v === "none" ? "" : v)}>
-            <SelectTrigger className="mt-1.5"><SelectValue placeholder="—" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="none">—</SelectItem>
-              <SelectItem value="furnished">Furnished</SelectItem>
-              <SelectItem value="part_furnished">Part furnished</SelectItem>
-              <SelectItem value="unfurnished">Unfurnished</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      <div><Label>Available from</Label><Input type="date" value={form.available_from} onChange={(e) => u("available_from", e.target.value)} /></div>
 
       {agencies.length > 0 && (
-        <div><Label>Agency</Label>
+        <div>
+          <Label>Agency</Label>
           <Select value={form.agency_id || "none"} onValueChange={(v) => u("agency_id", v === "none" ? "" : v)}>
             <SelectTrigger className="mt-1.5"><SelectValue placeholder="No agency" /></SelectTrigger>
             <SelectContent>
@@ -584,14 +468,20 @@ function ListingForm({ form, setForm, agencies, onUploadingChange }: { form: For
         </div>
       )}
 
-      <div><Label>Description</Label><Textarea rows={5} value={form.description} onChange={(e) => u("description", e.target.value)} placeholder="Long-form description…" /></div>
-
       <div className="space-y-2 rounded-lg border p-3">
-        <div className="flex items-center justify-between"><Label htmlFor="hmo" className="cursor-pointer">HMO room</Label><Switch id="hmo" checked={form.is_hmo} onCheckedChange={(v) => u("is_hmo", v)} /></div>
-        <div className="flex items-center justify-between"><Label htmlFor="bills" className="cursor-pointer">Bills included</Label><Switch id="bills" checked={form.bills_included} onCheckedChange={(v) => u("bills_included", v)} /></div>
-        <div className="flex items-center justify-between"><Label htmlFor="mp" className="cursor-pointer">Show on Estately marketplace</Label><Switch id="mp" checked={form.marketplace_publish} onCheckedChange={(v) => u("marketplace_publish", v)} /></div>
-        <div className="flex items-center justify-between"><Label htmlFor="pub" className="cursor-pointer">Publish now</Label><Switch id="pub" checked={form.publish} onCheckedChange={(v) => u("publish", v)} /></div>
-        <p className="text-xs text-muted-foreground">Turn off "marketplace" to keep the listing only on your agency page.</p>
+        <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-1">Publish to</div>
+        <div className="flex items-center justify-between">
+          <Label htmlFor="mp" className="cursor-pointer">Estately marketplace</Label>
+          <Switch id="mp" checked={form.marketplace_publish} onCheckedChange={(v) => u("marketplace_publish", v)} />
+        </div>
+        <div className="flex items-center justify-between">
+          <Label htmlFor="ws" className="cursor-pointer">Your own agency website</Label>
+          <Switch id="ws" checked={form.website_publish} onCheckedChange={(v) => u("website_publish", v)} />
+        </div>
+        <div className="flex items-center justify-between pt-2 border-t">
+          <Label htmlFor="pub" className="cursor-pointer">Publish now (otherwise saved as draft)</Label>
+          <Switch id="pub" checked={form.publish} onCheckedChange={(v) => u("publish", v)} />
+        </div>
       </div>
     </div>
   );
