@@ -286,7 +286,7 @@ function BuyerInterestsPanel({
     await reload();
   };
 
-  const update = async (id: string, patch: Partial<Interest>) => {
+  const update = async (id: string, patch: { status?: string; mou_signed_on?: string | null; mou_amount?: number | null; mou_doc_url?: string | null; notes?: string | null }) => {
     const { error } = await supabase.from("buyer_property_interests").update(patch).eq("id", id);
     if (error) return toast.error(error.message);
     await reload();
