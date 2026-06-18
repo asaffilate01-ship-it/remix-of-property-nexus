@@ -84,8 +84,7 @@ function PropertiesPage() {
       return navigate({ to: "/listings" });
     }
     const purpose: "rent" | "sale" = p.listing_purpose === "sale" ? "sale" : "rent";
-    const listing_type: "sale" | "rent" | "room" | "holiday" =
-      p.listing_purpose === "short_let" ? "holiday" : (p.is_hmo ? "room" : purpose);
+    const listing_type = (p.listing_purpose === "short_let" ? "rent" : (p.is_hmo ? "room" : purpose)) as "sale" | "rent" | "room";
     const price = p.listing_purpose === "short_let" ? p.nightly_rate : p.price;
     const { error } = await supabase.from("listings").insert({
       owner_id: u.user.id,
