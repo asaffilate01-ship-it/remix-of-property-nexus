@@ -62,6 +62,11 @@ const emptyProp = {
   listing_purpose: "rent" as Property["listing_purpose"], notes: "",
   features: [] as string[],
   nightly_rate: "", min_stay_nights: "", cleaning_fee: "",
+  description: "", epc_rating: "", tenure: "", furnished: "", council_tax_band: "",
+  floor_area_sqft: "", bills_included: false, available_from: "",
+  cover_image: "", photos: [] as ListingPhoto[], cover_index: 0,
+  compliance: {} as ComplianceMap,
+  price: "", price_qualifier: "none",
 };
 const emptyRoom = { id: "", name: "", room_number: "", rent_pcm: "", status: "vacant", en_suite: false, bills_included: true, available_from: "" };
 const emptyTenancy = { id: "", room_id: "", tenant_name: "", tenant_email: "", tenant_phone: "", start_date: "", end_date: "", rent_amount: "", rent_frequency: "monthly" as "weekly" | "monthly", deposit: "", status: "draft", bio: {} as TenantBio, tenant_compliance: {} as TenantComplianceMap };
