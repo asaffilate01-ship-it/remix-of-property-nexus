@@ -423,6 +423,73 @@ export type Database = {
           },
         ]
       }
+      buyer_property_interests: {
+        Row: {
+          agency_id: string | null
+          buyer_id: string
+          created_at: string
+          created_by: string | null
+          id: string
+          mou_amount: number | null
+          mou_doc_url: string | null
+          mou_signed_on: string | null
+          notes: string | null
+          property_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          agency_id?: string | null
+          buyer_id: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          mou_amount?: number | null
+          mou_doc_url?: string | null
+          mou_signed_on?: string | null
+          notes?: string | null
+          property_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          agency_id?: string | null
+          buyer_id?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          mou_amount?: number | null
+          mou_doc_url?: string | null
+          mou_signed_on?: string | null
+          notes?: string | null
+          property_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "buyer_property_interests_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "buyer_property_interests_buyer_id_fkey"
+            columns: ["buyer_id"]
+            isOneToOne: false
+            referencedRelation: "buyer_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "buyer_property_interests_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cleaning_jobs: {
         Row: {
           assignee_name: string | null
@@ -3085,6 +3152,7 @@ export type Database = {
       tenants: {
         Row: {
           agency_id: string | null
+          bio: Json
           created_at: string
           dob: string | null
           email: string | null
@@ -3092,11 +3160,13 @@ export type Database = {
           id: string
           notes: string | null
           phone: string | null
+          tenant_compliance: Json
           updated_at: string
           user_id: string | null
         }
         Insert: {
           agency_id?: string | null
+          bio?: Json
           created_at?: string
           dob?: string | null
           email?: string | null
@@ -3104,11 +3174,13 @@ export type Database = {
           id?: string
           notes?: string | null
           phone?: string | null
+          tenant_compliance?: Json
           updated_at?: string
           user_id?: string | null
         }
         Update: {
           agency_id?: string | null
+          bio?: Json
           created_at?: string
           dob?: string | null
           email?: string | null
@@ -3116,6 +3188,7 @@ export type Database = {
           id?: string
           notes?: string | null
           phone?: string | null
+          tenant_compliance?: Json
           updated_at?: string
           user_id?: string | null
         }
