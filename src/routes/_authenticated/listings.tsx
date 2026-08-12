@@ -62,7 +62,13 @@ const slugify = (s: string) =>
   s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60) +
   "-" + Math.random().toString(36).slice(2, 7);
 
-export const Route = createFileRoute("/_authenticated/listings")({ component: ListingsPage });
+export const Route = createFileRoute("/_authenticated/listings")({
+  head: () => ({ meta: [{ title: "Listings — Estately" }] }),
+  validateSearch: (search: Record<string, unknown>) => ({
+    new: search.new === true || search.new === "true" ? true : undefined,
+  }),
+  component: ListingsPage,
+});
 
 type Form = typeof empty;
 type StatusFilter = "all" | "published" | "draft";
