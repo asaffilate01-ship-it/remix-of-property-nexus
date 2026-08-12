@@ -360,6 +360,8 @@ export const submitLead = createServerFn({ method: "POST" })
     message: z.string().max(4999).optional(),
   }))
   .handler(async ({ data }) => {
+    const { enforceRateLimit } = await import("./rate-limit.server");
+    await enforceRateLimit("submit_lead", 5, 600);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("leads").insert(data);
     if (error) throw new Error(error.message);
@@ -380,6 +382,8 @@ export const submitOffer = createServerFn({ method: "POST" })
     notes: z.string().max(4999).optional(),
   }))
   .handler(async ({ data }) => {
+    const { enforceRateLimit } = await import("./rate-limit.server");
+    await enforceRateLimit("submit_offer", 5, 600);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("offers").insert(data);
     if (error) throw new Error(error.message);

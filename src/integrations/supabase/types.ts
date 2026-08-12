@@ -1817,6 +1817,27 @@ export type Database = {
         }
         Relationships: []
       }
+      rate_limits: {
+        Row: {
+          bucket: string
+          created_at: string
+          id: string
+          identifier: string
+        }
+        Insert: {
+          bucket: string
+          created_at?: string
+          id?: string
+          identifier: string
+        }
+        Update: {
+          bucket?: string
+          created_at?: string
+          id?: string
+          identifier?: string
+        }
+        Relationships: []
+      }
       referencing_cases: {
         Row: {
           agency_id: string | null
@@ -3877,6 +3898,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_rate_limit: {
+        Args: {
+          _bucket: string
+          _identifier: string
+          _limit: number
+          _window_seconds: number
+        }
+        Returns: boolean
+      }
       claim_due_track_steps: {
         Args: { _limit?: number }
         Returns: {
