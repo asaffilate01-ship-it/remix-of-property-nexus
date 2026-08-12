@@ -128,7 +128,7 @@ function AuthPage() {
           Estately
         </Link>
         <div className="max-w-md relative z-10">
-          <h2 className="text-4xl xl:text-5xl font-bold tracking-tight mb-4 leading-[1.1]">Your portfolio, your team — one calm workspace.</h2>
+          <h1 className="text-4xl xl:text-5xl font-bold tracking-tight mb-4 leading-[1.1]">Your portfolio, your team — one calm workspace.</h1>
           <p className="text-white/80 text-lg">Marketplace, compliance and CRM. Estately is built for modern estate and letting agencies.</p>
         </div>
         <div className="text-sm text-white/60 relative z-10">© {new Date().getFullYear()} Estately</div>

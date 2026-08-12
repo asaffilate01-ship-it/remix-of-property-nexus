@@ -21,7 +21,10 @@ import {
   type DocScope,
 } from "@/lib/documents.functions";
 
-export const Route = createFileRoute("/_authenticated/documents")({ component: DocumentsPage });
+export const Route = createFileRoute("/_authenticated/documents")({
+  head: () => ({ meta: [{ title: "Documents — Estately" }] }),
+  component: DocumentsPage,
+});
 
 const FOLDERS = ["General", "Compliance", "Tenancies", "Properties", "Finance", "Maintenance", "HR & Agency", "Legal"];
 

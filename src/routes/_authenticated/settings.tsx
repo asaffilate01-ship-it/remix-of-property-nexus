@@ -13,7 +13,10 @@ import { Shield } from "lucide-react";
 import { toast } from "sonner";
 import { listPermissions, updatePermission } from "@/lib/branches.functions";
 
-export const Route = createFileRoute("/_authenticated/settings")({ component: SettingsPage });
+export const Route = createFileRoute("/_authenticated/settings")({
+  head: () => ({ meta: [{ title: "Settings — Estately" }] }),
+  component: SettingsPage,
+});
 
 const CAP_LABEL: Record<string, string> = {
   manage_listings: "Manage listings",

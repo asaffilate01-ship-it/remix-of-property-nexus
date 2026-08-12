@@ -15,7 +15,10 @@ import { watermarkImage, getBrowserLocation } from "@/lib/media-watermark";
 import { SignaturePad } from "@/components/SignaturePad";
 import exifr from "exifr";
 
-export const Route = createFileRoute("/visit/$token")({ component: VisitPage });
+export const Route = createFileRoute("/visit/$token")({
+  head: () => ({ meta: [{ title: "Contractor visit — Estately" }, { name: "description", content: "Check in, capture evidence and complete your work order visit." }, { name: "robots", content: "noindex" }] }),
+  component: VisitPage,
+});
 
 function VisitPage() {
   const { token } = Route.useParams();
@@ -151,7 +154,7 @@ function VisitPage() {
       <div className="max-w-md mx-auto space-y-4">
         <Card><CardContent className="p-4 space-y-1">
           <div className="text-xs text-muted-foreground">{data.agency?.name ?? "Agency"}</div>
-          <div className="text-lg font-semibold">{wo?.title ?? "Work order"}</div>
+          <h1 className="text-lg font-semibold">{wo?.title ?? "Work order"}</h1>
           {wo?.description && <p className="text-sm text-muted-foreground">{wo.description}</p>}
           {prop && <div className="text-sm flex items-start gap-1 mt-2"><MapPin className="h-3 w-3 mt-1 shrink-0" /><span>{[prop.address, prop.city, prop.postcode].filter(Boolean).join(", ") || prop.title}</span></div>}
           <div className="text-xs text-muted-foreground pt-2">Hi {data.contractor_name} — check in to begin.</div>

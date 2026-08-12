@@ -13,7 +13,10 @@ import { toast } from "sonner";
 const stages = ["lead","contacted","viewing","offer","negotiation","agreed","completed","lost"] as const;
 type Deal = { id: string; title: string; contact_name: string | null; stage: typeof stages[number]; value: number | null };
 
-export const Route = createFileRoute("/_authenticated/pipeline")({ component: PipelinePage });
+export const Route = createFileRoute("/_authenticated/pipeline")({
+  head: () => ({ meta: [{ title: "Pipeline — Estately" }] }),
+  component: PipelinePage,
+});
 
 function PipelinePage() {
   const [rows, setRows] = useState<Deal[]>([]);

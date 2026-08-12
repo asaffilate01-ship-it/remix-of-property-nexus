@@ -6,6 +6,7 @@ import { Printer, ArrowLeft, Bed, Bath, Sofa, Ruler, Zap, Home } from "lucide-re
 import { ListingImage } from "@/components/ListingImage";
 
 export const Route = createFileRoute("/_authenticated/listing/$id/window-card")({
+  head: () => ({ meta: [{ title: "Window card — Estately" }] }),
   component: WindowCardPage,
 });
 

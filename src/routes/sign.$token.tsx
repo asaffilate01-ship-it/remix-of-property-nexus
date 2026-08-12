@@ -11,7 +11,10 @@ import { CheckCircle2, FileSignature, Eraser } from "lucide-react";
 import { toast } from "sonner";
 import { getSigningContext, submitSignature } from "@/lib/contracts.functions";
 
-export const Route = createFileRoute("/sign/$token")({ component: SignPage });
+export const Route = createFileRoute("/sign/$token")({
+  head: () => ({ meta: [{ title: "Sign document — Estately" }, { name: "description", content: "Review and sign your document securely with Estately." }, { name: "robots", content: "noindex" }] }),
+  component: SignPage,
+});
 
 function fillTemplate(body: string, values: Record<string, any>): string {
   return body.replace(/\{\{(\w+)\}\}/g, (_, k) => (values?.[k] ?? `_____`).toString());

@@ -1,6 +1,7 @@
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_authenticated/automations")({
+  head: () => ({ meta: [{ title: "Automations — Estately" }] }),
   component: AutomationsLayout,
 });
 
