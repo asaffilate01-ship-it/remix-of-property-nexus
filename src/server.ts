@@ -57,7 +57,6 @@ function withSecurityHeaders(response: Response): Response {
   const headers = new Headers(response.headers);
   headers.set("X-Content-Type-Options", "nosniff");
   headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-  headers.set("X-Frame-Options", "SAMEORIGIN");
   headers.set(
     "Permissions-Policy",
     "camera=(self), microphone=(), geolocation=(self), payment=(self), interest-cohort=()",
