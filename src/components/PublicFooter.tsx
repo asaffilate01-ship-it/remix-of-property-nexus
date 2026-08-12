@@ -44,10 +44,10 @@ export function PublicFooter() {
         <div>
           <div className="font-medium mb-3">Platform</div>
           <ul className="space-y-2 text-muted-foreground">
-            <li><Link to="/modules/sales" className="hover:text-foreground">Sales</Link></li>
-            <li><Link to="/modules/lettings" className="hover:text-foreground">Lettings</Link></li>
-            <li><Link to="/modules/hmo" className="hover:text-foreground">HMO</Link></li>
-            <li><Link to="/modules/commercial" className="hover:text-foreground">Commercial</Link></li>
+            <li><Link to="/modules/$slug" params={{ slug: "sales" }} className="hover:text-foreground">Sales</Link></li>
+            <li><Link to="/modules/$slug" params={{ slug: "lettings" }} className="hover:text-foreground">Lettings</Link></li>
+            <li><Link to="/modules/$slug" params={{ slug: "hmo" }} className="hover:text-foreground">HMO</Link></li>
+            <li><Link to="/modules/$slug" params={{ slug: "commercial" }} className="hover:text-foreground">Commercial</Link></li>
           </ul>
         </div>
         <div>
