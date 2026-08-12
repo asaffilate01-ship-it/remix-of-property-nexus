@@ -64,9 +64,8 @@ const slugify = (s: string) =>
 
 export const Route = createFileRoute("/_authenticated/listings")({
   head: () => ({ meta: [{ title: "Listings — Estately" }] }),
-  validateSearch: (search: Record<string, unknown>) => ({
-    new: search.new === true || search.new === "true" ? true : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>): { new?: boolean } =>
+    search.new === true || search.new === "true" ? { new: true } : {},
   component: ListingsPage,
 });
 
