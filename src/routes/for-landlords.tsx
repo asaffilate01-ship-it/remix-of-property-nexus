@@ -30,7 +30,7 @@ function ForLandlords() {
               <p className="text-lg text-muted-foreground mb-8 max-w-xl">Track licences, gas, EICR, EPC, fire safety and deposits — with smart alerts long before they expire. Switch on the HMO module for room-level operations.</p>
               <div className="flex flex-col sm:flex-row gap-3">
                 <Button asChild size="lg"><Link to="/auth">Get started <ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
-                <Button asChild size="lg" variant="outline"><Link to="/modules/hmo">Explore HMO module</Link></Button>
+                <Button asChild size="lg" variant="outline"><Link to="/modules/$slug" params={{ slug: "hmo" }}>Explore HMO module</Link></Button>
               </div>
               <div className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground">
                 {["No bank integration needed", "Multi-property", "Audit-ready reports"].map((f) => (
