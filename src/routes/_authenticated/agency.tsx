@@ -13,7 +13,10 @@ import { ExternalLink } from "lucide-react";
 type Agency = { id: string; name: string; slug: string; description: string | null; phone: string | null; email: string | null; website: string | null; logo_url: string | null; city: string | null };
 const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60);
 
-export const Route = createFileRoute("/_authenticated/agency")({ component: AgencyPage });
+export const Route = createFileRoute("/_authenticated/agency")({
+  head: () => ({ meta: [{ title: "Agency profile — Estately" }] }),
+  component: AgencyPage,
+});
 
 function AgencyPage() {
   const [agency, setAgency] = useState<Agency | null>(null);

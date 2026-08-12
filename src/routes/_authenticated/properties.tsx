@@ -30,7 +30,10 @@ import { TenantDocsMini } from "@/components/tenancy/TenantDocsMini";
 import { PhotoUploader, type ListingPhoto } from "@/components/listings/PhotoUploader";
 import { ComplianceEditor, type ComplianceMap } from "@/components/listings/ComplianceEditor";
 
-export const Route = createFileRoute("/_authenticated/properties")({ component: PropertiesPage });
+export const Route = createFileRoute("/_authenticated/properties")({
+  head: () => ({ meta: [{ title: "Properties — Estately" }] }),
+  component: PropertiesPage,
+});
 
 type Property = {
   id: string; title: string; address: string | null; city: string | null; postcode: string | null;
