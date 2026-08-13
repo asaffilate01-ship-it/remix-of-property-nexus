@@ -19,12 +19,14 @@ BEGIN
   WHERE id = _transaction_id
   FOR UPDATE;
 
-  SELECT rs, t.agency_id
-  INTO rent_row, tenancy_agency_id
+  SELECT rs.* INTO rent_row
   FROM public.rent_schedule rs
-  JOIN public.tenancies t ON t.id = rs.tenancy_id
   WHERE rs.id = _rent_schedule_id
-  FOR UPDATE OF rs;
+  FOR UPDATE;
+
+  SELECT t.agency_id INTO tenancy_agency_id
+  FROM public.tenancies t
+  WHERE t.id = rent_row.tenancy_id;
 
   IF transaction_row.id IS NULL OR rent_row.id IS NULL THEN
     RETURN false;
