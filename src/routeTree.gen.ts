@@ -80,6 +80,7 @@ import { Route as AuthenticatedComplianceRouteImport } from './routes/_authentic
 import { Route as AuthenticatedCommercialRouteImport } from './routes/_authenticated/commercial'
 import { Route as AuthenticatedBuyersRouteImport } from './routes/_authenticated/buyers'
 import { Route as AuthenticatedBranchesRouteImport } from './routes/_authenticated/branches'
+import { Route as AuthenticatedBankingRouteImport } from './routes/_authenticated/banking'
 import { Route as AuthenticatedAutomationsRouteImport } from './routes/_authenticated/automations'
 import { Route as AuthenticatedArrearsRouteImport } from './routes/_authenticated/arrears'
 import { Route as AuthenticatedAlertsRouteImport } from './routes/_authenticated/alerts'
@@ -461,6 +462,11 @@ const AuthenticatedBranchesRoute = AuthenticatedBranchesRouteImport.update({
   path: '/branches',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedBankingRoute = AuthenticatedBankingRouteImport.update({
+  id: '/banking',
+  path: '/banking',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAutomationsRoute =
   AuthenticatedAutomationsRouteImport.update({
     id: '/automations',
@@ -597,6 +603,7 @@ export interface FileRoutesByFullPath {
   '/alerts': typeof AuthenticatedAlertsRoute
   '/arrears': typeof AuthenticatedArrearsRoute
   '/automations': typeof AuthenticatedAutomationsRouteWithChildren
+  '/banking': typeof AuthenticatedBankingRoute
   '/branches': typeof AuthenticatedBranchesRoute
   '/buyers': typeof AuthenticatedBuyersRoute
   '/commercial': typeof AuthenticatedCommercialRoute
@@ -685,6 +692,7 @@ export interface FileRoutesByTo {
   '/ai-copy': typeof AuthenticatedAiCopyRoute
   '/alerts': typeof AuthenticatedAlertsRoute
   '/arrears': typeof AuthenticatedArrearsRoute
+  '/banking': typeof AuthenticatedBankingRoute
   '/branches': typeof AuthenticatedBranchesRoute
   '/buyers': typeof AuthenticatedBuyersRoute
   '/commercial': typeof AuthenticatedCommercialRoute
@@ -778,6 +786,7 @@ export interface FileRoutesById {
   '/_authenticated/alerts': typeof AuthenticatedAlertsRoute
   '/_authenticated/arrears': typeof AuthenticatedArrearsRoute
   '/_authenticated/automations': typeof AuthenticatedAutomationsRouteWithChildren
+  '/_authenticated/banking': typeof AuthenticatedBankingRoute
   '/_authenticated/branches': typeof AuthenticatedBranchesRoute
   '/_authenticated/buyers': typeof AuthenticatedBuyersRoute
   '/_authenticated/commercial': typeof AuthenticatedCommercialRoute
@@ -871,6 +880,7 @@ export interface FileRouteTypes {
     | '/alerts'
     | '/arrears'
     | '/automations'
+    | '/banking'
     | '/branches'
     | '/buyers'
     | '/commercial'
@@ -959,6 +969,7 @@ export interface FileRouteTypes {
     | '/ai-copy'
     | '/alerts'
     | '/arrears'
+    | '/banking'
     | '/branches'
     | '/buyers'
     | '/commercial'
@@ -1051,6 +1062,7 @@ export interface FileRouteTypes {
     | '/_authenticated/alerts'
     | '/_authenticated/arrears'
     | '/_authenticated/automations'
+    | '/_authenticated/banking'
     | '/_authenticated/branches'
     | '/_authenticated/buyers'
     | '/_authenticated/commercial'
@@ -1650,6 +1662,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBranchesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/banking': {
+      id: '/_authenticated/banking'
+      path: '/banking'
+      fullPath: '/banking'
+      preLoaderRoute: typeof AuthenticatedBankingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/automations': {
       id: '/_authenticated/automations'
       path: '/automations'
@@ -1849,6 +1868,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAlertsRoute: typeof AuthenticatedAlertsRoute
   AuthenticatedArrearsRoute: typeof AuthenticatedArrearsRoute
   AuthenticatedAutomationsRoute: typeof AuthenticatedAutomationsRouteWithChildren
+  AuthenticatedBankingRoute: typeof AuthenticatedBankingRoute
   AuthenticatedBranchesRoute: typeof AuthenticatedBranchesRoute
   AuthenticatedBuyersRoute: typeof AuthenticatedBuyersRoute
   AuthenticatedCommercialRoute: typeof AuthenticatedCommercialRoute
@@ -1900,6 +1920,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAlertsRoute: AuthenticatedAlertsRoute,
   AuthenticatedArrearsRoute: AuthenticatedArrearsRoute,
   AuthenticatedAutomationsRoute: AuthenticatedAutomationsRouteWithChildren,
+  AuthenticatedBankingRoute: AuthenticatedBankingRoute,
   AuthenticatedBranchesRoute: AuthenticatedBranchesRoute,
   AuthenticatedBuyersRoute: AuthenticatedBuyersRoute,
   AuthenticatedCommercialRoute: AuthenticatedCommercialRoute,
