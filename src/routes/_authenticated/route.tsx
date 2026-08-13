@@ -4,7 +4,9 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { MobileTabBar } from "@/components/MobileTabBar";
 import { CommandPalette } from "@/components/CommandPalette";
-import { Bell, ChevronRight, LifeBuoy, Search } from "lucide-react";
+import { ChevronRight, LifeBuoy, Search } from "lucide-react";
+import { NotificationBell } from "@/components/NotificationBell";
+
 import { Button } from "@/components/ui/button";
 import { useMemo } from "react";
 
