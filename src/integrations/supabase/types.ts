@@ -675,11 +675,13 @@ export type Database = {
           insurance_expires_at: string | null
           is_active: boolean
           is_preferred: boolean
+          linked_at: string | null
           notes: string | null
           phone: string | null
           postcode: string | null
           rating: number | null
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           address?: string | null
@@ -695,11 +697,13 @@ export type Database = {
           insurance_expires_at?: string | null
           is_active?: boolean
           is_preferred?: boolean
+          linked_at?: string | null
           notes?: string | null
           phone?: string | null
           postcode?: string | null
           rating?: number | null
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           address?: string | null
@@ -715,11 +719,13 @@ export type Database = {
           insurance_expires_at?: string | null
           is_active?: boolean
           is_preferred?: boolean
+          linked_at?: string | null
           notes?: string | null
           phone?: string | null
           postcode?: string | null
           rating?: number | null
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: [
           {
