@@ -9,9 +9,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2, Contact as ContactIcon, Mail, Phone, Star } from "lucide-react";
+import { Plus, Pencil, Trash2, Contact as ContactIcon, Mail, Phone, Star, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/PageHeader";
+import { useServerFn } from "@tanstack/react-start";
+import { linkContactToUser } from "@/lib/contacts.functions";
+
 
 export const Route = createFileRoute("/_authenticated/contacts")({
   head: () => ({ meta: [{ title: "Contacts — Estately" }] }),
@@ -21,7 +24,7 @@ export const Route = createFileRoute("/_authenticated/contacts")({
 type Contact = {
   id: string; contact_type: string; full_name: string; company_name: string | null;
   email: string | null; phone: string | null; address: string | null; postcode: string | null;
-  notes: string | null; rating: number | null; hourly_rate: number | null; is_preferred: boolean; is_active: boolean;
+  notes: string | null; user_id?: string | null; rating: number | null; hourly_rate: number | null; is_preferred: boolean; is_active: boolean;
 };
 
 const TYPES = ["plumber","electrician","gas_engineer","builder","roofer","painter","handyman","cleaner","gardener","locksmith","epc_assessor","inventory_clerk","solicitor","conveyancer","referencing","insurance","utilities","council","other"] as const;
@@ -36,6 +39,29 @@ function ContactsPage() {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(empty);
   const [saving, setSaving] = useState(false);
+  const [linkEmail, setLinkEmail] = useState("");
+  const [linkedUserId, setLinkedUserId] = useState<string | null>(null);
+  const [linking, setLinking] = useState(false);
+  const linkFn = useServerFn(linkContactToUser);
+
+  const linkAccess = async (email: string | null) => {
+    if (!form.id) return;
+    if (email !== null && !email.trim()) return toast.error("Enter the account email");
+    setLinking(true);
+    try {
+      const res = await linkFn({ data: { contactId: form.id, email } });
+      setLinkedUserId(res.linked ? res.userId : null);
+      if (!res.linked) setLinkEmail("");
+      toast.success(res.linked ? "Portal access granted" : "Portal access revoked");
+      void load();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not update access");
+    } finally {
+      setLinking(false);
+    }
+  };
+
+
 
   const load = async () => {
     setLoading(true);
@@ -77,6 +103,8 @@ function ContactsPage() {
       address: c.address ?? "", postcode: c.postcode ?? "", notes: c.notes ?? "",
       rating: c.rating ?? 0, hourly_rate: Number(c.hourly_rate ?? 0), is_preferred: c.is_preferred,
     });
+    setLinkedUserId(c.user_id ?? null);
+    setLinkEmail("");
     setOpen(true);
   };
 
@@ -156,8 +184,38 @@ function ContactsPage() {
             <div><Label>Postcode</Label><Input value={form.postcode} onChange={(e) => setForm({ ...form, postcode: e.target.value })} /></div>
             <div className="flex items-end gap-2"><label className="text-sm flex items-center gap-2"><input type="checkbox" checked={form.is_preferred} onChange={(e) => setForm({ ...form, is_preferred: e.target.checked })} /> Preferred</label></div>
             <div className="col-span-2"><Label>Notes</Label><Textarea rows={3} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} /></div>
+            {form.id && (
+              <div className="col-span-2 rounded-lg border border-border bg-muted/30 p-3">
+                <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+                  <ShieldCheck className="h-4 w-4" /> Portal access
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {linkedUserId
+                    ? "This contact is linked to an Estately account and can see their assigned jobs, visits and documents."
+                    : "Link an existing Estately account so this contact can sign in and see only their own jobs. Access is never granted by email alone."}
+                </p>
+                <div className="mt-2 flex gap-2">
+                  <Input
+                    type="email"
+                    placeholder="account email"
+                    value={linkEmail}
+                    onChange={(e) => setLinkEmail(e.target.value)}
+                    className="h-9"
+                  />
+                  <Button size="sm" variant="outline" className="h-9 shrink-0" disabled={linking} onClick={() => void linkAccess(linkEmail)}>
+                    {linking ? "Linking…" : "Grant access"}
+                  </Button>
+                  {linkedUserId && (
+                    <Button size="sm" variant="ghost" className="h-9 shrink-0 text-destructive" disabled={linking} onClick={() => void linkAccess(null)}>
+                      Revoke
+                    </Button>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
           <DialogFooter><Button onClick={save} disabled={saving || !form.full_name.trim()}>{saving ? "Saving…" : "Save"}</Button></DialogFooter>
+
         </DialogContent>
       </Dialog>
     </div>

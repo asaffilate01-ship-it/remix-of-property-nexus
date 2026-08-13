@@ -12,6 +12,8 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { CookieBanner } from "@/components/CookieBanner";
+import { InstallPrompt } from "@/components/InstallPrompt";
+
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { registerServiceWorker } from "@/lib/register-sw";
@@ -85,7 +87,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "description", content: "Sales, lettings, HMO and commercial in one premium workspace. Marketplace, CRM and compliance for modern UK agencies and landlords." },
       { name: "author", content: "Estately" },
       { name: "theme-color", content: "#0f172a" },
+      { name: "mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
+      { name: "apple-mobile-web-app-title", content: "Estately" },
+      { name: "format-detection", content: "telephone=no" },
+      { name: "application-name", content: "Estately" },
       { property: "og:site_name", content: "Estately" },
+
       { property: "og:type", content: "website" },
       { property: "og:title", content: "Estately — The complete OS for estate & letting agents" },
       { property: "og:description", content: "Sales, lettings, HMO and commercial in one premium workspace. Marketplace, CRM and compliance for modern UK agencies and landlords." },
@@ -170,7 +179,9 @@ function RootComponent() {
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
       <CookieBanner />
+      <InstallPrompt />
       <Toaster position="top-right" richColors closeButton />
+
     </QueryClientProvider>
   );
 }
