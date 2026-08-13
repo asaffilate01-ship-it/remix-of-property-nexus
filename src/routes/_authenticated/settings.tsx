@@ -22,7 +22,7 @@ import {
 import { PLAN_CODES, formatPlanPrice, type PlanCode } from "@/lib/plans";
 
 const settingsSearchSchema = z.object({
-  tab: z.enum(["profile", "permissions", "billing"]).optional(),
+  tab: z.enum(["profile", "permissions", "billing", "emails"]).optional(),
   plan: z.enum(PLAN_CODES).optional(),
   billing: z.enum(["success", "cancelled"]).optional(),
   session_id: z.string().max(255).optional(),
@@ -478,7 +478,6 @@ function BillingSettings({
   );
 }
 
->>>>>>> /tmp/pn/property-nexus/src/routes/_authenticated/settings.tsx
 function PermissionsMatrix() {
   const fetchPerms = useServerFn(listPermissions);
   const update = useServerFn(updatePermission);
