@@ -6,6 +6,7 @@ import { MobileTabBar } from "@/components/MobileTabBar";
 import { CommandPalette } from "@/components/CommandPalette";
 import { ChevronRight, LifeBuoy, Search } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
+import { WorkspaceAccessGate } from "@/components/WorkspaceAccessGate";
 
 import { Button } from "@/components/ui/button";
 import { useMemo } from "react";
@@ -39,6 +40,7 @@ const LABELS: Record<string, string> = {
   leasehold: "Leasehold", templates: "Templates", "e-sign": "E-signatures",
   documents: "Documents", evidence: "Evidence", statements: "Statements",
   contacts: "Contacts", agency: "Agency", branches: "Branches",
+  team: "Team",
   settings: "Settings", reports: "Reports", "vendor-portal": "Vendor portal",
   "saved-searches": "Saved searches",
 };
@@ -118,7 +120,7 @@ function AuthedLayout() {
           </header>
           <main className="flex-1 pb-24 md:pb-10">
             <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 pt-4 sm:pt-8">
-              <Outlet />
+              <WorkspaceAccessGate><Outlet /></WorkspaceAccessGate>
             </div>
           </main>
         </div>

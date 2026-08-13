@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { authorizeCronRequest } from "@/lib/security.server";
 
 // Cron-triggered route: scans expiring contracts/documents/compliance/tenancies and enqueues reminder emails.
 // Call daily via pg_cron. Idempotent per (item_id, days_left bucket) via email_send_log.message_id.
@@ -6,7 +7,10 @@ import { createFileRoute } from "@tanstack/react-router";
 export const Route = createFileRoute("/api/public/hooks/expiry-reminders")({
   server: {
     handlers: {
-      POST: async () => {
+      POST: async ({ request }) => {
+        const unauthorized = authorizeCronRequest(request);
+        if (unauthorized) return unauthorized;
+
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const today = new Date();
         today.setUTCHours(0, 0, 0, 0);
@@ -86,7 +90,10 @@ export const Route = createFileRoute("/api/public/hooks/expiry-reminders")({
           out.push({ days, contracts: (contracts.data ?? []).length, docs: (docs.data ?? []).length, compliance: (compliance.data ?? []).length, tenancies: (tenancies.data ?? []).length });
         }
 
-        return Response.json({ ok: true, processed: out });
+        return Response.json(
+          { ok: true, processed: out.length },
+          { headers: { "cache-control": "no-store" } },
+        );
       },
     },
   },
@@ -118,8 +125,8 @@ async function tryEnqueue(sb: any, args: { templateName: string; recipientEmail:
       template_data: args.templateData,
       idempotency_key: args.idempotencyKey,
     });
-    args.out.push({ email: args.recipientEmail, key: args.idempotencyKey, error: error?.message ?? null });
+    args.out.push({ notification: args.idempotencyKey, error: error?.message ?? null });
   } catch (e: any) {
-    args.out.push({ email: args.recipientEmail, key: args.idempotencyKey, error: e.message });
+    args.out.push({ notification: args.idempotencyKey, error: e.message });
   }
 }

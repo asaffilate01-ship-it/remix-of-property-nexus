@@ -12,13 +12,11 @@ import { toast } from "sonner";
 
 type Props = {
   listingId: string;
-  ownerId: string;
-  agencyId?: string | null;
   guidePrice?: number | null;
   purpose?: string | null;
 };
 
-export function OfferDialog({ listingId, ownerId, agencyId, guidePrice, purpose }: Props) {
+export function OfferDialog({ listingId, guidePrice, purpose }: Props) {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [name, setName] = useState("");
@@ -32,14 +30,13 @@ export function OfferDialog({ listingId, ownerId, agencyId, guidePrice, purpose 
 
   const submit = async () => {
     if (!name.trim() || !amount) { toast.error("Name and offer amount required"); return; }
+    if (!email.trim() && !phone.trim()) { toast.error("Email or phone number required"); return; }
     const amt = Number(amount);
     if (!Number.isFinite(amt) || amt <= 0) { toast.error("Invalid amount"); return; }
     setBusy(true);
     try {
       await fn({ data: {
         listing_id: listingId,
-        owner_id: ownerId,
-        agency_id: agencyId ?? undefined,
         buyer_name: name,
         buyer_email: email || undefined,
         buyer_phone: phone || undefined,

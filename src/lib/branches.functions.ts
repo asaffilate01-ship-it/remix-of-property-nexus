@@ -9,11 +9,25 @@ async function resolveAgencyId(supabase: any, userId: string): Promise<string | 
   return mem.data?.agency_id ?? null;
 }
 
+async function requireAgencyOwner(supabase: any, agencyId: string, userId: string) {
+  const { data } = await supabase
+    .from("agencies")
+    .select("owner_id")
+    .eq("id", agencyId)
+    .maybeSingle();
+  if (data?.owner_id !== userId) throw new Error("Only the agency owner can manage branches.");
+}
+
 export const listBranches = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const agencyId = await resolveAgencyId(context.supabase, context.userId);
-    if (!agencyId) return { branches: [], agencyId: null as string | null };
+    if (!agencyId) return { branches: [], agencyId: null as string | null, isOwner: false };
+    const { data: agency } = await context.supabase
+      .from("agencies")
+      .select("owner_id")
+      .eq("id", agencyId)
+      .maybeSingle();
     const { data, error } = await context.supabase
       .from("branches")
       .select("*")
@@ -21,7 +35,7 @@ export const listBranches = createServerFn({ method: "GET" })
       .order("is_primary", { ascending: false })
       .order("name");
     if (error) throw new Error(error.message);
-    return { branches: data ?? [], agencyId };
+    return { branches: data ?? [], agencyId, isOwner: agency?.owner_id === context.userId };
   });
 
 const branchSchema = z.object({
@@ -41,6 +55,7 @@ export const saveBranch = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const agencyId = await resolveAgencyId(context.supabase, context.userId);
     if (!agencyId) throw new Error("No agency. Create one in Agency settings first.");
+    await requireAgencyOwner(context.supabase, agencyId, context.userId);
     const payload = {
       agency_id: agencyId,
       name: data.name,
@@ -51,23 +66,44 @@ export const saveBranch = createServerFn({ method: "POST" })
       email: data.email || null,
       is_primary: data.is_primary ?? false,
     };
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     if (data.id) {
-      const { error } = await context.supabase.from("branches").update(payload).eq("id", data.id);
+      const { error } = await supabaseAdmin
+        .from("branches")
+        .update(payload)
+        .eq("id", data.id)
+        .eq("agency_id", agencyId);
       if (error) throw new Error(error.message);
-      return { id: data.id };
+      return { id: data.id, billingWarning: null as string | null };
     }
-    const { data: ins, error } = await context.supabase.from("branches").insert(payload).select("id").single();
+    const { data: ins, error } = await supabaseAdmin
+      .from("branches")
+      .insert(payload)
+      .select("id")
+      .single();
     if (error) throw new Error(error.message);
-    return { id: ins.id };
+    const { syncStripeBranchQuantity } = await import("./billing.server");
+    const billingWarning = await syncStripeBranchQuantity(agencyId);
+    return { id: ins.id, billingWarning };
   });
 
 export const deleteBranch = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
-    const { error } = await context.supabase.from("branches").delete().eq("id", data.id);
+    const agencyId = await resolveAgencyId(context.supabase, context.userId);
+    if (!agencyId) throw new Error("No agency.");
+    await requireAgencyOwner(context.supabase, agencyId, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin
+      .from("branches")
+      .delete()
+      .eq("id", data.id)
+      .eq("agency_id", agencyId);
     if (error) throw new Error(error.message);
-    return { ok: true };
+    const { syncStripeBranchQuantity } = await import("./billing.server");
+    const billingWarning = await syncStripeBranchQuantity(agencyId);
+    return { ok: true, billingWarning };
   });
 
 // ============== ROLE PERMISSIONS ==============

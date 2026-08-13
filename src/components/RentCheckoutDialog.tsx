@@ -1,6 +1,6 @@
 import { EmbeddedCheckoutProvider, EmbeddedCheckout } from "@stripe/react-stripe-js";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { getStripe, getStripeEnvironment } from "@/lib/stripe";
+import { getStripe } from "@/lib/stripe";
 import { createRentCheckoutSession } from "@/lib/payments.functions";
 
 interface Props {
@@ -12,9 +12,8 @@ export function RentCheckoutDialog({ rentScheduleId, onClose }: Props) {
   const open = !!rentScheduleId;
 
   const fetchClientSecret = async (): Promise<string> => {
-    const returnUrl = `${window.location.origin}/portal/tenant?paid={CHECKOUT_SESSION_ID}`;
     const result = await createRentCheckoutSession({
-      data: { rentScheduleId: rentScheduleId!, returnUrl, environment: getStripeEnvironment() },
+      data: { rentScheduleId: rentScheduleId! },
     });
     if ("error" in result) throw new Error(result.error);
     if (!result.clientSecret) throw new Error("No client secret returned");

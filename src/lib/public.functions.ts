@@ -260,13 +260,25 @@ export const fetchListing = createServerFn({ method: "GET" })
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: rawRow, error } = await supabaseAdmin.from("listings")
-      .select("*, agencies(id, name, slug, logo_url, phone, email, website, city, verified, rating, review_count, languages, specialties), properties(property_type, listing_purpose)")
+      .select("id, agency_id, slug, title, description, listing_type, status, price, price_qualifier, currency, bedrooms, bathrooms, receptions, address, city, postcode, latitude, longitude, cover_image, photos, features, is_hmo, bills_included, available_from, purpose, tenure, epc_rating, floor_area_sqft, council_tax_band, furnished, verified, photos_verified, floorplan_url, tour_url, rooms, view_count, properties(property_type, listing_purpose)")
       .eq("slug", data.slug)
+      .eq("marketplace_publish", true)
+      .in("status", ["published", "under_offer", "let_agreed"])
       .maybeSingle();
     if (error) throw new Error(error.message);
     if (!rawRow) return { listing: null, similar: [] };
+
+    const { agency_id: agencyId, ...publicListing } = rawRow;
+    const { data: agency } = agencyId
+      ? await supabaseAdmin.from("agencies")
+          .select("id, name, slug, logo_url, phone, email, website, city, verified, rating, review_count, languages, specialties")
+          .eq("id", agencyId)
+          .eq("is_published", true)
+          .maybeSingle()
+      : { data: null };
     const row = {
-      ...withDisplayPrice(rawRow),
+      ...withDisplayPrice(publicListing),
+      agencies: agency ?? null,
       cover_image: await signListingPhotoValue(supabaseAdmin, rawRow.cover_image),
       photos: await signListingPhotos(supabaseAdmin, rawRow.photos),
     };
@@ -324,12 +336,16 @@ export const fetchAgency = createServerFn({ method: "GET" })
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: agency } = await supabaseAdmin.from("agencies")
-      .select("*").eq("slug", data.slug).eq("is_published", true).maybeSingle();
+      .select("id, name, slug, logo_url, description, website, phone, email, address, city, postcode, cover_image, verified, rating, review_count, languages, specialties")
+      .eq("slug", data.slug)
+      .eq("is_published", true)
+      .maybeSingle();
     if (!agency) return { agency: null, listings: [], stats: { total: 0, sale: 0, rent: 0, hmo: 0 } };
     const { data: listings } = await supabaseAdmin.from("listings")
       .select("id, slug, title, listing_type, purpose, price, price_qualifier, currency, bedrooms, bathrooms, city, cover_image, is_hmo, created_at, rooms")
       .eq("agency_id", agency.id)
       .in("status", ["published", "under_offer", "let_agreed"])
+      .eq("marketplace_publish", true)
       .order("created_at", { ascending: false });
     const rows = await Promise.all(
       (listings ?? []).map(async (listing) => {
@@ -351,19 +367,24 @@ export const fetchAgency = createServerFn({ method: "GET" })
 
 export const submitLead = createServerFn({ method: "POST" })
   .inputValidator(z.object({
-    listing_id: z.string().uuid().optional(),
-    agency_id: z.string().uuid().optional(),
-    owner_id: z.string().uuid().optional(),
+    listing_id: z.string().uuid(),
     name: z.string().min(1).max(199),
     email: z.string().email().max(199).optional(),
     phone: z.string().max(49).optional(),
     message: z.string().max(4999).optional(),
+  }).refine((value) => value.email || value.phone, {
+    message: "Provide an email address or phone number",
   }))
   .handler(async ({ data }) => {
     const { enforceRateLimit } = await import("./rate-limit.server");
     await enforceRateLimit("submit_lead", 5, 600);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin.from("leads").insert(data);
+    const listing = await getPublicListingRecipient(supabaseAdmin, data.listing_id);
+    const { error } = await supabaseAdmin.from("leads").insert({
+      ...data,
+      agency_id: listing.agency_id,
+      owner_id: listing.owner_id,
+    });
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -371,8 +392,6 @@ export const submitLead = createServerFn({ method: "POST" })
 export const submitOffer = createServerFn({ method: "POST" })
   .inputValidator(z.object({
     listing_id: z.string().uuid(),
-    owner_id: z.string().uuid(),
-    agency_id: z.string().uuid().optional(),
     buyer_name: z.string().min(1).max(199),
     buyer_email: z.string().email().max(199).optional(),
     buyer_phone: z.string().max(49).optional(),
@@ -380,12 +399,35 @@ export const submitOffer = createServerFn({ method: "POST" })
     financing: z.string().max(99).optional(),
     position_in_chain: z.number().int().min(0).max(20).optional(),
     notes: z.string().max(4999).optional(),
+  }).refine((value) => value.buyer_email || value.buyer_phone, {
+    message: "Provide an email address or phone number",
   }))
   .handler(async ({ data }) => {
     const { enforceRateLimit } = await import("./rate-limit.server");
     await enforceRateLimit("submit_offer", 5, 600);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin.from("offers").insert(data);
+    const listing = await getPublicListingRecipient(supabaseAdmin, data.listing_id);
+    const { error } = await supabaseAdmin.from("offers").insert({
+      ...data,
+      agency_id: listing.agency_id,
+      owner_id: listing.owner_id,
+    });
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+async function getPublicListingRecipient(
+  supabaseAdmin: any,
+  listingId: string,
+): Promise<{ owner_id: string; agency_id: string | null }> {
+  const { data, error } = await supabaseAdmin.from("listings")
+    .select("owner_id, agency_id")
+    .eq("id", listingId)
+    .eq("marketplace_publish", true)
+    .in("status", ["published", "under_offer", "let_agreed"])
+    .maybeSingle();
+
+  if (error) throw new Error(error.message);
+  if (!data) throw new Error("This listing is no longer available");
+  return data;
+}

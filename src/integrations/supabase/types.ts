@@ -101,6 +101,56 @@ export type Database = {
         }
         Relationships: []
       }
+      agency_invitations: {
+        Row: {
+          accepted_at: string | null
+          accepted_by: string | null
+          agency_id: string
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          invited_by: string
+          revoked_at: string | null
+          role: string
+          token_hash: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          agency_id: string
+          created_at?: string
+          email: string
+          expires_at?: string
+          id?: string
+          invited_by: string
+          revoked_at?: string | null
+          role?: string
+          token_hash: string
+        }
+        Update: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          agency_id?: string
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          invited_by?: string
+          revoked_at?: string | null
+          role?: string
+          token_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agency_invitations_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       agency_member_branches: {
         Row: {
           branch_id: string
@@ -164,6 +214,77 @@ export type Database = {
             foreignKeyName: "agency_members_agency_id_fkey"
             columns: ["agency_id"]
             isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agency_subscriptions: {
+        Row: {
+          agency_id: string
+          branch_quantity: number
+          cancel_at_period_end: boolean
+          canceled_at: string | null
+          checkout_expires_at: string | null
+          created_at: string
+          current_period_end: string | null
+          current_period_start: string | null
+          plan_code: string
+          status: string
+          stripe_checkout_session_id: string | null
+          stripe_customer_id: string | null
+          stripe_environment: string | null
+          stripe_price_id: string | null
+          stripe_subscription_id: string | null
+          trial_end: string | null
+          trial_start: string | null
+          updated_at: string
+        }
+        Insert: {
+          agency_id: string
+          branch_quantity?: number
+          cancel_at_period_end?: boolean
+          canceled_at?: string | null
+          checkout_expires_at?: string | null
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          plan_code?: string
+          status?: string
+          stripe_checkout_session_id?: string | null
+          stripe_customer_id?: string | null
+          stripe_environment?: string | null
+          stripe_price_id?: string | null
+          stripe_subscription_id?: string | null
+          trial_end?: string | null
+          trial_start?: string | null
+          updated_at?: string
+        }
+        Update: {
+          agency_id?: string
+          branch_quantity?: number
+          cancel_at_period_end?: boolean
+          canceled_at?: string | null
+          checkout_expires_at?: string | null
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          plan_code?: string
+          status?: string
+          stripe_checkout_session_id?: string | null
+          stripe_customer_id?: string | null
+          stripe_environment?: string | null
+          stripe_price_id?: string | null
+          stripe_subscription_id?: string | null
+          trial_end?: string | null
+          trial_start?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agency_subscriptions_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: true
             referencedRelation: "agencies"
             referencedColumns: ["id"]
           },
@@ -297,6 +418,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      billing_webhook_events: {
+        Row: {
+          attempts: number
+          created_at: string
+          event_type: string
+          id: string
+          last_error: string | null
+          object_id: string | null
+          processed_at: string | null
+          status: string
+          stripe_environment: string
+          updated_at: string
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          event_type: string
+          id: string
+          last_error?: string | null
+          object_id?: string | null
+          processed_at?: string | null
+          status?: string
+          stripe_environment: string
+          updated_at?: string
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          event_type?: string
+          id?: string
+          last_error?: string | null
+          object_id?: string | null
+          processed_at?: string | null
+          status?: string
+          stripe_environment?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       branches: {
         Row: {
@@ -3949,6 +4109,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_agency_invitation: {
+        Args: { _email: string; _token_hash: string; _user_id: string }
+        Returns: string
+      }
       check_rate_limit: {
         Args: {
           _bucket: string
@@ -3996,6 +4160,7 @@ export type Database = {
         }
         Returns: string
       }
+      get_agency_entitlements: { Args: { _agency_id: string }; Returns: Json }
       has_capability: {
         Args: { _agency: string; _capability: string; _user: string }
         Returns: boolean
@@ -4018,6 +4183,18 @@ export type Database = {
       is_thread_participant: {
         Args: { _thread: string; _user: string }
         Returns: boolean
+      }
+      record_stripe_rent_payment: {
+        Args: {
+          _amount: number
+          _currency: string
+          _invoice_id: string
+          _provider_payment_intent: string
+          _provider_session_id: string
+          _rent_schedule_id: string
+          _tenancy_id: string
+        }
+        Returns: undefined
       }
     }
     Enums: {

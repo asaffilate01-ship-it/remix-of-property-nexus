@@ -42,19 +42,19 @@ export function registerServiceWorker(): void {
   if (typeof window === "undefined") return;
   if (!("serviceWorker" in navigator)) return;
 
-  // No service worker ships with this app. Always unregister any stale SW
-  // (from previous deploys) and purge caches so users aren't stranded on
-  // outdated HTML — this was causing "sign out not working" and stale lists
-  // on the published site.
   void (async () => {
-    await unregisterMatching();
+    if (shouldRefuse()) {
+      await unregisterMatching();
+      return;
+    }
+
     try {
-      if ("caches" in window) {
-        const keys = await caches.keys();
-        await Promise.all(keys.map((k) => caches.delete(k)));
-      }
-    } catch {
-      /* noop */
+      // A previous build cached authenticated navigation responses. Remove that
+      // cache before enabling the static-assets-only worker.
+      if ("caches" in window) await caches.delete("html-navigations");
+      await navigator.serviceWorker.register(SW_URL, { scope: "/" });
+    } catch (error) {
+      console.warn("Service worker registration failed", error);
     }
   })();
 }
