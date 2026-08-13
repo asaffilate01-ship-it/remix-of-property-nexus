@@ -39,6 +39,29 @@ function ContactsPage() {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(empty);
   const [saving, setSaving] = useState(false);
+  const [linkEmail, setLinkEmail] = useState("");
+  const [linkedUserId, setLinkedUserId] = useState<string | null>(null);
+  const [linking, setLinking] = useState(false);
+  const linkFn = useServerFn(linkContactToUser);
+
+  const linkAccess = async (email: string | null) => {
+    if (!form.id) return;
+    if (email !== null && !email.trim()) return toast.error("Enter the account email");
+    setLinking(true);
+    try {
+      const res = await linkFn({ data: { contactId: form.id, email } });
+      setLinkedUserId(res.linked ? res.userId : null);
+      if (!res.linked) setLinkEmail("");
+      toast.success(res.linked ? "Portal access granted" : "Portal access revoked");
+      void load();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not update access");
+    } finally {
+      setLinking(false);
+    }
+  };
+
+
 
   const load = async () => {
     setLoading(true);
