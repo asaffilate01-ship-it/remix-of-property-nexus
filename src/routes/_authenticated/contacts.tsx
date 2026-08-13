@@ -156,8 +156,38 @@ function ContactsPage() {
             <div><Label>Postcode</Label><Input value={form.postcode} onChange={(e) => setForm({ ...form, postcode: e.target.value })} /></div>
             <div className="flex items-end gap-2"><label className="text-sm flex items-center gap-2"><input type="checkbox" checked={form.is_preferred} onChange={(e) => setForm({ ...form, is_preferred: e.target.checked })} /> Preferred</label></div>
             <div className="col-span-2"><Label>Notes</Label><Textarea rows={3} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} /></div>
+            {form.id && (
+              <div className="col-span-2 rounded-lg border border-border bg-muted/30 p-3">
+                <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+                  <ShieldCheck className="h-4 w-4" /> Portal access
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {linkedUserId
+                    ? "This contact is linked to an Estately account and can see their assigned jobs, visits and documents."
+                    : "Link an existing Estately account so this contact can sign in and see only their own jobs. Access is never granted by email alone."}
+                </p>
+                <div className="mt-2 flex gap-2">
+                  <Input
+                    type="email"
+                    placeholder="account email"
+                    value={linkEmail}
+                    onChange={(e) => setLinkEmail(e.target.value)}
+                    className="h-9"
+                  />
+                  <Button size="sm" variant="outline" className="h-9 shrink-0" disabled={linking} onClick={() => void linkAccess(linkEmail)}>
+                    {linking ? "Linking…" : "Grant access"}
+                  </Button>
+                  {linkedUserId && (
+                    <Button size="sm" variant="ghost" className="h-9 shrink-0 text-destructive" disabled={linking} onClick={() => void linkAccess(null)}>
+                      Revoke
+                    </Button>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
           <DialogFooter><Button onClick={save} disabled={saving || !form.full_name.trim()}>{saving ? "Saving…" : "Save"}</Button></DialogFooter>
+
         </DialogContent>
       </Dialog>
     </div>
