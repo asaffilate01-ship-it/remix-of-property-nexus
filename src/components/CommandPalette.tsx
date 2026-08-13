@@ -46,6 +46,7 @@ const NAV: Hit[] = [
   { id: "n-pipe", label: "Pipeline", to: "/pipeline", icon: ClipboardList },
   { id: "n-ten", label: "Tenancies", to: "/tenancies", icon: Users },
   { id: "n-arr", label: "Arrears", to: "/arrears", icon: Banknote },
+  { id: "n-bank", label: "Bank reconciliation", to: "/banking", icon: Banknote },
   { id: "n-ren", label: "Renewals", to: "/renewals", icon: CalendarClock },
   { id: "n-work", label: "Work orders", to: "/work-orders", icon: Wrench },
   { id: "n-comp", label: "Compliance", to: "/compliance", icon: Shield },

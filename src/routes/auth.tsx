@@ -19,6 +19,7 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { acceptTeamInvitation, getTeamInvitation } from "@/lib/team.functions";
+import { safeLocalRedirect } from "@/lib/url-safety";
 
 const searchSchema = z.object({
   mode: z.enum(["signin", "signup"]).optional(),
@@ -32,16 +33,7 @@ const searchSchema = z.object({
 });
 
 function getRedirectTarget(redirect?: string) {
-  if (!redirect) return "/dashboard";
-  if (redirect.startsWith("/")) return redirect;
-  if (typeof window === "undefined") return "/dashboard";
-  try {
-    const url = new URL(redirect, window.location.origin);
-    if (url.origin !== window.location.origin) return "/dashboard";
-    return `${url.pathname}${url.search}${url.hash}`;
-  } catch {
-    return "/dashboard";
-  }
+  return safeLocalRedirect(redirect);
 }
 
 export const Route = createFileRoute("/auth")({

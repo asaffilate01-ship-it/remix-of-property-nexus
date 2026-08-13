@@ -17,6 +17,7 @@ export function TenantDashboard({ name, userId }: { name: string; userId: string
   const [tenancies, setTenancies] = useState<Tenancy[]>([]);
   const [nextDue, setNextDue] = useState<{ due_date: string; amount_due: number } | null>(null);
   const [overdueCount, setOverdueCount] = useState(0);
+  const [openRequests, setOpenRequests] = useState(0);
 
   useEffect(() => {
     if (!userId) return;
@@ -28,15 +29,15 @@ export function TenantDashboard({ name, userId }: { name: string; userId: string
       setTenancies((tn as unknown as Tenancy[]) ?? []);
       const ids = (tn ?? []).map((t) => t.id);
       if (ids.length) {
-        const { data: rs } = await supabase
-          .from("rent_schedule")
-          .select("due_date,amount,status")
-          .in("tenancy_id", ids)
-          .order("due_date", { ascending: true });
+        const [{ data: rs }, { count: requests }] = await Promise.all([
+          supabase.from("rent_schedule").select("due_date,amount,status").in("tenancy_id", ids).order("due_date", { ascending: true }),
+          supabase.from("work_orders").select("id", { count: "exact", head: true }).in("tenancy_id", ids).neq("status", "completed"),
+        ]);
         const now = new Date();
         const upcoming = (rs ?? []).find((r) => r.status !== "paid" && new Date(r.due_date) >= now);
         setNextDue(upcoming ? { due_date: upcoming.due_date, amount_due: Number(upcoming.amount) } : null);
         setOverdueCount((rs ?? []).filter((r) => r.status !== "paid" && new Date(r.due_date) < now).length);
+        setOpenRequests(requests ?? 0);
       }
     })();
   }, [userId]);
@@ -98,7 +99,7 @@ export function TenantDashboard({ name, userId }: { name: string; userId: string
             <Card className="border-0 shadow-card">
               <CardContent className="p-5">
                 <Wrench className="h-5 w-5 mb-2 text-accent" />
-                <div className="text-2xl font-bold">—</div>
+                <div className="text-2xl font-bold">{openRequests}</div>
                 <div className="text-xs text-muted-foreground">Open requests</div>
               </CardContent>
             </Card>

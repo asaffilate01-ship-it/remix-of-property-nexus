@@ -35,7 +35,7 @@ const LABELS: Record<string, string> = {
   "mobile-inspection": "On-site inspection", move: "Move in / out",
   renewals: "Renewals", arrears: "Arrears", "work-orders": "Work orders",
   "contractor-marketplace": "Contractor marketplace", survey: "Survey",
-  compliance: "Compliance", "referencing-cases": "Referencing",
+  compliance: "Compliance", "referencing-cases": "Referencing", banking: "Bank reconciliation",
   "right-to-rent": "Right to Rent", deposits: "Deposits",
   leasehold: "Leasehold", templates: "Templates", "e-sign": "E-signatures",
   documents: "Documents", evidence: "Evidence", statements: "Statements",

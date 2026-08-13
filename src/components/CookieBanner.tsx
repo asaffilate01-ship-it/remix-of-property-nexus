@@ -16,7 +16,7 @@ export function CookieBanner() {
   }, []);
 
   const decide = (c: Choice) => {
-    try { localStorage.setItem(KEY, JSON.stringify({ choice: c, at: new Date().toISOString() })); } catch {}
+    try { localStorage.setItem(KEY, JSON.stringify({ choice: c, at: new Date().toISOString() })); } catch { /* privacy mode */ }
     setOpen(false);
   };
 

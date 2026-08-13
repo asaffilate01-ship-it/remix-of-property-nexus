@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { extractListingPhotoPath } from "@/lib/listing-photos";
+import { safeExternalUrl } from "@/lib/url-safety";
 
 const categorySchema = z.enum(["all", "sale", "rent", "hmo", "commercial"]).optional();
 const sortSchema = z.enum(["newest", "price_asc", "price_desc", "beds_desc", "distance"]).optional();
@@ -74,9 +75,9 @@ function withDisplayPrice<T extends { is_hmo?: boolean | null; price: number | n
 
 async function signListingPhotoValue(supabaseAdmin: any, value: string | null | undefined, expires = 3600): Promise<string | null> {
   if (!value) return null;
-  if (/^https?:\/\//i.test(value)) return value;
+  if (/^https?:\/\//i.test(value)) return safeExternalUrl(value);
   const path = extractListingPhotoPath(value);
-  if (!path) return value;
+  if (!path) return null;
 
   try {
     const { data, error } = await supabaseAdmin.storage.from("listing-photos").createSignedUrl(path, expires);
@@ -96,12 +97,12 @@ async function signListingPhotos(
   return Promise.all(
     photos.map(async (photo) => {
       if (typeof photo === "string") {
-        return (await signListingPhotoValue(supabaseAdmin, photo)) ?? photo;
+        return (await signListingPhotoValue(supabaseAdmin, photo)) ?? "";
       }
       if (photo && typeof photo === "object" && "url" in photo) {
         const current = String((photo as { url: unknown }).url ?? "");
         return {
-          url: (await signListingPhotoValue(supabaseAdmin, current)) ?? current,
+          url: (await signListingPhotoValue(supabaseAdmin, current)) ?? "",
           room: typeof (photo as { room?: unknown }).room === "string" ? (photo as { room?: string }).room ?? null : null,
         };
       }
@@ -194,7 +195,7 @@ export const fetchListings = createServerFn({ method: "GET" })
     }
 
     // Distance filter + annotation
-    let resolvedCentroid: { lat: number; lng: number; label: string } | null = centroid;
+    const resolvedCentroid: { lat: number; lng: number; label: string } | null = centroid;
     let withDistance: (typeof listings[number] & { distance_miles: number | null })[] = listings.map((l) => ({ ...l, distance_miles: null }));
     if (centroid && radius > 0) {
       withDistance = listings
@@ -252,7 +253,16 @@ export const fetchMarketplaceMeta = createServerFn({ method: "GET" }).handler(as
         cover: await signListingPhotoValue(supabaseAdmin, city.cover),
       })),
   );
-  return { total: total ?? 0, cityCount, agencyCount: agencyCount ?? 0, featured: featured ?? [], topCities };
+  return {
+    total: total ?? 0,
+    cityCount,
+    agencyCount: agencyCount ?? 0,
+    featured: (featured ?? []).map((agency) => ({
+      ...agency,
+      logo_url: safeExternalUrl(agency.logo_url),
+    })),
+    topCities,
+  };
 });
 
 export const fetchListing = createServerFn({ method: "GET" })
@@ -278,7 +288,15 @@ export const fetchListing = createServerFn({ method: "GET" })
       : { data: null };
     const row = {
       ...withDisplayPrice(publicListing),
-      agencies: agency ?? null,
+      floorplan_url: safeExternalUrl(publicListing.floorplan_url),
+      tour_url: safeExternalUrl(publicListing.tour_url),
+      agencies: agency
+        ? {
+            ...agency,
+            logo_url: safeExternalUrl(agency.logo_url),
+            website: safeExternalUrl(agency.website),
+          }
+        : null,
       cover_image: await signListingPhotoValue(supabaseAdmin, rawRow.cover_image),
       photos: await signListingPhotos(supabaseAdmin, rawRow.photos),
     };
@@ -328,7 +346,14 @@ export const fetchAgencies = createServerFn({ method: "GET" }).handler(async () 
       if (r.agency_id) counts[r.agency_id] = (counts[r.agency_id] ?? 0) + 1;
     }
   }
-  return { agencies: agencies.map((a) => ({ ...a, listing_count: counts[a.id] ?? 0 })) };
+  return {
+    agencies: agencies.map((a) => ({
+      ...a,
+      logo_url: safeExternalUrl(a.logo_url),
+      cover_image: safeExternalUrl(a.cover_image),
+      listing_count: counts[a.id] ?? 0,
+    })),
+  };
 });
 
 export const fetchAgency = createServerFn({ method: "GET" })
@@ -362,7 +387,16 @@ export const fetchAgency = createServerFn({ method: "GET" })
       rent: rows.filter((r) => r.purpose === "rent" && !r.is_hmo).length,
       hmo: rows.filter((r) => r.is_hmo).length,
     };
-    return { agency, listings: rows, stats };
+    return {
+      agency: {
+        ...agency,
+        logo_url: safeExternalUrl(agency.logo_url),
+        cover_image: safeExternalUrl(agency.cover_image),
+        website: safeExternalUrl(agency.website),
+      },
+      listings: rows,
+      stats,
+    };
   });
 
 export const submitLead = createServerFn({ method: "POST" })
@@ -386,6 +420,78 @@ export const submitLead = createServerFn({ method: "POST" })
       owner_id: listing.owner_id,
     });
     if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+const contactTopicSchema = z.enum(["demo", "migration", "pricing", "support", "press"]);
+
+/** Server-owned intake for the public contact page. */
+export const submitContactEnquiry = createServerFn({ method: "POST" })
+  .inputValidator(z.object({
+    name: z.string().trim().min(2).max(199),
+    email: z.string().trim().email().max(199),
+    phone: z.string().trim().max(49).optional(),
+    company: z.string().trim().max(199).optional(),
+    topic: contactTopicSchema,
+    message: z.string().trim().min(10).max(4000),
+    website: z.string().max(0).optional(),
+  }))
+  .handler(async ({ data }) => {
+    const { enforceRateLimit } = await import("./rate-limit.server");
+    await enforceRateLimit("contact_enquiry", 3, 900);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const topic = data.topic.replace(/_/g, " ");
+    const context = [
+      `Topic: ${topic}`,
+      data.company ? `Company: ${data.company}` : null,
+      "",
+      data.message,
+    ].filter((value) => value !== null).join("\n");
+    const { error } = await supabaseAdmin.from("leads").insert({
+      name: data.name,
+      email: data.email.toLowerCase(),
+      phone: data.phone || null,
+      source: "website_contact",
+      message: context,
+    });
+    if (error) throw new Error("We could not send your message. Please try again.");
+    return { ok: true };
+  });
+
+/** Server-owned intake for the valuation callback form. */
+export const submitValuationEnquiry = createServerFn({ method: "POST" })
+  .inputValidator(z.object({
+    name: z.string().trim().min(2).max(199),
+    email: z.string().trim().email().max(199),
+    phone: z.string().trim().max(49).optional(),
+    postcode: z.string().trim().min(3).max(12),
+    bedrooms: z.number().int().min(1).max(20),
+    property_type: z.enum(["flat", "house", "hmo"]),
+    condition: z.enum(["excellent", "good", "fair"]),
+    purpose: z.enum(["sale", "rent"]),
+    estimate: z.number().positive().max(999_999_999).optional(),
+    website: z.string().max(0).optional(),
+  }))
+  .handler(async ({ data }) => {
+    const { enforceRateLimit } = await import("./rate-limit.server");
+    await enforceRateLimit("valuation_enquiry", 3, 900);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const message = [
+      "Valuation callback requested",
+      `${data.postcode.toUpperCase()} · ${data.bedrooms} bed ${data.property_type}`,
+      `${data.condition} condition · for ${data.purpose}`,
+      data.estimate
+        ? `Provider estimate shown: £${Math.round(data.estimate).toLocaleString("en-GB")}${data.purpose === "rent" ? "/month" : ""}`
+        : "Online estimate unavailable; manual appraisal requested",
+    ].join("\n");
+    const { error } = await supabaseAdmin.from("leads").insert({
+      name: data.name,
+      email: data.email.toLowerCase(),
+      phone: data.phone || null,
+      source: "valuation",
+      message,
+    });
+    if (error) throw new Error("We could not book the valuation. Please try again.");
     return { ok: true };
   });
 

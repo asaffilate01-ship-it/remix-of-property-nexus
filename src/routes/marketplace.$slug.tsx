@@ -253,6 +253,8 @@ function ListingDetail() {
                       title="Virtual 360° tour"
                       className="w-full h-full"
                       allow="fullscreen; accelerometer; gyroscope; magnetometer; vr"
+                      sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+                      referrerPolicy="no-referrer"
                       allowFullScreen
                       loading="lazy"
                     />

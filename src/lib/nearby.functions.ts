@@ -39,6 +39,8 @@ export const fetchNearby = createServerFn({ method: "POST" })
     }).parse(d),
   )
   .handler(async ({ data }) => {
+    const { enforceRateLimit } = await import("./rate-limit.server");
+    await enforceRateLimit("nearby_places", 30, 600);
     const apiKey = process.env.LOVABLE_API_KEY;
     const connKey = process.env.GOOGLE_MAPS_API_KEY;
     if (!apiKey || !connKey) return { places: [] as Place[] };

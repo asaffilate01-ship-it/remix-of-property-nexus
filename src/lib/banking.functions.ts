@@ -13,7 +13,7 @@ export const listBankTransactions = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const agencyId = await resolveAgencyId(context.supabase, context.userId);
-    if (!agencyId) return { transactions: [], rentSchedule: [], agencyId: null as string | null };
+    if (!agencyId) return { transactions: [], rentSchedule: [], agencyId: null as string | null, demoEnabled: false };
     const [txn, rent] = await Promise.all([
       context.supabase
         .from("bank_transactions")
@@ -23,17 +23,28 @@ export const listBankTransactions = createServerFn({ method: "GET" })
         .limit(200),
       context.supabase
         .from("rent_schedule")
-        .select("id, tenancy_id, due_date, amount, status")
+        .select("id, tenancy_id, due_date, amount, status, tenancies(tenant_name, agency_id)")
         .order("due_date", { ascending: false })
         .limit(500),
     ]);
-    return { transactions: txn.data ?? [], rentSchedule: rent.data ?? [], agencyId };
+    if (txn.error) throw new Error(txn.error.message);
+    if (rent.error) throw new Error(rent.error.message);
+    const rentSchedule = (rent.data ?? []).filter((row: any) => row.tenancies?.agency_id === agencyId);
+    return {
+      transactions: txn.data ?? [],
+      rentSchedule,
+      agencyId,
+      demoEnabled: process.env.ENABLE_DEMO_BANK_FEED === "true",
+    };
   });
 
 // Seeds a small mock open-banking feed so the auto-reconcile UI has something to chew on.
 export const seedMockBankFeed = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    if (process.env.ENABLE_DEMO_BANK_FEED !== "true") {
+      throw new Error("Demo bank feed is disabled in this environment.");
+    }
     const agencyId = await resolveAgencyId(context.supabase, context.userId);
     if (!agencyId) throw new Error("No agency.");
     // Pull some recent due rent rows to base mock payments on (with realistic refs).
@@ -69,7 +80,8 @@ export const seedMockBankFeed = createServerFn({ method: "POST" })
       raw: { mock: true, due_id: null as string | null },
     });
     if (rows.length > 0) {
-      await context.supabase.from("bank_transactions").insert(rows);
+      const { error } = await context.supabase.from("bank_transactions").insert(rows);
+      if (error) throw new Error(error.message);
     }
     return { inserted: rows.length };
   });
@@ -86,22 +98,32 @@ export const reconcileTransactions = createServerFn({ method: "POST" })
       .is("matched_rent_schedule_id", null);
     const { data: pendingRent } = await context.supabase
       .from("rent_schedule")
-      .select("id, amount, due_date, status, tenancy_id")
+      .select("id, amount, due_date, status, tenancy_id, tenancies!inner(tenant_name, agency_id)")
       .neq("status", "paid");
+    const eligibleRent = (pendingRent ?? []).filter((row: any) => row.tenancies?.agency_id === agencyId);
     let matched = 0;
     for (const t of unmatched ?? []) {
-      const candidate = (pendingRent ?? []).find((r) => Number(r.amount) === Number(t.amount));
-      if (!candidate) continue;
-      await context.supabase.from("bank_transactions").update({
-        matched_rent_schedule_id: candidate.id,
-        matched_tenancy_id: candidate.tenancy_id,
-        matched_at: new Date().toISOString(),
-      }).eq("id", t.id);
-      await context.supabase.from("rent_schedule").update({
-        status: "paid",
-        paid_at: t.posted_at,
-      }).eq("id", candidate.id);
-      matched++;
+      const amountCandidates = eligibleRent.filter((r) => Number(r.amount) === Number(t.amount));
+      if (amountCandidates.length !== 1) continue;
+      const candidate = amountCandidates[0] as any;
+      const reference = String(t.reference ?? "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+      const tenantName = String(candidate.tenancies?.tenant_name ?? "");
+      const name = tenantName.toUpperCase().replace(/[^A-Z0-9]/g, "");
+      const initials = tenantName.split(/\s+/).filter(Boolean).map((part: string) => part[0]).join("").toUpperCase();
+      const scheduleToken = String(candidate.id).replace(/-/g, "").slice(0, 4).toUpperCase();
+      const hasStrongReference =
+        (name.length >= 5 && reference.includes(name)) ||
+        (initials.length >= 2 && reference.includes(initials) && reference.includes(scheduleToken));
+      if (!hasStrongReference) continue;
+      const { data: didMatch, error } = await (context.supabase as any).rpc("match_bank_transaction", {
+        _transaction_id: t.id,
+        _rent_schedule_id: candidate.id,
+      });
+      if (error) throw new Error(error.message);
+      if (didMatch) {
+        matched++;
+        eligibleRent.splice(eligibleRent.indexOf(candidate), 1);
+      }
     }
     return { matched, scanned: unmatched?.length ?? 0 };
   });
@@ -110,18 +132,11 @@ export const manualMatch = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => z.object({ transaction_id: z.string().uuid(), rent_schedule_id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
-    const { data: rent } = await context.supabase
-      .from("rent_schedule").select("tenancy_id").eq("id", data.rent_schedule_id).single();
-    const { data: txn } = await context.supabase
-      .from("bank_transactions").select("posted_at").eq("id", data.transaction_id).single();
-    await context.supabase.from("bank_transactions").update({
-      matched_rent_schedule_id: data.rent_schedule_id,
-      matched_tenancy_id: rent?.tenancy_id ?? null,
-      matched_at: new Date().toISOString(),
-    }).eq("id", data.transaction_id);
-    await context.supabase.from("rent_schedule").update({
-      status: "paid",
-      paid_at: txn?.posted_at ?? new Date().toISOString(),
-    }).eq("id", data.rent_schedule_id);
+    const { data: matched, error } = await (context.supabase as any).rpc("match_bank_transaction", {
+      _transaction_id: data.transaction_id,
+      _rent_schedule_id: data.rent_schedule_id,
+    });
+    if (error) throw new Error(error.message);
+    if (!matched) throw new Error("This payment or rent item is no longer available to match.");
     return { ok: true };
   });

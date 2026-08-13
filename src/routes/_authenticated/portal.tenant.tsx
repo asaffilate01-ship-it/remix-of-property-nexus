@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { safeExternalUrl } from "@/lib/url-safety";
 import { Home, FileText, Wrench, CreditCard, MessageSquare } from "lucide-react";
 import { RentCheckoutDialog } from "@/components/RentCheckoutDialog";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
@@ -179,7 +180,7 @@ function TenantPortal() {
             {docs.map((d) => (
               <div key={d.id} className="flex items-center justify-between text-sm py-1">
                 <span>{d.name ?? d.title ?? "Document"}</span>
-                {d.file_url && <a className="text-primary" href={d.file_url} target="_blank" rel="noreferrer">Open</a>}
+                {safeExternalUrl(d.file_url) && <a className="text-primary" href={safeExternalUrl(d.file_url)!} target="_blank" rel="noreferrer">Open</a>}
               </div>
             ))}
           </div>

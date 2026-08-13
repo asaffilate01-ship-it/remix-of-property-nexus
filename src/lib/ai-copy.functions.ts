@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
+import { safeExternalUrl } from "@/lib/url-safety";
 
 export const listMyListings = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -38,6 +39,8 @@ export const generateListingCopy = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => inputSchema.parse(d))
   .handler(async ({ data, context }): Promise<AIOutput & { applied: boolean }> => {
+    const { enforceRateLimit } = await import("./rate-limit.server");
+    await enforceRateLimit("ai_listing_copy", 20, 3_600, context.userId);
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) throw new Error("LOVABLE_API_KEY is not configured.");
 
@@ -88,7 +91,8 @@ Return JSON with these exact keys:
       const txt = await res.text();
       if (res.status === 429) throw new Error("AI rate limit. Please try again in a moment.");
       if (res.status === 402) throw new Error("AI credits exhausted. Add credits in Settings → Workspace → Usage.");
-      throw new Error(`AI request failed (${res.status}): ${txt.slice(0, 300)}`);
+      console.error("[ai-copy] provider request failed", res.status, txt.slice(0, 300));
+      throw new Error(`AI request failed (${res.status}). Please try again later.`);
     }
     const j = await res.json();
     const raw = j?.choices?.[0]?.message?.content ?? "{}";
@@ -101,8 +105,10 @@ Return JSON with these exact keys:
     const output: AIOutput = {
       headline: String(parsed.headline ?? "").slice(0, 200),
       short: String(parsed.short ?? "").slice(0, 800),
-      long: String(parsed.long ?? ""),
-      bullets: Array.isArray(parsed.bullets) ? parsed.bullets.map((b) => String(b)).slice(0, 10) : [],
+      long: String(parsed.long ?? "").slice(0, 6_000),
+      bullets: Array.isArray(parsed.bullets)
+        ? parsed.bullets.map((b) => String(b).slice(0, 240)).slice(0, 10)
+        : [],
       caption: String(parsed.caption ?? "").slice(0, 400),
     };
 
@@ -131,8 +137,8 @@ export const saveListingAssets = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) =>
     z.object({
       listing_id: z.string().uuid(),
-      floorplan_url: z.string().url().max(1000).optional().nullable(),
-      tour_url: z.string().url().max(1000).optional().nullable(),
+      floorplan_url: z.string().max(1000).refine((value) => safeExternalUrl(value) !== null, "Use a valid HTTP(S) URL").optional().nullable(),
+      tour_url: z.string().max(1000).refine((value) => safeExternalUrl(value) !== null, "Use a valid HTTP(S) URL").optional().nullable(),
       tour_image_path: z.string().max(500).optional().nullable(),
     }).parse(d),
   )

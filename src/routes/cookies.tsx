@@ -21,7 +21,7 @@ const KEY = "estately.cookie-consent.v1";
 
 function CookiesPage() {
   const reset = () => {
-    try { localStorage.removeItem(KEY); } catch {}
+    try { localStorage.removeItem(KEY); } catch { /* privacy mode */ }
     window.location.reload();
   };
 

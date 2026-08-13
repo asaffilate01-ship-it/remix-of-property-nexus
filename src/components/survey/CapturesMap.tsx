@@ -20,7 +20,7 @@ export function CapturesMap({ pins }: { pins: Pin[] }) {
   useEffect(() => {
     let cancelled = false;
     let map: google.maps.Map | null = null;
-    let markers: google.maps.Marker[] = [];
+    const markers: google.maps.Marker[] = [];
     let info: google.maps.InfoWindow | null = null;
 
     (async () => {
@@ -39,14 +39,20 @@ export function CapturesMap({ pins }: { pins: Pin[] }) {
           m.addListener("click", async () => {
             try {
               const url = await signedUrl(p.storage_path);
-              info!.setContent(`
-                <div style="max-width:220px;font:13px system-ui">
-                  ${p.kind === "photo"
-                    ? `<img src="${url}" style="width:100%;border-radius:6px;margin-bottom:6px" />`
-                    : `<video src="${url}" controls style="width:100%;border-radius:6px;margin-bottom:6px"></video>`}
-                  <div style="font-weight:600">${(p.caption ?? "Capture").replace(/[<>]/g, "")}</div>
-                  <div style="color:#666;font-size:12px">${new Date(p.captured_at).toLocaleString()}</div>
-                </div>`);
+              const content = document.createElement("div");
+              content.style.cssText = "max-width:220px;font:13px system-ui";
+              const media = document.createElement(p.kind === "photo" ? "img" : "video");
+              media.src = url;
+              media.style.cssText = "width:100%;border-radius:6px;margin-bottom:6px";
+              if (media instanceof HTMLVideoElement) media.controls = true;
+              const caption = document.createElement("div");
+              caption.style.fontWeight = "600";
+              caption.textContent = p.caption ?? "Capture";
+              const timestamp = document.createElement("div");
+              timestamp.style.cssText = "color:#666;font-size:12px";
+              timestamp.textContent = new Date(p.captured_at).toLocaleString();
+              content.append(media, caption, timestamp);
+              info!.setContent(content);
               info!.open(map!, m);
             } catch { /* ignore */ }
           });
