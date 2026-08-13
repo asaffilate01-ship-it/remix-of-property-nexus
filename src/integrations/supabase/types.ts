@@ -4130,6 +4130,18 @@ export type Database = {
         Args: { _thread: string; _user: string }
         Returns: boolean
       }
+      record_stripe_rent_payment: {
+        Args: {
+          _amount: number
+          _currency: string
+          _invoice_id: string
+          _provider_payment_intent: string
+          _provider_session_id: string
+          _rent_schedule_id: string
+          _tenancy_id: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role:
