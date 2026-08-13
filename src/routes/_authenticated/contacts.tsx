@@ -9,9 +9,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2, Contact as ContactIcon, Mail, Phone, Star } from "lucide-react";
+import { Plus, Pencil, Trash2, Contact as ContactIcon, Mail, Phone, Star, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/PageHeader";
+import { useServerFn } from "@tanstack/react-start";
+import { linkContactToUser } from "@/lib/contacts.functions";
+
 
 export const Route = createFileRoute("/_authenticated/contacts")({
   head: () => ({ meta: [{ title: "Contacts — Estately" }] }),
