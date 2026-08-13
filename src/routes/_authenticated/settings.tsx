@@ -102,11 +102,8 @@ function SettingsPage() {
         <TabsList>
           <TabsTrigger value="profile">Profile</TabsTrigger>
           <TabsTrigger value="permissions">Roles & permissions</TabsTrigger>
-<<<<<<< /tmp/merge/ours
-          <TabsTrigger value="emails">Email outbox</TabsTrigger>
-=======
           <TabsTrigger value="billing">Plan & billing</TabsTrigger>
->>>>>>> /tmp/pn/property-nexus/src/routes/_authenticated/settings.tsx
+          <TabsTrigger value="emails">Email outbox</TabsTrigger>
         </TabsList>
         <TabsContent value="profile">
           <div className="space-y-4">
@@ -167,24 +164,21 @@ function SettingsPage() {
         <TabsContent value="permissions">
           <PermissionsMatrix />
         </TabsContent>
-<<<<<<< /tmp/merge/ours
-        <TabsContent value="emails">
-          <EmailOutbox />
-=======
         <TabsContent value="billing">
           <BillingSettings
             selectedPlan={search.plan}
             billingResult={search.billing}
             sessionId={search.session_id}
           />
->>>>>>> /tmp/pn/property-nexus/src/routes/_authenticated/settings.tsx
+        </TabsContent>
+        <TabsContent value="emails">
+          <EmailOutbox />
         </TabsContent>
       </Tabs>
     </div>
   );
 }
 
-<<<<<<< /tmp/merge/ours
 type OutboxRow = {
   id: string;
   recipient_email: string;
@@ -247,7 +241,6 @@ function EmailOutbox() {
 }
 
 
-=======
 function BillingSettings({
   selectedPlan,
   billingResult,
