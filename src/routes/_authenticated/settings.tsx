@@ -58,6 +58,7 @@ function SettingsPage() {
         <TabsList>
           <TabsTrigger value="profile">Profile</TabsTrigger>
           <TabsTrigger value="permissions">Roles & permissions</TabsTrigger>
+          <TabsTrigger value="emails">Email outbox</TabsTrigger>
         </TabsList>
         <TabsContent value="profile">
           <Card className="border-0 shadow-card">
@@ -72,10 +73,75 @@ function SettingsPage() {
         <TabsContent value="permissions">
           <PermissionsMatrix />
         </TabsContent>
+        <TabsContent value="emails">
+          <EmailOutbox />
+        </TabsContent>
       </Tabs>
     </div>
   );
 }
+
+type OutboxRow = {
+  id: string;
+  recipient_email: string;
+  template_name: string | null;
+  subject: string | null;
+  status: string;
+  created_at: string;
+};
+
+function EmailOutbox() {
+  const [rows, setRows] = useState<OutboxRow[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await (supabase as any)
+        .from("email_outbox")
+        .select("id,recipient_email,template_name,subject,status,created_at")
+        .order("created_at", { ascending: false })
+        .limit(50);
+      setRows((data as OutboxRow[]) ?? []);
+      setLoading(false);
+    })();
+  }, []);
+
+  return (
+    <Card className="border-0 shadow-card">
+      <CardContent className="p-6 space-y-4">
+        <p className="text-sm text-muted-foreground">
+          System emails (expiry reminders, automation steps) are queued here. They send automatically
+          once an email sending domain is connected — nothing is lost in the meantime.
+        </p>
+        {loading ? (
+          <div className="h-20 rounded-lg bg-muted animate-pulse" />
+        ) : rows.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No queued emails yet (admins only).</p>
+        ) : (
+          <div className="divide-y divide-border rounded-lg border border-border">
+            {rows.map((r) => (
+              <div key={r.id} className="flex items-center justify-between gap-3 p-3 text-sm">
+                <div className="min-w-0">
+                  <div className="truncate font-medium">{r.subject ?? r.template_name ?? "Notification"}</div>
+                  <div className="truncate text-xs text-muted-foreground">{r.recipient_email}</div>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className="text-xs text-muted-foreground">
+                    {new Date(r.created_at).toLocaleDateString()}
+                  </span>
+                  <Badge variant={r.status === "sent" ? "default" : r.status === "failed" ? "destructive" : "secondary"}>
+                    {r.status}
+                  </Badge>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 
 function PermissionsMatrix() {
   const fetchPerms = useServerFn(listPermissions);
