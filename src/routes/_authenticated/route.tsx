@@ -4,7 +4,9 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { MobileTabBar } from "@/components/MobileTabBar";
 import { CommandPalette } from "@/components/CommandPalette";
-import { Bell, ChevronRight, LifeBuoy, Search } from "lucide-react";
+import { ChevronRight, LifeBuoy, Search } from "lucide-react";
+import { NotificationBell } from "@/components/NotificationBell";
+
 import { Button } from "@/components/ui/button";
 import { useMemo } from "react";
 
@@ -106,18 +108,13 @@ function AuthedLayout() {
             >
               <Search className="h-[18px] w-[18px]" />
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="relative h-9 w-9 text-muted-foreground hover:text-foreground shrink-0"
-              aria-label="Notifications"
-            >
-              <Bell className="h-[18px] w-[18px]" />
-              <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-destructive ring-2 ring-card" />
+            <NotificationBell />
+            <Button asChild variant="outline" size="sm" className="hidden sm:inline-flex gap-1.5 h-9">
+              <Link to="/contact">
+                <LifeBuoy className="h-4 w-4" /> Support
+              </Link>
             </Button>
-            <Button variant="outline" size="sm" className="hidden sm:inline-flex gap-1.5 h-9">
-              <LifeBuoy className="h-4 w-4" /> Support
-            </Button>
+
           </header>
           <main className="flex-1 pb-24 md:pb-10">
             <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 pt-4 sm:pt-8">
