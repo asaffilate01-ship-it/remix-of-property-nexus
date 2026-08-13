@@ -1,4 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
+import {
+  authorizeCronRequest,
+  normalizeWebhookMethod,
+  validateAutomationWebhookUrl,
+} from "@/lib/security.server";
 
 /**
  * Runner for Tracks (workflow automation).
@@ -10,7 +15,10 @@ import { createFileRoute } from "@tanstack/react-router";
 export const Route = createFileRoute("/api/public/hooks/process-tracks")({
   server: {
     handlers: {
-      POST: async () => {
+      POST: async ({ request }) => {
+        const unauthorized = authorizeCronRequest(request);
+        if (unauthorized) return unauthorized;
+
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
         const { data: due, error } = await supabaseAdmin.rpc("claim_due_track_steps", { _limit: 50 });
@@ -108,11 +116,22 @@ async function dispatch(admin: any, row: any) {
     }
     case "webhook": {
       if (cfg.url) {
-        await fetch(cfg.url, {
-          method: cfg.method ?? "POST",
+        const url = validateAutomationWebhookUrl(cfg.url);
+        const response = await fetch(url, {
+          method: normalizeWebhookMethod(cfg.method),
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({ entity_type: row.entity_type, entity_id: row.entity_id, template_id: row.template_id, context: row.context, config: cfg }),
-        }).catch(() => {});
+          body: JSON.stringify({
+            entity_type: row.entity_type,
+            entity_id: row.entity_id,
+            template_id: row.template_id,
+            context: row.context,
+          }),
+          redirect: "error",
+          signal: AbortSignal.timeout(10_000),
+        });
+        if (!response.ok) {
+          throw new Error(`Webhook returned HTTP ${response.status}`);
+        }
       }
       return;
     }

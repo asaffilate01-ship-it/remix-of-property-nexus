@@ -1,16 +1,63 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
-  LayoutDashboard, Building2, Tag, Inbox, Kanban, ShieldCheck, Users, Settings, LogOut,
-  BedDouble, Wrench, Contact, Handshake, Search, Heart, Home, Scale, ClipboardCheck,
-  ClipboardList, CalendarDays, Gavel, Receipt, BarChart3, Sparkles, Eye, Bookmark,
-  RefreshCcw, Vault, UserCheck, FilePenLine, Hammer, Banknote, Image as ImageIcon,
-  Landmark, Briefcase, Smartphone, PackageOpen, FolderLock, Camera, ScrollText,
-  ChevronRight, Bell, Sun, Workflow, Clock,
+  LayoutDashboard,
+  Building2,
+  Tag,
+  Inbox,
+  Kanban,
+  ShieldCheck,
+  Users,
+  Settings,
+  LogOut,
+  BedDouble,
+  Wrench,
+  Contact,
+  Handshake,
+  Search,
+  Heart,
+  Home,
+  Scale,
+  ClipboardCheck,
+  ClipboardList,
+  CalendarDays,
+  Gavel,
+  Receipt,
+  BarChart3,
+  Sparkles,
+  Eye,
+  Bookmark,
+  RefreshCcw,
+  Vault,
+  UserCheck,
+  FilePenLine,
+  Hammer,
+  Banknote,
+  Image as ImageIcon,
+  Landmark,
+  Briefcase,
+  Smartphone,
+  PackageOpen,
+  FolderLock,
+  Camera,
+  ScrollText,
+  ChevronRight,
+  Bell,
+  Sun,
+  Workflow,
+  Clock,
 } from "lucide-react";
 import { BranchSwitcher } from "@/components/BranchSwitcher";
 import {
-  Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
-  SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader, SidebarFooter,
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarHeader,
+  SidebarFooter,
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -27,7 +74,8 @@ type NavSection = { label: string; items: NavItem[]; defaultOpen?: boolean };
 
 const FULL: NavSection[] = [
   {
-    label: "Overview", defaultOpen: true,
+    label: "Overview",
+    defaultOpen: true,
     items: [
       { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
       { to: "/alerts", label: "Alerts & expiries", icon: Bell },
@@ -36,7 +84,8 @@ const FULL: NavSection[] = [
     ],
   },
   {
-    label: "Properties & listings", defaultOpen: true,
+    label: "Properties & listings",
+    defaultOpen: true,
     items: [
       { to: "/properties", label: "Properties", icon: Building2 },
       { to: "/listings", label: "Listings", icon: Tag },
@@ -94,139 +143,212 @@ const FULL: NavSection[] = [
     items: [
       { to: "/contacts", label: "Contacts", icon: Contact },
       { to: "/agency", label: "Agency", icon: Users },
+      { to: "/team", label: "Team", icon: Users },
       { to: "/branches", label: "Branches", icon: Building2 },
       { to: "/settings", label: "Settings", icon: Settings },
     ],
   },
 ];
 
-const TENANT: NavSection[] = [{ label: "Home", defaultOpen: true, items: [
-  { to: "/portal/tenant", label: "My tenancy", icon: Home },
-  { to: "/inbox", label: "Messages", icon: Inbox },
-  { to: "/work-orders", label: "Repair requests", icon: Wrench },
-  { to: "/survey", label: "Photo / video capture", icon: Camera },
-  { to: "/evidence", label: "Photo / video proof", icon: Camera },
-  { to: "/documents", label: "My documents", icon: FolderLock },
-  { to: "/marketplace", label: "Browse homes", icon: Search },
-  { to: "/settings", label: "Settings", icon: Settings },
-] }];
+const TENANT: NavSection[] = [
+  {
+    label: "Home",
+    defaultOpen: true,
+    items: [
+      { to: "/portal/tenant", label: "My tenancy", icon: Home },
+      { to: "/inbox", label: "Messages", icon: Inbox },
+      { to: "/work-orders", label: "Repair requests", icon: Wrench },
+      { to: "/survey", label: "Photo / video capture", icon: Camera },
+      { to: "/evidence", label: "Photo / video proof", icon: Camera },
+      { to: "/documents", label: "My documents", icon: FolderLock },
+      { to: "/marketplace", label: "Browse homes", icon: Search },
+      { to: "/settings", label: "Settings", icon: Settings },
+    ],
+  },
+];
 
-const CONTRACTOR: NavSection[] = [{ label: "Jobs", defaultOpen: true, items: [
-  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/work-orders", label: "My jobs", icon: Wrench },
-  { to: "/evidence", label: "Site photos / video", icon: Camera },
-  { to: "/contractor-marketplace", label: "Bid on jobs", icon: Hammer },
-  { to: "/settings", label: "Settings", icon: Settings },
-] }];
+const CONTRACTOR: NavSection[] = [
+  {
+    label: "Jobs",
+    defaultOpen: true,
+    items: [
+      { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+      { to: "/work-orders", label: "My jobs", icon: Wrench },
+      { to: "/evidence", label: "Site photos / video", icon: Camera },
+      { to: "/contractor-marketplace", label: "Bid on jobs", icon: Hammer },
+      { to: "/settings", label: "Settings", icon: Settings },
+    ],
+  },
+];
 
-const CONVEYANCER: NavSection[] = [{ label: "Matters", defaultOpen: true, items: [
-  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/sales", label: "Matters", icon: Scale },
-  { to: "/settings", label: "Settings", icon: Settings },
-] }];
+const CONVEYANCER: NavSection[] = [
+  {
+    label: "Matters",
+    defaultOpen: true,
+    items: [
+      { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+      { to: "/sales", label: "Matters", icon: Scale },
+      { to: "/settings", label: "Settings", icon: Settings },
+    ],
+  },
+];
 
-const BUYER: NavSection[] = [{ label: "Buying", defaultOpen: true, items: [
-  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/marketplace", label: "Browse", icon: Search },
-  { to: "/saved-searches", label: "Saved searches", icon: Bookmark },
-  { to: "/vendor-portal", label: "My sale", icon: Eye },
-  { to: "/leads", label: "My enquiries", icon: Heart },
-  { to: "/settings", label: "Settings", icon: Settings },
-] }];
+const BUYER: NavSection[] = [
+  {
+    label: "Buying",
+    defaultOpen: true,
+    items: [
+      { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+      { to: "/marketplace", label: "Browse", icon: Search },
+      { to: "/saved-searches", label: "Saved searches", icon: Bookmark },
+      { to: "/vendor-portal", label: "My sale", icon: Eye },
+      { to: "/leads", label: "My enquiries", icon: Heart },
+      { to: "/settings", label: "Settings", icon: Settings },
+    ],
+  },
+];
 
-const SIMPLE: NavSection[] = [{ label: "Work", defaultOpen: true, items: [
-  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/work-orders", label: "Assignments", icon: ClipboardCheck },
-  { to: "/settings", label: "Settings", icon: Settings },
-] }];
+const SIMPLE: NavSection[] = [
+  {
+    label: "Work",
+    defaultOpen: true,
+    items: [
+      { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+      { to: "/work-orders", label: "Assignments", icon: ClipboardCheck },
+      { to: "/settings", label: "Settings", icon: Settings },
+    ],
+  },
+];
 
 // Admin = platform oversight + everything
 const ADMIN: NavSection[] = [
-  { label: "Platform", defaultOpen: true, items: [
-    { to: "/dashboard", label: "Admin dashboard", icon: LayoutDashboard },
-    { to: "/agency", label: "Users & agencies", icon: Users },
-    { to: "/branches", label: "Branches", icon: Building2 },
-    { to: "/reports", label: "Platform reports", icon: BarChart3 },
-    { to: "/compliance", label: "Compliance oversight", icon: ShieldCheck },
-  ] },
+  {
+    label: "Platform",
+    defaultOpen: true,
+    items: [
+      { to: "/dashboard", label: "Admin dashboard", icon: LayoutDashboard },
+      { to: "/agency", label: "Users & agencies", icon: Users },
+      { to: "/branches", label: "Branches", icon: Building2 },
+      { to: "/reports", label: "Platform reports", icon: BarChart3 },
+      { to: "/compliance", label: "Compliance oversight", icon: ShieldCheck },
+    ],
+  },
   ...FULL.slice(1), // re-use all operational sections after Overview
 ];
 
 // Agent = pipeline-first
 const AGENT: NavSection[] = [
-  { label: "Today", defaultOpen: true, items: [
-    { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { to: "/leads", label: "Leads", icon: Inbox },
-    { to: "/viewings", label: "Viewings", icon: CalendarDays },
-    { to: "/pipeline", label: "Lettings pipeline", icon: Kanban },
-    { to: "/sales", label: "Sales pipeline", icon: Handshake },
-    { to: "/offers", label: "Offers & chains", icon: Gavel },
-  ] },
-  { label: "Stock", defaultOpen: true, items: [
-    { to: "/listings", label: "Listings", icon: Tag },
-    { to: "/properties", label: "Properties", icon: Building2 },
-    { to: "/media", label: "Floorplans & EPC", icon: ImageIcon },
-    { to: "/ai-copy", label: "AI listing copy", icon: Sparkles },
-  ] },
-  { label: "Ops", items: [
-    { to: "/inspections", label: "Inspections", icon: ClipboardList },
-    { to: "/work-orders", label: "Work orders", icon: Wrench },
-    { to: "/renewals", label: "Renewals", icon: RefreshCcw },
-    { to: "/arrears", label: "Arrears", icon: Banknote },
-    { to: "/referencing-cases", label: "Referencing", icon: ClipboardCheck },
-  ] },
-  { label: "Workspace", items: [
-    { to: "/contacts", label: "Contacts", icon: Contact },
-    { to: "/branches", label: "Branches", icon: Building2 },
-    { to: "/agency", label: "Team", icon: Users },
-    { to: "/reports", label: "Reports", icon: BarChart3 },
-    { to: "/settings", label: "Settings", icon: Settings },
-  ] },
+  {
+    label: "Today",
+    defaultOpen: true,
+    items: [
+      { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+      { to: "/leads", label: "Leads", icon: Inbox },
+      { to: "/viewings", label: "Viewings", icon: CalendarDays },
+      { to: "/pipeline", label: "Lettings pipeline", icon: Kanban },
+      { to: "/sales", label: "Sales pipeline", icon: Handshake },
+      { to: "/offers", label: "Offers & chains", icon: Gavel },
+    ],
+  },
+  {
+    label: "Stock",
+    defaultOpen: true,
+    items: [
+      { to: "/listings", label: "Listings", icon: Tag },
+      { to: "/properties", label: "Properties", icon: Building2 },
+      { to: "/media", label: "Floorplans & EPC", icon: ImageIcon },
+      { to: "/ai-copy", label: "AI listing copy", icon: Sparkles },
+    ],
+  },
+  {
+    label: "Ops",
+    items: [
+      { to: "/inspections", label: "Inspections", icon: ClipboardList },
+      { to: "/work-orders", label: "Work orders", icon: Wrench },
+      { to: "/renewals", label: "Renewals", icon: RefreshCcw },
+      { to: "/arrears", label: "Arrears", icon: Banknote },
+      { to: "/referencing-cases", label: "Referencing", icon: ClipboardCheck },
+    ],
+  },
+  {
+    label: "Workspace",
+    items: [
+      { to: "/contacts", label: "Contacts", icon: Contact },
+      { to: "/branches", label: "Branches", icon: Building2 },
+      { to: "/agency", label: "Agency profile", icon: Users },
+      { to: "/team", label: "Team", icon: Users },
+      { to: "/reports", label: "Reports", icon: BarChart3 },
+      { to: "/settings", label: "Settings", icon: Settings },
+    ],
+  },
 ];
 
 // Landlord = portfolio-first (slimmer than agent)
 const LANDLORD: NavSection[] = [
-  { label: "Portfolio", defaultOpen: true, items: [
-    { to: "/portal/landlord", label: "Overview", icon: LayoutDashboard },
-    { to: "/inbox", label: "Messages", icon: Inbox },
-    { to: "/properties", label: "Properties", icon: Building2 },
-    { to: "/hmo", label: "HMO & rooms", icon: BedDouble },
-    { to: "/listings", label: "Listings", icon: Tag },
-  ] },
-  { label: "Tenancy ops", defaultOpen: true, items: [
-    { to: "/tenancies", label: "Tenancies", icon: Home },
-    { to: "/tenants", label: "Tenants", icon: Users },
-    { to: "/leads", label: "Enquiries", icon: Inbox },
-    { to: "/work-orders", label: "Work orders", icon: Wrench },
-    { to: "/contractor-marketplace", label: "Find a contractor", icon: Hammer },
-    { to: "/inspections", label: "Inspections", icon: ClipboardList },
-    { to: "/renewals", label: "Renewals", icon: RefreshCcw },
-    { to: "/arrears", label: "Arrears", icon: Banknote },
-  ] },
-  { label: "Compliance & money", items: [
-    { to: "/compliance", label: "Compliance", icon: ShieldCheck },
-    { to: "/deposits", label: "Deposits", icon: Vault },
-    { to: "/statements", label: "Statements", icon: Receipt },
-    { to: "/documents", label: "Documents", icon: FolderLock },
-  ] },
-  { label: "Workspace", items: [
-    { to: "/contacts", label: "Contacts", icon: Contact },
-    { to: "/settings", label: "Settings", icon: Settings },
-  ] },
+  {
+    label: "Portfolio",
+    defaultOpen: true,
+    items: [
+      { to: "/portal/landlord", label: "Overview", icon: LayoutDashboard },
+      { to: "/inbox", label: "Messages", icon: Inbox },
+      { to: "/properties", label: "Properties", icon: Building2 },
+      { to: "/hmo", label: "HMO & rooms", icon: BedDouble },
+      { to: "/listings", label: "Listings", icon: Tag },
+    ],
+  },
+  {
+    label: "Tenancy ops",
+    defaultOpen: true,
+    items: [
+      { to: "/tenancies", label: "Tenancies", icon: Home },
+      { to: "/tenants", label: "Tenants", icon: Users },
+      { to: "/leads", label: "Enquiries", icon: Inbox },
+      { to: "/work-orders", label: "Work orders", icon: Wrench },
+      { to: "/contractor-marketplace", label: "Find a contractor", icon: Hammer },
+      { to: "/inspections", label: "Inspections", icon: ClipboardList },
+      { to: "/renewals", label: "Renewals", icon: RefreshCcw },
+      { to: "/arrears", label: "Arrears", icon: Banknote },
+    ],
+  },
+  {
+    label: "Compliance & money",
+    items: [
+      { to: "/compliance", label: "Compliance", icon: ShieldCheck },
+      { to: "/deposits", label: "Deposits", icon: Vault },
+      { to: "/statements", label: "Statements", icon: Receipt },
+      { to: "/documents", label: "Documents", icon: FolderLock },
+    ],
+  },
+  {
+    label: "Workspace",
+    items: [
+      { to: "/contacts", label: "Contacts", icon: Contact },
+      { to: "/settings", label: "Settings", icon: Settings },
+    ],
+  },
 ];
 
 function sectionsFor(role: AppRole | null): NavSection[] {
   switch (role) {
-    case "admin": return ADMIN;
-    case "agent": return AGENT;
-    case "landlord": return LANDLORD;
-    case "tenant": return TENANT;
-    case "contractor": return CONTRACTOR;
-    case "conveyancer": return CONVEYANCER;
-    case "buyer": return BUYER;
+    case "admin":
+      return ADMIN;
+    case "agent":
+      return AGENT;
+    case "landlord":
+      return LANDLORD;
+    case "tenant":
+      return TENANT;
+    case "contractor":
+      return CONTRACTOR;
+    case "conveyancer":
+      return CONVEYANCER;
+    case "buyer":
+      return BUYER;
     case "inventory_clerk":
-    case "utility_provider": return SIMPLE;
-    default: return FULL;
+    case "utility_provider":
+      return SIMPLE;
+    default:
+      return FULL;
   }
 }
 
@@ -291,10 +413,14 @@ export function AppSidebar() {
           <span className="brand-gradient inline-flex h-8 w-8 items-center justify-center rounded-md text-white shrink-0">
             <Building2 className="h-4 w-4" />
           </span>
-          {!collapsed && <span className="font-bold text-sidebar-foreground tracking-tight">Estately</span>}
+          {!collapsed && (
+            <span className="font-bold text-sidebar-foreground tracking-tight">Estately</span>
+          )}
         </Link>
         {!collapsed && (role === "agent" || role === "admin" || role === "landlord") && (
-          <div className="px-2 pb-2"><BranchSwitcher /></div>
+          <div className="px-2 pb-2">
+            <BranchSwitcher />
+          </div>
         )}
         {!collapsed && (
           <div className="px-2 pb-2">
@@ -323,7 +449,10 @@ export function AppSidebar() {
               <SidebarMenu>
                 {recent.slice(0, 4).map((r) => (
                   <SidebarMenuItem key={r.to}>
-                    <SidebarMenuButton isActive={isActive(r.to)} onClick={() => navigate({ to: r.to as never })}>
+                    <SidebarMenuButton
+                      isActive={isActive(r.to)}
+                      onClick={() => navigate({ to: r.to as never })}
+                    >
                       <Clock className="h-4 w-4 opacity-60" />
                       <span className="truncate capitalize">{r.label}</span>
                     </SidebarMenuButton>
@@ -397,7 +526,9 @@ export function AppSidebar() {
                 {(name || "U").slice(0, 1).toUpperCase()}
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-semibold text-sidebar-foreground truncate">{name || "Account"}</p>
+                <p className="text-xs font-semibold text-sidebar-foreground truncate">
+                  {name || "Account"}
+                </p>
                 <p className="text-[10px] uppercase tracking-wider text-sidebar-foreground/50 font-bold truncate">
                   {role ?? "user"}
                 </p>
@@ -407,7 +538,11 @@ export function AppSidebar() {
         )}
         <SidebarMenu className="px-2 pb-2">
           <SidebarMenuItem>
-            <SidebarMenuButton onClick={signOut} tooltip="Sign out" className="text-sidebar-foreground/70 hover:text-sidebar-foreground">
+            <SidebarMenuButton
+              onClick={signOut}
+              tooltip="Sign out"
+              className="text-sidebar-foreground/70 hover:text-sidebar-foreground"
+            >
               <LogOut className="h-4 w-4" /> <span>Sign out</span>
             </SidebarMenuButton>
           </SidebarMenuItem>

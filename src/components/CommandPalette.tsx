@@ -12,8 +12,19 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useRecentRoutes } from "@/hooks/useRecentRoutes";
 import {
-  Home, Building2, Users, FileText, Banknote, ClipboardList,
-  CalendarClock, Wrench, Shield, Mail, Settings, Plus, ArrowRight,
+  Home,
+  Building2,
+  Users,
+  FileText,
+  Banknote,
+  ClipboardList,
+  CalendarClock,
+  Wrench,
+  Shield,
+  Mail,
+  Settings,
+  Plus,
+  ArrowRight,
   Clock,
 } from "lucide-react";
 
@@ -40,6 +51,7 @@ const NAV: Hit[] = [
   { id: "n-comp", label: "Compliance", to: "/compliance", icon: Shield },
   { id: "n-doc", label: "Documents", to: "/documents", icon: FileText },
   { id: "n-con", label: "Contacts", to: "/contacts", icon: Users },
+  { id: "n-team", label: "Team", to: "/team", icon: Users },
   { id: "n-set", label: "Settings", to: "/settings", icon: Settings },
 ];
 
@@ -47,7 +59,13 @@ const ACTIONS: Hit[] = [
   { id: "a-prop", label: "New property", sub: "Add to portfolio", to: "/properties", icon: Plus },
   { id: "a-list", label: "New listing", sub: "Publish to market", to: "/listings", icon: Plus },
   { id: "a-deal", label: "New deal", sub: "Track in pipeline", to: "/pipeline", icon: Plus },
-  { id: "a-con", label: "New contact", sub: "Landlord, tenant, supplier", to: "/contacts", icon: Plus },
+  {
+    id: "a-con",
+    label: "New contact",
+    sub: "Landlord, tenant, supplier",
+    to: "/contacts",
+    icon: Plus,
+  },
 ];
 
 export function CommandPalette() {
@@ -60,7 +78,8 @@ export function CommandPalette() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if ((e.key === "k" || e.key === "K") && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault(); setOpen((o) => !o);
+        e.preventDefault();
+        setOpen((o) => !o);
       }
     };
     window.addEventListener("keydown", onKey);
@@ -73,20 +92,46 @@ export function CommandPalette() {
   }, []);
 
   const search = useCallback(async (term: string) => {
-    if (!term || term.length < 2) { setHits([]); return; }
+    if (!term || term.length < 2) {
+      setHits([]);
+      return;
+    }
     const like = `%${term}%`;
     const [props, contacts, listings, leads, workOrders, tenancies] = await Promise.all([
-      supabase.from("properties").select("id,title,address,city").or(`title.ilike.${like},address.ilike.${like},city.ilike.${like}`).limit(4),
-      supabase.from("contacts").select("id,full_name,email").or(`full_name.ilike.${like},email.ilike.${like}`).limit(4),
-      supabase.from("listings").select("id,slug,title,city").or(`title.ilike.${like},city.ilike.${like}`).limit(4),
-      supabase.from("leads").select("id,name,email,status").or(`name.ilike.${like},email.ilike.${like}`).limit(4),
+      supabase
+        .from("properties")
+        .select("id,title,address,city")
+        .or(`title.ilike.${like},address.ilike.${like},city.ilike.${like}`)
+        .limit(4),
+      supabase
+        .from("contacts")
+        .select("id,full_name,email")
+        .or(`full_name.ilike.${like},email.ilike.${like}`)
+        .limit(4),
+      supabase
+        .from("listings")
+        .select("id,slug,title,city")
+        .or(`title.ilike.${like},city.ilike.${like}`)
+        .limit(4),
+      supabase
+        .from("leads")
+        .select("id,name,email,status")
+        .or(`name.ilike.${like},email.ilike.${like}`)
+        .limit(4),
       supabase.from("work_orders").select("id,title,status").ilike("title", like).limit(4),
       supabase.from("tenancies").select("id,property_id").limit(0), // placeholder; tenancies have no name field
     ]);
     void tenancies;
     const out: Hit[] = [];
     (props.data ?? []).forEach((r) =>
-      out.push({ id: "p" + r.id, label: r.title ?? r.address ?? "Property", sub: r.city ?? "Property", to: "/properties", icon: Building2 }));
+      out.push({
+        id: "p" + r.id,
+        label: r.title ?? r.address ?? "Property",
+        sub: r.city ?? "Property",
+        to: "/properties",
+        icon: Building2,
+      }),
+    );
     (listings.data ?? []).forEach((r) =>
       out.push({
         id: "l" + r.id,
@@ -95,7 +140,8 @@ export function CommandPalette() {
         to: "/marketplace/$slug",
         params: { slug: r.slug },
         icon: FileText,
-      }));
+      }),
+    );
     (leads.data ?? []).forEach((r) =>
       out.push({
         id: "ld" + r.id,
@@ -104,7 +150,8 @@ export function CommandPalette() {
         to: "/leads/$id",
         params: { id: r.id },
         icon: Mail,
-      }));
+      }),
+    );
     (workOrders.data ?? []).forEach((r) =>
       out.push({
         id: "wo" + r.id,
@@ -113,9 +160,17 @@ export function CommandPalette() {
         to: "/work-orders/$id",
         params: { id: r.id },
         icon: Wrench,
-      }));
+      }),
+    );
     (contacts.data ?? []).forEach((r) =>
-      out.push({ id: "c" + r.id, label: r.full_name ?? r.email ?? "Contact", sub: r.email ?? "Contact", to: "/contacts", icon: Users }));
+      out.push({
+        id: "c" + r.id,
+        label: r.full_name ?? r.email ?? "Contact",
+        sub: r.email ?? "Contact",
+        to: "/contacts",
+        icon: Users,
+      }),
+    );
     setHits(out);
   }, []);
 
@@ -125,21 +180,32 @@ export function CommandPalette() {
   }, [q, search]);
 
   const go = (h: Hit) => {
-    setOpen(false); setQ("");
+    setOpen(false);
+    setQ("");
     if (h.params) navigate({ to: h.to, params: h.params } as never);
     else navigate({ to: h.to });
   };
 
   return (
     <CommandDialog open={open} onOpenChange={setOpen}>
-      <CommandInput placeholder="Search properties, listings, leads, work orders, contacts…" value={q} onValueChange={setQ} />
+      <CommandInput
+        placeholder="Search properties, listings, leads, work orders, contacts…"
+        value={q}
+        onValueChange={setQ}
+      />
       <CommandList>
         <CommandEmpty>{q.length < 2 ? "Start typing to search…" : "No results."}</CommandEmpty>
         {q.length < 2 && recent.length > 0 && (
           <>
             <CommandGroup heading="Recent">
               {recent.map((r) => (
-                <CommandItem key={r.to} onSelect={() => { setOpen(false); navigate({ to: r.to } as never); }}>
+                <CommandItem
+                  key={r.to}
+                  onSelect={() => {
+                    setOpen(false);
+                    navigate({ to: r.to } as never);
+                  }}
+                >
                   <Clock className="h-4 w-4 mr-2 opacity-60" />
                   <span className="flex-1 capitalize">{r.label}</span>
                   <span className="text-xs text-muted-foreground">{r.to}</span>
@@ -157,7 +223,9 @@ export function CommandPalette() {
                 <CommandItem key={h.id} onSelect={() => go(h)}>
                   <Icon className="h-4 w-4 mr-2 opacity-60" />
                   <span className="flex-1">{h.label}</span>
-                  {h.sub && <span className="text-xs text-muted-foreground capitalize">{h.sub}</span>}
+                  {h.sub && (
+                    <span className="text-xs text-muted-foreground capitalize">{h.sub}</span>
+                  )}
                   <ArrowRight className="h-3 w-3 ml-2 opacity-40" />
                 </CommandItem>
               );

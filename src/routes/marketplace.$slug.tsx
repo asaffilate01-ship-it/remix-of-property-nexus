@@ -324,10 +324,10 @@ function ListingDetail() {
           <Card className="border-0 shadow-card">
             <CardContent className="p-4 grid grid-cols-2 gap-2">
               <SaveListingButton listingId={l.id} />
-              <OfferDialog listingId={l.id} ownerId={l.owner_id} agencyId={l.agency_id} guidePrice={l.price} purpose={l.purpose} />
+              <OfferDialog listingId={l.id} guidePrice={l.price} purpose={l.purpose} />
             </CardContent>
           </Card>
-          <LeadForm listingId={l.id} agencyId={l.agency_id} ownerId={l.owner_id} />
+          <LeadForm listingId={l.id} />
           <ShareCard slug={slug} title={l.title} />
         </aside>
       </article>
@@ -597,14 +597,14 @@ function ShareCard({ slug, title }: { slug: string; title: string }) {
   );
 }
 
-function LeadForm({ listingId, agencyId, ownerId }: { listingId: string; agencyId: string | null; ownerId: string }) {
+function LeadForm({ listingId }: { listingId: string }) {
   const [name, setName] = useState(""); const [email, setEmail] = useState(""); const [phone, setPhone] = useState(""); const [message, setMessage] = useState("I'd like to arrange a viewing.");
   const [busy, setBusy] = useState(false);
   const fn = useServerFn(submitLead);
   const submit = async () => {
     setBusy(true);
     try {
-      await fn({ data: { listing_id: listingId, agency_id: agencyId ?? undefined, owner_id: ownerId, name, email: email || undefined, phone: phone || undefined, message } });
+      await fn({ data: { listing_id: listingId, name, email: email || undefined, phone: phone || undefined, message } });
       toast.success("Enquiry sent — they'll be in touch soon.");
       setName(""); setEmail(""); setPhone(""); setMessage("");
     } catch (e) { toast.error(e instanceof Error ? e.message : "Failed to send"); }
@@ -620,7 +620,7 @@ function LeadForm({ listingId, agencyId, ownerId }: { listingId: string; agencyI
           <div className="space-y-2"><Label>Phone</Label><Input value={phone} onChange={(e) => setPhone(e.target.value)} /></div>
         </div>
         <div className="space-y-2"><Label>Message</Label><Textarea rows={4} value={message} onChange={(e) => setMessage(e.target.value)} /></div>
-        <Button className="w-full" onClick={submit} disabled={busy || !name}>{busy ? "Sending…" : "Send enquiry"}</Button>
+        <Button className="w-full" onClick={submit} disabled={busy || !name || (!email && !phone)}>{busy ? "Sending…" : "Send enquiry"}</Button>
         <p className="text-xs text-muted-foreground text-center">Enquiries are sent directly to the agent. No third-party spam.</p>
       </CardContent>
     </Card>

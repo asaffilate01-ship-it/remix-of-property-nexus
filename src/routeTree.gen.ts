@@ -46,6 +46,7 @@ import { Route as AuthenticatedVendorPortalRouteImport } from './routes/_authent
 import { Route as AuthenticatedTenantsRouteImport } from './routes/_authenticated/tenants'
 import { Route as AuthenticatedTenanciesRouteImport } from './routes/_authenticated/tenancies'
 import { Route as AuthenticatedTemplatesRouteImport } from './routes/_authenticated/templates'
+import { Route as AuthenticatedTeamRouteImport } from './routes/_authenticated/team'
 import { Route as AuthenticatedSurveyRouteImport } from './routes/_authenticated/survey'
 import { Route as AuthenticatedStatementsRouteImport } from './routes/_authenticated/statements'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
@@ -282,6 +283,11 @@ const AuthenticatedTenanciesRoute = AuthenticatedTenanciesRouteImport.update({
 const AuthenticatedTemplatesRoute = AuthenticatedTemplatesRouteImport.update({
   id: '/templates',
   path: '/templates',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedTeamRoute = AuthenticatedTeamRouteImport.update({
+  id: '/team',
+  path: '/team',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedSurveyRoute = AuthenticatedSurveyRouteImport.update({
@@ -624,6 +630,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof AuthenticatedSettingsRoute
   '/statements': typeof AuthenticatedStatementsRoute
   '/survey': typeof AuthenticatedSurveyRoute
+  '/team': typeof AuthenticatedTeamRoute
   '/templates': typeof AuthenticatedTemplatesRoute
   '/tenancies': typeof AuthenticatedTenanciesRouteWithChildren
   '/tenants': typeof AuthenticatedTenantsRoute
@@ -711,6 +718,7 @@ export interface FileRoutesByTo {
   '/settings': typeof AuthenticatedSettingsRoute
   '/statements': typeof AuthenticatedStatementsRoute
   '/survey': typeof AuthenticatedSurveyRoute
+  '/team': typeof AuthenticatedTeamRoute
   '/templates': typeof AuthenticatedTemplatesRoute
   '/tenancies': typeof AuthenticatedTenanciesRouteWithChildren
   '/tenants': typeof AuthenticatedTenantsRoute
@@ -803,6 +811,7 @@ export interface FileRoutesById {
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/statements': typeof AuthenticatedStatementsRoute
   '/_authenticated/survey': typeof AuthenticatedSurveyRoute
+  '/_authenticated/team': typeof AuthenticatedTeamRoute
   '/_authenticated/templates': typeof AuthenticatedTemplatesRoute
   '/_authenticated/tenancies': typeof AuthenticatedTenanciesRouteWithChildren
   '/_authenticated/tenants': typeof AuthenticatedTenantsRoute
@@ -895,6 +904,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/statements'
     | '/survey'
+    | '/team'
     | '/templates'
     | '/tenancies'
     | '/tenants'
@@ -982,6 +992,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/statements'
     | '/survey'
+    | '/team'
     | '/templates'
     | '/tenancies'
     | '/tenants'
@@ -1073,6 +1084,7 @@ export interface FileRouteTypes {
     | '/_authenticated/settings'
     | '/_authenticated/statements'
     | '/_authenticated/survey'
+    | '/_authenticated/team'
     | '/_authenticated/templates'
     | '/_authenticated/tenancies'
     | '/_authenticated/tenants'
@@ -1398,6 +1410,13 @@ declare module '@tanstack/react-router' {
       path: '/templates'
       fullPath: '/templates'
       preLoaderRoute: typeof AuthenticatedTemplatesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/team': {
+      id: '/_authenticated/team'
+      path: '/team'
+      fullPath: '/team'
+      preLoaderRoute: typeof AuthenticatedTeamRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/survey': {
@@ -1863,6 +1882,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedStatementsRoute: typeof AuthenticatedStatementsRoute
   AuthenticatedSurveyRoute: typeof AuthenticatedSurveyRoute
+  AuthenticatedTeamRoute: typeof AuthenticatedTeamRoute
   AuthenticatedTemplatesRoute: typeof AuthenticatedTemplatesRoute
   AuthenticatedTenanciesRoute: typeof AuthenticatedTenanciesRouteWithChildren
   AuthenticatedTenantsRoute: typeof AuthenticatedTenantsRoute
@@ -1914,6 +1934,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedStatementsRoute: AuthenticatedStatementsRoute,
   AuthenticatedSurveyRoute: AuthenticatedSurveyRoute,
+  AuthenticatedTeamRoute: AuthenticatedTeamRoute,
   AuthenticatedTemplatesRoute: AuthenticatedTemplatesRoute,
   AuthenticatedTenanciesRoute: AuthenticatedTenanciesRouteWithChildren,
   AuthenticatedTenantsRoute: AuthenticatedTenantsRoute,

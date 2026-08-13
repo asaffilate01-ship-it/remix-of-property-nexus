@@ -3,7 +3,7 @@ import { createHmac, timingSafeEqual } from "crypto";
 import { z } from "zod";
 
 // Provider-agnostic referencing/ID/credit-check webhook.
-// Configure REFERENCING_WEBHOOK_SECRET to enable signature verification.
+// Configure REFERENCING_WEBHOOK_SECRET; unsigned requests are always rejected.
 // Expected JSON body:
 //   { external_ref: string, status: "passed"|"failed"|"review"|"expired",
 //     score?: number, result?: object, provider?: string }
@@ -21,17 +21,26 @@ export const Route = createFileRoute("/api/public/referencing-webhook")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        const declaredLength = Number(request.headers.get("content-length") ?? 0);
+        if (Number.isFinite(declaredLength) && declaredLength > 256_000) {
+          return new Response("Payload too large", { status: 413 });
+        }
         const raw = await request.text();
         const secret = process.env.REFERENCING_WEBHOOK_SECRET;
 
-        if (secret) {
-          const sig = request.headers.get("x-webhook-signature") ?? "";
-          const expected = createHmac("sha256", secret).update(raw).digest("hex");
-          const a = Buffer.from(sig);
-          const b = Buffer.from(expected);
-          if (a.length !== b.length || !timingSafeEqual(a, b)) {
-            return new Response("Invalid signature", { status: 401 });
-          }
+        if (!secret) {
+          console.error("REFERENCING_WEBHOOK_SECRET is not configured; refusing webhook");
+          return new Response("Webhook is not configured", { status: 503 });
+        }
+        if (Buffer.byteLength(raw, "utf8") > 256_000) {
+          return new Response("Payload too large", { status: 413 });
+        }
+
+        const sig = request.headers.get("x-webhook-signature") ?? "";
+        const expected = createHmac("sha256", secret).update(raw).digest();
+        const supplied = /^[a-f0-9]{64}$/i.test(sig) ? Buffer.from(sig, "hex") : Buffer.alloc(0);
+        if (supplied.length !== expected.length || !timingSafeEqual(supplied, expected)) {
+          return new Response("Invalid signature", { status: 401 });
         }
 
         let parsed;

@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { authorizeCronRequest } from "@/lib/security.server";
 
 // Scheduled by pg_cron. Finds new listings that match each saved_search criteria
 // and inserts saved_search_matches rows (idempotent on the unique pair).
@@ -39,7 +40,10 @@ function matches(l: Record<string, unknown>, c: Criteria): boolean {
 export const Route = createFileRoute("/api/public/hooks/match-saved-searches")({
   server: {
     handlers: {
-      POST: async () => {
+      POST: async ({ request }) => {
+        const unauthorized = authorizeCronRequest(request);
+        if (unauthorized) return unauthorized;
+
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
         // Saved searches that have ever been checked use last_notified_at as a watermark.

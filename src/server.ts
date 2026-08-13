@@ -41,21 +41,23 @@ const CSP = [
   "default-src 'self'",
   "base-uri 'self'",
   "object-src 'none'",
-  "frame-ancestors *",
+  "frame-ancestors 'none'",
   "form-action 'self'",
   "img-src 'self' data: blob: https:",
   "media-src 'self' blob: https:",
   "font-src 'self' data: https://fonts.gstatic.com",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://maps.googleapis.com https://js.stripe.com https://cdn.gpteng.co",
+  "script-src 'self' 'unsafe-inline' https://maps.googleapis.com https://js.stripe.com",
   "connect-src 'self' https: wss:",
   "frame-src 'self' https://js.stripe.com https://www.google.com https://maps.google.com",
+  "upgrade-insecure-requests",
 ].join("; ");
 
 function withSecurityHeaders(response: Response): Response {
   const contentType = response.headers.get("content-type") ?? "";
   const headers = new Headers(response.headers);
   headers.set("X-Content-Type-Options", "nosniff");
+  headers.set("X-Frame-Options", "DENY");
   headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   headers.set(
     "Permissions-Policy",
@@ -80,10 +82,10 @@ export default {
       return withSecurityHeaders(await normalizeCatastrophicSsrResponse(response));
     } catch (error) {
       console.error(error);
-      return new Response(renderErrorPage(), {
+      return withSecurityHeaders(new Response(renderErrorPage(), {
         status: 500,
         headers: { "content-type": "text/html; charset=utf-8" },
-      });
+      }));
     }
   },
 };

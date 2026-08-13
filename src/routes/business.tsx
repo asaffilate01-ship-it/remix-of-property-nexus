@@ -1,17 +1,23 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { PublicHeader } from "@/components/PublicHeader";
 import { PublicFooter } from "@/components/PublicFooter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Check, X, ArrowRight, Sparkles, Building2, Users, Globe, Zap, ShieldCheck, BarChart3, Smartphone, Quote, Bot, Camera, MessageSquare, FileSignature, Megaphone, Languages, Info } from "lucide-react";
+import { Check, ArrowRight, Sparkles, Building2, Users, Globe, Zap, ShieldCheck, BarChart3, Smartphone, Bot, Camera, MessageSquare, FileSignature, Megaphone, Languages, Info, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { createSubscriptionCheckout } from "@/lib/billing.functions";
+import { PLANS, formatPlanPrice, type PlanCode } from "@/lib/plans";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/business")({
   head: () => ({
     meta: [
       { title: "Estately for agencies — the property OS for UK estate agents" },
-      { name: "description", content: "One platform for sales, lettings, HMO, compliance and the portal — replacing Reapit, Alto, Dezrez and Arthur. 30 days free, then from £29.99/mo per branch." },
+      { name: "description", content: "One platform for sales, lettings, HMO, compliance and role-specific portals. 30 days free, then from £29.99/mo per branch." },
       { property: "og:title", content: "Estately for agencies — the property OS" },
       { property: "og:description", content: "CRM + portal + compliance in one place. 30 days free, then from £29.99/mo per branch." },
       { property: "og:url", content: "https://proptest.313test.co.uk/business" },
@@ -20,62 +26,6 @@ export const Route = createFileRoute("/business")({
   }),
   component: BusinessPage,
 });
-
-const PLANS = [
-  {
-    name: "Starter",
-    price: "£29.99",
-    suffix: "/mo per branch",
-    note: "Up to 3 live listings per branch",
-    cta: "Start 30-day free trial",
-    highlight: false,
-    features: [
-      "30 days free — no card required",
-      "Up to 3 live listings",
-      "Full backend: CRM, leads, viewings, offers",
-      "Public marketplace listing",
-      "Compliance hub & document vault",
-      "Tenant & landlord portals",
-      "Email support",
-    ],
-  },
-  {
-    name: "Growth",
-    price: "£49.99",
-    suffix: "/mo per branch",
-    note: "Most popular — up to 10 live listings per branch",
-    cta: "Start 30-day free trial",
-    highlight: true,
-    features: [
-      "30 days free — no card required",
-      "Up to 10 live listings",
-      "Everything in Starter",
-      "HMO room manager & inspections app",
-      "Sales chain & offers ladder",
-      "Owner statements & branded portals",
-      "Branch performance reports",
-      "Priority support",
-    ],
-  },
-  {
-    name: "Unlimited",
-    price: "£99.99",
-    suffix: "/mo per branch",
-    note: "Unlimited listings per branch + full backend",
-    cta: "Start 30-day free trial",
-    highlight: false,
-    features: [
-      "30 days free — no card required",
-      "Unlimited live listings",
-      "Everything in Growth",
-      "Unlimited users per branch",
-      "White-label microsites",
-      "API access & Zapier",
-      "SSO + audit logs",
-      "Dedicated account manager",
-    ],
-  },
-];
 
 const ADDONS = [
   { icon: <Bot className="h-5 w-5" />, name: "AI Copilot", price: "£19.99/mo", desc: "Smart property descriptions, auto-replies to enquiries, tenancy summaries and lease abstraction." },
@@ -86,23 +36,41 @@ const ADDONS = [
   { icon: <Languages className="h-5 w-5" />, name: "Multi-language", price: "£7.99/mo", desc: "Auto-translate listings and tenant comms into 12 languages." },
 ];
 
-const COMPARE = [
-  { f: "Public marketplace included", us: true, reapit: false, alto: false, arthur: false },
-  { f: "Sales + lettings + HMO in one", us: true, reapit: true, alto: true, arthur: false },
-  { f: "Built-in compliance hub", us: true, reapit: false, alto: false, arthur: true },
-  { f: "Tenant + landlord portals", us: true, reapit: true, alto: true, arthur: true },
-  { f: "Contractor portal & work orders", us: true, reapit: false, alto: false, arthur: true },
-  { f: "Sales chain tracker", us: true, reapit: true, alto: true, arthur: false },
-  { f: "Modern, mobile-first UI", us: true, reapit: false, alto: true, arthur: true },
-  { f: "Free portal listings (no per-lead fee)", us: true, reapit: false, alto: false, arthur: false },
-  { f: "Setup in under a day", us: true, reapit: false, alto: false, arthur: true },
-];
+function PlanCheckoutButton({ planCode, popular }: { planCode: PlanCode; popular?: boolean }) {
+  const checkout = useServerFn(createSubscriptionCheckout);
+  const [busy, setBusy] = useState(false);
 
-const TESTIMONIALS = [
-  { quote: "We replaced three logins with one. The team migrated themselves over a weekend.", name: "Sarah Wells", role: "MD, Northstar Lettings" },
-  { quote: "Sales chain visibility alone justified the move. Our fall-through rate is down 40%.", name: "James O'Hara", role: "Sales director, Beacon & Co" },
-  { quote: "Our landlords finally have a portal that doesn't look like 2008. Renewals are up.", name: "Priya Shah", role: "Lettings manager, Cavendish" },
-];
+  const start = async () => {
+    setBusy(true);
+    try {
+      const { data } = await supabase.auth.getSession();
+      if (!data.session) {
+        const redirect = `/settings?tab=billing&plan=${planCode}`;
+        window.location.assign(`/auth?mode=signup&redirect=${encodeURIComponent(redirect)}`);
+        return;
+      }
+      const result = await checkout({ data: { planCode } });
+      if ("error" in result) throw new Error(result.error);
+      window.location.assign(result.url);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Unable to start checkout");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <Button
+      className="mt-5"
+      variant={popular ? "default" : "outline"}
+      onClick={start}
+      disabled={busy}
+    >
+      {busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+      Start 30-day free trial
+    </Button>
+  );
+}
 
 function BusinessPage() {
   return (
@@ -119,14 +87,14 @@ function BusinessPage() {
                 One platform. Sales, lettings, HMO, compliance — and the portal.
               </h1>
               <p className="text-lg text-muted-foreground mb-8 max-w-2xl">
-                Estately replaces your CRM, portal subscription, compliance tracker and landlord portal with a single, modern system your team will actually use.
+                Bring CRM, marketplace, compliance and client portal workflows into one modern system for your whole agency.
               </p>
               <div className="flex flex-col sm:flex-row gap-3">
                 <Button asChild size="lg" className="h-12 px-6"><Link to="/auth" search={{ mode: "signup" } as never}>Start 30-day free trial <ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
-                <Button asChild size="lg" variant="outline" className="h-12 px-6"><a href="mailto:sales@estately.test">Book a demo</a></Button>
+                <Button asChild size="lg" variant="outline" className="h-12 px-6"><Link to="/contact">Book a demo</Link></Button>
               </div>
               <div className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground">
-                {["30 days free, no card required", "Free migration from Reapit/Alto/Arthur", "Cancel any time", "UK-hosted, GDPR-compliant"].map((f) => (
+                {["30 days free, no card required", "Migration planning available", "Cancel any time", "Role-based access controls"].map((f) => (
                   <span key={f} className="inline-flex items-center gap-1.5"><Check className="h-4 w-4 text-success" />{f}</span>
                 ))}
               </div>
@@ -145,7 +113,7 @@ function BusinessPage() {
               { icon: <Building2 className="h-5 w-5" />, t: "Sales & lettings CRM", d: "Leads, viewings, offers, deals — branch and team friendly." },
               { icon: <Globe className="h-5 w-5" />, t: "Public marketplace", d: "Listings auto-syndicate to the Estately portal — no per-lead fees." },
               { icon: <ShieldCheck className="h-5 w-5" />, t: "Compliance hub", d: "Gas, EICR, EPC, HMO licences, Renters' Rights readiness." },
-              { icon: <Users className="h-5 w-5" />, t: "Owner & tenant portals", d: "Statements, repairs and documents — branded as you." },
+              { icon: <Users className="h-5 w-5" />, t: "Owner & tenant portals", d: "Statements, repairs and documents with role-specific views." },
               { icon: <BarChart3 className="h-5 w-5" />, t: "Reports & KPIs", d: "Branch performance, negotiator league, stock turn." },
               { icon: <Smartphone className="h-5 w-5" />, t: "Mobile-first inspections", d: "Inventories, mid-terms and check-outs from any phone." },
             ].map((b) => (
@@ -168,20 +136,22 @@ function BusinessPage() {
               <p className="text-muted-foreground mt-3">Pricing is per branch. Start with 30 days free. No per-lead fees. No portal upsells. Cancel anytime.</p>
             </div>
             <div className="grid md:grid-cols-3 gap-5 max-w-5xl mx-auto">
-              {PLANS.map((p) => (
-                <Card key={p.name} className={`border-0 shadow-card relative h-full ${p.highlight ? "ring-2 ring-primary shadow-elevated" : ""}`}>
-                  {p.highlight && <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground">Most popular</Badge>}
+              {Object.values(PLANS).map((p) => (
+                <Card key={p.code} className={`border-0 shadow-card relative h-full ${p.popular ? "ring-2 ring-primary shadow-elevated" : ""}`}>
+                  {p.popular && <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground">Most popular</Badge>}
                   <CardContent className="p-6 flex flex-col h-full">
                     <div className="font-semibold">{p.name}</div>
                     <div className="mt-3 flex items-baseline gap-1">
-                      <div className="text-4xl font-bold font-display">{p.price}</div>
-                      <div className="text-sm text-muted-foreground">{p.suffix}</div>
+                      <div className="text-4xl font-bold font-display">{formatPlanPrice(p)}</div>
+                      <div className="text-sm text-muted-foreground">/mo per branch</div>
                     </div>
-                    <div className="text-xs text-muted-foreground mt-1">{p.note}</div>
-                    <Button className="mt-5" variant={p.highlight ? "default" : "outline"} asChild>
-                      <Link to="/auth" search={{ mode: "signup" } as never}>{p.cta}</Link>
-                    </Button>
+                    <div className="text-xs text-muted-foreground mt-1">{p.description}</div>
+                    <PlanCheckoutButton planCode={p.code} popular={p.popular} />
                     <ul className="mt-6 space-y-2.5 text-sm">
+                      <li className="flex items-start gap-2">
+                        <Check className="h-4 w-4 text-success shrink-0 mt-0.5" />
+                        <span>30 days free — no card required</span>
+                      </li>
                       {p.features.map((f) => (
                         <li key={f} className="flex items-start gap-2">
                           <Check className="h-4 w-4 text-success shrink-0 mt-0.5" />
@@ -200,7 +170,7 @@ function BusinessPage() {
                 <Info className="h-5 w-5 text-primary shrink-0 mt-0.5" />
                 <div>
                   <p className="font-medium">Running multiple branches?</p>
-                  <p className="text-muted-foreground mt-1">Each branch is billed separately on its own plan. Add-ons apply per branch too. Contact us for franchise or network pricing.</p>
+                  <p className="text-muted-foreground mt-1">One agency plan applies to every branch. Billing quantity updates when branches are added or removed, and each branch receives the plan's listing allowance.</p>
                 </div>
               </div>
             </div>
@@ -208,9 +178,9 @@ function BusinessPage() {
             {/* Add-ons */}
             <div className="mt-14 max-w-5xl mx-auto">
               <div className="text-center max-w-2xl mx-auto mb-8">
-                <Badge variant="outline" className="mb-3"><Sparkles className="h-3 w-3 mr-1.5" /> Optional add-ons</Badge>
-                <h3 className="font-display text-2xl md:text-3xl font-bold">AI & power features — add only what you need</h3>
-                <p className="text-muted-foreground mt-3 text-sm">Available on every plan, per branch. Turn on or off any month — no contract.</p>
+                <Badge variant="outline" className="mb-3"><Sparkles className="h-3 w-3 mr-1.5" /> Planned add-ons</Badge>
+                <h3 className="font-display text-2xl md:text-3xl font-bold">AI & power features on the roadmap</h3>
+                <p className="text-muted-foreground mt-3 text-sm">These add-ons are not available for purchase yet. Pricing is indicative and will be confirmed before launch.</p>
               </div>
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {ADDONS.map((a) => (
@@ -218,7 +188,7 @@ function BusinessPage() {
                     <CardContent className="p-5">
                       <div className="flex items-start justify-between gap-3">
                         <div className="h-10 w-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center">{a.icon}</div>
-                        <div className="text-sm font-semibold text-primary whitespace-nowrap">{a.price}</div>
+                        <div className="text-sm font-semibold text-primary whitespace-nowrap">Indicative {a.price}</div>
                       </div>
                       <div className="font-semibold mt-3">{a.name}</div>
                       <div className="text-sm text-muted-foreground mt-1.5">{a.desc}</div>
@@ -230,40 +200,27 @@ function BusinessPage() {
           </div>
         </section>
 
-        {/* Comparison */}
+        {/* Product foundations */}
         <section className="container mx-auto px-4 py-16 md:py-20">
           <div className="text-center max-w-2xl mx-auto mb-10">
-            <h2 className="font-display text-3xl md:text-4xl font-bold">How Estately compares</h2>
-            <p className="text-muted-foreground mt-3">A like-for-like look at what's included out of the box.</p>
+            <h2 className="font-display text-3xl md:text-4xl font-bold">One platform, fewer handoffs</h2>
+            <p className="text-muted-foreground mt-3">Bring the workflows your team uses every day into a shared property record.</p>
           </div>
-          <Card className="border-0 shadow-card overflow-hidden max-w-4xl mx-auto">
-            <CardContent className="p-0">
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="border-b bg-muted/40">
-                    <tr>
-                      <th className="text-left p-4 font-medium">Feature</th>
-                      <th className="p-4 font-semibold text-primary">Estately</th>
-                      <th className="p-4 font-medium text-muted-foreground">Reapit</th>
-                      <th className="p-4 font-medium text-muted-foreground">Alto</th>
-                      <th className="p-4 font-medium text-muted-foreground">Arthur</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y">
-                    {COMPARE.map((row) => (
-                      <tr key={row.f}>
-                        <td className="p-4 font-medium">{row.f}</td>
-                        <Cell on={row.us} />
-                        <Cell on={row.reapit} />
-                        <Cell on={row.alto} />
-                        <Cell on={row.arthur} />
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="grid gap-4 md:grid-cols-3 max-w-5xl mx-auto">
+            {[
+              { title: "Run operations", body: "Manage listings, leads, viewings, offers, tenancies, compliance and work orders from one workspace." },
+              { title: "Keep people informed", body: "Give tenants, landlords, vendors, contractors and conveyancers focused portal views." },
+              { title: "Publish and measure", body: "Publish to the Estately marketplace and track agency and branch performance without per-lead fees." },
+            ].map((item) => (
+              <Card key={item.title} className="border-0 shadow-card h-full">
+                <CardContent className="p-6">
+                  <Check className="h-5 w-5 text-success mb-4" />
+                  <div className="font-semibold">{item.title}</div>
+                  <p className="text-sm text-muted-foreground mt-2">{item.body}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </section>
 
         {/* Audience tabs */}
@@ -283,7 +240,7 @@ function BusinessPage() {
                 { v: "sales", title: "For sales-led agencies", points: ["Offers ladder & sales chain tracker", "Vendor reports with open/click tracking", "Stamp duty & affordability built into listings", "Conveyancer portal for solicitors"] },
                 { v: "lettings", title: "For lettings agencies", points: ["Tenancy lifecycle from offer to renewal", "Auto rent schedules & arrears", "Inspection app with photo evidence", "Renters' Rights readiness tracker"] },
                 { v: "hmo", title: "For HMO specialists", points: ["Per-room rent & availability", "Licence tracker with council deadlines", "Bills-included accounting", "Communal-area inspections"] },
-                { v: "multi", title: "For multi-branch & franchises", points: ["Branch switcher with permission boundaries", "Cross-branch reporting & leaderboards", "Centralised compliance with branch overrides", "White-label microsites per branch"] },
+                { v: "multi", title: "For multi-branch agencies", points: ["Branch directory and agency-wide oversight", "Branch-linked listings and teams", "Per-branch listing allowances", "Billing quantity updates when branches change"] },
               ].map((b) => (
                 <TabsContent key={b.v} value={b.v}>
                   <Card className="border-0 shadow-card mt-6">
@@ -304,18 +261,19 @@ function BusinessPage() {
           </div>
         </section>
 
-        {/* Testimonials */}
+        {/* Outcomes */}
         <section className="container mx-auto px-4 py-16 md:py-20">
           <div className="grid md:grid-cols-3 gap-4">
-            {TESTIMONIALS.map((t) => (
-              <Card key={t.name} className="border-0 shadow-card h-full">
+            {[
+              { title: "Consolidate daily work", body: "Keep property, applicant, tenancy and maintenance context connected instead of spread across separate tools." },
+              { title: "Give clients clarity", body: "Use focused portals so each person can see the updates and documents relevant to their role." },
+              { title: "Scale deliberately", body: "Add branches under one agency plan with server-enforced listing and team allowances." },
+            ].map((item) => (
+              <Card key={item.title} className="border-0 shadow-card h-full">
                 <CardContent className="p-6">
-                  <Quote className="h-6 w-6 text-primary/40 mb-3" />
-                  <p className="text-foreground/90 leading-relaxed">{t.quote}</p>
-                  <div className="mt-4 text-sm">
-                    <div className="font-semibold">{t.name}</div>
-                    <div className="text-muted-foreground text-xs">{t.role}</div>
-                  </div>
+                  <Check className="h-5 w-5 text-success mb-4" />
+                  <div className="font-semibold">{item.title}</div>
+                  <p className="text-sm text-muted-foreground mt-2 leading-relaxed">{item.body}</p>
                 </CardContent>
               </Card>
             ))}
@@ -328,10 +286,10 @@ function BusinessPage() {
             <div className="brand-gradient p-10 md:p-14 text-white text-center">
               <Zap className="h-8 w-8 mx-auto mb-3 opacity-90" />
               <h2 className="font-display text-3xl md:text-4xl font-bold">Ready to consolidate your stack?</h2>
-              <p className="opacity-90 mt-3 max-w-xl mx-auto">Migrate from Reapit, Alto, Dezrez or Arthur in days — not months. We'll move your data for free.</p>
+              <p className="opacity-90 mt-3 max-w-xl mx-auto">Talk through your current stack, migration needs and rollout plan with the team.</p>
               <div className="mt-6 flex flex-wrap justify-center gap-3">
                 <Button asChild size="lg" variant="secondary"><Link to="/auth" search={{ mode: "signup" } as never}>Start free trial</Link></Button>
-                <Button asChild size="lg" variant="outline" className="bg-white/10 border-white/30 text-white hover:bg-white/20"><a href="mailto:sales@estately.test">Talk to sales</a></Button>
+                <Button asChild size="lg" variant="outline" className="bg-white/10 border-white/30 text-white hover:bg-white/20"><Link to="/contact">Talk to sales</Link></Button>
               </div>
             </div>
           </Card>
@@ -339,13 +297,5 @@ function BusinessPage() {
       </main>
       <PublicFooter />
     </div>
-  );
-}
-
-function Cell({ on }: { on: boolean }) {
-  return (
-    <td className="p-4 text-center">
-      {on ? <Check className="h-5 w-5 text-success inline" /> : <X className="h-4 w-4 text-muted-foreground/50 inline" />}
-    </td>
   );
 }
