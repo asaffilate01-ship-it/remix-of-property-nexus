@@ -169,6 +169,77 @@ export type Database = {
           },
         ]
       }
+      agency_subscriptions: {
+        Row: {
+          agency_id: string
+          branch_quantity: number
+          cancel_at_period_end: boolean
+          canceled_at: string | null
+          checkout_expires_at: string | null
+          created_at: string
+          current_period_end: string | null
+          current_period_start: string | null
+          plan_code: string
+          status: string
+          stripe_checkout_session_id: string | null
+          stripe_customer_id: string | null
+          stripe_environment: string | null
+          stripe_price_id: string | null
+          stripe_subscription_id: string | null
+          trial_end: string | null
+          trial_start: string | null
+          updated_at: string
+        }
+        Insert: {
+          agency_id: string
+          branch_quantity?: number
+          cancel_at_period_end?: boolean
+          canceled_at?: string | null
+          checkout_expires_at?: string | null
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          plan_code?: string
+          status?: string
+          stripe_checkout_session_id?: string | null
+          stripe_customer_id?: string | null
+          stripe_environment?: string | null
+          stripe_price_id?: string | null
+          stripe_subscription_id?: string | null
+          trial_end?: string | null
+          trial_start?: string | null
+          updated_at?: string
+        }
+        Update: {
+          agency_id?: string
+          branch_quantity?: number
+          cancel_at_period_end?: boolean
+          canceled_at?: string | null
+          checkout_expires_at?: string | null
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          plan_code?: string
+          status?: string
+          stripe_checkout_session_id?: string | null
+          stripe_customer_id?: string | null
+          stripe_environment?: string | null
+          stripe_price_id?: string | null
+          stripe_subscription_id?: string | null
+          trial_end?: string | null
+          trial_start?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agency_subscriptions_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: true
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       alerts: {
         Row: {
           agency_id: string
@@ -297,6 +368,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      billing_webhook_events: {
+        Row: {
+          attempts: number
+          created_at: string
+          event_type: string
+          id: string
+          last_error: string | null
+          object_id: string | null
+          processed_at: string | null
+          status: string
+          stripe_environment: string
+          updated_at: string
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          event_type: string
+          id: string
+          last_error?: string | null
+          object_id?: string | null
+          processed_at?: string | null
+          status?: string
+          stripe_environment: string
+          updated_at?: string
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          event_type?: string
+          id?: string
+          last_error?: string | null
+          object_id?: string | null
+          processed_at?: string | null
+          status?: string
+          stripe_environment?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       branches: {
         Row: {
@@ -3996,6 +4106,7 @@ export type Database = {
         }
         Returns: string
       }
+      get_agency_entitlements: { Args: { _agency_id: string }; Returns: Json }
       has_capability: {
         Args: { _agency: string; _capability: string; _user: string }
         Returns: boolean
