@@ -901,6 +901,51 @@ export type Database = {
           },
         ]
       }
+      email_outbox: {
+        Row: {
+          created_at: string
+          error: string | null
+          html: string | null
+          id: string
+          idempotency_key: string | null
+          queue_name: string
+          recipient_email: string
+          sent_at: string | null
+          status: string
+          subject: string | null
+          template_data: Json
+          template_name: string | null
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          html?: string | null
+          id?: string
+          idempotency_key?: string | null
+          queue_name?: string
+          recipient_email: string
+          sent_at?: string | null
+          status?: string
+          subject?: string | null
+          template_data?: Json
+          template_name?: string | null
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          html?: string | null
+          id?: string
+          idempotency_key?: string | null
+          queue_name?: string
+          recipient_email?: string
+          sent_at?: string | null
+          status?: string
+          subject?: string | null
+          template_data?: Json
+          template_name?: string | null
+        }
+        Relationships: []
+      }
       holiday_bookings: {
         Row: {
           agency_id: string | null
@@ -3930,6 +3975,18 @@ export type Database = {
         }[]
       }
       current_user_contact_ids: { Args: never; Returns: string[] }
+      enqueue_email:
+        | { Args: { payload: Json; queue_name: string }; Returns: string }
+        | {
+            Args: {
+              idempotency_key?: string
+              queue_name: string
+              recipient_email: string
+              template_data?: Json
+              template_name: string
+            }
+            Returns: string
+          }
       enroll_in_track: {
         Args: {
           _context?: Json
