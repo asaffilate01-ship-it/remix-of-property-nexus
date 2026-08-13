@@ -5,15 +5,14 @@ import { PublicHeader } from "@/components/PublicHeader";
 import { PublicFooter } from "@/components/PublicFooter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { Bell, Trash2, Search, BellRing, Mail, Smartphone, MapPin, Cloud } from "lucide-react";
+import { Trash2, Search, Bookmark, MapPin, Cloud } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/use-auth";
-import { listSavedSearches, updateSavedSearch, deleteSavedSearch, saveSearch as saveSearchFn } from "@/lib/saved-searches.functions";
+import { listSavedSearches, deleteSavedSearch, saveSearch as saveSearchFn } from "@/lib/saved-searches.functions";
 
 export const Route = createFileRoute("/saved-searches")({
-  head: () => ({ meta: [{ title: "Saved searches & alerts | Estately" }, { name: "description", content: "Manage your saved property searches and get instant email or push alerts when new homes match." }] }),
+  head: () => ({ meta: [{ title: "Saved property searches | Estately" }, { name: "description", content: "Save property searches and quickly re-run your favourite filters across devices." }] }),
   component: SavedSearchesPage,
 });
 
@@ -31,7 +30,6 @@ type RemoteSaved = {
 function SavedSearchesPage() {
   const { user, loading } = useAuth();
   const fetchList = useServerFn(listSavedSearches);
-  const update = useServerFn(updateSavedSearch);
   const remove = useServerFn(deleteSavedSearch);
   const save = useServerFn(saveSearchFn);
 
@@ -77,20 +75,11 @@ function SavedSearchesPage() {
     } finally { setBusy(false); }
   };
 
-  const updateRemote = async (id: string, patch: Partial<Pick<RemoteSaved, "alert_email" | "alert_push" | "frequency">>) => {
-    setRemote((curr) => curr.map((it) => (it.id === id ? { ...it, ...patch } : it)));
-    try { await update({ data: { id, ...patch } }); } catch { toast.error("Save failed"); }
-  };
   const removeRemote = async (id: string) => {
     setRemote((curr) => curr.filter((it) => it.id !== id));
     try { await remove({ data: { id } }); toast.success("Removed"); } catch { toast.error("Delete failed"); }
   };
 
-  const updateLocal = (id: string, patch: Partial<NonNullable<LocalSaved["alert"]>>) => {
-    const next = local.map((i) => i.id === id ? { ...i, alert: { ...(i.alert ?? { email: true, push: false, frequency: "daily" }), ...patch } } : i);
-    setLocal(next);
-    localStorage.setItem("estately:saved-searches", JSON.stringify(next));
-  };
   const removeLocal = (id: string) => {
     const next = local.filter((i) => i.id !== id);
     setLocal(next);
@@ -107,12 +96,12 @@ function SavedSearchesPage() {
       <main className="flex-1">
         <section className="brand-gradient">
           <div className="container mx-auto px-4 py-10 md:py-14 text-white">
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs backdrop-blur mb-3"><BellRing className="h-3 w-3" /> Never miss a match</div>
-            <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight">Saved searches & alerts</h1>
-            <p className="text-white/85 mt-2 max-w-2xl">Re-run a search in one tap, and get email or push alerts the moment new listings match your criteria.</p>
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs backdrop-blur mb-3"><Bookmark className="h-3 w-3" /> Pick up where you left off</div>
+            <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight">Saved searches</h1>
+            <p className="text-white/85 mt-2 max-w-2xl">Keep useful property filters in one place and re-run them in a tap.</p>
             {!user && !loading && (
               <div className="mt-4 inline-flex items-center gap-2 rounded-md bg-white/10 px-3 py-2 text-sm backdrop-blur">
-                <Cloud className="h-4 w-4" /> Sign in to sync your searches across devices and get email alerts.
+                <Cloud className="h-4 w-4" /> Sign in to sync your searches across devices.
                 <Button asChild size="sm" variant="secondary" className="ml-2"><Link to="/auth">Sign in</Link></Button>
               </div>
             )}
@@ -148,10 +137,6 @@ function SavedSearchesPage() {
                       chips={chipsFor(it.criteria)}
                       criteria={it.criteria}
                       when={it.created_at}
-                      email={it.alert_email}
-                      push={it.alert_push}
-                      frequency={it.frequency}
-                      onUpdate={(p) => updateRemote(it.id, p)}
                       onRemove={() => removeRemote(it.id)}
                     />
                   ))
@@ -162,10 +147,6 @@ function SavedSearchesPage() {
                       chips={chipsFor((it.search ?? {}) as Record<string, unknown>)}
                       criteria={(it.search ?? {}) as Record<string, unknown>}
                       when={it.when}
-                      email={it.alert?.email ?? true}
-                      push={it.alert?.push ?? false}
-                      frequency={it.alert?.frequency ?? "daily"}
-                      onUpdate={(p) => updateLocal(it.id!, { email: p.alert_email, push: p.alert_push, frequency: p.frequency })}
                       onRemove={() => removeLocal(it.id!)}
                     />
                   ))}
@@ -183,13 +164,9 @@ function SavedCard(props: {
   chips: string[];
   criteria: Record<string, unknown>;
   when: string;
-  email: boolean;
-  push: boolean;
-  frequency: "instant" | "daily" | "weekly";
-  onUpdate: (p: { alert_email?: boolean; alert_push?: boolean; frequency?: "instant" | "daily" | "weekly" }) => void;
   onRemove: () => void;
 }) {
-  const { title, chips, criteria, when, email, push, frequency, onUpdate, onRemove } = props;
+  const { title, chips, criteria, when, onRemove } = props;
   return (
     <Card className="border-0 shadow-card">
       <CardContent className="p-5">
@@ -209,29 +186,6 @@ function SavedCard(props: {
           <div className="flex gap-1.5 shrink-0">
             <Button asChild size="sm" variant="outline"><Link to="/marketplace" search={criteria as never}>Re-run</Link></Button>
             <Button size="icon" variant="ghost" onClick={onRemove}><Trash2 className="h-4 w-4" /></Button>
-          </div>
-        </div>
-
-        <div className="mt-4 border-t pt-4 grid sm:grid-cols-3 gap-3">
-          <label className="flex items-center justify-between rounded-md border p-2.5 cursor-pointer">
-            <span className="inline-flex items-center gap-2 text-sm"><Mail className="h-4 w-4 text-muted-foreground" /> Email</span>
-            <Switch checked={email} onCheckedChange={(v) => onUpdate({ alert_email: v })} />
-          </label>
-          <label className="flex items-center justify-between rounded-md border p-2.5 cursor-pointer">
-            <span className="inline-flex items-center gap-2 text-sm"><Smartphone className="h-4 w-4 text-muted-foreground" /> Push</span>
-            <Switch checked={push} onCheckedChange={(v) => onUpdate({ alert_push: v })} />
-          </label>
-          <div className="flex items-center justify-between rounded-md border p-2.5">
-            <span className="inline-flex items-center gap-2 text-sm"><Bell className="h-4 w-4 text-muted-foreground" /> Frequency</span>
-            <select
-              value={frequency}
-              onChange={(e) => onUpdate({ frequency: e.target.value as "instant" | "daily" | "weekly" })}
-              className="text-sm bg-transparent outline-none"
-            >
-              <option value="instant">Instant</option>
-              <option value="daily">Daily digest</option>
-              <option value="weekly">Weekly</option>
-            </select>
           </div>
         </div>
       </CardContent>

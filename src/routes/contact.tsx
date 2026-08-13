@@ -10,7 +10,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Mail, Phone, MapPin, MessageSquare, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { submitContactEnquiry } from "@/lib/public.functions";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -26,7 +26,7 @@ export const Route = createFileRoute("/contact")({
 });
 
 function ContactPage() {
-  const [form, setForm] = useState({ name: "", email: "", phone: "", company: "", topic: "demo", message: "" });
+  const [form, setForm] = useState({ name: "", email: "", phone: "", company: "", topic: "demo", message: "", website: "" });
   const [busy, setBusy] = useState(false);
 
   const submit = async (e: React.FormEvent) => {
@@ -34,19 +34,19 @@ function ContactPage() {
     if (!form.name || !form.email || !form.message) return toast.error("Please fill in name, email and message.");
     setBusy(true);
     try {
-      // Persist as a lead so sales sees it in the existing pipeline.
-      const { error } = await supabase.from("leads").insert({
-        full_name: form.name,
+      await submitContactEnquiry({ data: {
+        name: form.name,
         email: form.email,
-        phone: form.phone || null,
-        source: "website_contact",
-        notes: `Topic: ${form.topic}${form.company ? ` · Company: ${form.company}` : ""}\n\n${form.message}`,
-      } as any);
-      if (error) throw error;
+        phone: form.phone || undefined,
+        company: form.company || undefined,
+        topic: form.topic as "demo" | "migration" | "pricing" | "support" | "press",
+        message: form.message,
+        website: form.website,
+      } });
       toast.success("Thanks — we'll be in touch within one working day.");
-      setForm({ name: "", email: "", phone: "", company: "", topic: "demo", message: "" });
-    } catch (err: any) {
-      toast.error(err?.message ?? "Could not send message");
+      setForm({ name: "", email: "", phone: "", company: "", topic: "demo", message: "", website: "" });
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Could not send message");
     } finally {
       setBusy(false);
     }
@@ -96,6 +96,10 @@ function ContactPage() {
             <Card>
               <CardContent className="p-7">
                 <form className="grid sm:grid-cols-2 gap-4" onSubmit={submit}>
+                  <div className="absolute -left-[10000px]" aria-hidden="true">
+                    <Label htmlFor="contact-website">Website</Label>
+                    <Input id="contact-website" tabIndex={-1} autoComplete="off" value={form.website} onChange={(e) => setForm({ ...form, website: e.target.value })} />
+                  </div>
                   <div className="sm:col-span-2"><Label>Your name *</Label><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
                   <div><Label>Email *</Label><Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></div>
                   <div><Label>Phone</Label><Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></div>

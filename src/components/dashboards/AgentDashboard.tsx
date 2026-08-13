@@ -28,11 +28,18 @@ export function AgentDashboard({ name }: { name: string }) {
 
   useEffect(() => {
     (async () => {
-      const weekStart = new Date(); weekStart.setDate(weekStart.getDate() - 7);
-      const [ld, lst, dl, recentLeads] = await Promise.all([
+      const weekStart = new Date();
+      weekStart.setHours(0, 0, 0, 0);
+      weekStart.setDate(weekStart.getDate() - ((weekStart.getDay() + 6) % 7));
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekEnd.getDate() + 7);
+      const [ld, lst, dl, vw, of, insp, recentLeads] = await Promise.all([
         supabase.from("leads").select("id", { count: "exact", head: true }).eq("status", "new"),
         supabase.from("listings").select("id", { count: "exact", head: true }).eq("status", "published"),
         supabase.from("deals").select("id", { count: "exact", head: true }).not("stage", "in", '("won","lost")'),
+        supabase.from("viewings").select("id", { count: "exact", head: true }).gte("scheduled_at", weekStart.toISOString()).lt("scheduled_at", weekEnd.toISOString()),
+        supabase.from("offers").select("id", { count: "exact", head: true }).in("status", ["pending", "countered"]),
+        supabase.from("work_orders").select("id", { count: "exact", head: true }).ilike("category", "%inspection%").neq("status", "completed"),
         supabase.from("leads").select("id,name,created_at").order("created_at", { ascending: false }).limit(6),
       ]);
       setStats((s) => ({
@@ -40,6 +47,9 @@ export function AgentDashboard({ name }: { name: string }) {
         leads: ld.count ?? 0,
         liveListings: lst.count ?? 0,
         pipelineOpen: dl.count ?? 0,
+        viewingsThisWeek: vw.count ?? 0,
+        offers: of.count ?? 0,
+        inspectionsDue: insp.count ?? 0,
       }));
       setRecent(recentLeads.data ?? []);
     })();

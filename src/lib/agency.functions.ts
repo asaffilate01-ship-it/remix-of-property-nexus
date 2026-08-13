@@ -2,9 +2,13 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { safeExternalUrl } from "@/lib/url-safety";
 
 const optionalUrl = z
-  .union([z.string().url().max(500), z.literal("")])
+  .union([
+    z.string().max(500).refine((value) => safeExternalUrl(value) !== null, "Use a valid HTTP(S) URL"),
+    z.literal(""),
+  ])
   .optional()
   .nullable();
 const agencySchema = z.object({

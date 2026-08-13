@@ -54,7 +54,8 @@ async function watermarkImage(file: File, info: { lat?: number; lng?: number; wh
 
       canvas.toBlob((b) => {
         URL.revokeObjectURL(url);
-        b ? resolve(b) : reject(new Error("Canvas export failed"));
+        if (b) resolve(b);
+        else reject(new Error("Canvas export failed"));
       }, "image/jpeg", 0.9);
     };
     img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("Image load failed")); };

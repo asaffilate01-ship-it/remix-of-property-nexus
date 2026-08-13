@@ -102,7 +102,7 @@ function SignPage() {
                 </div>
               </div>
               <p className="text-xs text-muted-foreground">
-                By typing your name and drawing your signature, you agree this is an electronic signature legally binding under the Electronic Communications Act 2000 (UK).
+                By typing your name and submitting, you confirm your identity, intent to sign, and agreement to the document shown above. The signature time and security details are recorded for the audit trail.
               </p>
               <Button className="w-full" onClick={submitSig}><CheckCircle2 className="h-4 w-4 mr-1" /> Sign now</Button>
             </CardContent>
@@ -114,7 +114,7 @@ function SignPage() {
             <CardContent className="p-6 text-center">
               <CheckCircle2 className="h-12 w-12 mx-auto text-primary mb-2" />
               <p className="font-semibold">This document has been signed</p>
-              <p className="text-sm text-muted-foreground mt-1">A copy will be sent to all parties.</p>
+              <p className="text-sm text-muted-foreground mt-1">Your signature has been recorded. Contact the issuing agency if you need a copy.</p>
             </CardContent>
           </Card>
         )}

@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
@@ -13,15 +13,12 @@ export const Route = createFileRoute("/_authenticated/work-orders/$id")({
   ssr: false,
   head: () => ({ meta: [{ title: "Work order — Estately" }] }),
   component: WorkOrderDetail,
-  errorComponent: ({ error, reset }) => {
-    const router = useRouter();
-    return (
-      <div className="p-6 space-y-3">
-        <p className="text-sm text-destructive">Failed to load work order: {error.message}</p>
-        <Button size="sm" onClick={() => { reset(); router.invalidate(); }}>Retry</Button>
-      </div>
-    );
-  },
+  errorComponent: ({ error, reset }) => (
+    <div className="p-6 space-y-3">
+      <p className="text-sm text-destructive">Failed to load work order: {error.message}</p>
+      <Button size="sm" onClick={reset}>Retry</Button>
+    </div>
+  ),
   notFoundComponent: () => <div className="p-6">Work order not found.</div>,
 });
 

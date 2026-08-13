@@ -4184,6 +4184,10 @@ export type Database = {
         Args: { _thread: string; _user: string }
         Returns: boolean
       }
+      match_bank_transaction: {
+        Args: { _rent_schedule_id: string; _transaction_id: string }
+        Returns: boolean
+      }
       record_stripe_rent_payment: {
         Args: {
           _amount: number

@@ -157,8 +157,8 @@ export const sendForSignature = createServerFn({ method: "POST" })
       work_order_id: data.work_order_id || null,
       values: data.values,
       expires_on: data.expires_on || null,
-      status: "sent",
-      sent_at: new Date().toISOString(),
+      status: "draft",
+      sent_at: null,
       signers_meta: data.signers,
     }).select("id").single();
     if (e1) throw new Error(e1.message);
@@ -173,18 +173,39 @@ export const sendForSignature = createServerFn({ method: "POST" })
     const { data: sigs, error: e2 } = await context.supabase.from("template_signatures").insert(sigRows).select("token,signer_email,signer_name");
     if (e2) throw new Error(e2.message);
 
-    // TODO: enqueue emails — for now return links for UI to display/copy.
     return { id: inst!.id, signing_links: sigs ?? [] };
+  });
+
+export const listSigningRequests = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const agencyId = await resolveAgencyId(context.supabase, context.userId);
+    if (!agencyId) return { requests: [] };
+    const { data, error } = await context.supabase
+      .from("template_instances")
+      .select("id, title, status, created_at, sent_at, signed_at, expires_on, templates(name), template_signatures(id, token, signer_name, signer_email, signer_role, status, signed_at)")
+      .eq("agency_id", agencyId)
+      .order("created_at", { ascending: false })
+      .limit(100);
+    if (error) throw new Error(error.message);
+    return { requests: data ?? [] };
   });
 
 // ===== Sign by token (PUBLIC — no auth) =====
 export const getSigningContext = createServerFn({ method: "POST" })
   .inputValidator(z.object({ token: z.string().min(20).max(80) }))
   .handler(async ({ data }) => {
+    const { enforceRateLimit } = await import("./rate-limit.server");
+    await enforceRateLimit("signing_context", 60, 600);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: sig } = await supabaseAdmin.from("template_signatures").select("*").eq("token", data.token).maybeSingle();
     if (!sig) throw new Error("Invalid signing link");
     const { data: inst } = await supabaseAdmin.from("template_instances").select("*, templates:template_id(name,body,signers,description,authority)").eq("id", sig.instance_id).single();
+    if (!inst || inst.status === "void") throw new Error("This signing request is no longer available");
+    if (inst.expires_on && new Date(`${inst.expires_on}T23:59:59Z`).getTime() < Date.now()) {
+      await supabaseAdmin.from("template_signatures").update({ status: "expired" }).eq("id", sig.id).eq("status", "pending");
+      throw new Error("This signing link has expired");
+    }
     return { signature: sig, instance: inst };
   });
 
@@ -195,29 +216,42 @@ export const submitSignature = createServerFn({ method: "POST" })
     signature_image_b64: z.string().max(500_000).optional().nullable(),
   }))
   .handler(async ({ data }) => {
+    const { createHash } = await import("node:crypto");
+    const { callerIdentifier, enforceRateLimit } = await import("./rate-limit.server");
+    const tokenHash = createHash("sha256").update(data.token).digest("hex");
+    await enforceRateLimit("submit_signature", 10, 3_600, `${callerIdentifier()}:${tokenHash}`);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    // We can't read getRequestIP without server runtime import — keep minimal.
     const { data: sig } = await supabaseAdmin.from("template_signatures").select("*").eq("token", data.token).maybeSingle();
     if (!sig) throw new Error("Invalid link");
     if (sig.status === "signed") return { ok: true, already: true };
+    if (sig.status !== "pending") throw new Error("This signing request is no longer available");
+    const { data: instance } = await supabaseAdmin.from("template_instances").select("status, expires_on").eq("id", sig.instance_id).single();
+    if (!instance || instance.status === "void") throw new Error("This signing request is no longer available");
+    if (instance.expires_on && new Date(`${instance.expires_on}T23:59:59Z`).getTime() < Date.now()) {
+      await supabaseAdmin.from("template_signatures").update({ status: "expired" }).eq("id", sig.id);
+      throw new Error("This signing link has expired");
+    }
 
     let imagePath: string | null = null;
     if (data.signature_image_b64) {
       const m = data.signature_image_b64.match(/^data:(image\/png|image\/jpeg);base64,(.+)$/);
       if (m) {
         const bytes = Buffer.from(m[2], "base64");
+        if (bytes.byteLength > 375_000) throw new Error("Signature image is too large");
         const path = `signatures/${sig.id}.png`;
         const { error: upErr } = await supabaseAdmin.storage.from("documents").upload(path, bytes, { contentType: m[1], upsert: true });
         if (!upErr) imagePath = path;
       }
     }
 
-    await supabaseAdmin.from("template_signatures").update({
+    const { error: signatureError } = await supabaseAdmin.from("template_signatures").update({
       status: "signed",
       signed_at: new Date().toISOString(),
+      signed_ip: callerIdentifier(),
       typed_signature: data.typed_signature,
       signature_image_path: imagePath,
-    }).eq("id", sig.id);
+    }).eq("id", sig.id).eq("status", "pending");
+    if (signatureError) throw new Error("Unable to record signature");
 
     // If all signers signed, mark the instance signed
     const { data: remaining } = await supabaseAdmin.from("template_signatures").select("status").eq("instance_id", sig.instance_id);

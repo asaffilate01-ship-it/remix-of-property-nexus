@@ -48,7 +48,7 @@ function MortgagePage() {
       [1500000, 0.1],
       [Infinity, 0.12],
     ] as const;
-    let remaining = price;
+    const remaining = price;
     let prev = 0;
     let tax = 0;
     for (const [cap, r] of bands) {

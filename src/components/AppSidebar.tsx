@@ -118,6 +118,7 @@ const FULL: NavSection[] = [
       { to: "/move", label: "Move in / out", icon: PackageOpen },
       { to: "/renewals", label: "Renewals", icon: RefreshCcw },
       { to: "/arrears", label: "Arrears", icon: Banknote },
+      { to: "/banking", label: "Bank reconciliation", icon: Landmark },
       { to: "/work-orders", label: "Work orders", icon: Wrench },
       { to: "/contractor-marketplace", label: "Find a contractor", icon: Hammer },
       { to: "/survey", label: "Survey & site capture", icon: Camera },
@@ -267,6 +268,7 @@ const AGENT: NavSection[] = [
       { to: "/work-orders", label: "Work orders", icon: Wrench },
       { to: "/renewals", label: "Renewals", icon: RefreshCcw },
       { to: "/arrears", label: "Arrears", icon: Banknote },
+      { to: "/banking", label: "Bank reconciliation", icon: Landmark },
       { to: "/referencing-cases", label: "Referencing", icon: ClipboardCheck },
     ],
   },
@@ -316,6 +318,7 @@ const LANDLORD: NavSection[] = [
       { to: "/compliance", label: "Compliance", icon: ShieldCheck },
       { to: "/deposits", label: "Deposits", icon: Vault },
       { to: "/statements", label: "Statements", icon: Receipt },
+      { to: "/banking", label: "Bank reconciliation", icon: Landmark },
       { to: "/documents", label: "Documents", icon: FolderLock },
     ],
   },
@@ -473,7 +476,7 @@ export function AppSidebar() {
                     {section.items.map((i) => (
                       <SidebarMenuItem key={i.to}>
                         <SidebarMenuButton asChild isActive={isActive(i.to)} tooltip={i.label}>
-                          <Link to={i.to}>
+                          <Link to={i.to} aria-current={isActive(i.to) ? "page" : undefined}>
                             <i.icon className="h-4 w-4" />
                             <span>{i.label}</span>
                           </Link>
@@ -500,7 +503,7 @@ export function AppSidebar() {
                       {section.items.map((i) => (
                         <SidebarMenuItem key={i.to}>
                           <SidebarMenuButton asChild isActive={isActive(i.to)}>
-                            <Link to={i.to}>
+                            <Link to={i.to} aria-current={isActive(i.to) ? "page" : undefined}>
                               <i.icon className="h-4 w-4" />
                               <span>{i.label}</span>
                             </Link>

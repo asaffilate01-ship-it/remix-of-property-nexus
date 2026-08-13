@@ -2,7 +2,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { Building2, Menu, ChevronDown, Search, Bookmark, Calculator, Banknote, MapPin, ClipboardCheck, Briefcase, Users, BookOpen, Info, Mail, Tag, LogOut, LayoutDashboard } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
@@ -15,8 +15,7 @@ const groups: Group[] = [
   {
     label: "Buy & rent",
     items: [
-      { to: "/marketplace", label: "Marketplace", desc: "Sales, lettings, HMO & commercial", icon: Search },
-      { to: "/saved-searches", label: "Saved searches", desc: "Alerts when new homes match", icon: Bookmark },
+      { to: "/saved-searches", label: "Saved searches", desc: "Keep and re-run useful filters", icon: Bookmark },
       { to: "/area-guides", label: "Area guides", desc: "Schools, transport, prices", icon: MapPin },
       { to: "/blog", label: "Blog & insight", desc: "Market data, compliance, product news", icon: BookOpen },
     ],
@@ -144,6 +143,7 @@ export function PublicHeader() {
             <Button variant="ghost" size="icon" aria-label="Open menu"><Menu /></Button>
           </SheetTrigger>
           <SheetContent side="right" className="w-[320px] p-0 flex flex-col">
+            <SheetTitle className="sr-only">Site navigation</SheetTitle>
             <div className="flex-1 overflow-y-auto pt-12 pb-4">
               <div className="px-4 pb-3">
                 <Link

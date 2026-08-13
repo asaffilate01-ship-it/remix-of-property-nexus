@@ -1,10 +1,27 @@
 import { Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search, Heart, Bell, Sparkles, MapPin, TrendingUp, Eye } from "lucide-react";
 
 export function BuyerDashboard({ name }: { name: string }) {
+  const [stats, setStats] = useState({ searches: 0, shortlist: 0, alerts: 0 });
+
+  useEffect(() => {
+    (async () => {
+      const { data: auth } = await supabase.auth.getUser();
+      if (!auth.user) return;
+      const [searches, shortlist, alerts] = await Promise.all([
+        supabase.from("saved_searches").select("id", { count: "exact", head: true }).eq("user_id", auth.user.id),
+        supabase.from("saved_listings").select("listing_id", { count: "exact", head: true }).eq("user_id", auth.user.id),
+        supabase.from("alerts").select("id", { count: "exact", head: true }).eq("user_id", auth.user.id).is("read_at", null),
+      ]);
+      setStats({ searches: searches.count ?? 0, shortlist: shortlist.count ?? 0, alerts: alerts.count ?? 0 });
+    })();
+  }, []);
+
   return (
     <div className="space-y-6">
       {/* Hero */}
@@ -31,21 +48,21 @@ export function BuyerDashboard({ name }: { name: string }) {
             <Card className="border-0 shadow-card">
               <CardContent className="p-5">
                 <Search className="h-5 w-5 mb-2 text-accent" />
-                <div className="text-2xl font-bold">—</div>
+                <div className="text-2xl font-bold">{stats.searches}</div>
                 <div className="text-xs text-muted-foreground">Saved searches</div>
               </CardContent>
             </Card>
             <Card className="border-0 shadow-card">
               <CardContent className="p-5">
                 <Heart className="h-5 w-5 mb-2 text-accent" />
-                <div className="text-2xl font-bold">—</div>
+                <div className="text-2xl font-bold">{stats.shortlist}</div>
                 <div className="text-xs text-muted-foreground">Shortlist</div>
               </CardContent>
             </Card>
             <Card className="border-0 shadow-card">
               <CardContent className="p-5">
                 <Bell className="h-5 w-5 mb-2 text-accent" />
-                <div className="text-2xl font-bold">—</div>
+                <div className="text-2xl font-bold">{stats.alerts}</div>
                 <div className="text-xs text-muted-foreground">Alerts</div>
               </CardContent>
             </Card>
@@ -83,8 +100,8 @@ export function BuyerDashboard({ name }: { name: string }) {
             <Card className="border-0 shadow-card">
               <CardContent className="p-6">
                 <h3 className="font-semibold mb-2">Saved searches</h3>
-                <p className="text-sm text-muted-foreground mb-4">Manage alerts and get notified of new listings.</p>
-                <Button asChild variant="outline"><Link to="/saved-searches">Manage alerts</Link></Button>
+                <p className="text-sm text-muted-foreground mb-4">Keep and re-run your favourite marketplace filters.</p>
+                <Button asChild variant="outline"><Link to="/saved-searches">Manage searches</Link></Button>
               </CardContent>
             </Card>
           </div>

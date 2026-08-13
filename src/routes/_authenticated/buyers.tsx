@@ -12,6 +12,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Plus, Pencil, Trash2, Users, Mail, Phone, FileSignature, Home, Link2 } from "lucide-react";
 import { toast } from "sonner";
+import { safeExternalUrl } from "@/lib/url-safety";
 import { PageHeader } from "@/components/PageHeader";
 
 export const Route = createFileRoute("/_authenticated/buyers")({
@@ -330,7 +331,7 @@ function BuyerInterestsPanel({
                   <FileSignature className="h-3 w-3" />
                   {i.mou_signed_on && <span>Signed {i.mou_signed_on}</span>}
                   {i.mou_amount && <span>· £{Number(i.mou_amount).toLocaleString()}</span>}
-                  {i.mou_doc_url && <a href={i.mou_doc_url} target="_blank" rel="noreferrer" className="text-primary underline">View MOU</a>}
+                  {safeExternalUrl(i.mou_doc_url) && <a href={safeExternalUrl(i.mou_doc_url)!} target="_blank" rel="noreferrer" className="text-primary underline">View MOU</a>}
                 </div>
               )}
             </CardContent>
@@ -369,6 +370,10 @@ function BuyerInterestsPanel({
           <DialogFooter>
             <Button onClick={async () => {
               if (!editing) return;
+              if (editing.mou_doc_url && !safeExternalUrl(editing.mou_doc_url)) {
+                toast.error("Use a valid HTTP(S) document URL");
+                return;
+              }
               await update(editing.id, {
                 mou_signed_on: editing.mou_signed_on || null,
                 mou_amount: editing.mou_amount ?? null,

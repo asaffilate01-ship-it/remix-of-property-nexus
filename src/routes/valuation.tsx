@@ -6,18 +6,19 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Sparkles, TrendingUp, MapPin, Loader2, CheckCircle2 } from "lucide-react";
+import { ArrowRight, TrendingUp, MapPin, Loader2, CheckCircle2, ShieldCheck, AlertCircle } from "lucide-react";
 import { Link } from "@tanstack/react-router";
-import { supabase } from "@/integrations/supabase/client";
+import { submitValuationEnquiry } from "@/lib/public.functions";
+import { getPropertyValuation, type ValuationResult } from "@/lib/valuation.functions";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/valuation")({
   head: () => ({
     meta: [
-      { title: "Instant property valuation — Estately" },
-      { name: "description", content: "Get an instant online valuation for your UK property in seconds. Backed by recent sold prices and live local data." },
-      { property: "og:title", content: "Instant property valuation — Estately" },
-      { property: "og:description", content: "Free, instant AVM valuation for any UK home — sale or rent." },
+      { title: "Property valuation — Estately" },
+      { name: "description", content: "Request an indicative online property valuation or book a local appraisal with Estately." },
+      { property: "og:title", content: "Property valuation — Estately" },
+      { property: "og:description", content: "Request a UK sale or rental valuation." },
     ],
     links: [{ rel: "canonical", href: "https://proptest.313test.co.uk/valuation" }],
   }),
@@ -26,28 +27,40 @@ export const Route = createFileRoute("/valuation")({
 
 function ValuationPage() {
   const [step, setStep] = useState<"form" | "result">("form");
-  const [form, setForm] = useState({ postcode: "W1U 6QH", beds: "2", type: "flat", condition: "good", purpose: "sale" });
+  const [form, setForm] = useState({ postcode: "", beds: "2", type: "flat", condition: "good", purpose: "sale" });
   const [contact, setContact] = useState({ name: "", email: "", phone: "" });
   const [saving, setSaving] = useState(false);
   const [savedLead, setSavedLead] = useState(false);
+  const [valuing, setValuing] = useState(false);
+  const [valuation, setValuation] = useState<ValuationResult | null>(null);
 
-
-
-  const base = form.purpose === "sale" ? 720000 : 3200;
-  const beds = Number(form.beds);
-  const mult = form.type === "house" ? 1.35 : form.type === "flat" ? 1 : 1.6;
-  const cond = form.condition === "excellent" ? 1.08 : form.condition === "fair" ? 0.92 : 1;
-  const estimate = Math.round(base * (0.6 + beds * 0.2) * mult * cond);
-  const low = Math.round(estimate * 0.94);
-  const high = Math.round(estimate * 1.06);
+  const calculate = async () => {
+    if (!form.postcode.trim()) return toast.error("Enter a postcode");
+    setValuing(true);
+    try {
+      const result = await getPropertyValuation({ data: {
+        postcode: form.postcode,
+        bedrooms: Number(form.beds),
+        property_type: form.type as "flat" | "house" | "hmo",
+        condition: form.condition as "excellent" | "good" | "fair",
+        purpose: form.purpose as "sale" | "rent",
+      } });
+      setValuation(result);
+      setStep("result");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not request valuation");
+    } finally {
+      setValuing(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
       <div className="container max-w-4xl py-12 md:py-20">
         <div className="text-center mb-10">
-          <Badge variant="outline" className="mb-4"><Sparkles className="h-3 w-3 mr-1.5" /> Powered by AVM + live local data</Badge>
+          <Badge variant="outline" className="mb-4"><ShieldCheck className="h-3 w-3 mr-1.5" /> Secure valuation request</Badge>
           <h1 className="font-display text-3xl md:text-5xl font-bold tracking-tight">What's your home worth?</h1>
-          <p className="text-muted-foreground mt-3 max-w-xl mx-auto">An instant estimate from sold-price comparables, EPC records and live local supply — no agent required.</p>
+          <p className="text-muted-foreground mt-3 max-w-xl mx-auto">Request an indicative provider estimate, then confirm the figure with a local appraisal before making a financial decision.</p>
         </div>
 
         {step === "form" ? (
@@ -102,10 +115,11 @@ function ValuationPage() {
                   </Select>
                 </div>
               </div>
-              <Button size="lg" className="w-full h-12 text-base" onClick={() => setStep("result")}>
-                Get instant estimate <ArrowRight className="ml-2 h-4 w-4" />
+              <Button size="lg" className="w-full h-12 text-base" disabled={valuing} onClick={calculate}>
+                {valuing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                {valuing ? "Checking provider…" : "Request estimate"} {!valuing && <ArrowRight className="ml-2 h-4 w-4" />}
               </Button>
-              <p className="text-xs text-muted-foreground text-center">Anonymous · No account required for the estimate.</p>
+              <p className="text-xs text-muted-foreground text-center">No account required. Estimates are indicative, not a mortgage or regulated valuation.</p>
             </CardContent>
           </Card>
         ) : (
@@ -113,18 +127,29 @@ function ValuationPage() {
             <Card className="border-0 shadow-elevated overflow-hidden">
               <div className="brand-gradient p-6 md:p-8 text-white">
                 <div className="text-sm opacity-80 flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5" /> {form.postcode} · {form.beds} bed {form.type}</div>
-                <div className="mt-2 text-xs opacity-70 uppercase tracking-wide">Estimated {form.purpose === "sale" ? "value" : "rent pcm"}</div>
-                <div className="font-display text-5xl md:text-6xl font-bold mt-1">
-                  £{estimate.toLocaleString()}{form.purpose === "rent" ? <span className="text-xl opacity-70"> /mo</span> : null}
-                </div>
-                <div className="mt-2 text-sm opacity-90">Range £{low.toLocaleString()} – £{high.toLocaleString()}</div>
+                {valuation?.available ? (
+                  <>
+                    <div className="mt-2 text-xs opacity-70 uppercase tracking-wide">Provider-estimated {form.purpose === "sale" ? "value" : "rent pcm"}</div>
+                    <div className="font-display text-5xl md:text-6xl font-bold mt-1">
+                      £{valuation.estimate.toLocaleString()}{form.purpose === "rent" ? <span className="text-xl opacity-70"> /mo</span> : null}
+                    </div>
+                    <div className="mt-2 text-sm opacity-90">Range £{valuation.low.toLocaleString()} – £{valuation.high.toLocaleString()}</div>
+                  </>
+                ) : (
+                  <>
+                    <div className="mt-4 flex items-center gap-2 text-2xl md:text-3xl font-semibold"><AlertCircle className="h-6 w-6" /> Manual appraisal needed</div>
+                    <p className="mt-2 max-w-2xl text-sm text-white/80">The valuation provider is unavailable, so we have not displayed a made-up figure. Book a local appraisal below.</p>
+                  </>
+                )}
               </div>
               <CardContent className="p-6 md:p-8 space-y-5">
-                <div className="grid sm:grid-cols-3 gap-3">
-                  <Metric label="Comparables found" value="24" />
-                  <Metric label="Avg. days on market" value="42" />
-                  <Metric label="Local demand" value="High" tint="text-success" icon={<TrendingUp className="h-4 w-4 text-success" />} />
-                </div>
+                {valuation?.available && (
+                  <div className="grid sm:grid-cols-3 gap-3">
+                    <Metric label="Comparables found" value={valuation.comparables_count?.toLocaleString() ?? "Not supplied"} />
+                    <Metric label="Avg. days on market" value={valuation.average_days_on_market?.toLocaleString() ?? "Not supplied"} />
+                    <Metric label="Local demand" value={valuation.demand ?? "Not supplied"} tint={valuation.demand === "High" ? "text-success" : undefined} icon={valuation.demand === "High" ? <TrendingUp className="h-4 w-4 text-success" /> : undefined} />
+                  </div>
+                )}
                 {savedLead ? (
                   <div className="rounded-lg border border-success/30 bg-success/5 p-4 flex items-start gap-3">
                     <CheckCircle2 className="h-5 w-5 text-success shrink-0 mt-0.5" />
@@ -136,8 +161,8 @@ function ValuationPage() {
                 ) : (
                   <div className="rounded-lg border p-4 bg-muted/30 space-y-3">
                     <div>
-                      <div className="font-semibold">Want a guaranteed sale price?</div>
-                      <p className="text-sm text-muted-foreground">Book a free in-person valuation with a local Estately partner agent — typically more accurate by 4–7%.</p>
+                      <div className="font-semibold">Want a higher-confidence appraisal?</div>
+                      <p className="text-sm text-muted-foreground">Book a free in-person valuation with a local Estately partner agent who can assess condition, finish and local demand.</p>
                     </div>
                     <div className="grid sm:grid-cols-3 gap-2">
                       <Input placeholder="Your name" value={contact.name} onChange={(e) => setContact({ ...contact, name: e.target.value })} />
@@ -150,17 +175,25 @@ function ValuationPage() {
                         onClick={async () => {
                           if (!contact.name.trim() || !contact.email.trim()) { toast.error("Name and email required"); return; }
                           setSaving(true);
-                          const { error } = await supabase.from("leads").insert({
-                            name: contact.name.trim(),
-                            email: contact.email.trim(),
-                            phone: contact.phone.trim() || null,
-                            source: "valuation",
-                            message: `Valuation requested — ${form.postcode} · ${form.beds} bed ${form.type} (${form.condition}) for ${form.purpose}. Estimate: £${estimate.toLocaleString()}${form.purpose === "rent" ? "/mo" : ""}.`,
-                          });
-                          setSaving(false);
-                          if (error) { toast.error(error.message); return; }
-                          setSavedLead(true);
-                          toast.success("Valuation booked");
+                          try {
+                            await submitValuationEnquiry({ data: {
+                              name: contact.name,
+                              email: contact.email,
+                              phone: contact.phone || undefined,
+                              postcode: form.postcode,
+                              bedrooms: Number(form.beds),
+                              property_type: form.type as "flat" | "house" | "hmo",
+                              condition: form.condition as "excellent" | "good" | "fair",
+                              purpose: form.purpose as "sale" | "rent",
+                              estimate: valuation?.available ? valuation.estimate : undefined,
+                            } });
+                            setSavedLead(true);
+                            toast.success("Valuation booked");
+                          } catch (error) {
+                            toast.error(error instanceof Error ? error.message : "Could not book valuation");
+                          } finally {
+                            setSaving(false);
+                          }
                         }}
                       >
                         {saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
@@ -170,7 +203,7 @@ function ValuationPage() {
                     </div>
                   </div>
                 )}
-                <Button variant="ghost" onClick={() => setStep("form")}>← Edit details</Button>
+                <Button variant="ghost" onClick={() => { setStep("form"); setValuation(null); }}>← Edit details</Button>
               </CardContent>
             </Card>
           </div>
