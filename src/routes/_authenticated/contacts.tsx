@@ -24,7 +24,7 @@ export const Route = createFileRoute("/_authenticated/contacts")({
 type Contact = {
   id: string; contact_type: string; full_name: string; company_name: string | null;
   email: string | null; phone: string | null; address: string | null; postcode: string | null;
-  notes: string | null; rating: number | null; hourly_rate: number | null; is_preferred: boolean; is_active: boolean;
+  notes: string | null; user_id?: string | null; rating: number | null; hourly_rate: number | null; is_preferred: boolean; is_active: boolean;
 };
 
 const TYPES = ["plumber","electrician","gas_engineer","builder","roofer","painter","handyman","cleaner","gardener","locksmith","epc_assessor","inventory_clerk","solicitor","conveyancer","referencing","insurance","utilities","council","other"] as const;
@@ -103,6 +103,8 @@ function ContactsPage() {
       address: c.address ?? "", postcode: c.postcode ?? "", notes: c.notes ?? "",
       rating: c.rating ?? 0, hourly_rate: Number(c.hourly_rate ?? 0), is_preferred: c.is_preferred,
     });
+    setLinkedUserId(c.user_id ?? null);
+    setLinkEmail("");
     setOpen(true);
   };
 
