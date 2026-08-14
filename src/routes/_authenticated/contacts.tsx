@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
@@ -17,6 +17,8 @@ import { linkContactToUser } from "@/lib/contacts.functions";
 
 
 export const Route = createFileRoute("/_authenticated/contacts")({
+  validateSearch: (search: Record<string, unknown>): { create?: boolean } =>
+    search.create === true || search.create === "true" ? { create: true } : {},
   head: () => ({ meta: [{ title: "Contacts — Estately" }] }),
   component: ContactsPage,
 });
@@ -32,6 +34,8 @@ type CType = typeof TYPES[number];
 const empty = { id: "", contact_type: "plumber" as CType, full_name: "", company_name: "", email: "", phone: "", address: "", postcode: "", notes: "", rating: 0, hourly_rate: 0, is_preferred: false };
 
 function ContactsPage() {
+  const navigate = useNavigate();
+  const search = useSearch({ from: "/_authenticated/contacts" });
   const [rows, setRows] = useState<Contact[]>([]);
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
@@ -43,6 +47,18 @@ function ContactsPage() {
   const [linkedUserId, setLinkedUserId] = useState<string | null>(null);
   const [linking, setLinking] = useState(false);
   const linkFn = useServerFn(linkContactToUser);
+
+  useEffect(() => {
+    if (!search.create) return;
+    setForm(empty);
+    setOpen(true);
+  }, [search.create]);
+
+  const onContactDialogChange = (nextOpen: boolean) => {
+    setOpen(nextOpen);
+    if (nextOpen) return;
+    if (search.create) void navigate({ to: "/contacts", search: {}, replace: true });
+  };
 
   const linkAccess = async (email: string | null) => {
     if (!form.id) return;
@@ -165,7 +181,7 @@ function ContactsPage() {
         </div>
       )}
 
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog open={open} onOpenChange={onContactDialogChange}>
         <DialogContent className="max-w-lg">
           <DialogHeader><DialogTitle>{form.id ? "Edit contact" : "Add contact"}</DialogTitle></DialogHeader>
           <div className="grid grid-cols-2 gap-3">

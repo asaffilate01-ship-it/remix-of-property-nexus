@@ -11,6 +11,8 @@ import { WorkspaceAccessGate } from "@/components/WorkspaceAccessGate";
 import { Button } from "@/components/ui/button";
 import { useMemo } from "react";
 import { safeMfaRedirect } from "@/lib/auth-security";
+import { useLocale } from "@/hooks/useLocale";
+import { translateUi } from "@/lib/locale";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -25,10 +27,18 @@ export const Route = createFileRoute("/_authenticated")({
       user = data.user;
     }
 
-    const [{ data: profile }, { data: roles }] = await Promise.all([
+    const [profileResult, rolesResult] = await Promise.all([
       supabase.from("profiles").select("primary_role").eq("id", user.id).maybeSingle(),
       supabase.from("user_roles").select("role").eq("user_id", user.id),
     ]);
+    if (profileResult.error || rolesResult.error) {
+      throw new Error("Unable to verify workspace authorization. Please try again.");
+    }
+    const profile = profileResult.data;
+    const roles = rolesResult.data;
+    if (!profile?.primary_role && (roles ?? []).length === 0) {
+      throw new Error("This account has no authorised workspace role.");
+    }
     const isPlatformAdmin = profile?.primary_role === "admin"
       || (roles ?? []).some((entry) => entry.role === "admin");
     if (isPlatformAdmin) {
@@ -89,9 +99,16 @@ function useCrumbs() {
 
 function AuthedLayout() {
   const crumbs = useCrumbs();
+  const { locale } = useLocale();
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">
+        <a
+          href="#main-content"
+          className="sr-only z-50 rounded-md bg-background px-4 py-2 text-foreground shadow-lg focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
+        >
+          Skip to main content
+        </a>
         <AppSidebar />
         <div className="flex-1 flex flex-col min-w-0">
           <header
@@ -101,7 +118,7 @@ function AuthedLayout() {
             <SidebarTrigger className="shrink-0" />
             {crumbs.length > 0 && (
               <h1 className="sm:hidden truncate text-sm font-semibold text-foreground capitalize min-w-0 flex-1">
-                {crumbs[crumbs.length - 1].label}
+                {translateUi(locale, crumbs[crumbs.length - 1].label)}
               </h1>
             )}
             {crumbs.length > 1 && (
@@ -112,9 +129,13 @@ function AuthedLayout() {
                     <span key={c.to} className="flex items-center gap-1.5 min-w-0">
                       {i > 0 && <ChevronRight className="h-3 w-3 opacity-50 shrink-0" />}
                       {last ? (
-                        <span className="text-foreground truncate capitalize">{c.label}</span>
+                        <span className="text-foreground truncate capitalize">
+                          {translateUi(locale, c.label)}
+                        </span>
                       ) : (
-                        <Link to={c.to} className="hover:text-foreground truncate capitalize">{c.label}</Link>
+                        <Link to={c.to} className="hover:text-foreground truncate capitalize">
+                          {translateUi(locale, c.label)}
+                        </Link>
                       )}
                     </span>
                   );
@@ -130,7 +151,7 @@ function AuthedLayout() {
             >
               <Search className="h-3.5 w-3.5" />
               <span>Search…</span>
-              <kbd className="ml-2 text-[10px] font-mono bg-muted px-1.5 py-0.5 rounded">⌘K</kbd>
+              <kbd className="ml-2 text-[10px] font-mono bg-muted px-1.5 py-0.5 rounded">Ctrl K</kbd>
             </Button>
             <Button
               variant="ghost"
@@ -149,7 +170,7 @@ function AuthedLayout() {
             </Button>
 
           </header>
-          <main className="flex-1 pb-24 md:pb-10">
+          <main id="main-content" tabIndex={-1} className="flex-1 pb-24 md:pb-10">
             <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 pt-4 sm:pt-8">
               <WorkspaceAccessGate><Outlet /></WorkspaceAccessGate>
             </div>

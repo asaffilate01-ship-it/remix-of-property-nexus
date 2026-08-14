@@ -12,22 +12,50 @@ export type AppRole =
   | "inventory_clerk"
   | "utility_provider";
 
+const APP_ROLES: AppRole[] = [
+  "admin",
+  "agent",
+  "landlord",
+  "tenant",
+  "buyer",
+  "conveyancer",
+  "contractor",
+  "inventory_clerk",
+  "utility_provider",
+];
+
+function isAppRole(value: unknown): value is AppRole {
+  return typeof value === "string" && APP_ROLES.includes(value as AppRole);
+}
+
 export function useUserRole() {
   const [role, setRole] = useState<AppRole | null>(null);
   const [name, setName] = useState<string>("");
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
 
     const syncUser = async () => {
-      const { data: u } = await supabase.auth.getUser();
+      setLoading(true);
+      setError(null);
+      const { data: u, error: userError } = await supabase.auth.getUser();
       if (!active) return;
+      if (userError) {
+        setUserId(null);
+        setName("");
+        setRole(null);
+        setError("Your session could not be verified.");
+        setLoading(false);
+        return;
+      }
       if (!u.user) {
         setUserId(null);
         setName("");
         setRole(null);
+        setError(null);
         setLoading(false);
         return;
       }
@@ -36,17 +64,37 @@ export function useUserRole() {
       const meta = u.user.user_metadata as { full_name?: string } | undefined;
       setName(meta?.full_name ?? u.user.email ?? "");
 
-      const { data: p } = await supabase
-        .from("profiles")
-        .select("primary_role,full_name")
-        .eq("id", u.user.id)
-        .maybeSingle();
+      const [{ data: profile, error: profileError }, { data: roleRows, error: rolesError }] =
+        await Promise.all([
+          supabase
+            .from("profiles")
+            .select("primary_role,full_name")
+            .eq("id", u.user.id)
+            .maybeSingle(),
+          supabase.from("user_roles").select("role").eq("user_id", u.user.id),
+        ]);
 
       if (!active) return;
+      if (profileError || rolesError) {
+        setRole(null);
+        setError("Your authorised workspace could not be loaded.");
+        setLoading(false);
+        return;
+      }
+
       // Authorization roles come from the database, never mutable user metadata.
-      const r = (p?.primary_role as AppRole | undefined) ?? "landlord";
-      if (p?.full_name) setName(p.full_name);
-      setRole(r);
+      // An explicit admin assignment takes precedence so the MFA route guard and
+      // navigation shell cannot disagree about whether elevation is required.
+      const hasAdminRole = (roleRows ?? []).some((row) => row.role === "admin");
+      const resolvedRole = hasAdminRole ? "admin" : profile?.primary_role;
+      if (profile?.full_name) setName(profile.full_name);
+      if (!isAppRole(resolvedRole)) {
+        setRole(null);
+        setError("No valid workspace role is assigned to this account.");
+        setLoading(false);
+        return;
+      }
+      setRole(resolvedRole);
       setLoading(false);
     };
 
@@ -58,6 +106,7 @@ export function useUserRole() {
         setUserId(null);
         setName("");
         setRole(null);
+        setError(null);
         setLoading(false);
         return;
       }
@@ -70,5 +119,5 @@ export function useUserRole() {
     };
   }, []);
 
-  return { role, name, userId, loading };
+  return { role, name, userId, loading, error };
 }

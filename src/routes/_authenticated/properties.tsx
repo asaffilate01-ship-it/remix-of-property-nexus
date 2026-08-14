@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -31,6 +31,8 @@ import { PhotoUploader, type ListingPhoto } from "@/components/listings/PhotoUpl
 import { ComplianceEditor, type ComplianceMap } from "@/components/listings/ComplianceEditor";
 
 export const Route = createFileRoute("/_authenticated/properties")({
+  validateSearch: (search: Record<string, unknown>): { create?: boolean } =>
+    search.create === true || search.create === "true" ? { create: true } : {},
   head: () => ({ meta: [{ title: "Properties — Estately" }] }),
   component: PropertiesPage,
 });
@@ -76,6 +78,7 @@ const emptyTenancy = { id: "", room_id: "", tenant_name: "", tenant_email: "", t
 
 function PropertiesPage() {
   const navigate = useNavigate();
+  const search = useSearch({ from: "/_authenticated/properties" });
   const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60) + "-" + Math.random().toString(36).slice(2, 7);
 
   const listProperty = async (p: Property) => {
@@ -134,6 +137,19 @@ function PropertiesPage() {
   const [active, setActive] = useState<Property | null>(null);
   const [initialTab, setInitialTab] = useState<string>("rooms");
   const [ptypes, setPtypes] = useState<{ code: string; label: string; category: string }[]>([]);
+
+  useEffect(() => {
+    if (!search.create) return;
+    setForm(emptyProp);
+    setOpen(true);
+  }, [search.create]);
+
+  const onPropertyDialogChange = (nextOpen: boolean) => {
+    setOpen(nextOpen);
+    if (nextOpen) return;
+    setForm(emptyProp);
+    if (search.create) void navigate({ to: "/properties", search: {}, replace: true });
+  };
 
   const load = async () => {
     setLoading(true);
@@ -382,7 +398,7 @@ function PropertiesPage() {
       )}
 
       {/* Create / edit dialog */}
-      <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) setForm(emptyProp); }}>
+      <Dialog open={open} onOpenChange={onPropertyDialogChange}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{form.id ? "Edit property" : "Add property"}</DialogTitle></DialogHeader>
           <div className="grid sm:grid-cols-2 gap-3">

@@ -1,0 +1,123 @@
+export const SUPPORTED_LOCALES = ["en-GB", "cy-GB"] as const;
+
+export type AppLocale = (typeof SUPPORTED_LOCALES)[number];
+
+export const DEFAULT_LOCALE: AppLocale = "en-GB";
+
+export const LOCALE_LABELS: Record<AppLocale, string> = {
+  "en-GB": "English (UK)",
+  "cy-GB": "Cymraeg (Welsh)",
+};
+
+const WELSH_UI: Record<string, string> = {
+  Overview: "Trosolwg",
+  Dashboard: "Dangosfwrdd",
+  "Admin dashboard": "Dangosfwrdd gweinyddol",
+  "Alerts & expiries": "Rhybuddion a dyddiadau dod i ben",
+  Automations: "Awtomeiddiadau",
+  Reports: "Adroddiadau",
+  "Platform reports": "Adroddiadau platfform",
+  "Properties & listings": "Eiddo a rhestrau",
+  Properties: "Eiddo",
+  Listings: "Rhestrau",
+  "Floorplans & EPC": "Cynlluniau llawr ac EPC",
+  "AI listing copy": "Testun rhestr AI",
+  "Pipeline & deals": "Piblinell a bargeinion",
+  Leads: "Ymholiadau",
+  Buyers: "Prynwyr",
+  Sellers: "Gwerthwyr",
+  Viewings: "Gwyliadau",
+  Pipeline: "Piblinell",
+  "Lettings pipeline": "Piblinell gosod",
+  "Sales pipeline": "Piblinell werthu",
+  "Offers & chains": "Cynigion a chadwyni",
+  "Tenancy ops": "Gweithrediadau tenantiaeth",
+  Tenancies: "Tenantiaethau",
+  Tenants: "Tenantiaid",
+  "Holiday lets": "Llety gwyliau",
+  Inspections: "Archwiliadau",
+  "On-site inspection": "Archwiliad ar y safle",
+  "Move in / out": "Symud i mewn / allan",
+  Renewals: "Adnewyddiadau",
+  Arrears: "Ôl-ddyledion",
+  "Bank reconciliation": "Cysoni banc",
+  "Work orders": "Gorchmynion gwaith",
+  "Find a contractor": "Dod o hyd i gontractwr",
+  "Survey & site capture": "Arolwg a chofnodi safle",
+  "Compliance & docs": "Cydymffurfiaeth a dogfennau",
+  Compliance: "Cydymffurfiaeth",
+  "Compliance oversight": "Goruchwyliaeth cydymffurfiaeth",
+  Referencing: "Geirdaon",
+  "Right to Rent": "Hawl i Rentu",
+  Deposits: "Blaendaliadau",
+  "Leasehold register": "Cofrestr lesddaliad",
+  "Document templates": "Templedi dogfennau",
+  "E-signatures": "E-lofnodion",
+  "Document vault": "Claddgell ddogfennau",
+  Documents: "Dogfennau",
+  "Evidence capture": "Cofnodi tystiolaeth",
+  "Owner statements": "Datganiadau perchennog",
+  Statements: "Datganiadau",
+  Workspace: "Gweithle",
+  Contacts: "Cysylltiadau",
+  Agency: "Asiantaeth",
+  "Agency profile": "Proffil asiantaeth",
+  Team: "Tîm",
+  Branches: "Canghennau",
+  Settings: "Gosodiadau",
+  Platform: "Platfform",
+  "Users & agencies": "Defnyddwyr ac asiantaethau",
+  Today: "Heddiw",
+  Stock: "Stoc",
+  Ops: "Gweithrediadau",
+  Portfolio: "Portffolio",
+  Home: "Hafan",
+  Messages: "Negeseuon",
+  "My tenancy": "Fy nhenantiaeth",
+  "Repair requests": "Ceisiadau atgyweirio",
+  "Photo / video capture": "Cofnodi llun / fideo",
+  "Photo / video proof": "Tystiolaeth llun / fideo",
+  "My documents": "Fy nogfennau",
+  "Browse homes": "Pori cartrefi",
+  Jobs: "Swyddi",
+  "My jobs": "Fy swyddi",
+  "Site photos / video": "Lluniau / fideo safle",
+  "Bid on jobs": "Cynnig am swyddi",
+  Matters: "Materion",
+  Buying: "Prynu",
+  Browse: "Pori",
+  "Saved searches": "Chwiliadau wedi'u cadw",
+  "My sale": "Fy ngwerthiant",
+  "My enquiries": "Fy ymholiadau",
+  Work: "Gwaith",
+  Assignments: "Aseiniadau",
+  More: "Mwy",
+  Repairs: "Atgyweiriadau",
+  Docs: "Dogfennau",
+  Saved: "Wedi'u cadw",
+  Progress: "Cynnydd",
+  Tasks: "Tasgau",
+  Evidence: "Tystiolaeth",
+  "New property": "Eiddo newydd",
+  "New listing": "Rhestr newydd",
+  "New deal": "Bargen newydd",
+  "New contact": "Cyswllt newydd",
+  "Add to portfolio": "Ychwanegu at bortffolio",
+  "Publish to market": "Cyhoeddi i'r farchnad",
+  "Track in pipeline": "Olrhain yn y biblinell",
+  "Landlord, tenant, supplier": "Landlord, tenant, cyflenwr",
+  "Sign out": "Allgofnodi",
+  Recent: "Diweddar",
+};
+
+export function isAppLocale(value: unknown): value is AppLocale {
+  return typeof value === "string" && SUPPORTED_LOCALES.includes(value as AppLocale);
+}
+
+export function translateUi(locale: AppLocale, value: string): string {
+  return locale === "cy-GB" ? (WELSH_UI[value] ?? value) : value;
+}
+
+export function formatCurrency(locale: AppLocale, value: number, currency = "GBP"): string {
+  return new Intl.NumberFormat(locale, { style: "currency", currency }).format(value);
+}

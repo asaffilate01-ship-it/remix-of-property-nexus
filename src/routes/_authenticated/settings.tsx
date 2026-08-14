@@ -10,8 +10,17 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Check, CreditCard, ExternalLink, KeyRound, Loader2, Shield } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Check, CreditCard, ExternalLink, KeyRound, Languages, Loader2, Shield } from "lucide-react";
 import { toast } from "sonner";
+import { useLocale } from "@/hooks/useLocale";
+import { LOCALE_LABELS, SUPPORTED_LOCALES, type AppLocale } from "@/lib/locale";
 import { listPermissions, updatePermission } from "@/lib/branches.functions";
 import {
   createBillingPortalSession,
@@ -46,6 +55,7 @@ const CAP_LABEL: Record<string, string> = {
 
 function SettingsPage() {
   const search = useSearch({ from: "/_authenticated/settings" });
+  const { locale, setLocale } = useLocale();
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -158,6 +168,33 @@ function SettingsPage() {
                   {passwordBusy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Update
                   password
                 </Button>
+              </CardContent>
+            </Card>
+            <Card className="border-0 shadow-card">
+              <CardContent className="max-w-lg space-y-4 p-6">
+                <div className="flex items-center gap-2 font-semibold">
+                  <Languages className="h-4 w-4 text-primary" aria-hidden="true" /> Language and region
+                </div>
+                <div>
+                  <Label htmlFor="workspace-language">Workspace language</Label>
+                  <Select value={locale} onValueChange={(value) => setLocale(value as AppLocale)}>
+                    <SelectTrigger id="workspace-language" className="mt-1.5">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {SUPPORTED_LOCALES.map((supportedLocale) => (
+                        <SelectItem key={supportedLocale} value={supportedLocale}>
+                          {LOCALE_LABELS[supportedLocale]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Navigation is available in UK English and Welsh. Untranslated product and legal
+                  content safely falls back to UK English while the wider translation programme is
+                  completed.
+                </p>
               </CardContent>
             </Card>
           </div>

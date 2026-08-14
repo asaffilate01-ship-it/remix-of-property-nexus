@@ -1,5 +1,7 @@
-import { useEffect, useState, useCallback } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
+import { ArrowRight, Building2, Clock, FileText, Mail, SearchX, Users, Wrench } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import {
   CommandDialog,
   CommandEmpty,
@@ -10,81 +12,62 @@ import {
   CommandSeparator,
 } from "@/components/ui/command";
 import { supabase } from "@/integrations/supabase/client";
+import { useLocale } from "@/hooks/useLocale";
 import { useRecentRoutes } from "@/hooks/useRecentRoutes";
+import { useUserRole } from "@/hooks/useUserRole";
+import { translateUi } from "@/lib/locale";
 import {
-  Home,
-  Building2,
-  Users,
-  FileText,
-  Banknote,
-  ClipboardList,
-  CalendarClock,
-  Wrench,
-  Shield,
-  Mail,
-  Settings,
-  Plus,
-  ArrowRight,
-  Clock,
-} from "lucide-react";
+  commandActionsForRole,
+  commandNavigationForRole,
+  searchResourcesForRole,
+} from "@/lib/navigation";
 
 type Hit = {
   id: string;
   label: string;
-  sub?: string;
+  description?: string;
   to: string;
   params?: Record<string, string>;
-  icon: typeof Home;
+  search?: Record<string, boolean>;
+  icon: LucideIcon;
 };
 
-const NAV: Hit[] = [
-  { id: "n-dash", label: "Dashboard", to: "/dashboard", icon: Home },
-  { id: "n-prop", label: "Properties", to: "/properties", icon: Building2 },
-  { id: "n-list", label: "Listings", to: "/listings", icon: FileText },
-  { id: "n-leads", label: "Leads", to: "/leads", icon: Mail },
-  { id: "n-view", label: "Viewings", to: "/viewings", icon: CalendarClock },
-  { id: "n-pipe", label: "Pipeline", to: "/pipeline", icon: ClipboardList },
-  { id: "n-ten", label: "Tenancies", to: "/tenancies", icon: Users },
-  { id: "n-arr", label: "Arrears", to: "/arrears", icon: Banknote },
-  { id: "n-bank", label: "Bank reconciliation", to: "/banking", icon: Banknote },
-  { id: "n-ren", label: "Renewals", to: "/renewals", icon: CalendarClock },
-  { id: "n-work", label: "Work orders", to: "/work-orders", icon: Wrench },
-  { id: "n-comp", label: "Compliance", to: "/compliance", icon: Shield },
-  { id: "n-doc", label: "Documents", to: "/documents", icon: FileText },
-  { id: "n-con", label: "Contacts", to: "/contacts", icon: Users },
-  { id: "n-team", label: "Team", to: "/team", icon: Users },
-  { id: "n-set", label: "Settings", to: "/settings", icon: Settings },
-];
-
-const ACTIONS: Hit[] = [
-  { id: "a-prop", label: "New property", sub: "Add to portfolio", to: "/properties", icon: Plus },
-  { id: "a-list", label: "New listing", sub: "Publish to market", to: "/listings", icon: Plus },
-  { id: "a-deal", label: "New deal", sub: "Track in pipeline", to: "/pipeline", icon: Plus },
-  {
-    id: "a-con",
-    label: "New contact",
-    sub: "Landlord, tenant, supplier",
-    to: "/contacts",
-    icon: Plus,
-  },
-];
+function safeSearchTerm(value: string): string {
+  return value
+    .trim()
+    .replace(/[,%()]/g, " ")
+    .replace(/\s+/g, " ")
+    .slice(0, 80);
+}
 
 export function CommandPalette() {
   const [open, setOpen] = useState(false);
-  const [q, setQ] = useState("");
+  const [query, setQuery] = useState("");
   const [hits, setHits] = useState<Hit[]>([]);
+  const [searchError, setSearchError] = useState(false);
+  const searchSequence = useRef(0);
   const navigate = useNavigate();
   const { items: recent } = useRecentRoutes();
+  const { role, loading: roleLoading } = useUserRole();
+  const { locale } = useLocale();
+
+  const navigation = useMemo(() => commandNavigationForRole(role), [role]);
+  const actions = useMemo(() => commandActionsForRole(role), [role]);
+  const resources = useMemo(() => new Set(searchResourcesForRole(role)), [role]);
+  const authorisedPaths = useMemo(() => new Set(navigation.map((item) => item.to)), [navigation]);
+  const authorisedRecent = recent.filter((item) =>
+    [...authorisedPaths].some((path) => item.to === path || item.to.startsWith(`${path}/`)),
+  );
 
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if ((e.key === "k" || e.key === "K") && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault();
-        setOpen((o) => !o);
+    const onKey = (event: KeyboardEvent) => {
+      if ((event.key === "k" || event.key === "K") && (event.metaKey || event.ctrlKey)) {
+        event.preventDefault();
+        setOpen((current) => !current);
       }
     };
-    window.addEventListener("keydown", onKey);
     const openHandler = () => setOpen(true);
+    window.addEventListener("keydown", onKey);
     window.addEventListener("open-command-palette", openHandler);
     return () => {
       window.removeEventListener("keydown", onKey);
@@ -92,172 +75,273 @@ export function CommandPalette() {
     };
   }, []);
 
-  const search = useCallback(async (term: string) => {
-    if (!term || term.length < 2) {
-      setHits([]);
-      return;
-    }
-    const like = `%${term}%`;
-    const [props, contacts, listings, leads, workOrders, tenancies] = await Promise.all([
-      supabase
-        .from("properties")
-        .select("id,title,address,city")
-        .or(`title.ilike.${like},address.ilike.${like},city.ilike.${like}`)
-        .limit(4),
-      supabase
-        .from("contacts")
-        .select("id,full_name,email")
-        .or(`full_name.ilike.${like},email.ilike.${like}`)
-        .limit(4),
-      supabase
-        .from("listings")
-        .select("id,slug,title,city")
-        .or(`title.ilike.${like},city.ilike.${like}`)
-        .limit(4),
-      supabase
-        .from("leads")
-        .select("id,name,email,status")
-        .or(`name.ilike.${like},email.ilike.${like}`)
-        .limit(4),
-      supabase.from("work_orders").select("id,title,status").ilike("title", like).limit(4),
-      supabase.from("tenancies").select("id,property_id").limit(0), // placeholder; tenancies have no name field
-    ]);
-    void tenancies;
-    const out: Hit[] = [];
-    (props.data ?? []).forEach((r) =>
-      out.push({
-        id: "p" + r.id,
-        label: r.title ?? r.address ?? "Property",
-        sub: r.city ?? "Property",
-        to: "/properties",
-        icon: Building2,
-      }),
-    );
-    (listings.data ?? []).forEach((r) =>
-      out.push({
-        id: "l" + r.id,
-        label: r.title ?? "Listing",
-        sub: r.city ?? "Listing",
-        to: "/marketplace/$slug",
-        params: { slug: r.slug },
-        icon: FileText,
-      }),
-    );
-    (leads.data ?? []).forEach((r) =>
-      out.push({
-        id: "ld" + r.id,
-        label: r.name,
-        sub: (r.status ?? "lead").replace(/_/g, " "),
-        to: "/leads/$id",
-        params: { id: r.id },
-        icon: Mail,
-      }),
-    );
-    (workOrders.data ?? []).forEach((r) =>
-      out.push({
-        id: "wo" + r.id,
-        label: r.title,
-        sub: (r.status ?? "open").replace(/_/g, " "),
-        to: "/work-orders/$id",
-        params: { id: r.id },
-        icon: Wrench,
-      }),
-    );
-    (contacts.data ?? []).forEach((r) =>
-      out.push({
-        id: "c" + r.id,
-        label: r.full_name ?? r.email ?? "Contact",
-        sub: r.email ?? "Contact",
-        to: "/contacts",
-        icon: Users,
-      }),
-    );
-    setHits(out);
-  }, []);
+  const search = useCallback(
+    async (rawTerm: string) => {
+      const sequence = ++searchSequence.current;
+      const term = safeSearchTerm(rawTerm);
+      setSearchError(false);
+      if (!role || term.length < 2 || resources.size === 0) {
+        setHits([]);
+        return;
+      }
+
+      const pattern = `%${term}%`;
+      const searches: PromiseLike<Hit[]>[] = [];
+
+      if (resources.has("properties")) {
+        searches.push(
+          supabase
+            .from("properties")
+            .select("id,title,address,city")
+            .ilike("title", pattern)
+            .limit(4)
+            .then(({ data, error }): Hit[] => {
+              if (error) throw error;
+              return (data ?? []).map((row) => ({
+                id: `property-${row.id}`,
+                label: row.title ?? row.address ?? "Property",
+                description: row.city ?? "Property",
+                to: "/properties",
+                icon: Building2,
+              }));
+            }),
+        );
+      }
+
+      if (resources.has("contacts")) {
+        searches.push(
+          supabase
+            .from("contacts")
+            .select("id,full_name,email")
+            .ilike("full_name", pattern)
+            .limit(4)
+            .then(({ data, error }): Hit[] => {
+              if (error) throw error;
+              return (data ?? []).map((row) => ({
+                id: `contact-${row.id}`,
+                label: row.full_name ?? row.email ?? "Contact",
+                description: row.email ?? "Contact",
+                to: "/contacts",
+                icon: Users,
+              }));
+            }),
+        );
+      }
+
+      if (resources.has("listings")) {
+        searches.push(
+          supabase
+            .from("listings")
+            .select("id,slug,title,city")
+            .ilike("title", pattern)
+            .limit(4)
+            .then(({ data, error }): Hit[] => {
+              if (error) throw error;
+              return (data ?? []).map((row) => ({
+                id: `listing-${row.id}`,
+                label: row.title ?? "Listing",
+                description: row.city ?? "Listing",
+                to: "/marketplace/$slug",
+                params: { slug: row.slug },
+                icon: FileText,
+              }));
+            }),
+        );
+      }
+
+      if (resources.has("leads")) {
+        searches.push(
+          supabase
+            .from("leads")
+            .select("id,name,status")
+            .ilike("name", pattern)
+            .limit(4)
+            .then(({ data, error }): Hit[] => {
+              if (error) throw error;
+              return (data ?? []).map((row) => ({
+                id: `lead-${row.id}`,
+                label: row.name,
+                description: (row.status ?? "lead").replace(/_/g, " "),
+                to: "/leads/$id",
+                params: { id: row.id },
+                icon: Mail,
+              }));
+            }),
+        );
+      }
+
+      if (resources.has("workOrders")) {
+        searches.push(
+          supabase
+            .from("work_orders")
+            .select("id,title,status")
+            .ilike("title", pattern)
+            .limit(4)
+            .then(({ data, error }): Hit[] => {
+              if (error) throw error;
+              return (data ?? []).map((row) => ({
+                id: `work-order-${row.id}`,
+                label: row.title,
+                description: (row.status ?? "open").replace(/_/g, " "),
+                to: "/work-orders/$id",
+                params: { id: row.id },
+                icon: Wrench,
+              }));
+            }),
+        );
+      }
+
+      try {
+        const resultGroups = await Promise.all(searches);
+        if (sequence !== searchSequence.current) return;
+        setHits(resultGroups.flat());
+      } catch {
+        if (sequence !== searchSequence.current) return;
+        setHits([]);
+        setSearchError(true);
+      }
+    },
+    [resources, role],
+  );
 
   useEffect(() => {
-    const h = setTimeout(() => search(q), 200);
-    return () => clearTimeout(h);
-  }, [q, search]);
+    const timeout = window.setTimeout(() => void search(query), 250);
+    return () => window.clearTimeout(timeout);
+  }, [query, search]);
 
-  const go = (h: Hit) => {
+  useEffect(() => {
+    setHits([]);
+    setQuery("");
+  }, [role]);
+
+  const go = async (hit: Hit) => {
     setOpen(false);
-    setQ("");
-    if (h.params) navigate({ to: h.to, params: h.params } as never);
-    else navigate({ to: h.to });
+    setQuery("");
+    await navigate({
+      to: hit.to,
+      params: hit.params,
+      search: hit.search,
+    } as never);
   };
+
+  const emptyMessage = roleLoading
+    ? "Loading your authorised actions…"
+    : searchError
+      ? "Search is temporarily unavailable. Navigation still works below."
+      : query.length < 2
+        ? "Start typing to search…"
+        : "No authorised results found.";
 
   return (
     <CommandDialog open={open} onOpenChange={setOpen}>
       <CommandInput
-        placeholder="Search properties, listings, leads, work orders, contacts…"
-        value={q}
-        onValueChange={setQ}
+        placeholder="Search your workspace…"
+        value={query}
+        onValueChange={setQuery}
+        aria-label="Search authorised workspace records and navigation"
       />
       <CommandList>
-        <CommandEmpty>{q.length < 2 ? "Start typing to search…" : "No results."}</CommandEmpty>
-        {q.length < 2 && recent.length > 0 && (
+        <CommandEmpty>
+          <span className="inline-flex items-center gap-2">
+            {searchError && <SearchX className="h-4 w-4" aria-hidden="true" />}
+            {emptyMessage}
+          </span>
+        </CommandEmpty>
+
+        {query.length < 2 && authorisedRecent.length > 0 && (
           <>
-            <CommandGroup heading="Recent">
-              {recent.map((r) => (
+            <CommandGroup heading={translateUi(locale, "Recent")}>
+              {authorisedRecent.slice(0, 6).map((item) => (
                 <CommandItem
-                  key={r.to}
-                  onSelect={() => {
-                    setOpen(false);
-                    navigate({ to: r.to } as never);
-                  }}
+                  key={item.to}
+                  onSelect={() =>
+                    void go({
+                      id: `recent-${item.to}`,
+                      label: item.label,
+                      to: item.to,
+                      icon: Clock,
+                    })
+                  }
                 >
-                  <Clock className="h-4 w-4 mr-2 opacity-60" />
-                  <span className="flex-1 capitalize">{r.label}</span>
-                  <span className="text-xs text-muted-foreground">{r.to}</span>
+                  <Clock className="mr-2 h-4 w-4 opacity-60" aria-hidden="true" />
+                  <span className="flex-1 capitalize">{translateUi(locale, item.label)}</span>
+                  <span className="text-xs text-muted-foreground">{item.to}</span>
                 </CommandItem>
               ))}
             </CommandGroup>
             <CommandSeparator />
           </>
         )}
+
         {hits.length > 0 && (
           <CommandGroup heading="Records">
-            {hits.map((h) => {
-              const Icon = h.icon;
-              return (
-                <CommandItem key={h.id} onSelect={() => go(h)}>
-                  <Icon className="h-4 w-4 mr-2 opacity-60" />
-                  <span className="flex-1">{h.label}</span>
-                  {h.sub && (
-                    <span className="text-xs text-muted-foreground capitalize">{h.sub}</span>
-                  )}
-                  <ArrowRight className="h-3 w-3 ml-2 opacity-40" />
-                </CommandItem>
-              );
-            })}
+            {hits.map((hit) => (
+              <CommandItem key={hit.id} onSelect={() => void go(hit)}>
+                <hit.icon className="mr-2 h-4 w-4 opacity-60" aria-hidden="true" />
+                <span className="flex-1">{hit.label}</span>
+                {hit.description && (
+                  <span className="text-xs capitalize text-muted-foreground">
+                    {hit.description}
+                  </span>
+                )}
+                <ArrowRight className="ml-2 h-3 w-3 opacity-40" aria-hidden="true" />
+              </CommandItem>
+            ))}
           </CommandGroup>
         )}
-        <CommandSeparator />
-        <CommandGroup heading="Quick actions">
-          {ACTIONS.map((a) => {
-            const Icon = a.icon;
-            return (
-              <CommandItem key={a.id} onSelect={() => go(a)}>
-                <Icon className="h-4 w-4 mr-2 opacity-60" />
-                <span className="flex-1">{a.label}</span>
-                {a.sub && <span className="text-xs text-muted-foreground">{a.sub}</span>}
-              </CommandItem>
-            );
-          })}
-        </CommandGroup>
-        <CommandSeparator />
-        <CommandGroup heading="Navigate">
-          {NAV.map((n) => {
-            const Icon = n.icon;
-            return (
-              <CommandItem key={n.id} onSelect={() => go(n)}>
-                <Icon className="h-4 w-4 mr-2 opacity-60" />
-                {n.label}
-              </CommandItem>
-            );
-          })}
-        </CommandGroup>
+
+        {actions.length > 0 && (
+          <>
+            <CommandSeparator />
+            <CommandGroup heading="Quick actions">
+              {actions.map((action) => (
+                <CommandItem
+                  key={`${action.to}-${action.label}`}
+                  onSelect={() =>
+                    void go({
+                      id: `action-${action.label}`,
+                      label: action.label,
+                      description: action.description,
+                      to: action.to,
+                      search: action.search,
+                      icon: action.icon,
+                    })
+                  }
+                >
+                  <action.icon className="mr-2 h-4 w-4 opacity-60" aria-hidden="true" />
+                  <span className="flex-1">{translateUi(locale, action.label)}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {translateUi(locale, action.description)}
+                  </span>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </>
+        )}
+
+        {navigation.length > 0 && (
+          <>
+            <CommandSeparator />
+            <CommandGroup heading="Navigate">
+              {navigation.map((item) => (
+                <CommandItem
+                  key={item.to}
+                  onSelect={() =>
+                    void go({
+                      id: `navigation-${item.to}`,
+                      label: item.label,
+                      to: item.to,
+                      icon: item.icon,
+                    })
+                  }
+                >
+                  <item.icon className="mr-2 h-4 w-4 opacity-60" aria-hidden="true" />
+                  {translateUi(locale, item.label)}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </>
+        )}
       </CommandList>
     </CommandDialog>
   );

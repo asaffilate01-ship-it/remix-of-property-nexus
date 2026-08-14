@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
@@ -14,14 +14,29 @@ const stages = ["lead","contacted","viewing","offer","negotiation","agreed","com
 type Deal = { id: string; title: string; contact_name: string | null; stage: typeof stages[number]; value: number | null };
 
 export const Route = createFileRoute("/_authenticated/pipeline")({
+  validateSearch: (search: Record<string, unknown>): { create?: boolean } =>
+    search.create === true || search.create === "true" ? { create: true } : {},
   head: () => ({ meta: [{ title: "Pipeline — Estately" }] }),
   component: PipelinePage,
 });
 
 function PipelinePage() {
+  const navigate = useNavigate();
+  const search = useSearch({ from: "/_authenticated/pipeline" });
   const [rows, setRows] = useState<Deal[]>([]);
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ title: "", contact_name: "", stage: "lead" as typeof stages[number], value: "" });
+
+  useEffect(() => {
+    if (search.create) setOpen(true);
+  }, [search.create]);
+
+  const onDealDialogChange = (nextOpen: boolean) => {
+    setOpen(nextOpen);
+    if (!nextOpen && search.create) {
+      void navigate({ to: "/pipeline", search: {}, replace: true });
+    }
+  };
 
   const load = async () => {
     const { data } = await supabase.from("deals").select("*").order("created_at", { ascending: false });
@@ -48,7 +63,7 @@ function PipelinePage() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div><h1 className="text-2xl font-bold">Pipeline</h1><p className="text-muted-foreground text-sm">Sales & lettings deals.</p></div>
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={onDealDialogChange}>
           <DialogTrigger asChild><Button><Plus className="mr-2 h-4 w-4" /> New deal</Button></DialogTrigger>
           <DialogContent>
             <DialogHeader><DialogTitle>New deal</DialogTitle></DialogHeader>

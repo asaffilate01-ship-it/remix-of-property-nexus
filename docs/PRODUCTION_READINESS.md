@@ -55,9 +55,17 @@ assurance work that must be completed in the target environment.
 ## UI and flow changes
 
 - Role-specific desktop and mobile navigation now points to the correct home and workflow pages.
+- Desktop, mobile and command-palette navigation share one role-aware registry, fail closed while
+  access is unresolved and no longer expose unrelated record searches or creation actions.
+- Command-palette creation actions now open the actual property, listing, deal and contact dialogs
+  instead of navigating to a page without performing the advertised action.
 - Bank reconciliation is reachable from relevant agent/landlord menus and the command palette.
-- Active destinations expose `aria-current`; the public mobile menu has an accessible title.
+- Active destinations expose `aria-current`; skip navigation, real disclosure buttons, visible
+  keyboard focus and accessible mobile/full-menu labels improve keyboard and screen-reader flow.
 - Duplicate public-menu destinations were removed.
+- The navigation shell now supports persisted UK English and Welsh preferences, including the
+  document language attribute and locale-aware menu filtering. Untranslated product/legal copy
+  deliberately falls back to UK English.
 - Cards, tabs and page headers use consistent radii, borders, spacing, touch targets, mobile
   wrapping and horizontal tab overflow.
 - Saved-search email/push controls and “instant alert” claims were removed until a delivery
@@ -88,7 +96,7 @@ These cannot be completed safely from the repository alone:
 2. Reconcile the three duplicated historical Supabase migrations against the hosted migration
    ledger, then apply `20260813223000_lock_down_public_leads.sql` and
    `20260813224500_atomic_bank_matching.sql`, followed by the email-delivery migrations and
-   `20260814210000_admin_mfa_hardening.sql`, in staging and production.
+   `20260814203243_7a63a560-48cb-492c-8edd-192116675765.sql`, in staging and production.
 3. Regenerate Supabase TypeScript types after migrations; run the role/RLS test matrix using
    real tenant, landlord, agent, contractor, buyer, conveyancer and admin accounts. Review every
    historical admin assignment and explicitly authorize only verified platform operators.
@@ -101,9 +109,9 @@ These cannot be completed safely from the repository alone:
 7. Verify the transactional-email sender domain, sending-only provider key, scheduled worker and
    signed Resend webhook in production; test bounce, complaint and suppression events end to end.
    Web Push still requires a subscription/VAPID implementation as a separate phase.
-8. The product UI is currently English-only. Internationalisation needs message extraction,
-   locale routing, translated legal/product copy, plural/date/currency rules and linguistic QA;
-   the planned “Multi-language” add-on is explicitly marked as roadmap-only.
+8. The navigation shell supports UK English and Welsh, but complete internationalisation still
+   needs message extraction across every feature, translated legal/product copy, plural/date rules
+   and professional linguistic QA before Welsh can be marketed as a fully translated product.
 9. Complete accessibility testing with keyboard, screen reader, zoom and colour-contrast checks;
    complete independent penetration testing and UK legal/privacy review.
 10. Configure monitoring, backups, recovery drills, data retention/deletion, support ownership,
