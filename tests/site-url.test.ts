@@ -7,11 +7,11 @@ test("normalizes an HTTPS production URL", () => {
 });
 
 test("rejects insecure, credentialed, and malformed canonical URLs", () => {
-  assert.equal(normalizeSiteUrl("http://estately.app"), "https://estately.app");
-  assert.equal(normalizeSiteUrl("https://user:pass@estately.app"), "https://estately.app");
-  assert.equal(normalizeSiteUrl("not-a-url"), "https://estately.app");
+  assert.equal(normalizeSiteUrl("http://estately.app"), "https://estate-elevate-hq.lovable.app");
+  assert.equal(normalizeSiteUrl("https://user:pass@estately.app"), "https://estate-elevate-hq.lovable.app");
+  assert.equal(normalizeSiteUrl("not-a-url"), "https://estate-elevate-hq.lovable.app");
 });
 
 test("keeps canonical paths on the configured origin", () => {
-  assert.equal(siteUrl("//evil.example/path"), "https://estately.app/evil.example/path");
+  assert.equal(siteUrl("//evil.example/path"), "https://estate-elevate-hq.lovable.app/evil.example/path");
 });
