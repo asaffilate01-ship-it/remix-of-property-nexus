@@ -109,9 +109,15 @@ export function LocationMarketPage({ data }: { data: LocationMarketData }) {
           <Card className="border-0 shadow-card">
             <CardContent className="p-6">
               <h2 className="font-semibold flex items-center gap-2 mb-3"><Building2 className="h-4 w-4" /> Where people search in {loc.name}</h2>
-              <ul className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
-                {loc.neighbourhoods.map((n) => <li key={n}>{n}</li>)}
-              </ul>
+              {loc.neighbourhoods.length > 0 ? (
+                <ul className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
+                  {loc.neighbourhoods.map((n) => <li key={n}>{n}</li>)}
+                </ul>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Buyers and renters searching {loc.name} usually start with the {loc.postcodes.join(", ")} postcode area and the surrounding {loc.county} villages.
+                </p>
+              )}
               {stats.bedBuckets.some((b) => b.count > 0) && (
                 <div className="mt-5 flex flex-wrap gap-2">
                   {stats.bedBuckets.filter((b) => b.count > 0).map((b) => (
@@ -123,15 +129,18 @@ export function LocationMarketPage({ data }: { data: LocationMarketData }) {
               )}
             </CardContent>
           </Card>
-          <Card className="border-0 shadow-card">
-            <CardContent className="p-6">
-              <h2 className="font-semibold flex items-center gap-2 mb-3"><Train className="h-4 w-4" /> Getting around</h2>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                {loc.transport.map((t) => <li key={t}>{t}</li>)}
-              </ul>
-            </CardContent>
-          </Card>
+          {loc.transport.length > 0 && (
+            <Card className="border-0 shadow-card">
+              <CardContent className="p-6">
+                <h2 className="font-semibold flex items-center gap-2 mb-3"><Train className="h-4 w-4" /> Getting around</h2>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  {loc.transport.map((t) => <li key={t}>{t}</li>)}
+                </ul>
+              </CardContent>
+            </Card>
+          )}
         </section>
+
 
         {nearby.length > 0 && (
           <section className="mt-12">
