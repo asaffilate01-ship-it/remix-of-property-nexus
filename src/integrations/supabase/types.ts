@@ -4296,6 +4296,10 @@ export type Database = {
         }
         Returns: string
       }
+      ensure_user_workspace: {
+        Args: never
+        Returns: Database["public"]["Enums"]["app_role"]
+      }
       get_agency_entitlements: { Args: { _agency_id: string }; Returns: Json }
       has_capability: {
         Args: { _agency: string; _capability: string; _user: string }

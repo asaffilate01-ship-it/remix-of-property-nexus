@@ -86,14 +86,20 @@ export function useUserRole() {
       // An explicit admin assignment takes precedence so the MFA route guard and
       // navigation shell cannot disagree about whether elevation is required.
       const hasAdminRole = (roleRows ?? []).some((row) => row.role === "admin");
-      const resolvedRole = hasAdminRole ? "admin" : profile?.primary_role;
+      let resolvedRole: unknown = hasAdminRole ? "admin" : profile?.primary_role;
       if (profile?.full_name) setName(profile.full_name);
+      if (!isAppRole(resolvedRole)) {
+        const { data: provisioned } = await supabase.rpc("ensure_user_workspace");
+        if (!active) return;
+        resolvedRole = provisioned;
+      }
       if (!isAppRole(resolvedRole)) {
         setRole(null);
         setError("No valid workspace role is assigned to this account.");
         setLoading(false);
         return;
       }
+
       setRole(resolvedRole);
       setLoading(false);
     };
