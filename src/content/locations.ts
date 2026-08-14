@@ -640,6 +640,59 @@ const CURATED_LOCATIONS: UkLocation[] = [
   },
 ];
 
+function slugify(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/['’.]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+function generatedLocations(): UkLocation[] {
+  const taken = new Set(CURATED_LOCATIONS.map((l) => l.slug));
+  const takenNames = new Set(CURATED_LOCATIONS.map((l) => l.name.toLowerCase()));
+  const out: UkLocation[] = [];
+
+  for (const [name, county, region, postcode] of UK_TOWNS) {
+    if (takenNames.has(name.toLowerCase()) && out.every((o) => o.name !== name)) continue;
+    let slug = slugify(name);
+    if (taken.has(slug)) slug = `${slug}-${slugify(county)}`;
+    if (taken.has(slug)) continue;
+    taken.add(slug);
+
+    out.push({
+      slug,
+      city: name,
+      name,
+      county,
+      region,
+      postcodes: [postcode],
+      intro: `${name} sits in ${county} and is covered by the ${postcode} postcode area. This page tracks every live sale and rental listing in ${name} from verified agents on Estately, with local pricing, bedroom mix and HMO availability updated as new properties are published.`,
+      neighbourhoods: [],
+      transport: [],
+      nearby: [],
+    });
+  }
+
+  // Link nearby areas: same postcode area first, then same county, then same region.
+  const all = [...CURATED_LOCATIONS, ...out];
+  for (const loc of out) {
+    const score = (other: UkLocation) =>
+      other.postcodes.some((p) => loc.postcodes.includes(p)) ? 0 : other.county === loc.county ? 1 : 2;
+    loc.nearby = all
+      .filter((o) => o.slug !== loc.slug && o.region === loc.region)
+      .sort((a, b) => score(a) - score(b))
+      .slice(0, 4)
+      .map((o) => o.slug);
+  }
+
+  return out;
+}
+
+export const LOCATIONS: UkLocation[] = [...CURATED_LOCATIONS, ...generatedLocations()].sort((a, b) =>
+  a.name.localeCompare(b.name),
+);
+
 export function findLocation(slug: string): UkLocation | null {
   return LOCATIONS.find((l) => l.slug === slug) ?? null;
 }
@@ -648,3 +701,4 @@ export const LOCATIONS_BY_REGION = LOCATIONS.reduce<Record<string, UkLocation[]>
   (acc[l.region] ??= []).push(l);
   return acc;
 }, {});
+
