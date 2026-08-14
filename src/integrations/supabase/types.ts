@@ -1857,6 +1857,30 @@ export type Database = {
           },
         ]
       }
+      platform_admin_authorizations: {
+        Row: {
+          authorized_at: string
+          authorized_by: string | null
+          reason: string
+          revoked_at: string | null
+          user_id: string
+        }
+        Insert: {
+          authorized_at?: string
+          authorized_by?: string | null
+          reason: string
+          revoked_at?: string | null
+          user_id: string
+        }
+        Update: {
+          authorized_at?: string
+          authorized_by?: string | null
+          reason?: string
+          revoked_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -4241,6 +4265,14 @@ export type Database = {
           isOneToOne: false
           isSetofReturn: true
         }
+      }
+      current_platform_admin_security_status: {
+        Args: never
+        Returns: {
+          is_aal2: boolean
+          is_admin_role: boolean
+          is_authorized: boolean
+        }[]
       }
       current_user_contact_ids: { Args: never; Returns: string[] }
       enqueue_email:
