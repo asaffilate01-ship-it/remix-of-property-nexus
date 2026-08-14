@@ -7,7 +7,7 @@
 2. Back up the database and reconcile the hosted Supabase migration ledger before applying new
    migrations. Apply `20260814090000_email_delivery_worker.sql`, then
    `20260814110000_email_delivery_events.sql`, then
-   `20260814210000_admin_mfa_hardening.sql` before deploying this release.
+   `20260814203243_7a63a560-48cb-492c-8edd-192116675765.sql` before deploying this release.
 3. Set `PUBLIC_RELEASE_SHA` to the immutable Git commit being deployed.
 4. Run `npm ci`, `npm run check`, the high-severity production audit, and
    `npm run launch:preflight` in the release environment.

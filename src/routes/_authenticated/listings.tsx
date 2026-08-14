@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
 import React, { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -73,6 +73,7 @@ type Form = typeof empty;
 type StatusFilter = "all" | "published" | "draft";
 
 function ListingsPage() {
+  const navigate = useNavigate();
   const search = useSearch({ from: "/_authenticated/listings" });
   const [rows, setRows] = useState<Listing[]>([]);
   const [properties, setProperties] = useState<PropertyOption[]>([]);
@@ -94,6 +95,13 @@ function ListingsPage() {
   useEffect(() => {
     if (search.new) { updateForm(empty); setOpen(true); }
   }, [search.new]);
+
+  const onListingDialogChange = (nextOpen: boolean) => {
+    setOpen(nextOpen);
+    if (!nextOpen && search.new) {
+      void navigate({ to: "/listings", search: {}, replace: true });
+    }
+  };
 
   const fetchManagedAgencies = async (userId: string) => {
     const [{ data: owned }, { data: memberships }] = await Promise.all([
@@ -272,7 +280,7 @@ function ListingsPage() {
         title="Listings"
         description="Pick a property and publish it to the Estately marketplace and/or your own agency website."
         actions={
-          <Dialog open={open} onOpenChange={setOpen}>
+          <Dialog open={open} onOpenChange={onListingDialogChange}>
             <DialogTrigger asChild><Button onClick={openNew}><Plus className="mr-2 h-4 w-4" /> New listing</Button></DialogTrigger>
             <DialogContent className="max-w-xl max-h-[92vh] overflow-y-auto">
               <DialogHeader><DialogTitle>{form.id ? "Edit listing" : "New listing"}</DialogTitle></DialogHeader>
