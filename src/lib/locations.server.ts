@@ -41,15 +41,21 @@ export async function loadLocationMarket(slug: string, intent: LocationIntent) {
     supabaseAdmin
       .from("listings")
       .select(CARD_COLUMNS)
-      .in("status", LIVE_STATUSES as unknown as string[])
+      .in("status", [...LIVE_STATUSES])
+      .eq("marketplace_publish", true)
+      .ilike("city", location.city);
+
+  const countQuery = () =>
+    supabaseAdmin
+      .from("listings")
+      .select("id", { count: "exact", head: true })
+      .in("status", [...LIVE_STATUSES])
       .eq("marketplace_publish", true)
       .ilike("city", location.city);
 
   const [{ data: rows, error }, { count: otherCount }] = await Promise.all([
     base().eq("purpose", intent).order("created_at", { ascending: false }).limit(48),
-    base()
-      .eq("purpose", intent === "sale" ? "rent" : "sale")
-      .select("id", { count: "exact", head: true }),
+    countQuery().eq("purpose", intent === "sale" ? "rent" : "sale"),
   ]);
   if (error) throw new Error(error.message);
 
