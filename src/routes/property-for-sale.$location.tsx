@@ -17,8 +17,12 @@ export const Route = createFileRoute("/property-for-sale/$location")({
       return { meta: [{ title: "Area unavailable — Estately" }, { name: "robots", content: "noindex" }] };
     }
     const { location: loc, stats } = loaderData;
-    const title = `Property for sale in ${loc.name} (${stats.total} homes) — Estately`;
-    const desc = `Browse ${stats.total} properties for sale in ${loc.name}, ${loc.county}. Houses and flats from verified UK agents across ${loc.postcodes.join(", ")} postcodes.`;
+    const title = stats.total
+      ? `Property for sale in ${loc.name} — ${stats.total} homes | Estately`
+      : `Property for sale in ${loc.name}, ${loc.county} | Estately`;
+    const desc = stats.total
+      ? `Browse ${stats.total} properties for sale in ${loc.name}, ${loc.county} from verified UK estate agents. Covering ${loc.postcodes.join(", ")} postcodes.`
+      : `Houses and flats for sale in ${loc.name}, ${loc.county}. Set an alert and be first to see new listings across ${loc.postcodes.join(", ")} postcodes.`;
     return {
       meta: [
         { title },
