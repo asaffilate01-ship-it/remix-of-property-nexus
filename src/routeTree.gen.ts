@@ -30,6 +30,7 @@ import { Route as AgenciesRouteImport } from './routes/agencies'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PropertyForSaleIndexRouteImport } from './routes/property-for-sale.index'
 import { Route as MarketplaceIndexRouteImport } from './routes/marketplace.index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as AgenciesIndexRouteImport } from './routes/agencies.index'
@@ -205,6 +206,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PropertyForSaleIndexRoute = PropertyForSaleIndexRouteImport.update({
+  id: '/property-for-sale/',
+  path: '/property-for-sale/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MarketplaceIndexRoute = MarketplaceIndexRouteImport.update({
@@ -668,6 +674,7 @@ export interface FileRoutesByFullPath {
   '/agencies/': typeof AgenciesIndexRoute
   '/blog/': typeof BlogIndexRoute
   '/marketplace/': typeof MarketplaceIndexRoute
+  '/property-for-sale/': typeof PropertyForSaleIndexRoute
   '/automations/$id': typeof AuthenticatedAutomationsIdRoute
   '/automations/runs': typeof AuthenticatedAutomationsRunsRoute
   '/leads/$id': typeof AuthenticatedLeadsIdRoute
@@ -759,6 +766,7 @@ export interface FileRoutesByTo {
   '/agencies': typeof AgenciesIndexRoute
   '/blog': typeof BlogIndexRoute
   '/marketplace': typeof MarketplaceIndexRoute
+  '/property-for-sale': typeof PropertyForSaleIndexRoute
   '/automations/$id': typeof AuthenticatedAutomationsIdRoute
   '/automations/runs': typeof AuthenticatedAutomationsRunsRoute
   '/leads/$id': typeof AuthenticatedLeadsIdRoute
@@ -855,6 +863,7 @@ export interface FileRoutesById {
   '/agencies/': typeof AgenciesIndexRoute
   '/blog/': typeof BlogIndexRoute
   '/marketplace/': typeof MarketplaceIndexRoute
+  '/property-for-sale/': typeof PropertyForSaleIndexRoute
   '/_authenticated/automations/$id': typeof AuthenticatedAutomationsIdRoute
   '/_authenticated/automations/runs': typeof AuthenticatedAutomationsRunsRoute
   '/_authenticated/leads/$id': typeof AuthenticatedLeadsIdRoute
@@ -951,6 +960,7 @@ export interface FileRouteTypes {
     | '/agencies/'
     | '/blog/'
     | '/marketplace/'
+    | '/property-for-sale/'
     | '/automations/$id'
     | '/automations/runs'
     | '/leads/$id'
@@ -1042,6 +1052,7 @@ export interface FileRouteTypes {
     | '/agencies'
     | '/blog'
     | '/marketplace'
+    | '/property-for-sale'
     | '/automations/$id'
     | '/automations/runs'
     | '/leads/$id'
@@ -1137,6 +1148,7 @@ export interface FileRouteTypes {
     | '/agencies/'
     | '/blog/'
     | '/marketplace/'
+    | '/property-for-sale/'
     | '/_authenticated/automations/$id'
     | '/_authenticated/automations/runs'
     | '/_authenticated/leads/$id'
@@ -1182,6 +1194,7 @@ export interface RootRouteChildren {
   SignTokenRoute: typeof SignTokenRoute
   VisitTokenRoute: typeof VisitTokenRoute
   BlogIndexRoute: typeof BlogIndexRoute
+  PropertyForSaleIndexRoute: typeof PropertyForSaleIndexRoute
   ApiPublicReferencingWebhookRoute: typeof ApiPublicReferencingWebhookRoute
   ApiPublicHooksExpiryRemindersRoute: typeof ApiPublicHooksExpiryRemindersRoute
   ApiPublicHooksMatchSavedSearchesRoute: typeof ApiPublicHooksMatchSavedSearchesRoute
@@ -1336,6 +1349,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/property-for-sale/': {
+      id: '/property-for-sale/'
+      path: '/property-for-sale'
+      fullPath: '/property-for-sale/'
+      preLoaderRoute: typeof PropertyForSaleIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/marketplace/': {
@@ -2079,6 +2099,7 @@ const rootRouteChildren: RootRouteChildren = {
   SignTokenRoute: SignTokenRoute,
   VisitTokenRoute: VisitTokenRoute,
   BlogIndexRoute: BlogIndexRoute,
+  PropertyForSaleIndexRoute: PropertyForSaleIndexRoute,
   ApiPublicReferencingWebhookRoute: ApiPublicReferencingWebhookRoute,
   ApiPublicHooksExpiryRemindersRoute: ApiPublicHooksExpiryRemindersRoute,
   ApiPublicHooksMatchSavedSearchesRoute: ApiPublicHooksMatchSavedSearchesRoute,
