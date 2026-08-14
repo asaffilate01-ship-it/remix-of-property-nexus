@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ValuationRouteImport } from './routes/valuation'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SavedSearchesRouteImport } from './routes/saved-searches'
 import { Route as ReferencingRouteImport } from './routes/referencing'
 import { Route as PrivacyRouteImport } from './routes/privacy'
@@ -113,6 +114,11 @@ const ValuationRoute = ValuationRouteImport.update({
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SavedSearchesRoute = SavedSearchesRouteImport.update({
@@ -620,6 +626,7 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/referencing': typeof ReferencingRoute
   '/saved-searches': typeof SavedSearchesRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/valuation': typeof ValuationRoute
   '/agency': typeof AuthenticatedAgencyRoute
@@ -714,6 +721,7 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/referencing': typeof ReferencingRoute
   '/saved-searches': typeof SavedSearchesRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/valuation': typeof ValuationRoute
   '/agency': typeof AuthenticatedAgencyRoute
@@ -811,6 +819,7 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/referencing': typeof ReferencingRoute
   '/saved-searches': typeof SavedSearchesRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/valuation': typeof ValuationRoute
   '/_authenticated/agency': typeof AuthenticatedAgencyRoute
@@ -909,6 +918,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/referencing'
     | '/saved-searches'
+    | '/sitemap.xml'
     | '/terms'
     | '/valuation'
     | '/agency'
@@ -1003,6 +1013,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/referencing'
     | '/saved-searches'
+    | '/sitemap.xml'
     | '/terms'
     | '/valuation'
     | '/agency'
@@ -1099,6 +1110,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/referencing'
     | '/saved-searches'
+    | '/sitemap.xml'
     | '/terms'
     | '/valuation'
     | '/_authenticated/agency'
@@ -1197,6 +1209,7 @@ export interface RootRouteChildren {
   PrivacyRoute: typeof PrivacyRoute
   ReferencingRoute: typeof ReferencingRoute
   SavedSearchesRoute: typeof SavedSearchesRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   ValuationRoute: typeof ValuationRoute
   BlogSlugRoute: typeof BlogSlugRoute
@@ -1229,6 +1242,13 @@ declare module '@tanstack/react-router' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/saved-searches': {
@@ -2110,6 +2130,7 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacyRoute: PrivacyRoute,
   ReferencingRoute: ReferencingRoute,
   SavedSearchesRoute: SavedSearchesRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   ValuationRoute: ValuationRoute,
   BlogSlugRoute: BlogSlugRoute,
