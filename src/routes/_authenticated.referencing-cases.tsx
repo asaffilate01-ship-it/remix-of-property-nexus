@@ -12,7 +12,7 @@ export const Route = createFileRoute("/_authenticated/referencing-cases")({
   component: ReferencingPage,
 });
 
-type Case = { id: string; status: string; current_step: number; decision: string | null; income_monthly: number | null; created_at: string; tenants: { full_name: string | null } | null; properties: { address: string | null; city: string | null } | null };
+type Case = { id: string; status: string; current_step: number; decision: string | null; income_monthly: number | null; created_at: string; applicant: { full_name?: string | null; name?: string | null } | null; properties: { address: string | null; city: string | null } | null };
 
 function ReferencingPage() {
   const [rows, setRows] = useState<Case[]>([]);
@@ -22,7 +22,7 @@ function ReferencingPage() {
     (async () => {
       const { data } = await supabase
         .from("referencing_cases")
-        .select("id, status, current_step, decision, income_monthly, created_at, tenants(full_name), properties(address, city)")
+        .select("id, status, current_step, decision, income_monthly, created_at, applicant, properties(address, city)")
         .order("created_at", { ascending: false });
       setRows((data as any) ?? []); setLoading(false);
     })();
@@ -50,7 +50,7 @@ function ReferencingPage() {
             <tbody>
               {rows.map((r) => (
                 <tr key={r.id} className="border-b hover:bg-muted/30">
-                  <td className="p-3 font-medium">{r.tenants?.full_name ?? "—"}</td>
+                  <td className="p-3 font-medium">{r.applicant?.full_name ?? r.applicant?.name ?? "—"}</td>
                   <td className="p-3 text-xs text-muted-foreground">{[r.properties?.address, r.properties?.city].filter(Boolean).join(", ")}</td>
                   <td className="p-3 text-right">{r.income_monthly ? `£${Number(r.income_monthly).toLocaleString()}` : "—"}</td>
                   <td className="p-3 text-xs">{r.current_step ?? 0}/5</td>
