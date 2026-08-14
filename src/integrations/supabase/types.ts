@@ -4215,7 +4215,32 @@ export type Database = {
       }
       claim_email_outbox: {
         Args: { _limit?: number }
-        Returns: Database["public"]["Tables"]["email_outbox"]["Row"][]
+        Returns: {
+          attempts: number
+          created_at: string
+          error: string | null
+          html: string | null
+          id: string
+          idempotency_key: string | null
+          last_attempt_at: string | null
+          last_event_at: string | null
+          locked_at: string | null
+          next_attempt_at: string
+          provider_message_id: string | null
+          queue_name: string
+          recipient_email: string
+          sent_at: string | null
+          status: string
+          subject: string | null
+          template_data: Json
+          template_name: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "email_outbox"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       current_user_contact_ids: { Args: never; Returns: string[] }
       enqueue_email:
@@ -4230,21 +4255,6 @@ export type Database = {
             }
             Returns: string
           }
-      queue_signature_request_emails: {
-        Args: { _instance_id: string }
-        Returns: number
-      }
-      record_email_delivery_event: {
-        Args: {
-          _event_created_at: string
-          _event_type: string
-          _masked_email: string
-          _provider_message_id: string
-          _recipient_hash: string
-          _svix_id: string
-        }
-        Returns: boolean
-      }
       enroll_in_track: {
         Args: {
           _context?: Json
@@ -4280,6 +4290,21 @@ export type Database = {
       }
       match_bank_transaction: {
         Args: { _rent_schedule_id: string; _transaction_id: string }
+        Returns: boolean
+      }
+      queue_signature_request_emails: {
+        Args: { _instance_id: string }
+        Returns: number
+      }
+      record_email_delivery_event: {
+        Args: {
+          _event_created_at: string
+          _event_type: string
+          _masked_email: string
+          _provider_message_id: string
+          _recipient_hash: string
+          _svix_id: string
+        }
         Returns: boolean
       }
       record_stripe_rent_payment: {
