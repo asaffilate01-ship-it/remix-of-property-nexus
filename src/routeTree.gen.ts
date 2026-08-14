@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ValuationRouteImport } from './routes/valuation'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SavedSearchesRouteImport } from './routes/saved-searches'
 import { Route as ReferencingRouteImport } from './routes/referencing'
 import { Route as PrivacyRouteImport } from './routes/privacy'
@@ -30,11 +31,15 @@ import { Route as AgenciesRouteImport } from './routes/agencies'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PropertyToRentIndexRouteImport } from './routes/property-to-rent.index'
+import { Route as PropertyForSaleIndexRouteImport } from './routes/property-for-sale.index'
 import { Route as MarketplaceIndexRouteImport } from './routes/marketplace.index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as AgenciesIndexRouteImport } from './routes/agencies.index'
 import { Route as VisitTokenRouteImport } from './routes/visit.$token'
 import { Route as SignTokenRouteImport } from './routes/sign.$token'
+import { Route as PropertyToRentLocationRouteImport } from './routes/property-to-rent.$location'
+import { Route as PropertyForSaleLocationRouteImport } from './routes/property-for-sale.$location'
 import { Route as ModulesSlugRouteImport } from './routes/modules.$slug'
 import { Route as MarketplaceSlugRouteImport } from './routes/marketplace.$slug'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
@@ -109,6 +114,11 @@ const ValuationRoute = ValuationRouteImport.update({
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SavedSearchesRoute = SavedSearchesRouteImport.update({
@@ -205,6 +215,16 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PropertyToRentIndexRoute = PropertyToRentIndexRouteImport.update({
+  id: '/property-to-rent/',
+  path: '/property-to-rent/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PropertyForSaleIndexRoute = PropertyForSaleIndexRouteImport.update({
+  id: '/property-for-sale/',
+  path: '/property-for-sale/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MarketplaceIndexRoute = MarketplaceIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -228,6 +248,16 @@ const VisitTokenRoute = VisitTokenRouteImport.update({
 const SignTokenRoute = SignTokenRouteImport.update({
   id: '/sign/$token',
   path: '/sign/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PropertyToRentLocationRoute = PropertyToRentLocationRouteImport.update({
+  id: '/property-to-rent/$location',
+  path: '/property-to-rent/$location',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PropertyForSaleLocationRoute = PropertyForSaleLocationRouteImport.update({
+  id: '/property-for-sale/$location',
+  path: '/property-for-sale/$location',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ModulesSlugRoute = ModulesSlugRouteImport.update({
@@ -596,6 +626,7 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/referencing': typeof ReferencingRoute
   '/saved-searches': typeof SavedSearchesRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/valuation': typeof ValuationRoute
   '/agency': typeof AuthenticatedAgencyRoute
@@ -649,11 +680,15 @@ export interface FileRoutesByFullPath {
   '/blog/$slug': typeof BlogSlugRoute
   '/marketplace/$slug': typeof MarketplaceSlugRoute
   '/modules/$slug': typeof ModulesSlugRoute
+  '/property-for-sale/$location': typeof PropertyForSaleLocationRoute
+  '/property-to-rent/$location': typeof PropertyToRentLocationRoute
   '/sign/$token': typeof SignTokenRoute
   '/visit/$token': typeof VisitTokenRoute
   '/agencies/': typeof AgenciesIndexRoute
   '/blog/': typeof BlogIndexRoute
   '/marketplace/': typeof MarketplaceIndexRoute
+  '/property-for-sale/': typeof PropertyForSaleIndexRoute
+  '/property-to-rent/': typeof PropertyToRentIndexRoute
   '/automations/$id': typeof AuthenticatedAutomationsIdRoute
   '/automations/runs': typeof AuthenticatedAutomationsRunsRoute
   '/leads/$id': typeof AuthenticatedLeadsIdRoute
@@ -686,6 +721,7 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/referencing': typeof ReferencingRoute
   '/saved-searches': typeof SavedSearchesRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/valuation': typeof ValuationRoute
   '/agency': typeof AuthenticatedAgencyRoute
@@ -738,11 +774,15 @@ export interface FileRoutesByTo {
   '/blog/$slug': typeof BlogSlugRoute
   '/marketplace/$slug': typeof MarketplaceSlugRoute
   '/modules/$slug': typeof ModulesSlugRoute
+  '/property-for-sale/$location': typeof PropertyForSaleLocationRoute
+  '/property-to-rent/$location': typeof PropertyToRentLocationRoute
   '/sign/$token': typeof SignTokenRoute
   '/visit/$token': typeof VisitTokenRoute
   '/agencies': typeof AgenciesIndexRoute
   '/blog': typeof BlogIndexRoute
   '/marketplace': typeof MarketplaceIndexRoute
+  '/property-for-sale': typeof PropertyForSaleIndexRoute
+  '/property-to-rent': typeof PropertyToRentIndexRoute
   '/automations/$id': typeof AuthenticatedAutomationsIdRoute
   '/automations/runs': typeof AuthenticatedAutomationsRunsRoute
   '/leads/$id': typeof AuthenticatedLeadsIdRoute
@@ -779,6 +819,7 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/referencing': typeof ReferencingRoute
   '/saved-searches': typeof SavedSearchesRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/valuation': typeof ValuationRoute
   '/_authenticated/agency': typeof AuthenticatedAgencyRoute
@@ -832,11 +873,15 @@ export interface FileRoutesById {
   '/blog/$slug': typeof BlogSlugRoute
   '/marketplace/$slug': typeof MarketplaceSlugRoute
   '/modules/$slug': typeof ModulesSlugRoute
+  '/property-for-sale/$location': typeof PropertyForSaleLocationRoute
+  '/property-to-rent/$location': typeof PropertyToRentLocationRoute
   '/sign/$token': typeof SignTokenRoute
   '/visit/$token': typeof VisitTokenRoute
   '/agencies/': typeof AgenciesIndexRoute
   '/blog/': typeof BlogIndexRoute
   '/marketplace/': typeof MarketplaceIndexRoute
+  '/property-for-sale/': typeof PropertyForSaleIndexRoute
+  '/property-to-rent/': typeof PropertyToRentIndexRoute
   '/_authenticated/automations/$id': typeof AuthenticatedAutomationsIdRoute
   '/_authenticated/automations/runs': typeof AuthenticatedAutomationsRunsRoute
   '/_authenticated/leads/$id': typeof AuthenticatedLeadsIdRoute
@@ -873,6 +918,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/referencing'
     | '/saved-searches'
+    | '/sitemap.xml'
     | '/terms'
     | '/valuation'
     | '/agency'
@@ -926,11 +972,15 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/marketplace/$slug'
     | '/modules/$slug'
+    | '/property-for-sale/$location'
+    | '/property-to-rent/$location'
     | '/sign/$token'
     | '/visit/$token'
     | '/agencies/'
     | '/blog/'
     | '/marketplace/'
+    | '/property-for-sale/'
+    | '/property-to-rent/'
     | '/automations/$id'
     | '/automations/runs'
     | '/leads/$id'
@@ -963,6 +1013,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/referencing'
     | '/saved-searches'
+    | '/sitemap.xml'
     | '/terms'
     | '/valuation'
     | '/agency'
@@ -1015,11 +1066,15 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/marketplace/$slug'
     | '/modules/$slug'
+    | '/property-for-sale/$location'
+    | '/property-to-rent/$location'
     | '/sign/$token'
     | '/visit/$token'
     | '/agencies'
     | '/blog'
     | '/marketplace'
+    | '/property-for-sale'
+    | '/property-to-rent'
     | '/automations/$id'
     | '/automations/runs'
     | '/leads/$id'
@@ -1055,6 +1110,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/referencing'
     | '/saved-searches'
+    | '/sitemap.xml'
     | '/terms'
     | '/valuation'
     | '/_authenticated/agency'
@@ -1108,11 +1164,15 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/marketplace/$slug'
     | '/modules/$slug'
+    | '/property-for-sale/$location'
+    | '/property-to-rent/$location'
     | '/sign/$token'
     | '/visit/$token'
     | '/agencies/'
     | '/blog/'
     | '/marketplace/'
+    | '/property-for-sale/'
+    | '/property-to-rent/'
     | '/_authenticated/automations/$id'
     | '/_authenticated/automations/runs'
     | '/_authenticated/leads/$id'
@@ -1149,13 +1209,18 @@ export interface RootRouteChildren {
   PrivacyRoute: typeof PrivacyRoute
   ReferencingRoute: typeof ReferencingRoute
   SavedSearchesRoute: typeof SavedSearchesRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   ValuationRoute: typeof ValuationRoute
   BlogSlugRoute: typeof BlogSlugRoute
   ModulesSlugRoute: typeof ModulesSlugRoute
+  PropertyForSaleLocationRoute: typeof PropertyForSaleLocationRoute
+  PropertyToRentLocationRoute: typeof PropertyToRentLocationRoute
   SignTokenRoute: typeof SignTokenRoute
   VisitTokenRoute: typeof VisitTokenRoute
   BlogIndexRoute: typeof BlogIndexRoute
+  PropertyForSaleIndexRoute: typeof PropertyForSaleIndexRoute
+  PropertyToRentIndexRoute: typeof PropertyToRentIndexRoute
   ApiPublicReferencingWebhookRoute: typeof ApiPublicReferencingWebhookRoute
   ApiPublicHooksExpiryRemindersRoute: typeof ApiPublicHooksExpiryRemindersRoute
   ApiPublicHooksMatchSavedSearchesRoute: typeof ApiPublicHooksMatchSavedSearchesRoute
@@ -1177,6 +1242,13 @@ declare module '@tanstack/react-router' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/saved-searches': {
@@ -1312,6 +1384,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/property-to-rent/': {
+      id: '/property-to-rent/'
+      path: '/property-to-rent'
+      fullPath: '/property-to-rent/'
+      preLoaderRoute: typeof PropertyToRentIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/property-for-sale/': {
+      id: '/property-for-sale/'
+      path: '/property-for-sale'
+      fullPath: '/property-for-sale/'
+      preLoaderRoute: typeof PropertyForSaleIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/marketplace/': {
       id: '/marketplace/'
       path: '/'
@@ -1345,6 +1431,20 @@ declare module '@tanstack/react-router' {
       path: '/sign/$token'
       fullPath: '/sign/$token'
       preLoaderRoute: typeof SignTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/property-to-rent/$location': {
+      id: '/property-to-rent/$location'
+      path: '/property-to-rent/$location'
+      fullPath: '/property-to-rent/$location'
+      preLoaderRoute: typeof PropertyToRentLocationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/property-for-sale/$location': {
+      id: '/property-for-sale/$location'
+      path: '/property-for-sale/$location'
+      fullPath: '/property-for-sale/$location'
+      preLoaderRoute: typeof PropertyForSaleLocationRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/modules/$slug': {
@@ -2030,13 +2130,18 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacyRoute: PrivacyRoute,
   ReferencingRoute: ReferencingRoute,
   SavedSearchesRoute: SavedSearchesRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   ValuationRoute: ValuationRoute,
   BlogSlugRoute: BlogSlugRoute,
   ModulesSlugRoute: ModulesSlugRoute,
+  PropertyForSaleLocationRoute: PropertyForSaleLocationRoute,
+  PropertyToRentLocationRoute: PropertyToRentLocationRoute,
   SignTokenRoute: SignTokenRoute,
   VisitTokenRoute: VisitTokenRoute,
   BlogIndexRoute: BlogIndexRoute,
+  PropertyForSaleIndexRoute: PropertyForSaleIndexRoute,
+  PropertyToRentIndexRoute: PropertyToRentIndexRoute,
   ApiPublicReferencingWebhookRoute: ApiPublicReferencingWebhookRoute,
   ApiPublicHooksExpiryRemindersRoute: ApiPublicHooksExpiryRemindersRoute,
   ApiPublicHooksMatchSavedSearchesRoute: ApiPublicHooksMatchSavedSearchesRoute,
