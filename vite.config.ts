@@ -35,20 +35,12 @@ export default defineConfig({
         ],
       },
       workbox: {
-        navigateFallback: "/",
-        navigateFallbackDenylist: [/^\/api\//, /^\/~oauth/],
         cleanupOutdatedCaches: true,
-        globPatterns: ["**/*.{js,css,html,svg,png,ico,woff2}"],
+        // Never cache SSR HTML or serve a cached app shell: authenticated pages
+        // must always reach the server so session and role checks run.
+        navigateFallback: null,
+        globPatterns: ["**/*.{js,css,svg,png,ico,woff2}"],
         runtimeCaching: [
-          {
-            urlPattern: ({ request }) => request.mode === "navigate",
-            handler: "NetworkFirst",
-            options: {
-              cacheName: "html-navigations",
-              networkTimeoutSeconds: 3,
-              expiration: { maxEntries: 30, maxAgeSeconds: 60 * 60 * 24 },
-            },
-          },
           {
             urlPattern: ({ url, sameOrigin }) =>
               sameOrigin && /\.(?:js|css|woff2|png|jpg|jpeg|svg|webp|ico)$/.test(url.pathname),
