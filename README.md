@@ -22,3 +22,10 @@ cd <repository-name>
 npm i
 npm run dev
 ```
+
+## Production security
+
+Set the production values documented in `.env.example` and run `npm run check`, the production
+dependency audit and `npm run launch:preflight` before release. Platform administrator access
+requires the MFA flow at `/security/mfa` plus explicit service-role provisioning; follow the
+fail-closed procedure in [`docs/OPERATIONS.md`](docs/OPERATIONS.md).

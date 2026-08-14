@@ -33,7 +33,7 @@ export function useUserRole() {
       }
 
       setUserId(u.user.id);
-      const meta = u.user.user_metadata as { full_name?: string; role?: AppRole } | undefined;
+      const meta = u.user.user_metadata as { full_name?: string } | undefined;
       setName(meta?.full_name ?? u.user.email ?? "");
 
       const { data: p } = await supabase
@@ -43,7 +43,8 @@ export function useUserRole() {
         .maybeSingle();
 
       if (!active) return;
-      const r = (p?.primary_role as AppRole | undefined) ?? meta?.role ?? "landlord";
+      // Authorization roles come from the database, never mutable user metadata.
+      const r = (p?.primary_role as AppRole | undefined) ?? "landlord";
       if (p?.full_name) setName(p.full_name);
       setRole(r);
       setLoading(false);

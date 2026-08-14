@@ -10,19 +10,50 @@ import { WorkspaceAccessGate } from "@/components/WorkspaceAccessGate";
 
 import { Button } from "@/components/ui/button";
 import { useMemo } from "react";
+import { safeMfaRedirect } from "@/lib/auth-security";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
   beforeLoad: async ({ location }) => {
     const { data: sessionData } = await supabase.auth.getSession();
-    if (sessionData.session?.user) {
-      return { user: sessionData.session.user };
+    let user = sessionData.session?.user ?? null;
+    if (!user) {
+      const { data, error } = await supabase.auth.getUser();
+      if (error || !data.user) {
+        throw redirect({ to: "/auth", search: { redirect: location.href } });
+      }
+      user = data.user;
     }
-    const { data, error } = await supabase.auth.getUser();
-    if (error || !data.user) {
-      throw redirect({ to: "/auth", search: { redirect: location.href } });
+
+    const [{ data: profile }, { data: roles }] = await Promise.all([
+      supabase.from("profiles").select("primary_role").eq("id", user.id).maybeSingle(),
+      supabase.from("user_roles").select("role").eq("user_id", user.id),
+    ]);
+    const isPlatformAdmin = profile?.primary_role === "admin"
+      || (roles ?? []).some((entry) => entry.role === "admin");
+    if (isPlatformAdmin) {
+      const assurance = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+      if (assurance.error || assurance.data.currentLevel !== "aal2") {
+        throw redirect({
+          to: "/security/mfa",
+          search: { redirect: safeMfaRedirect(location.href).slice(0, 2_000) },
+        });
+      }
+      const { data: securityStatus, error: securityError } = await supabase
+        .rpc("current_platform_admin_security_status")
+        .maybeSingle();
+      if (securityError || !securityStatus?.is_authorized) {
+        throw redirect({
+          to: "/security/mfa",
+          search: {
+            redirect: safeMfaRedirect(location.href).slice(0, 2_000),
+            status: "authorization-required",
+          },
+        });
+      }
     }
-    return { user: data.user };
+
+    return { user };
   },
   component: AuthedLayout,
 });

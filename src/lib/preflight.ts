@@ -45,6 +45,13 @@ export function validateProductionEnvironment(env: Environment): PreflightResult
   if (env.SUPABASE_URL && env.VITE_SUPABASE_URL && env.SUPABASE_URL !== env.VITE_SUPABASE_URL) {
     errors.push("SUPABASE_URL and VITE_SUPABASE_URL point to different projects");
   }
+  if (
+    env.SUPABASE_PUBLISHABLE_KEY &&
+    env.VITE_SUPABASE_PUBLISHABLE_KEY &&
+    env.SUPABASE_PUBLISHABLE_KEY !== env.VITE_SUPABASE_PUBLISHABLE_KEY
+  ) {
+    errors.push("SUPABASE_PUBLISHABLE_KEY and VITE_SUPABASE_PUBLISHABLE_KEY must match");
+  }
   if ((env.CRON_SECRET?.trim().length ?? 0) < 32) errors.push("CRON_SECRET must be at least 32 characters");
   if (env.RESEND_API_KEY && !env.RESEND_API_KEY.startsWith("re_")) errors.push("RESEND_API_KEY has an unexpected format");
   if (env.RESEND_WEBHOOK_SECRET && !env.RESEND_WEBHOOK_SECRET.startsWith("whsec_")) {

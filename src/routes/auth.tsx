@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/select";
 import { acceptTeamInvitation, getTeamInvitation } from "@/lib/team.functions";
 import { safeLocalRedirect } from "@/lib/url-safety";
+import { isSelfServiceRole, type SelfServiceRole } from "@/lib/auth-security";
 
 const searchSchema = z.object({
   mode: z.enum(["signin", "signup"]).optional(),
@@ -51,16 +52,7 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
-  const [role, setRole] = useState<
-    | "landlord"
-    | "agent"
-    | "tenant"
-    | "buyer"
-    | "conveyancer"
-    | "contractor"
-    | "inventory_clerk"
-    | "utility_provider"
-  >("landlord");
+  const [role, setRole] = useState<SelfServiceRole>("landlord");
   const [show, setShow] = useState(false);
   const [busy, setBusy] = useState(false);
   const [invitation, setInvitation] = useState<Awaited<ReturnType<typeof inspectInvite>> | null>(
@@ -253,7 +245,9 @@ function AuthPage() {
                 {!invitation?.valid && (
                   <div className="space-y-2">
                     <Label>I am a…</Label>
-                    <Select value={role} onValueChange={(v) => setRole(v as typeof role)}>
+                    <Select value={role} onValueChange={(value) => {
+                      if (isSelfServiceRole(value)) setRole(value);
+                    }}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>

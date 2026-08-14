@@ -39,6 +39,7 @@ import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as AgenciesIndexRouteImport } from './routes/agencies.index'
 import { Route as VisitTokenRouteImport } from './routes/visit.$token'
 import { Route as SignTokenRouteImport } from './routes/sign.$token'
+import { Route as SecurityMfaRouteImport } from './routes/security.mfa'
 import { Route as PropertyToRentLocationRouteImport } from './routes/property-to-rent.$location'
 import { Route as PropertyForSaleLocationRouteImport } from './routes/property-for-sale.$location'
 import { Route as ModulesSlugRouteImport } from './routes/modules.$slug'
@@ -257,6 +258,11 @@ const VisitTokenRoute = VisitTokenRouteImport.update({
 const SignTokenRoute = SignTokenRouteImport.update({
   id: '/sign/$token',
   path: '/sign/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SecurityMfaRoute = SecurityMfaRouteImport.update({
+  id: '/security/mfa',
+  path: '/security/mfa',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PropertyToRentLocationRoute = PropertyToRentLocationRouteImport.update({
@@ -708,6 +714,7 @@ export interface FileRoutesByFullPath {
   '/modules/$slug': typeof ModulesSlugRoute
   '/property-for-sale/$location': typeof PropertyForSaleLocationRoute
   '/property-to-rent/$location': typeof PropertyToRentLocationRoute
+  '/security/mfa': typeof SecurityMfaRoute
   '/sign/$token': typeof SignTokenRoute
   '/visit/$token': typeof VisitTokenRoute
   '/agencies/': typeof AgenciesIndexRoute
@@ -806,6 +813,7 @@ export interface FileRoutesByTo {
   '/modules/$slug': typeof ModulesSlugRoute
   '/property-for-sale/$location': typeof PropertyForSaleLocationRoute
   '/property-to-rent/$location': typeof PropertyToRentLocationRoute
+  '/security/mfa': typeof SecurityMfaRoute
   '/sign/$token': typeof SignTokenRoute
   '/visit/$token': typeof VisitTokenRoute
   '/agencies': typeof AgenciesIndexRoute
@@ -909,6 +917,7 @@ export interface FileRoutesById {
   '/modules/$slug': typeof ModulesSlugRoute
   '/property-for-sale/$location': typeof PropertyForSaleLocationRoute
   '/property-to-rent/$location': typeof PropertyToRentLocationRoute
+  '/security/mfa': typeof SecurityMfaRoute
   '/sign/$token': typeof SignTokenRoute
   '/visit/$token': typeof VisitTokenRoute
   '/agencies/': typeof AgenciesIndexRoute
@@ -1012,6 +1021,7 @@ export interface FileRouteTypes {
     | '/modules/$slug'
     | '/property-for-sale/$location'
     | '/property-to-rent/$location'
+    | '/security/mfa'
     | '/sign/$token'
     | '/visit/$token'
     | '/agencies/'
@@ -1110,6 +1120,7 @@ export interface FileRouteTypes {
     | '/modules/$slug'
     | '/property-for-sale/$location'
     | '/property-to-rent/$location'
+    | '/security/mfa'
     | '/sign/$token'
     | '/visit/$token'
     | '/agencies'
@@ -1212,6 +1223,7 @@ export interface FileRouteTypes {
     | '/modules/$slug'
     | '/property-for-sale/$location'
     | '/property-to-rent/$location'
+    | '/security/mfa'
     | '/sign/$token'
     | '/visit/$token'
     | '/agencies/'
@@ -1266,6 +1278,7 @@ export interface RootRouteChildren {
   ModulesSlugRoute: typeof ModulesSlugRoute
   PropertyForSaleLocationRoute: typeof PropertyForSaleLocationRoute
   PropertyToRentLocationRoute: typeof PropertyToRentLocationRoute
+  SecurityMfaRoute: typeof SecurityMfaRoute
   SignTokenRoute: typeof SignTokenRoute
   VisitTokenRoute: typeof VisitTokenRoute
   BlogIndexRoute: typeof BlogIndexRoute
@@ -1491,6 +1504,13 @@ declare module '@tanstack/react-router' {
       path: '/sign/$token'
       fullPath: '/sign/$token'
       preLoaderRoute: typeof SignTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/security/mfa': {
+      id: '/security/mfa'
+      path: '/security/mfa'
+      fullPath: '/security/mfa'
+      preLoaderRoute: typeof SecurityMfaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/property-to-rent/$location': {
@@ -2219,6 +2239,7 @@ const rootRouteChildren: RootRouteChildren = {
   ModulesSlugRoute: ModulesSlugRoute,
   PropertyForSaleLocationRoute: PropertyForSaleLocationRoute,
   PropertyToRentLocationRoute: PropertyToRentLocationRoute,
+  SecurityMfaRoute: SecurityMfaRoute,
   SignTokenRoute: SignTokenRoute,
   VisitTokenRoute: VisitTokenRoute,
   BlogIndexRoute: BlogIndexRoute,
