@@ -30,6 +30,7 @@ import { Route as AgenciesRouteImport } from './routes/agencies'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PropertyToRentIndexRouteImport } from './routes/property-to-rent.index'
 import { Route as PropertyForSaleIndexRouteImport } from './routes/property-for-sale.index'
 import { Route as MarketplaceIndexRouteImport } from './routes/marketplace.index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
@@ -206,6 +207,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PropertyToRentIndexRoute = PropertyToRentIndexRouteImport.update({
+  id: '/property-to-rent/',
+  path: '/property-to-rent/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PropertyForSaleIndexRoute = PropertyForSaleIndexRouteImport.update({
@@ -675,6 +681,7 @@ export interface FileRoutesByFullPath {
   '/blog/': typeof BlogIndexRoute
   '/marketplace/': typeof MarketplaceIndexRoute
   '/property-for-sale/': typeof PropertyForSaleIndexRoute
+  '/property-to-rent/': typeof PropertyToRentIndexRoute
   '/automations/$id': typeof AuthenticatedAutomationsIdRoute
   '/automations/runs': typeof AuthenticatedAutomationsRunsRoute
   '/leads/$id': typeof AuthenticatedLeadsIdRoute
@@ -767,6 +774,7 @@ export interface FileRoutesByTo {
   '/blog': typeof BlogIndexRoute
   '/marketplace': typeof MarketplaceIndexRoute
   '/property-for-sale': typeof PropertyForSaleIndexRoute
+  '/property-to-rent': typeof PropertyToRentIndexRoute
   '/automations/$id': typeof AuthenticatedAutomationsIdRoute
   '/automations/runs': typeof AuthenticatedAutomationsRunsRoute
   '/leads/$id': typeof AuthenticatedLeadsIdRoute
@@ -864,6 +872,7 @@ export interface FileRoutesById {
   '/blog/': typeof BlogIndexRoute
   '/marketplace/': typeof MarketplaceIndexRoute
   '/property-for-sale/': typeof PropertyForSaleIndexRoute
+  '/property-to-rent/': typeof PropertyToRentIndexRoute
   '/_authenticated/automations/$id': typeof AuthenticatedAutomationsIdRoute
   '/_authenticated/automations/runs': typeof AuthenticatedAutomationsRunsRoute
   '/_authenticated/leads/$id': typeof AuthenticatedLeadsIdRoute
@@ -961,6 +970,7 @@ export interface FileRouteTypes {
     | '/blog/'
     | '/marketplace/'
     | '/property-for-sale/'
+    | '/property-to-rent/'
     | '/automations/$id'
     | '/automations/runs'
     | '/leads/$id'
@@ -1053,6 +1063,7 @@ export interface FileRouteTypes {
     | '/blog'
     | '/marketplace'
     | '/property-for-sale'
+    | '/property-to-rent'
     | '/automations/$id'
     | '/automations/runs'
     | '/leads/$id'
@@ -1149,6 +1160,7 @@ export interface FileRouteTypes {
     | '/blog/'
     | '/marketplace/'
     | '/property-for-sale/'
+    | '/property-to-rent/'
     | '/_authenticated/automations/$id'
     | '/_authenticated/automations/runs'
     | '/_authenticated/leads/$id'
@@ -1195,6 +1207,7 @@ export interface RootRouteChildren {
   VisitTokenRoute: typeof VisitTokenRoute
   BlogIndexRoute: typeof BlogIndexRoute
   PropertyForSaleIndexRoute: typeof PropertyForSaleIndexRoute
+  PropertyToRentIndexRoute: typeof PropertyToRentIndexRoute
   ApiPublicReferencingWebhookRoute: typeof ApiPublicReferencingWebhookRoute
   ApiPublicHooksExpiryRemindersRoute: typeof ApiPublicHooksExpiryRemindersRoute
   ApiPublicHooksMatchSavedSearchesRoute: typeof ApiPublicHooksMatchSavedSearchesRoute
@@ -1349,6 +1362,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/property-to-rent/': {
+      id: '/property-to-rent/'
+      path: '/property-to-rent'
+      fullPath: '/property-to-rent/'
+      preLoaderRoute: typeof PropertyToRentIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/property-for-sale/': {
@@ -2100,6 +2120,7 @@ const rootRouteChildren: RootRouteChildren = {
   VisitTokenRoute: VisitTokenRoute,
   BlogIndexRoute: BlogIndexRoute,
   PropertyForSaleIndexRoute: PropertyForSaleIndexRoute,
+  PropertyToRentIndexRoute: PropertyToRentIndexRoute,
   ApiPublicReferencingWebhookRoute: ApiPublicReferencingWebhookRoute,
   ApiPublicHooksExpiryRemindersRoute: ApiPublicHooksExpiryRemindersRoute,
   ApiPublicHooksMatchSavedSearchesRoute: ApiPublicHooksMatchSavedSearchesRoute,
