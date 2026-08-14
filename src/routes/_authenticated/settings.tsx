@@ -22,7 +22,7 @@ import {
 import { PLAN_CODES, formatPlanPrice, type PlanCode } from "@/lib/plans";
 
 const settingsSearchSchema = z.object({
-  tab: z.enum(["profile", "permissions", "billing", "emails"]).optional(),
+  tab: z.enum(["profile", "security", "permissions", "billing", "emails"]).optional(),
   plan: z.enum(PLAN_CODES).optional(),
   billing: z.enum(["success", "cancelled"]).optional(),
   session_id: z.string().max(255).optional(),
@@ -101,6 +101,7 @@ function SettingsPage() {
       <Tabs defaultValue={search.tab ?? "profile"}>
         <TabsList>
           <TabsTrigger value="profile">Profile</TabsTrigger>
+          <TabsTrigger value="security">Security</TabsTrigger>
           <TabsTrigger value="permissions">Roles & permissions</TabsTrigger>
           <TabsTrigger value="billing">Plan & billing</TabsTrigger>
           <TabsTrigger value="emails">Email outbox</TabsTrigger>
@@ -161,6 +162,9 @@ function SettingsPage() {
             </Card>
           </div>
         </TabsContent>
+        <TabsContent value="security">
+          <SecuritySettings />
+        </TabsContent>
         <TabsContent value="permissions">
           <PermissionsMatrix />
         </TabsContent>
@@ -179,6 +183,73 @@ function SettingsPage() {
   );
 }
 
+function SecuritySettings() {
+  const [loading, setLoading] = useState(true);
+  const [currentLevel, setCurrentLevel] = useState<string | null>(null);
+  const [verifiedFactors, setVerifiedFactors] = useState(0);
+
+  useEffect(() => {
+    let active = true;
+    void Promise.all([
+      supabase.auth.mfa.getAuthenticatorAssuranceLevel(),
+      supabase.auth.mfa.listFactors(),
+    ]).then(([assurance, factors]) => {
+      if (!active) return;
+      setCurrentLevel(assurance.data?.currentLevel ?? null);
+      setVerifiedFactors(
+        factors.data?.totp.filter((factor) => factor.status === "verified").length ?? 0,
+      );
+      setLoading(false);
+    });
+    return () => { active = false; };
+  }, []);
+
+  return (
+    <Card className="border-0 shadow-card">
+      <CardContent className="p-6 space-y-5 max-w-2xl">
+        <div className="flex items-start gap-3">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <Shield className="h-5 w-5" />
+          </span>
+          <div>
+            <h2 className="font-semibold">Multi-factor authentication</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Protect sensitive property, customer and payment workflows with a time-based authenticator code.
+            </p>
+          </div>
+        </div>
+        {loading ? (
+          <div className="h-16 rounded-lg bg-muted animate-pulse" />
+        ) : (
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="rounded-lg border p-4">
+              <div className="text-xs text-muted-foreground">Authenticator</div>
+              <div className="mt-1 font-medium">
+                {verifiedFactors > 0 ? `${verifiedFactors} verified factor${verifiedFactors === 1 ? "" : "s"}` : "Not configured"}
+              </div>
+            </div>
+            <div className="rounded-lg border p-4">
+              <div className="text-xs text-muted-foreground">Current session</div>
+              <div className="mt-1 font-medium">
+                {currentLevel === "aal2" ? "MFA verified" : "Password verified"}
+              </div>
+            </div>
+          </div>
+        )}
+        <Button asChild disabled={loading}>
+          <Link to="/security/mfa" search={{ redirect: "/settings?tab=security" }}>
+            <KeyRound className="mr-2 h-4 w-4" />
+            {verifiedFactors > 0 ? "Verify secure session" : "Set up authenticator"}
+          </Link>
+        </Button>
+        <p className="text-xs text-muted-foreground">
+          Platform administrators are required to complete this check before admin data is released by database policies.
+        </p>
+      </CardContent>
+    </Card>
+  );
+}
+
 type OutboxRow = {
   id: string;
   recipient_email: string;
@@ -194,7 +265,7 @@ function EmailOutbox() {
 
   useEffect(() => {
     (async () => {
-      const { data } = await (supabase as any)
+      const { data } = await supabase
         .from("email_outbox")
         .select("id,recipient_email,template_name,subject,status,created_at")
         .order("created_at", { ascending: false })

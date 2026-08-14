@@ -5,6 +5,7 @@ import { validateProductionEnvironment } from "../src/lib/preflight.ts";
 const valid = {
   VITE_SUPABASE_URL: "https://project.supabase.co",
   VITE_SUPABASE_PUBLISHABLE_KEY: "sb_publishable_real",
+  SUPABASE_PUBLISHABLE_KEY: "sb_publishable_real",
   SUPABASE_URL: "https://project.supabase.co",
   SUPABASE_SERVICE_ROLE_KEY: "sb_secret_real",
   APP_URL: "https://app.estately.co.uk",

@@ -43,6 +43,14 @@ assurance work that must be completed in the target environment.
   preview domains no longer leak into production metadata.
 - Location landing pages report the true database result count, label sample-based price statistics
   honestly and limit repetitive cross-links to nearby/regional destinations.
+- Public sign-up metadata is constrained to non-privileged roles; malformed roles fall back safely
+  instead of failing account creation or granting platform access.
+- Profile writes are column-scoped so users cannot edit or recreate their authorization-bearing
+  primary role through the public database API.
+- Platform-admin RLS access requires both explicit service-role authorization and an MFA-verified
+  `aal2` session. The application includes TOTP enrollment, challenge and settings flows.
+- Authenticated server functions now use the documented public Supabase key fallback, preventing a
+  deployment-only failure caused by an undocumented duplicate environment variable.
 
 ## UI and flow changes
 
@@ -60,13 +68,13 @@ assurance work that must be completed in the target environment.
 
 | Area | Current controls | Required launch evidence |
 | --- | --- | --- |
-| Broken access control | Supabase RLS, agency membership checks, authenticated server middleware, atomic bank-match authorisation | Test every role against a migrated staging database |
+| Broken access control | Supabase RLS, agency membership checks, constrained signup roles, explicit platform-admin authorization, atomic bank-match authorisation | Test every role against a migrated staging database |
 | Cryptographic failures | TLS/HSTS, server-only secrets, signed Stripe webhooks, random signing tokens | Rotate keys exposed in Git history; verify provider key scopes |
 | Injection | Zod validation, parameterised Supabase queries, safe DOM construction, HTTP(S)-only URL handling | Independent DAST and penetration test |
 | Insecure design | Fail-closed AVM, conservative bank reconciliation, idempotent payment processing | Threat-model workshop for payments, signing and document access |
 | Security misconfiguration | CSP and browser headers, ignored env files, CI dependency audit | Verify production headers, CORS, Supabase Auth URLs and storage policies |
 | Vulnerable components | Lockfile, clean `npm ci`, audit gate | Dependabot/Renovate and monthly upgrade ownership |
-| Authentication failures | Supabase Auth, safe redirects, invitation tokens, no demo password endpoint | MFA/password policy and account recovery tests in production Auth tenant |
+| Authentication failures | Supabase Auth, safe redirects, invitation tokens, mandatory admin TOTP/AAL2, no demo password endpoint | Password and account recovery tests in production Auth tenant |
 | Integrity failures | Webhook HMAC validation, event idempotency, locked install | Protect `main`, require CI/review and sign releases |
 | Logging/monitoring failures | Structured server errors and webhook records | Configure Sentry/log drain, alerts, retention and incident runbook |
 | SSRF | HTTPS/allowlisted automation endpoints and HTTPS-only AVM endpoint | Egress controls at the hosting layer |
@@ -79,9 +87,11 @@ These cannot be completed safely from the repository alone:
    in Git history. Removing `.env` from the current tree does not erase history.
 2. Reconcile the three duplicated historical Supabase migrations against the hosted migration
    ledger, then apply `20260813223000_lock_down_public_leads.sql` and
-   `20260813224500_atomic_bank_matching.sql` in staging and production.
+   `20260813224500_atomic_bank_matching.sql`, followed by the email-delivery migrations and
+   `20260814210000_admin_mfa_hardening.sql`, in staging and production.
 3. Regenerate Supabase TypeScript types after migrations; run the role/RLS test matrix using
-   real tenant, landlord, agent, contractor, buyer, conveyancer and admin accounts.
+   real tenant, landlord, agent, contractor, buyer, conveyancer and admin accounts. Review every
+   historical admin assignment and explicitly authorize only verified platform operators.
 4. Configure and test sandbox Stripe subscription, customer-portal and rent-payment flows before
    enabling live Price IDs and webhook secrets.
 5. Configure a real AVM adapter. Without it the valuation flow deliberately offers a manual
