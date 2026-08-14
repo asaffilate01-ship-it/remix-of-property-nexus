@@ -53,11 +53,14 @@ export async function loadLocationMarket(slug: string, intent: LocationIntent) {
       .eq("marketplace_publish", true)
       .ilike("city", location.city);
 
-  const [{ data: rows, error }, { count: otherCount }] = await Promise.all([
+  const [{ data: rows, error }, { count: totalCount, error: totalError }, { count: otherCount, error: otherError }] = await Promise.all([
     base().eq("purpose", intent).order("created_at", { ascending: false }).limit(48),
+    countQuery().eq("purpose", intent),
     countQuery().eq("purpose", intent === "sale" ? "rent" : "sale"),
   ]);
   if (error) throw new Error(error.message);
+  if (totalError) throw new Error(totalError.message);
+  if (otherError) throw new Error(otherError.message);
 
   const listings = await Promise.all(
     (rows ?? []).map(async (l) => {
@@ -86,7 +89,8 @@ export async function loadLocationMarket(slug: string, intent: LocationIntent) {
     intent,
     listings,
     stats: {
-      total: listings.length,
+      total: totalCount ?? 0,
+      shown: listings.length,
       median,
       min: sorted.length ? sorted[0] : null,
       max: sorted.length ? sorted[sorted.length - 1] : null,

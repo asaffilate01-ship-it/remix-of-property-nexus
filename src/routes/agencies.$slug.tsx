@@ -13,6 +13,7 @@ import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { Building2, MapPin, Mail, Globe, ChevronLeft, ShieldCheck, Wrench, Home, Users, ArrowRight, Star } from "lucide-react";
 import { PhoneReveal } from "@/components/PhoneReveal";
 import { fetchAgency } from "@/lib/public.functions";
+import { siteUrl } from "@/lib/site-url";
 
 function AgencyError({ error, reset }: { error: Error; reset: () => void }) {
   const router = useRouter();
@@ -93,7 +94,7 @@ export const Route = createFileRoute("/agencies/$slug")({
   },
   head: ({ params, loaderData }) => {
     const a = (loaderData as { agency?: { name?: string; description?: string; logo_url?: string; cover_image?: string; city?: string } } | undefined)?.agency;
-    const url = `https://proptest.313test.co.uk/agencies/${params.slug}`;
+    const url = siteUrl(`/agencies/${params.slug}`);
     const title = a?.name ? `${a.name}${a.city ? ` — ${a.city}` : ""} | Estately` : "Agency — Estately";
     const desc = a?.description?.slice(0, 155) ?? `Browse properties from ${a?.name ?? "this agency"} on Estately.`;
     const img = a?.cover_image || a?.logo_url;

@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight, Building2, Kanban, ShieldCheck, Search, Sparkles, Check, Star, Globe, Users } from "lucide-react";
 import heroHome from "@/assets/hero-home.jpg";
 import heroPattern from "@/assets/hero-pattern.jpg";
+import { siteUrl } from "@/lib/site-url";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -14,11 +15,11 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "Estately combines a public property marketplace with a complete CRM, compliance hub and tenant portal. One workspace for sales, lettings, HMO and commercial." },
       { property: "og:title", content: "Estately — The property OS" },
       { property: "og:description", content: "Marketplace + CRM + compliance in one premium workspace." },
-      { property: "og:url", content: "https://proptest.313test.co.uk/" },
+      { property: "og:url", content: siteUrl("/") },
       { property: "og:type", content: "website" },
       { property: "og:image", content: heroHome },
     ],
-    links: [{ rel: "canonical", href: "https://proptest.313test.co.uk/" }],
+    links: [{ rel: "canonical", href: siteUrl("/") }],
   }),
   component: HomePage,
 });

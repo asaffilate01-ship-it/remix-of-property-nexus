@@ -1061,13 +1061,46 @@ export type Database = {
           },
         ]
       }
+      email_delivery_events: {
+        Row: {
+          event_created_at: string
+          event_type: string
+          provider_message_id: string
+          received_at: string
+          recipient_hash: string
+          svix_id: string
+        }
+        Insert: {
+          event_created_at: string
+          event_type: string
+          provider_message_id: string
+          received_at?: string
+          recipient_hash: string
+          svix_id: string
+        }
+        Update: {
+          event_created_at?: string
+          event_type?: string
+          provider_message_id?: string
+          received_at?: string
+          recipient_hash?: string
+          svix_id?: string
+        }
+        Relationships: []
+      }
       email_outbox: {
         Row: {
+          attempts: number
           created_at: string
           error: string | null
           html: string | null
           id: string
           idempotency_key: string | null
+          last_attempt_at: string | null
+          last_event_at: string | null
+          locked_at: string | null
+          next_attempt_at: string
+          provider_message_id: string | null
           queue_name: string
           recipient_email: string
           sent_at: string | null
@@ -1077,11 +1110,17 @@ export type Database = {
           template_name: string | null
         }
         Insert: {
+          attempts?: number
           created_at?: string
           error?: string | null
           html?: string | null
           id?: string
           idempotency_key?: string | null
+          last_attempt_at?: string | null
+          last_event_at?: string | null
+          locked_at?: string | null
+          next_attempt_at?: string
+          provider_message_id?: string | null
           queue_name?: string
           recipient_email: string
           sent_at?: string | null
@@ -1091,11 +1130,17 @@ export type Database = {
           template_name?: string | null
         }
         Update: {
+          attempts?: number
           created_at?: string
           error?: string | null
           html?: string | null
           id?: string
           idempotency_key?: string | null
+          last_attempt_at?: string | null
+          last_event_at?: string | null
+          locked_at?: string | null
+          next_attempt_at?: string
+          provider_message_id?: string | null
           queue_name?: string
           recipient_email?: string
           sent_at?: string | null
@@ -1103,6 +1148,36 @@ export type Database = {
           subject?: string | null
           template_data?: Json
           template_name?: string | null
+        }
+        Relationships: []
+      }
+      email_suppressions: {
+        Row: {
+          active: boolean
+          created_at: string
+          email_hash: string
+          masked_email: string
+          provider_message_id: string | null
+          reason: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          email_hash: string
+          masked_email: string
+          provider_message_id?: string | null
+          reason: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          email_hash?: string
+          masked_email?: string
+          provider_message_id?: string | null
+          reason?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -4138,6 +4213,35 @@ export type Database = {
           template_id: string
         }[]
       }
+      claim_email_outbox: {
+        Args: { _limit?: number }
+        Returns: {
+          attempts: number
+          created_at: string
+          error: string | null
+          html: string | null
+          id: string
+          idempotency_key: string | null
+          last_attempt_at: string | null
+          last_event_at: string | null
+          locked_at: string | null
+          next_attempt_at: string
+          provider_message_id: string | null
+          queue_name: string
+          recipient_email: string
+          sent_at: string | null
+          status: string
+          subject: string | null
+          template_data: Json
+          template_name: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "email_outbox"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       current_user_contact_ids: { Args: never; Returns: string[] }
       enqueue_email:
         | { Args: { payload: Json; queue_name: string }; Returns: string }
@@ -4186,6 +4290,21 @@ export type Database = {
       }
       match_bank_transaction: {
         Args: { _rent_schedule_id: string; _transaction_id: string }
+        Returns: boolean
+      }
+      queue_signature_request_emails: {
+        Args: { _instance_id: string }
+        Returns: number
+      }
+      record_email_delivery_event: {
+        Args: {
+          _event_created_at: string
+          _event_type: string
+          _masked_email: string
+          _provider_message_id: string
+          _recipient_hash: string
+          _svix_id: string
+        }
         Returns: boolean
       }
       record_stripe_rent_payment: {

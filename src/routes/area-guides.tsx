@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, GraduationCap, Train, ShieldCheck, TrendingUp, MapPin, ArrowRight } from "lucide-react";
+import { siteUrl } from "@/lib/site-url";
 
 export const Route = createFileRoute("/area-guides")({
   head: () => ({
@@ -13,7 +14,7 @@ export const Route = createFileRoute("/area-guides")({
       { property: "og:title", content: "UK area guides — Estately" },
       { property: "og:description", content: "Schools, transport, crime and price trends — for every UK postcode." },
     ],
-    links: [{ rel: "canonical", href: "https://proptest.313test.co.uk/area-guides" }],
+    links: [{ rel: "canonical", href: siteUrl("/area-guides") }],
   }),
   component: AreaGuidesPage,
 });

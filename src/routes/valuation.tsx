@@ -11,6 +11,7 @@ import { Link } from "@tanstack/react-router";
 import { submitValuationEnquiry } from "@/lib/public.functions";
 import { getPropertyValuation, type ValuationResult } from "@/lib/valuation.functions";
 import { toast } from "sonner";
+import { siteUrl } from "@/lib/site-url";
 
 export const Route = createFileRoute("/valuation")({
   head: () => ({
@@ -20,7 +21,7 @@ export const Route = createFileRoute("/valuation")({
       { property: "og:title", content: "Property valuation — Estately" },
       { property: "og:description", content: "Request a UK sale or rental valuation." },
     ],
-    links: [{ rel: "canonical", href: "https://proptest.313test.co.uk/valuation" }],
+    links: [{ rel: "canonical", href: siteUrl("/valuation") }],
   }),
   component: ValuationPage,
 });

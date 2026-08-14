@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { POSTS } from "@/content/posts";
 import { ArrowRight, Calendar, Clock } from "lucide-react";
+import { siteUrl } from "@/lib/site-url";
 
 export const Route = createFileRoute("/blog/")({
   head: () => ({
@@ -11,9 +12,9 @@ export const Route = createFileRoute("/blog/")({
       { name: "description", content: "UK property market analysis, landlord compliance updates and product news from the Estately team." },
       { property: "og:title", content: "Estately Blog" },
       { property: "og:description", content: "Market data, compliance and product insight for UK property professionals." },
-      { property: "og:url", content: "https://proptest.313test.co.uk/blog" },
+      { property: "og:url", content: siteUrl("/blog") },
     ],
-    links: [{ rel: "canonical", href: "https://proptest.313test.co.uk/blog" }],
+    links: [{ rel: "canonical", href: siteUrl("/blog") }],
   }),
   component: BlogIndex,
 });

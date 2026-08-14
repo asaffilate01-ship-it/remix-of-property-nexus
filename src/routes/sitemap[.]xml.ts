@@ -3,13 +3,26 @@ import type {} from "@tanstack/react-start";
 import { LOCATIONS } from "@/content/locations";
 import { AREAS } from "@/content/areas";
 import { POSTS } from "@/content/posts";
-
-const BASE_URL = "https://estate-elevate-hq.lovable.app";
+import { getServerSiteUrl } from "@/lib/site-url.server";
 
 interface SitemapEntry {
   path: string;
   changefreq?: "always" | "hourly" | "daily" | "weekly" | "monthly" | "yearly" | "never";
   priority?: string;
+}
+
+function xmlEscape(value: string): string {
+  return value.replace(/[&<>"']/g, (character) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&apos;",
+  })[character] ?? character);
+}
+
+function isSafeSlug(value: string): boolean {
+  return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value);
 }
 
 const STATIC_PATHS: SitemapEntry[] = [
@@ -40,6 +53,7 @@ export const Route = createFileRoute("/sitemap.xml")({
   server: {
     handlers: {
       GET: async () => {
+        const baseUrl = getServerSiteUrl();
         const entries: SitemapEntry[] = [...STATIC_PATHS];
 
         for (const l of LOCATIONS) {
@@ -64,10 +78,10 @@ export const Route = createFileRoute("/sitemap.xml")({
             supabaseAdmin.from("agencies").select("slug").eq("is_published", true).limit(2000),
           ]);
           for (const l of listings ?? []) {
-            if (l.slug) entries.push({ path: `/marketplace/${l.slug}`, changefreq: "daily", priority: "0.7" });
+            if (l.slug && isSafeSlug(l.slug)) entries.push({ path: `/marketplace/${l.slug}`, changefreq: "daily", priority: "0.7" });
           }
           for (const a of agencies ?? []) {
-            if (a.slug) entries.push({ path: `/agencies/${a.slug}`, changefreq: "weekly", priority: "0.6" });
+            if (a.slug && isSafeSlug(a.slug)) entries.push({ path: `/agencies/${a.slug}`, changefreq: "weekly", priority: "0.6" });
           }
         } catch {
           // database unavailable — still serve the static portion of the sitemap
@@ -76,7 +90,7 @@ export const Route = createFileRoute("/sitemap.xml")({
         const urls = entries.map((e) =>
           [
             `  <url>`,
-            `    <loc>${BASE_URL}${e.path}</loc>`,
+            `    <loc>${xmlEscape(`${baseUrl}${e.path}`)}</loc>`,
             e.changefreq ? `    <changefreq>${e.changefreq}</changefreq>` : null,
             e.priority ? `    <priority>${e.priority}</priority>` : null,
             `  </url>`,

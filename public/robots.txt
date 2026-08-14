@@ -1,8 +1,0 @@
-User-agent: *
-Allow: /
-Disallow: /auth
-Disallow: /visit/
-Disallow: /sign/
-Disallow: /api/
-
-Sitemap: https://estate-elevate-hq.lovable.app/sitemap.xml

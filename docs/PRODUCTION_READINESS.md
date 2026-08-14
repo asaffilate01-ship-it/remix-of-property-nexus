@@ -1,6 +1,6 @@
 # Estately production-readiness record
 
-Updated: 13 August 2026
+Updated: 14 August 2026
 
 “100% production ready” cannot be established by a source-code build alone. This document
 separates code gates that are enforced in the repository from deployment, provider and
@@ -30,7 +30,19 @@ assurance work that must be completed in the target environment.
 - Dashboards use real counts for viewings, offers, inspections, repairs, saved searches,
   shortlists and unread user alerts.
 - E-signing has a real request-creation flow, secure expiring capability links and signer status;
-  the UI no longer claims an email or document copy was sent when no delivery provider exists.
+  signing requests are queued for email and only become “Sent” after provider acceptance.
+- Transactional email uses atomic queue claiming, provider idempotency, safe server-rendered
+  templates, bounded requests, exponential retry and a visible failed state.
+- Signed Resend webhooks are size-bounded, schema-validated and idempotent; bounce, complaint and
+  suppression events stop future sends without storing plaintext recipient addresses in event logs.
+- Saved-search digests honour daily/weekly worker gates and queue real emails; the historical
+  `instant` option is accurately described as delivery on the next worker run.
+- A no-store health endpoint exposes the immutable release SHA, and production preflight validates
+  core configuration without printing secret values.
+- Canonical, Open Graph, structured-data, robots and sitemap URLs share one validated HTTPS origin;
+  preview domains no longer leak into production metadata.
+- Location landing pages report the true database result count, label sample-based price statistics
+  honestly and limit repetitive cross-links to nearby/regional destinations.
 
 ## UI and flow changes
 
@@ -76,8 +88,9 @@ These cannot be completed safely from the repository alone:
    appraisal and shows no invented estimate.
 6. Integrate a regulated bank-feed provider/import job. The reconciliation screen works with
    imported credits; the demo feed remains off in production.
-7. Add an approved transactional-email provider/worker before offering automatic signing or
-   saved-search emails. Web Push requires a subscription/VAPID implementation as a separate phase.
+7. Verify the transactional-email sender domain, sending-only provider key, scheduled worker and
+   signed Resend webhook in production; test bounce, complaint and suppression events end to end.
+   Web Push still requires a subscription/VAPID implementation as a separate phase.
 8. The product UI is currently English-only. Internationalisation needs message extraction,
    locale routing, translated legal/product copy, plural/date/currency rules and linguistic QA;
    the planned “Multi-language” add-on is explicitly marked as roadmap-only.
@@ -92,6 +105,7 @@ These cannot be completed safely from the repository alone:
 npm ci
 npm run check
 npm audit --omit=dev --audit-level=high
+npm run launch:preflight
 ```
 
 Release only when those commands pass and every applicable external blocker above has recorded

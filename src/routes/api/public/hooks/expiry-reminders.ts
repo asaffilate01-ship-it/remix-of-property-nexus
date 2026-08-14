@@ -40,11 +40,11 @@ export const Route = createFileRoute("/api/public/hooks/expiry-reminders")({
               link: `/contracts/${c.id}`, entity_type: "contract", entity_id: c.id,
               dedupe_key: `expiry-contract-${c.id}-${days}`, out,
             });
-            for (const s of ((c as any).signers_meta ?? [])) {
+            for (const [signerIndex, s] of ((c as any).signers_meta ?? []).entries()) {
               if (!s.email) continue;
               await tryEnqueue(supabaseAdmin, {
                 templateName: "contract-expiry-reminder", recipientEmail: s.email,
-                idempotencyKey: `expiry-contract-${c.id}-${days}`,
+                idempotencyKey: `expiry-contract-${c.id}-${days}-${signerIndex}`,
                 templateData: { recipient: s.name, item: (c as any).templates?.name ?? c.title ?? "Contract", days, expires_on: c.expires_on },
                 out,
               });

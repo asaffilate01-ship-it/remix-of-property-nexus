@@ -2,8 +2,9 @@ import { createFileRoute, notFound, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { fetchLocationMarket } from "@/lib/locations.functions";
 import { LocationMarketPage, type LocationMarketData } from "@/components/locations/LocationMarketPage";
+import { SITE_URL } from "@/lib/site-url";
 
-const SITE = "https://estate-elevate-hq.lovable.app";
+const SITE = SITE_URL;
 
 export const Route = createFileRoute("/property-to-rent/$location")({
   loader: async ({ params }) => {

@@ -17,6 +17,7 @@ import { InstallPrompt } from "@/components/InstallPrompt";
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { registerServiceWorker } from "@/lib/register-sw";
+import { SITE_URL } from "@/lib/site-url";
 
 function NotFoundComponent() {
   return (
@@ -123,7 +124,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         "@context": "https://schema.org",
         "@type": "Organization",
         name: "Estately",
-        url: "https://proptest.313test.co.uk",
+        url: SITE_URL,
         description: "The complete OS for estate & letting agents.",
       }),
     }],

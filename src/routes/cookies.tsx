@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { PublicHeader } from "@/components/PublicHeader";
 import { PublicFooter } from "@/components/PublicFooter";
 import { Button } from "@/components/ui/button";
+import { siteUrl } from "@/lib/site-url";
 
 export const Route = createFileRoute("/cookies")({
   component: CookiesPage,
@@ -11,9 +12,9 @@ export const Route = createFileRoute("/cookies")({
       { name: "description", content: "Which cookies Estately uses, why, and how to change your preferences." },
       { property: "og:title", content: "Cookie Policy — Estately" },
       { property: "og:description", content: "Cookies used by Estately and how to manage them." },
-      { property: "og:url", content: "https://proptest.313test.co.uk/cookies" },
+      { property: "og:url", content: siteUrl("/cookies") },
     ],
-    links: [{ rel: "canonical", href: "https://proptest.313test.co.uk/cookies" }],
+    links: [{ rel: "canonical", href: siteUrl("/cookies") }],
   }),
 });
 

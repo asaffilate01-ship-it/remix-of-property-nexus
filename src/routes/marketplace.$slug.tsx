@@ -25,6 +25,7 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { SaveListingButton } from "@/components/marketplace/SaveListingButton";
 import { OfferDialog } from "@/components/marketplace/OfferDialog";
+import { siteUrl } from "@/lib/site-url";
 
 function ListingError({ error, reset }: { error: Error; reset: () => void }) {
   const router = useRouter();
@@ -116,7 +117,7 @@ export const Route = createFileRoute("/marketplace/$slug")({
   },
   head: ({ params, loaderData }) => {
     const l = (loaderData as { listing?: { title?: string; description?: string; cover_image?: string; price?: number; city?: string; bedrooms?: number; purpose?: string } } | undefined)?.listing;
-    const url = `https://proptest.313test.co.uk/marketplace/${params.slug}`;
+    const url = siteUrl(`/marketplace/${params.slug}`);
     const priceStr = l?.price ? `£${Number(l.price).toLocaleString()}` : "";
     const headline = l?.title ? `${l.title}${l.city ? `, ${l.city}` : ""}` : "Listing";
     const title = l?.title ? `${headline}${priceStr ? ` — ${priceStr}` : ""} | Estately` : "Listing — Estately";

@@ -137,6 +137,8 @@ function SavedSearchesPage() {
                       chips={chipsFor(it.criteria)}
                       criteria={it.criteria}
                       when={it.created_at}
+                      emailAlert={it.alert_email}
+                      frequency={it.frequency}
                       onRemove={() => removeRemote(it.id)}
                     />
                   ))
@@ -164,9 +166,11 @@ function SavedCard(props: {
   chips: string[];
   criteria: Record<string, unknown>;
   when: string;
+  emailAlert?: boolean;
+  frequency?: "instant" | "daily" | "weekly";
   onRemove: () => void;
 }) {
-  const { title, chips, criteria, when, onRemove } = props;
+  const { title, chips, criteria, when, emailAlert, frequency, onRemove } = props;
   return (
     <Card className="border-0 shadow-card">
       <CardContent className="p-5">
@@ -175,6 +179,7 @@ function SavedCard(props: {
             <div className="flex flex-wrap items-center gap-2 mb-2">
               <span className="font-semibold truncate">{title}</span>
               {(criteria.city as string) && <span className="inline-flex items-center gap-1 text-sm text-muted-foreground"><MapPin className="h-3.5 w-3.5" />{String(criteria.city)}</span>}
+              {emailAlert && <Badge variant="outline" className="capitalize text-[11px]">{frequency === "instant" ? "frequent" : frequency ?? "daily"} email</Badge>}
             </div>
             {chips.length > 0 && (
               <div className="flex flex-wrap gap-1.5">

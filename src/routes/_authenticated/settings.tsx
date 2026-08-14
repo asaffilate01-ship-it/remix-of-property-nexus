@@ -208,8 +208,8 @@ function EmailOutbox() {
     <Card className="border-0 shadow-card">
       <CardContent className="p-6 space-y-4">
         <p className="text-sm text-muted-foreground">
-          System emails (expiry reminders, automation steps) are queued here. They send automatically
-          once an email sending domain is connected — nothing is lost in the meantime.
+          Transactional emails, signing requests and saved-search digests are processed by the
+          delivery worker. Failed deliveries retry automatically and remain visible here for review.
         </p>
         {loading ? (
           <div className="h-20 rounded-lg bg-muted animate-pulse" />
@@ -227,7 +227,15 @@ function EmailOutbox() {
                   <span className="text-xs text-muted-foreground">
                     {new Date(r.created_at).toLocaleDateString()}
                   </span>
-                  <Badge variant={r.status === "sent" ? "default" : r.status === "failed" ? "destructive" : "secondary"}>
+                  <Badge variant={
+                    ["sent", "delivered"].includes(r.status)
+                      ? "default"
+                      : ["failed", "bounced", "complained"].includes(r.status)
+                        ? "destructive"
+                        : r.status === "suppressed"
+                          ? "outline"
+                          : "secondary"
+                  }>
                     {r.status}
                   </Badge>
                 </div>

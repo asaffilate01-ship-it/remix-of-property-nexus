@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PublicHeader } from "@/components/PublicHeader";
 import { PublicFooter } from "@/components/PublicFooter";
+import { siteUrl } from "@/lib/site-url";
 
 export const Route = createFileRoute("/privacy")({
   component: PrivacyPage,
@@ -10,9 +11,9 @@ export const Route = createFileRoute("/privacy")({
       { name: "description", content: "How Estately collects, uses and protects your personal data under UK GDPR." },
       { property: "og:title", content: "Privacy Policy — Estately" },
       { property: "og:description", content: "How Estately handles personal data under UK GDPR." },
-      { property: "og:url", content: "https://proptest.313test.co.uk/privacy" },
+      { property: "og:url", content: siteUrl("/privacy") },
     ],
-    links: [{ rel: "canonical", href: "https://proptest.313test.co.uk/privacy" }],
+    links: [{ rel: "canonical", href: siteUrl("/privacy") }],
   }),
 });
 
