@@ -35,6 +35,7 @@ import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as AgenciesIndexRouteImport } from './routes/agencies.index'
 import { Route as VisitTokenRouteImport } from './routes/visit.$token'
 import { Route as SignTokenRouteImport } from './routes/sign.$token'
+import { Route as PropertyForSaleLocationRouteImport } from './routes/property-for-sale.$location'
 import { Route as ModulesSlugRouteImport } from './routes/modules.$slug'
 import { Route as MarketplaceSlugRouteImport } from './routes/marketplace.$slug'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
@@ -228,6 +229,11 @@ const VisitTokenRoute = VisitTokenRouteImport.update({
 const SignTokenRoute = SignTokenRouteImport.update({
   id: '/sign/$token',
   path: '/sign/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PropertyForSaleLocationRoute = PropertyForSaleLocationRouteImport.update({
+  id: '/property-for-sale/$location',
+  path: '/property-for-sale/$location',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ModulesSlugRoute = ModulesSlugRouteImport.update({
@@ -649,6 +655,7 @@ export interface FileRoutesByFullPath {
   '/blog/$slug': typeof BlogSlugRoute
   '/marketplace/$slug': typeof MarketplaceSlugRoute
   '/modules/$slug': typeof ModulesSlugRoute
+  '/property-for-sale/$location': typeof PropertyForSaleLocationRoute
   '/sign/$token': typeof SignTokenRoute
   '/visit/$token': typeof VisitTokenRoute
   '/agencies/': typeof AgenciesIndexRoute
@@ -738,6 +745,7 @@ export interface FileRoutesByTo {
   '/blog/$slug': typeof BlogSlugRoute
   '/marketplace/$slug': typeof MarketplaceSlugRoute
   '/modules/$slug': typeof ModulesSlugRoute
+  '/property-for-sale/$location': typeof PropertyForSaleLocationRoute
   '/sign/$token': typeof SignTokenRoute
   '/visit/$token': typeof VisitTokenRoute
   '/agencies': typeof AgenciesIndexRoute
@@ -832,6 +840,7 @@ export interface FileRoutesById {
   '/blog/$slug': typeof BlogSlugRoute
   '/marketplace/$slug': typeof MarketplaceSlugRoute
   '/modules/$slug': typeof ModulesSlugRoute
+  '/property-for-sale/$location': typeof PropertyForSaleLocationRoute
   '/sign/$token': typeof SignTokenRoute
   '/visit/$token': typeof VisitTokenRoute
   '/agencies/': typeof AgenciesIndexRoute
@@ -926,6 +935,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/marketplace/$slug'
     | '/modules/$slug'
+    | '/property-for-sale/$location'
     | '/sign/$token'
     | '/visit/$token'
     | '/agencies/'
@@ -1015,6 +1025,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/marketplace/$slug'
     | '/modules/$slug'
+    | '/property-for-sale/$location'
     | '/sign/$token'
     | '/visit/$token'
     | '/agencies'
@@ -1108,6 +1119,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/marketplace/$slug'
     | '/modules/$slug'
+    | '/property-for-sale/$location'
     | '/sign/$token'
     | '/visit/$token'
     | '/agencies/'
@@ -1153,6 +1165,7 @@ export interface RootRouteChildren {
   ValuationRoute: typeof ValuationRoute
   BlogSlugRoute: typeof BlogSlugRoute
   ModulesSlugRoute: typeof ModulesSlugRoute
+  PropertyForSaleLocationRoute: typeof PropertyForSaleLocationRoute
   SignTokenRoute: typeof SignTokenRoute
   VisitTokenRoute: typeof VisitTokenRoute
   BlogIndexRoute: typeof BlogIndexRoute
@@ -1345,6 +1358,13 @@ declare module '@tanstack/react-router' {
       path: '/sign/$token'
       fullPath: '/sign/$token'
       preLoaderRoute: typeof SignTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/property-for-sale/$location': {
+      id: '/property-for-sale/$location'
+      path: '/property-for-sale/$location'
+      fullPath: '/property-for-sale/$location'
+      preLoaderRoute: typeof PropertyForSaleLocationRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/modules/$slug': {
@@ -2034,6 +2054,7 @@ const rootRouteChildren: RootRouteChildren = {
   ValuationRoute: ValuationRoute,
   BlogSlugRoute: BlogSlugRoute,
   ModulesSlugRoute: ModulesSlugRoute,
+  PropertyForSaleLocationRoute: PropertyForSaleLocationRoute,
   SignTokenRoute: SignTokenRoute,
   VisitTokenRoute: VisitTokenRoute,
   BlogIndexRoute: BlogIndexRoute,
