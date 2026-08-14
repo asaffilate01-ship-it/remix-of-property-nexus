@@ -13,7 +13,7 @@ export type UkLocation = {
   nearby: string[];
 };
 
-export const LOCATIONS: UkLocation[] = [
+const CURATED_LOCATIONS: UkLocation[] = [
   {
     slug: "london",
     city: "London",
