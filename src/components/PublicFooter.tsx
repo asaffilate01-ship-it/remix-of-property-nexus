@@ -38,7 +38,11 @@ export function PublicFooter() {
           <div className="font-medium mb-3">Marketplace</div>
           <ul className="space-y-2 text-muted-foreground">
             <li><Link to="/marketplace" className="hover:text-foreground">Browse listings</Link></li>
+            <li><Link to="/property-for-sale" className="hover:text-foreground">Property for sale</Link></li>
+            <li><Link to="/property-to-rent" className="hover:text-foreground">Property to rent</Link></li>
+            <li><Link to="/area-guides" className="hover:text-foreground">UK area guides</Link></li>
             <li><Link to="/agencies" className="hover:text-foreground">Find an agent</Link></li>
+
           </ul>
         </div>
         <div>
