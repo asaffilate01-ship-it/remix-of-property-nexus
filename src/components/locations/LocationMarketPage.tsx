@@ -14,6 +14,7 @@ export type LocationMarketData = {
   listings: ListingCardData[];
   stats: {
     total: number;
+    shown: number;
     median: number | null;
     min: number | null;
     max: number | null;
@@ -32,6 +33,9 @@ export function LocationMarketPage({ data }: { data: LocationMarketData }) {
   const verb = isSale ? "for sale" : "to rent";
   const suffix = isSale ? "" : " pcm";
   const nearby = loc.nearby.map(findLocation).filter((x): x is UkLocation => !!x);
+  const regionalLocations = LOCATIONS
+    .filter((location) => location.slug !== loc.slug && location.region === loc.region)
+    .slice(0, 24);
 
   return (
     <div className="min-h-screen bg-background">
@@ -57,8 +61,8 @@ export function LocationMarketPage({ data }: { data: LocationMarketData }) {
 
         <div className="grid sm:grid-cols-4 gap-3 mt-8">
           <Stat label={`Listings ${verb}`} value={String(stats.total)} />
-          <Stat label={`Median ${isSale ? "asking price" : "rent"}`} value={stats.median ? gbp(stats.median) + suffix : "—"} />
-          <Stat label="Price range" value={stats.min ? `${gbp(stats.min)} – ${gbp(stats.max)}` : "—"} />
+          <Stat label={`Recent ${isSale ? "asking price" : "rent"} midpoint`} value={stats.median ? gbp(stats.median) + suffix : "—"} />
+          <Stat label="Recent price range" value={stats.min ? `${gbp(stats.min)} – ${gbp(stats.max)}` : "—"} />
           <Stat label="Postcode areas" value={loc.postcodes.join(", ")} />
         </div>
 
@@ -86,6 +90,11 @@ export function LocationMarketPage({ data }: { data: LocationMarketData }) {
           <h2 className="text-xl font-semibold mb-4">
             {stats.total > 0 ? `${stats.total} properties ${verb} in ${loc.name}` : `No live listings ${verb} in ${loc.name} yet`}
           </h2>
+          {stats.total > stats.shown && (
+            <p className="-mt-2 mb-5 text-sm text-muted-foreground">
+              Showing the {stats.shown} most recent listings. Use the filters to narrow the full result set.
+            </p>
+          )}
           {stats.total > 0 ? (
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {listings.map((l) => (
@@ -158,9 +167,9 @@ export function LocationMarketPage({ data }: { data: LocationMarketData }) {
         )}
 
         <section className="mt-14">
-          <h2 className="text-xl font-semibold mb-4">Browse other UK towns and cities</h2>
+          <h2 className="text-xl font-semibold mb-4">More places in {loc.region}</h2>
           <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground">
-            {LOCATIONS.filter((l) => l.slug !== loc.slug).map((l) => (
+            {regionalLocations.map((l) => (
               <Link
                 key={l.slug}
                 to={isSale ? "/property-for-sale/$location" : "/property-to-rent/$location"}
@@ -171,6 +180,11 @@ export function LocationMarketPage({ data }: { data: LocationMarketData }) {
               </Link>
             ))}
           </div>
+          <Button asChild variant="outline" size="sm" className="mt-5">
+            <Link to={isSale ? "/property-for-sale" : "/property-to-rent"}>
+              Browse all UK towns and cities <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
+            </Link>
+          </Button>
         </section>
       </main>
       <PublicFooter />

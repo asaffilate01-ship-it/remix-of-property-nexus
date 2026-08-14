@@ -46,14 +46,15 @@ function ESignPage() {
     }
     setSaving(true);
     try {
-      await send({ data: {
+      const result = await send({ data: {
         template_id: form.templateId,
         title: form.title.trim() || null,
         values: {},
         expires_on: form.expiresOn || null,
         signers: [{ role: form.role, name: form.name.trim(), email: form.email.trim() }],
       } });
-      toast.success("Secure signing link created");
+      if (result.delivery === "queued") toast.success("Signing request queued for email delivery");
+      else toast.warning("Signing link created, but email delivery is unavailable. Copy and share the secure link manually.");
       setOpen(false);
       setForm(blank);
       await query.refetch();
@@ -80,7 +81,7 @@ function ESignPage() {
     <div className="space-y-6">
       <PageHeader
         title="E-signatures"
-        description="Create secure, expiring signing links and track each signer. Share links through your approved email or messaging channel."
+        description="Email secure, expiring signing links and track delivery and signer progress. You can still copy a link when a manual fallback is needed."
         actions={<Button onClick={() => setOpen(true)} disabled={!templates.length}><Plus className="mr-2 h-4 w-4" />New request</Button>}
       />
 
@@ -130,6 +131,7 @@ function ESignPage() {
 function Status({ status }: { status: string }) {
   if (status === "signed") return <Badge className="bg-emerald-600">Signed</Badge>;
   if (status === "void") return <Badge variant="destructive">Void</Badge>;
-  if (status === "sent") return <Badge variant="secondary">Shared</Badge>;
+  if (status === "delivery_queued") return <Badge variant="outline">Email queued</Badge>;
+  if (status === "sent") return <Badge variant="secondary">Sent</Badge>;
   return <Badge variant="outline">Ready to share</Badge>;
 }

@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { LocationIndexPage } from "@/components/locations/LocationIndexPage";
 import { LOCATIONS } from "@/content/locations";
+import { siteUrl } from "@/lib/site-url";
 
-const SITE = "https://estate-elevate-hq.lovable.app";
-const URL = `${SITE}/property-for-sale`;
+const URL = siteUrl("/property-for-sale");
 
 export const Route = createFileRoute("/property-for-sale/")({
   head: () => {

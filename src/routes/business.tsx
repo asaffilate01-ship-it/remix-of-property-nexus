@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { createSubscriptionCheckout } from "@/lib/billing.functions";
 import { PLANS, formatPlanPrice, type PlanCode } from "@/lib/plans";
 import { toast } from "sonner";
+import { siteUrl } from "@/lib/site-url";
 
 export const Route = createFileRoute("/business")({
   head: () => ({
@@ -20,9 +21,9 @@ export const Route = createFileRoute("/business")({
       { name: "description", content: "One platform for sales, lettings, HMO, compliance and role-specific portals. 30 days free, then from £29.99/mo per branch." },
       { property: "og:title", content: "Estately for agencies — the property OS" },
       { property: "og:description", content: "CRM + portal + compliance in one place. 30 days free, then from £29.99/mo per branch." },
-      { property: "og:url", content: "https://proptest.313test.co.uk/business" },
+      { property: "og:url", content: siteUrl("/business") },
     ],
-    links: [{ rel: "canonical", href: "https://proptest.313test.co.uk/business" }],
+    links: [{ rel: "canonical", href: siteUrl("/business") }],
   }),
   component: BusinessPage,
 });

@@ -173,7 +173,19 @@ export const sendForSignature = createServerFn({ method: "POST" })
     const { data: sigs, error: e2 } = await context.supabase.from("template_signatures").insert(sigRows).select("token,signer_email,signer_name");
     if (e2) throw new Error(e2.message);
 
-    return { id: inst!.id, signing_links: sigs ?? [] };
+    const { data: queued, error: queueError } = await (context.supabase as any)
+      .rpc("queue_signature_request_emails", { _instance_id: inst!.id });
+
+    if (queueError) {
+      console.error("Unable to queue signing emails", { instanceId: inst!.id, error: queueError.message });
+    }
+
+    return {
+      id: inst!.id,
+      signing_links: sigs ?? [],
+      delivery: queueError ? "manual" as const : "queued" as const,
+      queued: typeof queued === "number" ? queued : 0,
+    };
   });
 
 export const listSigningRequests = createServerFn({ method: "GET" })

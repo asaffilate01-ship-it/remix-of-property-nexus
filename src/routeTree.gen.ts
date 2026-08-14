@@ -13,6 +13,7 @@ import { Route as ValuationRouteImport } from './routes/valuation'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SavedSearchesRouteImport } from './routes/saved-searches'
+import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as ReferencingRouteImport } from './routes/referencing'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PricingRouteImport } from './routes/pricing'
@@ -93,6 +94,7 @@ import { Route as AuthenticatedAiCopyRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedAgencyRouteImport } from './routes/_authenticated/agency'
 import { Route as AuthenticatedAutomationsIndexRouteImport } from './routes/_authenticated/automations.index'
 import { Route as ApiPublicReferencingWebhookRouteImport } from './routes/api/public/referencing-webhook'
+import { Route as ApiPublicHealthRouteImport } from './routes/api/public/health'
 import { Route as AuthenticatedWorkOrdersIdRouteImport } from './routes/_authenticated/work-orders.$id'
 import { Route as AuthenticatedTenanciesIdRouteImport } from './routes/_authenticated/tenancies.$id'
 import { Route as AuthenticatedPortalTenantRouteImport } from './routes/_authenticated/portal.tenant'
@@ -100,8 +102,10 @@ import { Route as AuthenticatedPortalLandlordRouteImport } from './routes/_authe
 import { Route as AuthenticatedLeadsIdRouteImport } from './routes/_authenticated/leads.$id'
 import { Route as AuthenticatedAutomationsRunsRouteImport } from './routes/_authenticated/automations.runs'
 import { Route as AuthenticatedAutomationsIdRouteImport } from './routes/_authenticated/automations.$id'
+import { Route as ApiPublicWebhooksResendRouteImport } from './routes/api/public/webhooks/resend'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 import { Route as ApiPublicHooksProcessTracksRouteImport } from './routes/api/public/hooks/process-tracks'
+import { Route as ApiPublicHooksProcessEmailOutboxRouteImport } from './routes/api/public/hooks/process-email-outbox'
 import { Route as ApiPublicHooksMatchSavedSearchesRouteImport } from './routes/api/public/hooks/match-saved-searches'
 import { Route as ApiPublicHooksExpiryRemindersRouteImport } from './routes/api/public/hooks/expiry-reminders'
 import { Route as AuthenticatedListingIdWindowCardRouteImport } from './routes/_authenticated/listing.$id.window-card'
@@ -124,6 +128,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const SavedSearchesRoute = SavedSearchesRouteImport.update({
   id: '/saved-searches',
   path: '/saved-searches',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
+  id: '/robots.txt',
+  path: '/robots.txt',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ReferencingRoute = ReferencingRouteImport.update({
@@ -535,6 +544,11 @@ const ApiPublicReferencingWebhookRoute =
     path: '/api/public/referencing-webhook',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHealthRoute = ApiPublicHealthRouteImport.update({
+  id: '/api/public/health',
+  path: '/api/public/health',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedWorkOrdersIdRoute =
   AuthenticatedWorkOrdersIdRouteImport.update({
     id: '/$id',
@@ -576,6 +590,11 @@ const AuthenticatedAutomationsIdRoute =
     path: '/$id',
     getParentRoute: () => AuthenticatedAutomationsRoute,
   } as any)
+const ApiPublicWebhooksResendRoute = ApiPublicWebhooksResendRouteImport.update({
+  id: '/api/public/webhooks/resend',
+  path: '/api/public/webhooks/resend',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicPaymentsWebhookRoute =
   ApiPublicPaymentsWebhookRouteImport.update({
     id: '/api/public/payments/webhook',
@@ -586,6 +605,12 @@ const ApiPublicHooksProcessTracksRoute =
   ApiPublicHooksProcessTracksRouteImport.update({
     id: '/api/public/hooks/process-tracks',
     path: '/api/public/hooks/process-tracks',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksProcessEmailOutboxRoute =
+  ApiPublicHooksProcessEmailOutboxRouteImport.update({
+    id: '/api/public/hooks/process-email-outbox',
+    path: '/api/public/hooks/process-email-outbox',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiPublicHooksMatchSavedSearchesRoute =
@@ -625,6 +650,7 @@ export interface FileRoutesByFullPath {
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/referencing': typeof ReferencingRoute
+  '/robots.txt': typeof RobotsDottxtRoute
   '/saved-searches': typeof SavedSearchesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
@@ -696,13 +722,16 @@ export interface FileRoutesByFullPath {
   '/portal/tenant': typeof AuthenticatedPortalTenantRoute
   '/tenancies/$id': typeof AuthenticatedTenanciesIdRoute
   '/work-orders/$id': typeof AuthenticatedWorkOrdersIdRoute
+  '/api/public/health': typeof ApiPublicHealthRoute
   '/api/public/referencing-webhook': typeof ApiPublicReferencingWebhookRoute
   '/automations/': typeof AuthenticatedAutomationsIndexRoute
   '/listing/$id/window-card': typeof AuthenticatedListingIdWindowCardRoute
   '/api/public/hooks/expiry-reminders': typeof ApiPublicHooksExpiryRemindersRoute
   '/api/public/hooks/match-saved-searches': typeof ApiPublicHooksMatchSavedSearchesRoute
+  '/api/public/hooks/process-email-outbox': typeof ApiPublicHooksProcessEmailOutboxRoute
   '/api/public/hooks/process-tracks': typeof ApiPublicHooksProcessTracksRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/api/public/webhooks/resend': typeof ApiPublicWebhooksResendRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -720,6 +749,7 @@ export interface FileRoutesByTo {
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/referencing': typeof ReferencingRoute
+  '/robots.txt': typeof RobotsDottxtRoute
   '/saved-searches': typeof SavedSearchesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
@@ -790,13 +820,16 @@ export interface FileRoutesByTo {
   '/portal/tenant': typeof AuthenticatedPortalTenantRoute
   '/tenancies/$id': typeof AuthenticatedTenanciesIdRoute
   '/work-orders/$id': typeof AuthenticatedWorkOrdersIdRoute
+  '/api/public/health': typeof ApiPublicHealthRoute
   '/api/public/referencing-webhook': typeof ApiPublicReferencingWebhookRoute
   '/automations': typeof AuthenticatedAutomationsIndexRoute
   '/listing/$id/window-card': typeof AuthenticatedListingIdWindowCardRoute
   '/api/public/hooks/expiry-reminders': typeof ApiPublicHooksExpiryRemindersRoute
   '/api/public/hooks/match-saved-searches': typeof ApiPublicHooksMatchSavedSearchesRoute
+  '/api/public/hooks/process-email-outbox': typeof ApiPublicHooksProcessEmailOutboxRoute
   '/api/public/hooks/process-tracks': typeof ApiPublicHooksProcessTracksRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/api/public/webhooks/resend': typeof ApiPublicWebhooksResendRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -818,6 +851,7 @@ export interface FileRoutesById {
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/referencing': typeof ReferencingRoute
+  '/robots.txt': typeof RobotsDottxtRoute
   '/saved-searches': typeof SavedSearchesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
@@ -889,13 +923,16 @@ export interface FileRoutesById {
   '/_authenticated/portal/tenant': typeof AuthenticatedPortalTenantRoute
   '/_authenticated/tenancies/$id': typeof AuthenticatedTenanciesIdRoute
   '/_authenticated/work-orders/$id': typeof AuthenticatedWorkOrdersIdRoute
+  '/api/public/health': typeof ApiPublicHealthRoute
   '/api/public/referencing-webhook': typeof ApiPublicReferencingWebhookRoute
   '/_authenticated/automations/': typeof AuthenticatedAutomationsIndexRoute
   '/_authenticated/listing/$id/window-card': typeof AuthenticatedListingIdWindowCardRoute
   '/api/public/hooks/expiry-reminders': typeof ApiPublicHooksExpiryRemindersRoute
   '/api/public/hooks/match-saved-searches': typeof ApiPublicHooksMatchSavedSearchesRoute
+  '/api/public/hooks/process-email-outbox': typeof ApiPublicHooksProcessEmailOutboxRoute
   '/api/public/hooks/process-tracks': typeof ApiPublicHooksProcessTracksRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/api/public/webhooks/resend': typeof ApiPublicWebhooksResendRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -917,6 +954,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/privacy'
     | '/referencing'
+    | '/robots.txt'
     | '/saved-searches'
     | '/sitemap.xml'
     | '/terms'
@@ -988,13 +1026,16 @@ export interface FileRouteTypes {
     | '/portal/tenant'
     | '/tenancies/$id'
     | '/work-orders/$id'
+    | '/api/public/health'
     | '/api/public/referencing-webhook'
     | '/automations/'
     | '/listing/$id/window-card'
     | '/api/public/hooks/expiry-reminders'
     | '/api/public/hooks/match-saved-searches'
+    | '/api/public/hooks/process-email-outbox'
     | '/api/public/hooks/process-tracks'
     | '/api/public/payments/webhook'
+    | '/api/public/webhooks/resend'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -1012,6 +1053,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/privacy'
     | '/referencing'
+    | '/robots.txt'
     | '/saved-searches'
     | '/sitemap.xml'
     | '/terms'
@@ -1082,13 +1124,16 @@ export interface FileRouteTypes {
     | '/portal/tenant'
     | '/tenancies/$id'
     | '/work-orders/$id'
+    | '/api/public/health'
     | '/api/public/referencing-webhook'
     | '/automations'
     | '/listing/$id/window-card'
     | '/api/public/hooks/expiry-reminders'
     | '/api/public/hooks/match-saved-searches'
+    | '/api/public/hooks/process-email-outbox'
     | '/api/public/hooks/process-tracks'
     | '/api/public/payments/webhook'
+    | '/api/public/webhooks/resend'
   id:
     | '__root__'
     | '/'
@@ -1109,6 +1154,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/privacy'
     | '/referencing'
+    | '/robots.txt'
     | '/saved-searches'
     | '/sitemap.xml'
     | '/terms'
@@ -1180,13 +1226,16 @@ export interface FileRouteTypes {
     | '/_authenticated/portal/tenant'
     | '/_authenticated/tenancies/$id'
     | '/_authenticated/work-orders/$id'
+    | '/api/public/health'
     | '/api/public/referencing-webhook'
     | '/_authenticated/automations/'
     | '/_authenticated/listing/$id/window-card'
     | '/api/public/hooks/expiry-reminders'
     | '/api/public/hooks/match-saved-searches'
+    | '/api/public/hooks/process-email-outbox'
     | '/api/public/hooks/process-tracks'
     | '/api/public/payments/webhook'
+    | '/api/public/webhooks/resend'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1208,6 +1257,7 @@ export interface RootRouteChildren {
   PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
   ReferencingRoute: typeof ReferencingRoute
+  RobotsDottxtRoute: typeof RobotsDottxtRoute
   SavedSearchesRoute: typeof SavedSearchesRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
@@ -1221,11 +1271,14 @@ export interface RootRouteChildren {
   BlogIndexRoute: typeof BlogIndexRoute
   PropertyForSaleIndexRoute: typeof PropertyForSaleIndexRoute
   PropertyToRentIndexRoute: typeof PropertyToRentIndexRoute
+  ApiPublicHealthRoute: typeof ApiPublicHealthRoute
   ApiPublicReferencingWebhookRoute: typeof ApiPublicReferencingWebhookRoute
   ApiPublicHooksExpiryRemindersRoute: typeof ApiPublicHooksExpiryRemindersRoute
   ApiPublicHooksMatchSavedSearchesRoute: typeof ApiPublicHooksMatchSavedSearchesRoute
+  ApiPublicHooksProcessEmailOutboxRoute: typeof ApiPublicHooksProcessEmailOutboxRoute
   ApiPublicHooksProcessTracksRoute: typeof ApiPublicHooksProcessTracksRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
+  ApiPublicWebhooksResendRoute: typeof ApiPublicWebhooksResendRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1256,6 +1309,13 @@ declare module '@tanstack/react-router' {
       path: '/saved-searches'
       fullPath: '/saved-searches'
       preLoaderRoute: typeof SavedSearchesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/robots.txt': {
+      id: '/robots.txt'
+      path: '/robots.txt'
+      fullPath: '/robots.txt'
+      preLoaderRoute: typeof RobotsDottxtRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/referencing': {
@@ -1818,6 +1878,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicReferencingWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/health': {
+      id: '/api/public/health'
+      path: '/api/public/health'
+      fullPath: '/api/public/health'
+      preLoaderRoute: typeof ApiPublicHealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/work-orders/$id': {
       id: '/_authenticated/work-orders/$id'
       path: '/$id'
@@ -1867,6 +1934,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAutomationsIdRouteImport
       parentRoute: typeof AuthenticatedAutomationsRoute
     }
+    '/api/public/webhooks/resend': {
+      id: '/api/public/webhooks/resend'
+      path: '/api/public/webhooks/resend'
+      fullPath: '/api/public/webhooks/resend'
+      preLoaderRoute: typeof ApiPublicWebhooksResendRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/payments/webhook': {
       id: '/api/public/payments/webhook'
       path: '/api/public/payments/webhook'
@@ -1879,6 +1953,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/hooks/process-tracks'
       fullPath: '/api/public/hooks/process-tracks'
       preLoaderRoute: typeof ApiPublicHooksProcessTracksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/process-email-outbox': {
+      id: '/api/public/hooks/process-email-outbox'
+      path: '/api/public/hooks/process-email-outbox'
+      fullPath: '/api/public/hooks/process-email-outbox'
+      preLoaderRoute: typeof ApiPublicHooksProcessEmailOutboxRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/hooks/match-saved-searches': {
@@ -2129,6 +2210,7 @@ const rootRouteChildren: RootRouteChildren = {
   PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
   ReferencingRoute: ReferencingRoute,
+  RobotsDottxtRoute: RobotsDottxtRoute,
   SavedSearchesRoute: SavedSearchesRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
@@ -2142,11 +2224,14 @@ const rootRouteChildren: RootRouteChildren = {
   BlogIndexRoute: BlogIndexRoute,
   PropertyForSaleIndexRoute: PropertyForSaleIndexRoute,
   PropertyToRentIndexRoute: PropertyToRentIndexRoute,
+  ApiPublicHealthRoute: ApiPublicHealthRoute,
   ApiPublicReferencingWebhookRoute: ApiPublicReferencingWebhookRoute,
   ApiPublicHooksExpiryRemindersRoute: ApiPublicHooksExpiryRemindersRoute,
   ApiPublicHooksMatchSavedSearchesRoute: ApiPublicHooksMatchSavedSearchesRoute,
+  ApiPublicHooksProcessEmailOutboxRoute: ApiPublicHooksProcessEmailOutboxRoute,
   ApiPublicHooksProcessTracksRoute: ApiPublicHooksProcessTracksRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
+  ApiPublicWebhooksResendRoute: ApiPublicWebhooksResendRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { Mail, Phone, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
+import { siteUrl } from "@/lib/site-url";
 
 export const Route = createFileRoute("/complaints")({
   component: ComplaintsPage,
@@ -18,9 +19,9 @@ export const Route = createFileRoute("/complaints")({
       { name: "description", content: "Estately complaints procedure and escalation route to The Property Ombudsman." },
       { property: "og:title", content: "Complaints — Estately" },
       { property: "og:description", content: "How to raise a complaint with Estately and escalate to The Property Ombudsman." },
-      { property: "og:url", content: "https://proptest.313test.co.uk/complaints" },
+      { property: "og:url", content: siteUrl("/complaints") },
     ],
-    links: [{ rel: "canonical", href: "https://proptest.313test.co.uk/complaints" }],
+    links: [{ rel: "canonical", href: siteUrl("/complaints") }],
   }),
 });
 

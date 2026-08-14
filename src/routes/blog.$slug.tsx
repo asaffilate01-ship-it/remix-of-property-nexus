@@ -5,8 +5,9 @@ import { getPost, POSTS } from "@/content/posts";
 import { ArrowLeft, Calendar, Clock, Copy, Check } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { SITE_URL } from "@/lib/site-url";
 
-const SITE = "https://proptest.313test.co.uk";
+const SITE = SITE_URL;
 
 export const Route = createFileRoute("/blog/$slug")({
   loader: ({ params }) => {

@@ -11,6 +11,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { Mail, Phone, MapPin, MessageSquare, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { submitContactEnquiry } from "@/lib/public.functions";
+import { siteUrl } from "@/lib/site-url";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -18,9 +19,9 @@ export const Route = createFileRoute("/contact")({
       { title: "Contact — Estately" },
       { name: "description", content: "Talk to our team about a free trial, a migration from your current CRM, or a tailored demo for your agency or portfolio." },
       { property: "og:title", content: "Contact Estately" },
-      { property: "og:url", content: "https://proptest.313test.co.uk/contact" },
+      { property: "og:url", content: siteUrl("/contact") },
     ],
-    links: [{ rel: "canonical", href: "https://proptest.313test.co.uk/contact" }],
+    links: [{ rel: "canonical", href: siteUrl("/contact") }],
   }),
   component: ContactPage,
 });

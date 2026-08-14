@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Building2, Target, Heart, Users, ArrowRight } from "lucide-react";
 import heroPattern from "@/assets/hero-pattern.jpg";
+import { siteUrl } from "@/lib/site-url";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -13,9 +14,9 @@ export const Route = createFileRoute("/about")({
       { name: "description", content: "We're rebuilding the property stack — from the marketplace down to the back office — for the next generation of UK agencies and landlords." },
       { property: "og:title", content: "About Estately" },
       { property: "og:description", content: "Rebuilding the UK property stack, end-to-end." },
-      { property: "og:url", content: "https://proptest.313test.co.uk/about" },
+      { property: "og:url", content: siteUrl("/about") },
     ],
-    links: [{ rel: "canonical", href: "https://proptest.313test.co.uk/about" }],
+    links: [{ rel: "canonical", href: siteUrl("/about") }],
   }),
   component: AboutPage,
 });

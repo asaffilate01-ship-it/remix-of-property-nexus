@@ -7,6 +7,7 @@ import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Calculator } from "lucide-react";
+import { siteUrl } from "@/lib/site-url";
 
 export const Route = createFileRoute("/mortgage")({
   head: () => ({
@@ -16,7 +17,7 @@ export const Route = createFileRoute("/mortgage")({
       { property: "og:title", content: "Mortgage calculator — Estately" },
       { property: "og:description", content: "Monthly repayments, stamp duty and affordability — instantly." },
     ],
-    links: [{ rel: "canonical", href: "https://proptest.313test.co.uk/mortgage" }],
+    links: [{ rel: "canonical", href: siteUrl("/mortgage") }],
   }),
   component: MortgagePage,
 });

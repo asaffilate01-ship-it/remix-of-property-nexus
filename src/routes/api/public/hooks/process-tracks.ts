@@ -136,26 +136,23 @@ async function dispatch(admin: any, row: any) {
       return;
     }
     case "send_email": {
-      // Enqueue via the existing transactional email queue if available.
       const to = cfg.to_email;
-      if (!to) return;
-      try {
-        await admin.rpc("enqueue_email", {
-          queue_name: "transactional_emails",
-          payload: {
-            template_name: cfg.template ?? "track-step",
-            recipient_email: to,
-            subject: cfg.subject ?? "Notification",
-            html: cfg.html ?? cfg.body ?? "",
-            text: cfg.text ?? cfg.body ?? "",
-          },
-        });
-      } catch { /* email infra may not be set up; treat as ok */ }
+      if (!to) throw new Error("Email action has no recipient");
+      const { error } = await admin.rpc("enqueue_email", {
+        queue_name: "transactional_emails",
+        payload: {
+          template_name: "generic-notification",
+          recipient_email: to,
+          subject: cfg.subject ?? "Notification",
+          template_data: { body: cfg.text ?? cfg.body ?? "" },
+          idempotency_key: `track:${row.run_step_id}:email`,
+        },
+      });
+      if (error) throw new Error(`Email could not be queued: ${error.message}`);
       return;
     }
     case "send_sms": {
-      // No SMS provider linked: no-op, success logged.
-      return;
+      throw new Error("SMS delivery is not configured");
     }
   }
 }

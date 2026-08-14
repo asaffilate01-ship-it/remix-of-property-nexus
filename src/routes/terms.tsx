@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PublicHeader } from "@/components/PublicHeader";
 import { PublicFooter } from "@/components/PublicFooter";
+import { siteUrl } from "@/lib/site-url";
 
 export const Route = createFileRoute("/terms")({
   component: TermsPage,
@@ -10,9 +11,9 @@ export const Route = createFileRoute("/terms")({
       { name: "description", content: "Estately terms of service governing the use of our property management platform and marketplace." },
       { property: "og:title", content: "Terms of Service — Estately" },
       { property: "og:description", content: "Estately terms of service for our property management platform." },
-      { property: "og:url", content: "https://proptest.313test.co.uk/terms" },
+      { property: "og:url", content: siteUrl("/terms") },
     ],
-    links: [{ rel: "canonical", href: "https://proptest.313test.co.uk/terms" }],
+    links: [{ rel: "canonical", href: siteUrl("/terms") }],
   }),
 });
 

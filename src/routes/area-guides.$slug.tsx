@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { GraduationCap, Train, ShieldCheck, TrendingUp, MapPin, ArrowLeft, Home } from "lucide-react";
 import { findArea, AREAS, type Area } from "@/content/areas";
+import { siteUrl } from "@/lib/site-url";
 
 export const Route = createFileRoute("/area-guides/$slug")({
   loader: ({ params }) => {
@@ -23,7 +24,7 @@ export const Route = createFileRoute("/area-guides/$slug")({
         { property: "og:title", content: title },
         { property: "og:description", content: desc },
       ],
-      links: [{ rel: "canonical", href: `https://proptest.313test.co.uk/area-guides/${a.slug}` }],
+      links: [{ rel: "canonical", href: siteUrl(`/area-guides/${a.slug}`) }],
     };
   },
   component: AreaGuideDetail,
