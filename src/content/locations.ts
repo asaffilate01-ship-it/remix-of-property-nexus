@@ -1,4 +1,4 @@
-import { UK_TOWNS } from "@/content/uk-towns";
+import { UK_TOWNS } from "./uk-towns";
 
 export type UkLocation = {
   slug: string;
