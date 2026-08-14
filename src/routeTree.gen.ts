@@ -35,6 +35,7 @@ import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as AgenciesIndexRouteImport } from './routes/agencies.index'
 import { Route as VisitTokenRouteImport } from './routes/visit.$token'
 import { Route as SignTokenRouteImport } from './routes/sign.$token'
+import { Route as PropertyToRentLocationRouteImport } from './routes/property-to-rent.$location'
 import { Route as PropertyForSaleLocationRouteImport } from './routes/property-for-sale.$location'
 import { Route as ModulesSlugRouteImport } from './routes/modules.$slug'
 import { Route as MarketplaceSlugRouteImport } from './routes/marketplace.$slug'
@@ -229,6 +230,11 @@ const VisitTokenRoute = VisitTokenRouteImport.update({
 const SignTokenRoute = SignTokenRouteImport.update({
   id: '/sign/$token',
   path: '/sign/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PropertyToRentLocationRoute = PropertyToRentLocationRouteImport.update({
+  id: '/property-to-rent/$location',
+  path: '/property-to-rent/$location',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PropertyForSaleLocationRoute = PropertyForSaleLocationRouteImport.update({
@@ -656,6 +662,7 @@ export interface FileRoutesByFullPath {
   '/marketplace/$slug': typeof MarketplaceSlugRoute
   '/modules/$slug': typeof ModulesSlugRoute
   '/property-for-sale/$location': typeof PropertyForSaleLocationRoute
+  '/property-to-rent/$location': typeof PropertyToRentLocationRoute
   '/sign/$token': typeof SignTokenRoute
   '/visit/$token': typeof VisitTokenRoute
   '/agencies/': typeof AgenciesIndexRoute
@@ -746,6 +753,7 @@ export interface FileRoutesByTo {
   '/marketplace/$slug': typeof MarketplaceSlugRoute
   '/modules/$slug': typeof ModulesSlugRoute
   '/property-for-sale/$location': typeof PropertyForSaleLocationRoute
+  '/property-to-rent/$location': typeof PropertyToRentLocationRoute
   '/sign/$token': typeof SignTokenRoute
   '/visit/$token': typeof VisitTokenRoute
   '/agencies': typeof AgenciesIndexRoute
@@ -841,6 +849,7 @@ export interface FileRoutesById {
   '/marketplace/$slug': typeof MarketplaceSlugRoute
   '/modules/$slug': typeof ModulesSlugRoute
   '/property-for-sale/$location': typeof PropertyForSaleLocationRoute
+  '/property-to-rent/$location': typeof PropertyToRentLocationRoute
   '/sign/$token': typeof SignTokenRoute
   '/visit/$token': typeof VisitTokenRoute
   '/agencies/': typeof AgenciesIndexRoute
@@ -936,6 +945,7 @@ export interface FileRouteTypes {
     | '/marketplace/$slug'
     | '/modules/$slug'
     | '/property-for-sale/$location'
+    | '/property-to-rent/$location'
     | '/sign/$token'
     | '/visit/$token'
     | '/agencies/'
@@ -1026,6 +1036,7 @@ export interface FileRouteTypes {
     | '/marketplace/$slug'
     | '/modules/$slug'
     | '/property-for-sale/$location'
+    | '/property-to-rent/$location'
     | '/sign/$token'
     | '/visit/$token'
     | '/agencies'
@@ -1120,6 +1131,7 @@ export interface FileRouteTypes {
     | '/marketplace/$slug'
     | '/modules/$slug'
     | '/property-for-sale/$location'
+    | '/property-to-rent/$location'
     | '/sign/$token'
     | '/visit/$token'
     | '/agencies/'
@@ -1166,6 +1178,7 @@ export interface RootRouteChildren {
   BlogSlugRoute: typeof BlogSlugRoute
   ModulesSlugRoute: typeof ModulesSlugRoute
   PropertyForSaleLocationRoute: typeof PropertyForSaleLocationRoute
+  PropertyToRentLocationRoute: typeof PropertyToRentLocationRoute
   SignTokenRoute: typeof SignTokenRoute
   VisitTokenRoute: typeof VisitTokenRoute
   BlogIndexRoute: typeof BlogIndexRoute
@@ -1358,6 +1371,13 @@ declare module '@tanstack/react-router' {
       path: '/sign/$token'
       fullPath: '/sign/$token'
       preLoaderRoute: typeof SignTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/property-to-rent/$location': {
+      id: '/property-to-rent/$location'
+      path: '/property-to-rent/$location'
+      fullPath: '/property-to-rent/$location'
+      preLoaderRoute: typeof PropertyToRentLocationRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/property-for-sale/$location': {
@@ -2055,6 +2075,7 @@ const rootRouteChildren: RootRouteChildren = {
   BlogSlugRoute: BlogSlugRoute,
   ModulesSlugRoute: ModulesSlugRoute,
   PropertyForSaleLocationRoute: PropertyForSaleLocationRoute,
+  PropertyToRentLocationRoute: PropertyToRentLocationRoute,
   SignTokenRoute: SignTokenRoute,
   VisitTokenRoute: VisitTokenRoute,
   BlogIndexRoute: BlogIndexRoute,
