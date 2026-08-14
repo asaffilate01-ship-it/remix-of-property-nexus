@@ -1,4 +1,4 @@
-const FALLBACK_SITE_URL = "https://estately.app";
+const FALLBACK_SITE_URL = "https://estate-elevate-hq.lovable.app";
 
 export function normalizeSiteUrl(value: string | undefined): string {
   const candidate = value?.trim() || FALLBACK_SITE_URL;
