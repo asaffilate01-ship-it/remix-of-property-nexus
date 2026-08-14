@@ -1,3 +1,5 @@
+import { UK_TOWNS } from "@/content/uk-towns";
+
 export type UkLocation = {
   slug: string;
   /** Value matched against listings.city */
