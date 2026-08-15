@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any -- shared agency resolver receives the authenticated Supabase client */
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -6,7 +5,10 @@ import { safeExternalUrl } from "@/lib/url-safety";
 
 const optionalUrl = z
   .union([
-    z.string().max(500).refine((value) => safeExternalUrl(value) !== null, "Use a valid HTTP(S) URL"),
+    z
+      .string()
+      .max(500)
+      .refine((value) => safeExternalUrl(value) !== null, "Use a valid HTTP(S) URL"),
     z.literal(""),
   ])
   .optional()

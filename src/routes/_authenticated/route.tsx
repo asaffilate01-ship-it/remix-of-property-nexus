@@ -13,6 +13,8 @@ import { useMemo } from "react";
 import { safeMfaRedirect } from "@/lib/auth-security";
 import { useLocale } from "@/hooks/useLocale";
 import { translateUi } from "@/lib/locale";
+import { isAppRole } from "@/lib/roles";
+import { roleCanAccessPath } from "@/lib/route-access";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -34,22 +36,23 @@ export const Route = createFileRoute("/_authenticated")({
     if (profileResult.error || rolesResult.error) {
       throw new Error("Unable to verify workspace authorization. Please try again.");
     }
-    let profile = profileResult.data;
-    let roles = rolesResult.data;
+    const profile = profileResult.data;
+    const roles = rolesResult.data;
     if (!profile?.primary_role && (roles ?? []).length === 0) {
-      // First sign-in after signup: provision the profile, role and agency workspace.
-      const { data: provisionedRole, error: provisionError } = await supabase.rpc(
-        "ensure_user_workspace",
-      );
-      if (provisionError || !provisionedRole) {
-        throw new Error("This account has no authorised workspace role.");
-      }
-      profile = { primary_role: provisionedRole };
-      roles = [{ role: provisionedRole }];
+      throw new Error("This account has no authorised workspace role.");
     }
-
-    const isPlatformAdmin = profile?.primary_role === "admin"
-      || (roles ?? []).some((entry) => entry.role === "admin");
+    const isPlatformAdmin =
+      profile?.primary_role === "admin" || (roles ?? []).some((entry) => entry.role === "admin");
+    const role = isPlatformAdmin ? "admin" : profile?.primary_role;
+    if (!isAppRole(role)) {
+      throw new Error("This account has no valid authorised workspace role.");
+    }
+    if (!roleCanAccessPath(role, location.pathname)) {
+      throw redirect({
+        to: "/access-denied",
+        search: { from: location.pathname.slice(0, 500) },
+      });
+    }
     if (isPlatformAdmin) {
       const assurance = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
       if (assurance.error || assurance.data.currentLevel !== "aal2") {
@@ -72,26 +75,51 @@ export const Route = createFileRoute("/_authenticated")({
       }
     }
 
-    return { user };
+    return { user, role };
   },
   component: AuthedLayout,
 });
 
 const LABELS: Record<string, string> = {
-  dashboard: "Dashboard", properties: "Properties", listings: "Listings", hmo: "HMO",
-  commercial: "Commercial", media: "Floorplans & EPC", "ai-copy": "AI copy",
-  leads: "Leads", viewings: "Viewings", pipeline: "Pipeline", sales: "Sales",
-  offers: "Offers", tenancies: "Tenancies", inspections: "Inspections",
-  "mobile-inspection": "On-site inspection", move: "Move in / out",
-  renewals: "Renewals", arrears: "Arrears", "work-orders": "Work orders",
-  "contractor-marketplace": "Contractor marketplace", survey: "Survey",
-  compliance: "Compliance", "referencing-cases": "Referencing", banking: "Bank reconciliation",
-  "right-to-rent": "Right to Rent", deposits: "Deposits",
-  leasehold: "Leasehold", templates: "Templates", "e-sign": "E-signatures",
-  documents: "Documents", evidence: "Evidence", statements: "Statements",
-  contacts: "Contacts", agency: "Agency", branches: "Branches",
+  dashboard: "Dashboard",
+  properties: "Properties",
+  listings: "Listings",
+  hmo: "HMO",
+  commercial: "Commercial",
+  media: "Floorplans & EPC",
+  "ai-copy": "AI copy",
+  leads: "Leads",
+  viewings: "Viewings",
+  pipeline: "Pipeline",
+  sales: "Sales",
+  offers: "Offers",
+  tenancies: "Tenancies",
+  inspections: "Inspections",
+  "mobile-inspection": "On-site inspection",
+  move: "Move in / out",
+  renewals: "Renewals",
+  arrears: "Arrears",
+  "work-orders": "Work orders",
+  "contractor-marketplace": "Contractor marketplace",
+  survey: "Survey",
+  compliance: "Compliance",
+  "referencing-cases": "Referencing",
+  banking: "Bank reconciliation",
+  "right-to-rent": "Right to Rent",
+  deposits: "Deposits",
+  leasehold: "Leasehold",
+  templates: "Templates",
+  "e-sign": "E-signatures",
+  documents: "Documents",
+  evidence: "Evidence",
+  statements: "Statements",
+  contacts: "Contacts",
+  agency: "Agency",
+  branches: "Branches",
   team: "Team",
-  settings: "Settings", reports: "Reports", "vendor-portal": "Vendor portal",
+  settings: "Settings",
+  reports: "Reports",
+  "vendor-portal": "Vendor portal",
   "saved-searches": "Saved searches",
 };
 
@@ -131,7 +159,10 @@ function AuthedLayout() {
               </h1>
             )}
             {crumbs.length > 1 && (
-              <nav aria-label="Breadcrumb" className="hidden sm:flex items-center gap-1.5 text-xs font-medium text-muted-foreground min-w-0">
+              <nav
+                aria-label="Breadcrumb"
+                className="hidden sm:flex items-center gap-1.5 text-xs font-medium text-muted-foreground min-w-0"
+              >
                 {crumbs.map((c, i) => {
                   const last = i === crumbs.length - 1;
                   return (
@@ -160,7 +191,9 @@ function AuthedLayout() {
             >
               <Search className="h-3.5 w-3.5" />
               <span>Search…</span>
-              <kbd className="ml-2 text-[10px] font-mono bg-muted px-1.5 py-0.5 rounded">Ctrl K</kbd>
+              <kbd className="ml-2 text-[10px] font-mono bg-muted px-1.5 py-0.5 rounded">
+                Ctrl K
+              </kbd>
             </Button>
             <Button
               variant="ghost"
@@ -172,16 +205,22 @@ function AuthedLayout() {
               <Search className="h-[18px] w-[18px]" />
             </Button>
             <NotificationBell />
-            <Button asChild variant="outline" size="sm" className="hidden sm:inline-flex gap-1.5 h-9">
+            <Button
+              asChild
+              variant="outline"
+              size="sm"
+              className="hidden sm:inline-flex gap-1.5 h-9"
+            >
               <Link to="/contact">
                 <LifeBuoy className="h-4 w-4" /> Support
               </Link>
             </Button>
-
           </header>
           <main id="main-content" tabIndex={-1} className="flex-1 pb-24 md:pb-10">
             <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 pt-4 sm:pt-8">
-              <WorkspaceAccessGate><Outlet /></WorkspaceAccessGate>
+              <WorkspaceAccessGate>
+                <Outlet />
+              </WorkspaceAccessGate>
             </div>
           </main>
         </div>

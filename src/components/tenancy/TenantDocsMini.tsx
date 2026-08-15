@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,21 +7,39 @@ import { Badge } from "@/components/ui/badge";
 import { FileText, Upload, Trash2, Loader2, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 
-type Doc = { id: string; name: string; folder: string; storage_path: string; expires_on: string | null; size_bytes: number | null };
+type Doc = {
+  id: string;
+  name: string;
+  folder: string;
+  storage_path: string;
+  expires_on: string | null;
+  size_bytes: number | null;
+};
 
 // Lightweight per-tenancy document uploader. Reuses the existing `documents` bucket and table.
-export function TenantDocsMini({ tenancyId, tenantName }: { tenancyId: string; tenantName: string }) {
+export function TenantDocsMini({
+  tenancyId,
+  tenantName,
+}: {
+  tenancyId: string;
+  tenantName: string;
+}) {
   const [rows, setRows] = useState<Doc[]>([]);
   const [busy, setBusy] = useState(false);
   const [folder, setFolder] = useState("Right to Rent");
   const [expires, setExpires] = useState("");
 
-  const load = async () => {
-    const { data } = await supabase.from("documents").select("id,name,folder,storage_path,expires_on,size_bytes")
-      .eq("tenancy_id", tenancyId).order("created_at", { ascending: false });
+  const load = useCallback(async () => {
+    const { data } = await supabase
+      .from("documents")
+      .select("id,name,folder,storage_path,expires_on,size_bytes")
+      .eq("tenancy_id", tenancyId)
+      .order("created_at", { ascending: false });
     setRows((data ?? []) as Doc[]);
-  };
-  useEffect(() => { void load(); }, [tenancyId]);
+  }, [tenancyId]);
+  useEffect(() => {
+    void load();
+  }, [load]);
 
   const upload = async (file: File) => {
     setBusy(true);
@@ -29,7 +47,9 @@ export function TenantDocsMini({ tenancyId, tenantName }: { tenancyId: string; t
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) throw new Error("Sign in required");
       const path = `tenants/${tenancyId}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
-      const up = await supabase.storage.from("documents").upload(path, file, { contentType: file.type });
+      const up = await supabase.storage
+        .from("documents")
+        .upload(path, file, { contentType: file.type });
       if (up.error) throw up.error;
       const row = {
         scope: "tenancy" as const,
@@ -49,7 +69,9 @@ export function TenantDocsMini({ tenancyId, tenantName }: { tenancyId: string; t
       await load();
     } catch (e: any) {
       toast.error(e.message || "Upload failed");
-    } finally { setBusy(false); }
+    } finally {
+      setBusy(false);
+    }
   };
 
   const remove = async (d: Doc) => {
@@ -60,7 +82,9 @@ export function TenantDocsMini({ tenancyId, tenantName }: { tenancyId: string; t
   };
 
   const open = async (d: Doc) => {
-    const { data, error } = await supabase.storage.from("documents").createSignedUrl(d.storage_path, 600);
+    const { data, error } = await supabase.storage
+      .from("documents")
+      .createSignedUrl(d.storage_path, 600);
     if (error || !data) return toast.error("Could not open");
     window.open(data.signedUrl, "_blank");
   };
@@ -73,7 +97,11 @@ export function TenantDocsMini({ tenancyId, tenantName }: { tenancyId: string; t
       <div className="grid grid-cols-3 gap-2">
         <div>
           <Label className="text-xs">Folder</Label>
-          <Input value={folder} onChange={(e) => setFolder(e.target.value)} placeholder="Right to Rent" />
+          <Input
+            value={folder}
+            onChange={(e) => setFolder(e.target.value)}
+            placeholder="Right to Rent"
+          />
         </div>
         <div>
           <Label className="text-xs">Expiry (optional)</Label>
@@ -82,16 +110,39 @@ export function TenantDocsMini({ tenancyId, tenantName }: { tenancyId: string; t
         <div>
           <Label className="text-xs">Add file</Label>
           <label className="flex">
-            <input type="file" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) void upload(f); e.target.value = ""; }} />
-            <Button asChild variant="outline" size="sm" className="cursor-pointer w-full" disabled={busy}>
-              <span>{busy ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <Upload className="h-3 w-3 mr-1" />} Upload</span>
+            <input
+              type="file"
+              className="hidden"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) void upload(f);
+                e.target.value = "";
+              }}
+            />
+            <Button
+              asChild
+              variant="outline"
+              size="sm"
+              className="cursor-pointer w-full"
+              disabled={busy}
+            >
+              <span>
+                {busy ? (
+                  <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                ) : (
+                  <Upload className="h-3 w-3 mr-1" />
+                )}{" "}
+                Upload
+              </span>
             </Button>
           </label>
         </div>
       </div>
 
       {rows.length === 0 ? (
-        <div className="text-xs text-muted-foreground text-center py-3 border border-dashed rounded">No tenant documents yet. Upload Right-to-Rent, passport, references, signed AST, etc.</div>
+        <div className="text-xs text-muted-foreground text-center py-3 border border-dashed rounded">
+          No tenant documents yet. Upload Right-to-Rent, passport, references, signed AST, etc.
+        </div>
       ) : (
         <div className="divide-y -mx-1">
           {rows.map((d) => {
@@ -102,7 +153,9 @@ export function TenantDocsMini({ tenancyId, tenantName }: { tenancyId: string; t
                 <div className="min-w-0">
                   <div className="text-sm truncate">{d.name}</div>
                   <div className="text-[11px] text-muted-foreground flex items-center gap-1.5">
-                    <Badge variant="outline" className="text-[10px]">{d.folder}</Badge>
+                    <Badge variant="outline" className="text-[10px]">
+                      {d.folder}
+                    </Badge>
                     {d.expires_on && (
                       <span className={overdue ? "text-destructive font-medium" : ""}>
                         expires {new Date(d.expires_on).toLocaleDateString("en-GB")}
@@ -111,8 +164,17 @@ export function TenantDocsMini({ tenancyId, tenantName }: { tenancyId: string; t
                   </div>
                 </div>
                 <div className="flex gap-1">
-                  <Button size="icon" variant="ghost" onClick={() => open(d)} title="Open"><ExternalLink className="h-3 w-3" /></Button>
-                  <Button size="icon" variant="ghost" className="text-destructive" onClick={() => remove(d)}><Trash2 className="h-3 w-3" /></Button>
+                  <Button size="icon" variant="ghost" onClick={() => open(d)} title="Open">
+                    <ExternalLink className="h-3 w-3" />
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="text-destructive"
+                    onClick={() => remove(d)}
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
                 </div>
               </div>
             );

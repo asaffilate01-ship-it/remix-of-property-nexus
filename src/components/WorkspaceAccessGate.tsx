@@ -1,6 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { AlertTriangle, ArrowRight, Check, Clock, CreditCard, Loader2 } from "lucide-react";
 import { getWorkspaceAccess } from "@/lib/billing.functions";
 import { PLANS } from "@/lib/plans";
@@ -17,26 +17,41 @@ export function WorkspaceAccessGate({ children }: { children: ReactNode }) {
   const [access, setAccess] = useState<Awaited<ReturnType<typeof fetchAccess>> | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
+  const requestId = useRef(0);
 
   const load = useCallback(async () => {
+    const currentRequest = ++requestId.current;
+    setLoading(true);
+    setLoadError(false);
     try {
-      setAccess(await fetchAccess({}));
+      const result = await fetchAccess({});
+      if (currentRequest !== requestId.current) return;
+      setAccess(result);
       setLoadError(false);
     } catch {
+      if (currentRequest !== requestId.current) return;
+      setAccess(null);
       setLoadError(true);
     } finally {
-      setLoading(false);
+      if (currentRequest === requestId.current) setLoading(false);
     }
   }, [fetchAccess]);
 
   useEffect(() => {
     void load();
+    return () => {
+      requestId.current += 1;
+    };
   }, [load, path]);
 
   if (loading) {
     return (
-      <div className="flex min-h-52 items-center justify-center text-sm text-muted-foreground">
-        <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Checking workspace access…
+      <div
+        className="flex min-h-52 items-center justify-center text-sm text-muted-foreground"
+        role="status"
+      >
+        <Loader2 aria-hidden="true" className="mr-2 h-4 w-4 animate-spin" /> Checking workspace
+        access…
       </div>
     );
   }
@@ -44,7 +59,7 @@ export function WorkspaceAccessGate({ children }: { children: ReactNode }) {
   if (loadError) {
     return (
       <Alert variant="destructive">
-        <AlertTriangle className="h-4 w-4" />
+        <AlertTriangle aria-hidden="true" className="h-4 w-4" />
         <AlertTitle>Unable to verify workspace access</AlertTitle>
         <AlertDescription className="flex flex-wrap items-center justify-between gap-3">
           <span>Operational pages remain closed until the subscription status can be checked.</span>
@@ -52,7 +67,6 @@ export function WorkspaceAccessGate({ children }: { children: ReactNode }) {
             size="sm"
             variant="outline"
             onClick={() => {
-              setLoading(true);
               void load();
             }}
           >
@@ -73,7 +87,7 @@ export function WorkspaceAccessGate({ children }: { children: ReactNode }) {
         <Card className="border-0 shadow-elevated">
           <CardContent className="p-7 text-center sm:p-10">
             <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-destructive/10 text-destructive">
-              <CreditCard className="h-6 w-6" />
+              <CreditCard aria-hidden="true" className="h-6 w-6" />
             </div>
             <h1 className="mt-5 font-display text-2xl font-bold">Workspace access is paused</h1>
             <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
@@ -84,7 +98,8 @@ export function WorkspaceAccessGate({ children }: { children: ReactNode }) {
             {access.isOwner ? (
               <Button asChild className="mt-6">
                 <Link to="/settings" search={{ tab: "billing" }}>
-                  Review plans and billing <ArrowRight className="ml-2 h-4 w-4" />
+                  Review plans and billing{" "}
+                  <ArrowRight aria-hidden="true" className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
             ) : (
@@ -111,7 +126,7 @@ export function WorkspaceAccessGate({ children }: { children: ReactNode }) {
     <div className="space-y-5">
       {showTrialWarning && (
         <Alert className="border-primary/20 bg-primary/5">
-          <Clock className="h-4 w-4" />
+          <Clock aria-hidden="true" className="h-4 w-4" />
           <AlertTitle>
             {trialDays} {trialDays === 1 ? "day" : "days"} left in the agency trial
           </AlertTitle>
@@ -174,9 +189,9 @@ function OnboardingChecklist({
               className="flex items-center gap-2 rounded-lg border bg-background px-3 py-2 text-sm hover:border-primary/40"
             >
               {step.complete ? (
-                <Check className="h-4 w-4 text-success" />
+                <Check aria-hidden="true" className="h-4 w-4 text-success" />
               ) : (
-                <AlertTriangle className="h-4 w-4 text-muted-foreground" />
+                <AlertTriangle aria-hidden="true" className="h-4 w-4 text-muted-foreground" />
               )}
               <span
                 className={step.complete ? "text-muted-foreground line-through" : "font-medium"}

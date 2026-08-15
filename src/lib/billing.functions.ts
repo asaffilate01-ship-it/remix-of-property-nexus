@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any -- subscription tables are added by the pending migration and are not in generated Supabase types yet */
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import type Stripe from "stripe";
