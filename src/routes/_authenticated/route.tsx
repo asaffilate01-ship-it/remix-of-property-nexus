@@ -36,10 +36,18 @@ export const Route = createFileRoute("/_authenticated")({
     if (profileResult.error || rolesResult.error) {
       throw new Error("Unable to verify workspace authorization. Please try again.");
     }
-    const profile = profileResult.data;
-    const roles = rolesResult.data;
+    let profile = profileResult.data;
+    let roles = rolesResult.data;
     if (!profile?.primary_role && (roles ?? []).length === 0) {
-      throw new Error("This account has no authorised workspace role.");
+      // First sign-in after signup: provision the profile, role and agency workspace.
+      const { data: provisionedRole, error: provisionError } = await supabase.rpc(
+        "ensure_user_workspace",
+      );
+      if (provisionError || !provisionedRole) {
+        throw new Error("This account has no authorised workspace role.");
+      }
+      profile = { primary_role: provisionedRole };
+      roles = [{ role: provisionedRole }];
     }
     const isPlatformAdmin =
       profile?.primary_role === "admin" || (roles ?? []).some((entry) => entry.role === "admin");
