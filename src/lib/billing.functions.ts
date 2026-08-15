@@ -241,7 +241,7 @@ export const getWorkspaceAccess = createServerFn({ method: "GET" })
 
 export const createSubscriptionCheckout = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((value: unknown) => z.object({ planCode: z.enum(PLAN_CODES) }).parse(value))
+  .validator((value: unknown) => z.object({ planCode: z.enum(PLAN_CODES) }).parse(value))
   .handler(async ({ data, context }) => {
     try {
       const access = await resolveAgencyAccess(context.supabase, context.userId);
@@ -440,7 +440,7 @@ export const createBillingPortalSession = createServerFn({ method: "POST" })
 
 export const syncSubscriptionCheckout = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((value: unknown) =>
+  .validator((value: unknown) =>
     z.object({ sessionId: z.string().min(8).max(255) }).parse(value),
   )
   .handler(async ({ data, context }) => {

@@ -31,7 +31,7 @@ function haversine(lat1: number, lng1: number, lat2: number, lng2: number): numb
 }
 
 export const fetchNearby = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) =>
+  .validator((d: unknown) =>
     z.object({
       lat: z.number().min(-90).max(90),
       lng: z.number().min(-180).max(180),

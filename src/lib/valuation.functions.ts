@@ -29,7 +29,7 @@ export type ValuationResult =
  * the UI never manufactures a price.
  */
 export const getPropertyValuation = createServerFn({ method: "POST" })
-  .inputValidator(requestSchema)
+  .validator(requestSchema)
   .handler(async ({ data }): Promise<ValuationResult> => {
     const { enforceRateLimit } = await import("./rate-limit.server");
     await enforceRateLimit("property_valuation", 10, 3_600);

@@ -43,7 +43,7 @@ async function validateDistance(supabase: any, workOrderId: string, lat?: number
 
 export const startVisit = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({
+  .validator((d: unknown) => z.object({
     work_order_id: z.string().uuid(),
     latitude: z.number().min(-90).max(90).optional().nullable(),
     longitude: z.number().min(-180).max(180).optional().nullable(),
@@ -83,7 +83,7 @@ export const startVisit = createServerFn({ method: "POST" })
 
 export const endVisit = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({
+  .validator((d: unknown) => z.object({
     visit_id: z.string().uuid(),
     latitude: z.number().min(-90).max(90).optional().nullable(),
     longitude: z.number().min(-180).max(180).optional().nullable(),
@@ -137,7 +137,7 @@ export const endVisit = createServerFn({ method: "POST" })
 
 export const createShareToken = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({
+  .validator((d: unknown) => z.object({
     work_order_id: z.string().uuid(),
     contractor_name: z.string().min(1).max(200),
     contractor_phone: z.string().max(40).optional().nullable(),
@@ -186,7 +186,7 @@ async function loadByToken(token: string) {
 }
 
 export const getVisitContext = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => z.object({ token: z.string().min(20).max(128) }).parse(d))
+  .validator((d: unknown) => z.object({ token: z.string().min(20).max(128) }).parse(d))
   .handler(async ({ data }) => {
     const { tok, supabaseAdmin } = await loadByToken(data.token);
     const { data: wo } = await supabaseAdmin.from("work_orders").select("id, title, description, status, priority, scheduled_for, property_id, agency_id").eq("id", tok.work_order_id).single();
@@ -199,7 +199,7 @@ export const getVisitContext = createServerFn({ method: "POST" })
   });
 
 export const tokenStartVisit = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => z.object({
+  .validator((d: unknown) => z.object({
     token: z.string().min(20).max(128),
     latitude: z.number().min(-90).max(90).optional().nullable(),
     longitude: z.number().min(-180).max(180).optional().nullable(),
@@ -236,7 +236,7 @@ export const tokenStartVisit = createServerFn({ method: "POST" })
   });
 
 export const tokenEndVisit = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => z.object({
+  .validator((d: unknown) => z.object({
     token: z.string().min(20).max(128),
     visit_id: z.string().uuid(),
     latitude: z.number().min(-90).max(90).optional().nullable(),
@@ -283,7 +283,7 @@ export const tokenEndVisit = createServerFn({ method: "POST" })
   });
 
 export const tokenRequestUploadUrl = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => z.object({
+  .validator((d: unknown) => z.object({
     token: z.string().min(20).max(128),
     visit_id: z.string().uuid(),
     ext: z.string().regex(/^[a-z0-9]{1,5}$/i),
@@ -298,7 +298,7 @@ export const tokenRequestUploadUrl = createServerFn({ method: "POST" })
   });
 
 export const tokenRecordMedia = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => z.object({
+  .validator((d: unknown) => z.object({
     token: z.string().min(20).max(128),
     visit_id: z.string().uuid(),
     stage: z.enum(["before", "progress", "after"]),

@@ -10,7 +10,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
  */
 export const linkContactToUser = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { contactId: string; email: string | null }) => {
+  .validator((input: { contactId: string; email: string | null }) => {
     if (!input.contactId) throw new Error("contactId required");
     return input;
   })

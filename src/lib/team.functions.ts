@@ -162,7 +162,7 @@ export const getTeamOverview = createServerFn({ method: "GET" })
 
 export const createTeamInvitation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((value: unknown) =>
+  .validator((value: unknown) =>
     z
       .object({
         email: z.string().email().max(254),
@@ -221,7 +221,7 @@ export const createTeamInvitation = createServerFn({ method: "POST" })
   });
 
 export const getTeamInvitation = createServerFn({ method: "GET" })
-  .inputValidator((value: unknown) => z.object({ token: tokenSchema }).parse(value))
+  .validator((value: unknown) => z.object({ token: tokenSchema }).parse(value))
   .handler(async ({ data }) => {
     const tokenHash = await hashToken(data.token);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -246,7 +246,7 @@ export const getTeamInvitation = createServerFn({ method: "GET" })
 
 export const acceptTeamInvitation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((value: unknown) => z.object({ token: tokenSchema }).parse(value))
+  .validator((value: unknown) => z.object({ token: tokenSchema }).parse(value))
   .handler(async ({ data, context }) => {
     const email = String((context.claims as Record<string, unknown>).email ?? "");
     if (!email) return { error: "Your signed-in account has no email address" };
@@ -263,7 +263,7 @@ export const acceptTeamInvitation = createServerFn({ method: "POST" })
 
 export const updateTeamMember = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((value: unknown) =>
+  .validator((value: unknown) =>
     z.object({ memberId: z.string().uuid(), role: z.enum(TEAM_ROLES) }).parse(value),
   )
   .handler(async ({ data, context }) => {
@@ -288,7 +288,7 @@ export const updateTeamMember = createServerFn({ method: "POST" })
 
 export const removeTeamMember = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((value: unknown) => z.object({ memberId: z.string().uuid() }).parse(value))
+  .validator((value: unknown) => z.object({ memberId: z.string().uuid() }).parse(value))
   .handler(async ({ data, context }) => {
     const agency = await resolveAgency(context);
     requireOwner(agency);
@@ -311,7 +311,7 @@ export const removeTeamMember = createServerFn({ method: "POST" })
 
 export const revokeTeamInvitation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((value: unknown) => z.object({ invitationId: z.string().uuid() }).parse(value))
+  .validator((value: unknown) => z.object({ invitationId: z.string().uuid() }).parse(value))
   .handler(async ({ data, context }) => {
     const agency = await resolveAgency(context);
     requireOwner(agency);

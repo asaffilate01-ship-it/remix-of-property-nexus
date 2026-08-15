@@ -51,7 +51,7 @@ const branchSchema = z.object({
 
 export const saveBranch = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => branchSchema.parse(d))
+  .validator((d: unknown) => branchSchema.parse(d))
   .handler(async ({ data, context }) => {
     const agencyId = await resolveAgencyId(context.supabase, context.userId);
     if (!agencyId) throw new Error("No agency. Create one in Agency settings first.");
@@ -89,7 +89,7 @@ export const saveBranch = createServerFn({ method: "POST" })
 
 export const deleteBranch = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
+  .validator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const agencyId = await resolveAgencyId(context.supabase, context.userId);
     if (!agencyId) throw new Error("No agency.");
@@ -160,7 +160,7 @@ export const listPermissions = createServerFn({ method: "GET" })
 
 export const updatePermission = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) =>
+  .validator((d: unknown) =>
     z.object({
       role: z.string().min(1).max(40),
       capability: z.string().min(1).max(60),

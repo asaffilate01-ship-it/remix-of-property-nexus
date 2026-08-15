@@ -26,7 +26,7 @@ export const fetchDocumentsData = createServerFn({ method: "GET" })
 
 export const createDocument = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: {
+  .validator((d: {
     name: string;
     folder: string;
     scope: DocScope;
@@ -66,7 +66,7 @@ export const createDocument = createServerFn({ method: "POST" })
 
 export const deleteDocument = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(z.object({ id: z.string().uuid() }))
+  .validator(z.object({ id: z.string().uuid() }))
   .handler(async ({ data, context }) => {
     const { data: doc } = await context.supabase.from("documents").select("storage_path, locked").eq("id", data.id).single();
     if (doc?.locked) throw new Error("Document is locked");
@@ -80,7 +80,7 @@ export const deleteDocument = createServerFn({ method: "POST" })
 
 export const getDocumentSignedUrl = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(z.object({ id: z.string().uuid() }))
+  .validator(z.object({ id: z.string().uuid() }))
   .handler(async ({ data, context }) => {
     const { data: doc, error: e1 } = await context.supabase.from("documents").select("storage_path").eq("id", data.id).single();
     if (e1 || !doc) throw new Error("Not found");

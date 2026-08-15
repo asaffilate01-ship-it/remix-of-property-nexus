@@ -130,7 +130,7 @@ export const reconcileTransactions = createServerFn({ method: "POST" })
 
 export const manualMatch = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ transaction_id: z.string().uuid(), rent_schedule_id: z.string().uuid() }).parse(d))
+  .validator((d: unknown) => z.object({ transaction_id: z.string().uuid(), rent_schedule_id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { data: matched, error } = await (context.supabase as any).rpc("match_bank_transaction", {
       _transaction_id: data.transaction_id,
