@@ -37,7 +37,7 @@ type AIOutput = {
 
 export const generateListingCopy = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => inputSchema.parse(d))
+  .validator((d: unknown) => inputSchema.parse(d))
   .handler(async ({ data, context }): Promise<AIOutput & { applied: boolean }> => {
     const { enforceRateLimit } = await import("./rate-limit.server");
     await enforceRateLimit("ai_listing_copy", 20, 3_600, context.userId);
@@ -134,7 +134,7 @@ Return JSON with these exact keys:
 
 export const saveListingAssets = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) =>
+  .validator((d: unknown) =>
     z.object({
       listing_id: z.string().uuid(),
       floorplan_url: z.string().max(1000).refine((value) => safeExternalUrl(value) !== null, "Use a valid HTTP(S) URL").optional().nullable(),

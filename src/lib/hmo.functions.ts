@@ -22,7 +22,7 @@ export const fetchHmoData = createServerFn({ method: "GET" })
 
 export const saveRoom = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: {
+  .validator((d: {
     id?: string;
     property_id: string;
     name: string;
@@ -60,7 +60,7 @@ export const saveRoom = createServerFn({ method: "POST" })
 
 export const saveTenancy = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: {
+  .validator((d: {
     id?: string;
     agency_id?: string | null;
     property_id: string;
@@ -135,7 +135,7 @@ export const saveTenancy = createServerFn({ method: "POST" })
 
 export const markRentPaid = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(z.object({ id: z.string().uuid(), paid_amount: z.number() }))
+  .validator(z.object({ id: z.string().uuid(), paid_amount: z.number() }))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("rent_schedule")
       .update({ status: "paid", paid_amount: data.paid_amount, paid_at: new Date().toISOString() })

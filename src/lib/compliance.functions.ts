@@ -35,7 +35,7 @@ export const fetchComplianceData = createServerFn({ method: "GET" })
 
 export const saveComplianceRecord = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: {
+  .validator((d: {
     id?: string;
     type: string;
     scope_kind: "property" | "agency" | "tenancy";
@@ -71,7 +71,7 @@ export const saveComplianceRecord = createServerFn({ method: "POST" })
 
 export const deleteComplianceRecord = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(z.object({ id: z.string().uuid() }))
+  .validator(z.object({ id: z.string().uuid() }))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("compliance_records").delete().eq("id", data.id);
     if (error) throw new Error(error.message);

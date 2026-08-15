@@ -51,7 +51,7 @@ export const listTenancyOverview = createServerFn({ method: "GET" })
 
 export const getTenancyLifecycle = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { tenancyId: string }) => input)
+  .validator((input: { tenancyId: string }) => input)
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const { data: tenancy, error } = await supabase
@@ -88,7 +88,7 @@ export const getTenancyLifecycle = createServerFn({ method: "GET" })
 
 export const logTenancyEvent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { tenancyId: string; kind: string; summary?: string; payload?: Record<string, unknown> }) => input)
+  .validator((input: { tenancyId: string; kind: string; summary?: string; payload?: Record<string, unknown> }) => input)
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { error } = await supabase.from("tenancy_events").insert({
@@ -104,7 +104,7 @@ export const logTenancyEvent = createServerFn({ method: "POST" })
 
 export const advanceTenancyStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { tenancyId: string; status: "draft" | "active" | "ended" | "renewed" }) => input)
+  .validator((input: { tenancyId: string; status: "draft" | "active" | "ended" | "renewed" }) => input)
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const { error } = await supabase
@@ -117,7 +117,7 @@ export const advanceTenancyStatus = createServerFn({ method: "POST" })
 
 export const bookViewing = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: {
+  .validator((input: {
     tenancyId: string;
     applicantName: string;
     applicantEmail?: string;
@@ -162,7 +162,7 @@ export const bookViewing = createServerFn({ method: "POST" })
 
 export const logOffer = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: {
+  .validator((input: {
     tenancyId: string;
     buyerName: string;
     buyerEmail?: string;
@@ -206,7 +206,7 @@ export const logOffer = createServerFn({ method: "POST" })
 
 export const generateRentSchedule = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { tenancyId: string; months: number; replace?: boolean }) => input)
+  .validator((input: { tenancyId: string; months: number; replace?: boolean }) => input)
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { data: t, error: tErr } = await supabase

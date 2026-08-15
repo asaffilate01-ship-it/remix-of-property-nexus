@@ -17,7 +17,7 @@ export const listSavedSearches = createServerFn({ method: "GET" })
 
 export const saveSearch = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) =>
+  .validator((d: unknown) =>
     z.object({
       name: z.string().max(120).optional().nullable(),
       criteria: criteriaSchema.default({}),
@@ -47,7 +47,7 @@ export const saveSearch = createServerFn({ method: "POST" })
 
 export const updateSavedSearch = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) =>
+  .validator((d: unknown) =>
     z.object({
       id: z.string().uuid(),
       alert_email: z.boolean().optional(),
@@ -78,7 +78,7 @@ export const updateSavedSearch = createServerFn({ method: "POST" })
 
 export const deleteSavedSearch = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
+  .validator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("saved_searches")

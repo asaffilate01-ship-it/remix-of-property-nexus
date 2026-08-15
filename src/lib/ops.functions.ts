@@ -63,7 +63,7 @@ const contactSchema = z.object({
 
 export const saveContact = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => contactSchema.parse(d))
+  .validator((d: unknown) => contactSchema.parse(d))
   .handler(async ({ data, context }) => {
     const agencyId = await resolveAgencyId(context.supabase, context.userId);
     if (!agencyId) throw new Error("No agency. Create one in Agency settings first.");
@@ -95,7 +95,7 @@ export const saveContact = createServerFn({ method: "POST" })
 
 export const deleteContact = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(z.object({ id: z.string().uuid() }))
+  .validator(z.object({ id: z.string().uuid() }))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("contacts").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
@@ -121,7 +121,7 @@ const workOrderSchema = z.object({
 
 export const saveWorkOrder = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => workOrderSchema.parse(d))
+  .validator((d: unknown) => workOrderSchema.parse(d))
   .handler(async ({ data, context }) => {
     const agencyId = await resolveAgencyId(context.supabase, context.userId);
     if (!agencyId) throw new Error("No agency. Create one in Agency settings first.");
@@ -154,7 +154,7 @@ export const saveWorkOrder = createServerFn({ method: "POST" })
 
 export const addWorkOrderUpdate = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(z.object({
+  .validator(z.object({
     work_order_id: z.string().uuid(),
     note: z.string().min(1).max(2000),
     status_change: z.enum(["open", "in_progress", "on_hold", "completed", "cancelled"]).optional().nullable(),
@@ -179,7 +179,7 @@ export const addWorkOrderUpdate = createServerFn({ method: "POST" })
 // Records media metadata after client upload to storage.
 export const saveJobMedia = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(z.object({
+  .validator(z.object({
     work_order_id: z.string().uuid().optional().nullable(),
     property_id: z.string().uuid().optional().nullable(),
     visit_id: z.string().uuid().optional().nullable(),
@@ -234,7 +234,7 @@ export const saveJobMedia = createServerFn({ method: "POST" })
 
 export const signMediaUrl = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(z.object({
+  .validator(z.object({
     path: z.string().min(1).max(500),
     expires: z.number().int().min(60).max(3600).optional(),
   }))
@@ -248,7 +248,7 @@ export const signMediaUrl = createServerFn({ method: "POST" })
 
 export const signListingPhotoUrl = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(z.object({ path: z.string().min(1).max(500), expires: z.number().int().min(60).max(3600).optional() }))
+  .validator(z.object({ path: z.string().min(1).max(500), expires: z.number().int().min(60).max(3600).optional() }))
   .handler(async ({ data, context }) => {
     const { data: signed, error } = await context.supabase.storage
       .from("listing-photos")
@@ -287,7 +287,7 @@ const salesSchema = z.object({
 
 export const saveSalesDeal = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => salesSchema.parse(d))
+  .validator((d: unknown) => salesSchema.parse(d))
   .handler(async ({ data, context }) => {
     const agencyId = await resolveAgencyId(context.supabase, context.userId);
     if (!agencyId) throw new Error("No agency.");

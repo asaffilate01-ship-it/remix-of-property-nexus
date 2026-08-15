@@ -72,7 +72,7 @@ export const getAgencyProfile = createServerFn({ method: "GET" })
 
 export const saveAgencyProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((value: unknown) => agencySchema.parse(value))
+  .validator((value: unknown) => agencySchema.parse(value))
   .handler(async ({ data, context }) => {
     const access = await resolveAgencyId(context.supabase, context.userId);
     if (access && !access.isOwner) throw new Error("Only the agency owner can edit this profile");

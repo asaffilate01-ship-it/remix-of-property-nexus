@@ -38,7 +38,7 @@ const bookingSchema = z.object({
 
 export const saveBooking = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: z.infer<typeof bookingSchema>) => bookingSchema.parse(d))
+  .validator((d: z.infer<typeof bookingSchema>) => bookingSchema.parse(d))
   .handler(async ({ data, context }) => {
     if (new Date(data.check_out) <= new Date(data.check_in)) throw new Error("Check-out must be after check-in");
     // Overlap check
@@ -66,7 +66,7 @@ export const saveBooking = createServerFn({ method: "POST" })
 
 export const deleteBooking = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(z.object({ id: z.string().uuid() }))
+  .validator(z.object({ id: z.string().uuid() }))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("holiday_bookings").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
@@ -84,7 +84,7 @@ const blockSchema = z.object({
 
 export const saveBlock = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: z.infer<typeof blockSchema>) => blockSchema.parse(d))
+  .validator((d: z.infer<typeof blockSchema>) => blockSchema.parse(d))
   .handler(async ({ data, context }) => {
     const row: any = { ...data };
     delete row.id;
@@ -100,7 +100,7 @@ export const saveBlock = createServerFn({ method: "POST" })
 
 export const deleteBlock = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(z.object({ id: z.string().uuid() }))
+  .validator(z.object({ id: z.string().uuid() }))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("property_blocks").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
@@ -120,7 +120,7 @@ const cleanSchema = z.object({
 
 export const saveCleaning = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: z.infer<typeof cleanSchema>) => cleanSchema.parse(d))
+  .validator((d: z.infer<typeof cleanSchema>) => cleanSchema.parse(d))
   .handler(async ({ data, context }) => {
     const row: any = { ...data };
     delete row.id;

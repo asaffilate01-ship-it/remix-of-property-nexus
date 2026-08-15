@@ -21,7 +21,7 @@ type GatewayCheckoutParams = Omit<Stripe.Checkout.SessionCreateParams, "ui_mode"
  */
 export const createRentCheckoutSession = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) =>
+  .validator((d) =>
     z
       .object({
         rentScheduleId: z.string().uuid(),

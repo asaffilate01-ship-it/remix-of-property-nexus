@@ -11,7 +11,7 @@ async function resolveAgencyId(supabase: any, userId: string): Promise<string | 
 
 export const createReferencingCase = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) =>
+  .validator((d: unknown) =>
     z.object({
       agency_id: z.string().uuid().optional(),
       property_id: z.string().uuid().optional(),
@@ -69,7 +69,7 @@ export const listAgencyReferencingCases = createServerFn({ method: "GET" })
 
 export const updateReferencingStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) =>
+  .validator((d: unknown) =>
     z.object({
       id: z.string().uuid(),
       status: z.enum(["draft","submitted","in_review","approved","declined","withdrawn"]),
@@ -99,7 +99,7 @@ export const updateReferencingStatus = createServerFn({ method: "POST" })
 
 export const addReferencingDocument = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) =>
+  .validator((d: unknown) =>
     z.object({
       case_id: z.string().uuid(),
       doc_type: z.string(),
@@ -127,7 +127,7 @@ export const addReferencingDocument = createServerFn({ method: "POST" })
 
 export const getReferencingDocuments = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ case_id: z.string().uuid() }).parse(d))
+  .validator((d: unknown) => z.object({ case_id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { data: rows } = await context.supabase
       .from("referencing_documents")
@@ -185,7 +185,7 @@ function simulateCheck(type: string, ctx: { income?: number | null; consent?: bo
 
 export const listReferencingChecks = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ case_id: z.string().uuid() }).parse(d))
+  .validator((d: unknown) => z.object({ case_id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { data: rows, error } = await context.supabase
       .from("referencing_checks")
@@ -198,7 +198,7 @@ export const listReferencingChecks = createServerFn({ method: "GET" })
 
 export const requestReferencingCheck = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) =>
+  .validator((d: unknown) =>
     z.object({
       case_id: z.string().uuid(),
       check_type: z.enum(CHECK_TYPES),
@@ -258,7 +258,7 @@ export const requestReferencingCheck = createServerFn({ method: "POST" })
 
 export const cancelReferencingCheck = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
+  .validator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("referencing_checks")

@@ -23,7 +23,7 @@ const prefillSchema = z.object({
 
 export const prefillTemplateValues = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: z.infer<typeof prefillSchema>) => prefillSchema.parse(d))
+  .validator((d: z.infer<typeof prefillSchema>) => prefillSchema.parse(d))
   .handler(async ({ data, context }) => {
     const sb = context.supabase;
     const values: Record<string, any> = {};
@@ -140,7 +140,7 @@ const sendSchema = z.object({
 
 export const sendForSignature = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: z.infer<typeof sendSchema>) => sendSchema.parse(d))
+  .validator((d: z.infer<typeof sendSchema>) => sendSchema.parse(d))
   .handler(async ({ data, context }) => {
     const agency_id = await resolveAgencyId(context.supabase, context.userId);
     if (!agency_id) throw new Error("No agency for current user");
@@ -205,7 +205,7 @@ export const listSigningRequests = createServerFn({ method: "GET" })
 
 // ===== Sign by token (PUBLIC — no auth) =====
 export const getSigningContext = createServerFn({ method: "POST" })
-  .inputValidator(z.object({ token: z.string().min(20).max(80) }))
+  .validator(z.object({ token: z.string().min(20).max(80) }))
   .handler(async ({ data }) => {
     const { enforceRateLimit } = await import("./rate-limit.server");
     await enforceRateLimit("signing_context", 60, 600);
@@ -222,7 +222,7 @@ export const getSigningContext = createServerFn({ method: "POST" })
   });
 
 export const submitSignature = createServerFn({ method: "POST" })
-  .inputValidator(z.object({
+  .validator(z.object({
     token: z.string().min(20).max(80),
     typed_signature: z.string().min(1).max(200),
     signature_image_b64: z.string().max(500_000).optional().nullable(),

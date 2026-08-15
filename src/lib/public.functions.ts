@@ -112,7 +112,7 @@ async function signListingPhotos(
 }
 
 export const fetchListings = createServerFn({ method: "GET" })
-  .inputValidator(z.object({
+  .validator(z.object({
     q: z.string().optional(),
     category: categorySchema,
     city: z.string().optional(),
@@ -266,7 +266,7 @@ export const fetchMarketplaceMeta = createServerFn({ method: "GET" }).handler(as
 });
 
 export const fetchListing = createServerFn({ method: "GET" })
-  .inputValidator(z.object({ slug: z.string() }))
+  .validator(z.object({ slug: z.string() }))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: rawRow, error } = await supabaseAdmin.from("listings")
@@ -357,7 +357,7 @@ export const fetchAgencies = createServerFn({ method: "GET" }).handler(async () 
 });
 
 export const fetchAgency = createServerFn({ method: "GET" })
-  .inputValidator(z.object({ slug: z.string() }))
+  .validator(z.object({ slug: z.string() }))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: agency } = await supabaseAdmin.from("agencies")
@@ -400,7 +400,7 @@ export const fetchAgency = createServerFn({ method: "GET" })
   });
 
 export const submitLead = createServerFn({ method: "POST" })
-  .inputValidator(z.object({
+  .validator(z.object({
     listing_id: z.string().uuid(),
     name: z.string().min(1).max(199),
     email: z.string().email().max(199).optional(),
@@ -427,7 +427,7 @@ const contactTopicSchema = z.enum(["demo", "migration", "pricing", "support", "p
 
 /** Server-owned intake for the public contact page. */
 export const submitContactEnquiry = createServerFn({ method: "POST" })
-  .inputValidator(z.object({
+  .validator(z.object({
     name: z.string().trim().min(2).max(199),
     email: z.string().trim().email().max(199),
     phone: z.string().trim().max(49).optional(),
@@ -460,7 +460,7 @@ export const submitContactEnquiry = createServerFn({ method: "POST" })
 
 /** Server-owned intake for the valuation callback form. */
 export const submitValuationEnquiry = createServerFn({ method: "POST" })
-  .inputValidator(z.object({
+  .validator(z.object({
     name: z.string().trim().min(2).max(199),
     email: z.string().trim().email().max(199),
     phone: z.string().trim().max(49).optional(),
@@ -496,7 +496,7 @@ export const submitValuationEnquiry = createServerFn({ method: "POST" })
   });
 
 export const submitOffer = createServerFn({ method: "POST" })
-  .inputValidator(z.object({
+  .validator(z.object({
     listing_id: z.string().uuid(),
     buyer_name: z.string().min(1).max(199),
     buyer_email: z.string().email().max(199).optional(),

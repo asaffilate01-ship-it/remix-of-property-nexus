@@ -43,7 +43,7 @@ const tenantSchema = z.object({
 
 export const saveTenant = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: z.infer<typeof tenantSchema>) => tenantSchema.parse(d))
+  .validator((d: z.infer<typeof tenantSchema>) => tenantSchema.parse(d))
   .handler(async ({ data, context }) => {
     const agency_id = await resolveAgencyId(context.supabase, context.userId);
     const row: any = {
@@ -66,7 +66,7 @@ export const saveTenant = createServerFn({ method: "POST" })
 
 export const deleteTenant = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(z.object({ id: z.string().uuid() }))
+  .validator(z.object({ id: z.string().uuid() }))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("tenants").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
@@ -99,7 +99,7 @@ export const fetchBuyers = createServerFn({ method: "GET" })
 
 export const saveBuyer = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: z.infer<typeof buyerSchema>) => buyerSchema.parse(d))
+  .validator((d: z.infer<typeof buyerSchema>) => buyerSchema.parse(d))
   .handler(async ({ data, context }) => {
     const agency_id = await resolveAgencyId(context.supabase, context.userId);
     if (!agency_id) throw new Error("No agency for current user");
@@ -117,7 +117,7 @@ export const saveBuyer = createServerFn({ method: "POST" })
 
 export const deleteBuyer = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(z.object({ id: z.string().uuid() }))
+  .validator(z.object({ id: z.string().uuid() }))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("buyer_profiles").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
@@ -151,7 +151,7 @@ export const fetchSellers = createServerFn({ method: "GET" })
 
 export const saveSeller = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: z.infer<typeof sellerSchema>) => sellerSchema.parse(d))
+  .validator((d: z.infer<typeof sellerSchema>) => sellerSchema.parse(d))
   .handler(async ({ data, context }) => {
     const agency_id = await resolveAgencyId(context.supabase, context.userId);
     if (!agency_id) throw new Error("No agency for current user");
@@ -175,7 +175,7 @@ export const saveSeller = createServerFn({ method: "POST" })
 
 export const deleteSeller = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(z.object({ id: z.string().uuid() }))
+  .validator(z.object({ id: z.string().uuid() }))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("seller_profiles").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
@@ -218,7 +218,7 @@ const instanceSchema = z.object({
 
 export const createTemplateInstance = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: z.infer<typeof instanceSchema>) => instanceSchema.parse(d))
+  .validator((d: z.infer<typeof instanceSchema>) => instanceSchema.parse(d))
   .handler(async ({ data, context }) => {
     const agency_id = await resolveAgencyId(context.supabase, context.userId);
     if (!agency_id) throw new Error("No agency for current user");
@@ -235,7 +235,7 @@ export const createTemplateInstance = createServerFn({ method: "POST" })
 
 export const updateInstanceStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(z.object({ id: z.string().uuid(), status: z.enum(["draft","sent","signed","void"]) }))
+  .validator(z.object({ id: z.string().uuid(), status: z.enum(["draft","sent","signed","void"]) }))
   .handler(async ({ data, context }) => {
     const patch: any = { status: data.status };
     if (data.status === "sent") patch.sent_at = new Date().toISOString();

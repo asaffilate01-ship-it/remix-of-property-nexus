@@ -55,7 +55,7 @@ export const listTemplates = createServerFn({ method: "GET" })
 
 export const getTemplate = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
+  .validator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { data: tpl, error } = await context.supabase
       .from("track_templates").select("*").eq("id", data.id).single();
@@ -68,7 +68,7 @@ export const getTemplate = createServerFn({ method: "GET" })
 
 export const saveTemplate = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => templateSchema.parse(d))
+  .validator((d: unknown) => templateSchema.parse(d))
   .handler(async ({ data, context }) => {
     const agencyId = await resolveAgencyId(context.supabase, context.userId);
     if (!agencyId) throw new Error("No agency.");
@@ -94,7 +94,7 @@ export const saveTemplate = createServerFn({ method: "POST" })
 
 export const toggleTemplateActive = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ id: z.string().uuid(), is_active: z.boolean() }).parse(d))
+  .validator((d: unknown) => z.object({ id: z.string().uuid(), is_active: z.boolean() }).parse(d))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("track_templates").update({ is_active: data.is_active }).eq("id", data.id);
     if (error) throw new Error(error.message);
@@ -103,7 +103,7 @@ export const toggleTemplateActive = createServerFn({ method: "POST" })
 
 export const deleteTemplate = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
+  .validator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("track_templates").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
@@ -112,7 +112,7 @@ export const deleteTemplate = createServerFn({ method: "POST" })
 
 export const saveSteps = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({
+  .validator((d: unknown) => z.object({
     template_id: z.string().uuid(),
     steps: z.array(stepSchema).max(50),
   }).parse(d))
@@ -136,7 +136,7 @@ export const saveSteps = createServerFn({ method: "POST" })
 
 export const listRuns = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ status: z.string().optional() }).parse(d ?? {}))
+  .validator((d: unknown) => z.object({ status: z.string().optional() }).parse(d ?? {}))
   .handler(async ({ data, context }) => {
     const agencyId = await resolveAgencyId(context.supabase, context.userId);
     if (!agencyId) return { runs: [] };
@@ -154,7 +154,7 @@ export const listRuns = createServerFn({ method: "GET" })
 
 export const getRun = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
+  .validator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { data: run, error } = await context.supabase
       .from("track_runs")
@@ -172,7 +172,7 @@ export const getRun = createServerFn({ method: "GET" })
 
 export const cancelRun = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
+  .validator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("track_runs").update({ status: "cancelled", completed_at: new Date().toISOString() })
@@ -183,7 +183,7 @@ export const cancelRun = createServerFn({ method: "POST" })
 
 export const enrollEntity = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({
+  .validator((d: unknown) => z.object({
     template_id: z.string().uuid(),
     entity_id: z.string().uuid(),
   }).parse(d))
