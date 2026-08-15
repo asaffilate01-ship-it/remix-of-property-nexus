@@ -23,7 +23,7 @@ export function CookieBanner() {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-50 p-3 sm:p-4 pointer-events-none">
+    <div className="fixed inset-x-0 bottom-0 z-50 p-3 pb-[calc(0.75rem+4.5rem+env(safe-area-inset-bottom))] sm:p-4 md:pb-4 pointer-events-none">
       <div className="pointer-events-auto mx-auto max-w-3xl rounded-xl border bg-background/95 backdrop-blur shadow-2xl">
         <div className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-4">
           <div className="flex items-start gap-3 flex-1 min-w-0">
