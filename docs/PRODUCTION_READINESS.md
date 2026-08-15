@@ -1,6 +1,6 @@
 # Estately production-readiness record
 
-Updated: 14 August 2026
+Updated: 15 August 2026
 
 “100% production ready” cannot be established by a source-code build alone. This document
 separates code gates that are enforced in the repository from deployment, provider and
@@ -12,6 +12,12 @@ assurance work that must be completed in the target environment.
 - Automated tests, TypeScript, ESLint and the production client/server/PWA build through
   `npm run check`.
 - High-severity production dependency audit in GitHub Actions.
+- npm 11 is the declared package manager and `package-lock.json` is the canonical dependency
+  lockfile, preventing hosted builds from silently selecting a stale dependency graph.
+- TanStack server functions use the supported `validator` API; a source regression test rejects
+  the deprecated `inputValidator` API.
+- Recharts 3 and React 19 use compatible runtime/type packages rather than the end-of-life
+  Recharts 2 dependency line.
 - Tracked runtime `.env` files removed and ignored; `.env.example` contains placeholders only.
 - Shared-password demo-user creation endpoint removed; demo bank feed disabled by default.
 - Public lead intake uses validated, rate-limited server functions. Anonymous direct database
@@ -24,6 +30,13 @@ assurance work that must be completed in the target environment.
 - Security headers include CSP, HSTS, clickjacking protection, MIME sniffing protection,
   referrer policy and permissions policy.
 - Authenticated HTML is not cached by the PWA service worker.
+- Production builds remove previous generated output before bundling, preventing obsolete hashed
+  assets from accumulating in the PWA precache across repeated deployments.
+- Route JavaScript is cached on demand rather than fully pre-cached, keeping PWA installation
+  bounded while navigation HTML continues to bypass the service worker.
+- The client shell is split into execution-order-safe framework/data/UI groups. Production builds
+  prune unreachable generated route chunks, reject any client chunk over 500 kB and validate the
+  final service worker and manifest rather than trusting bundler warnings alone.
 - Bank matching is agency-scoped and atomic. Automatic matching now requires a unique amount
   plus a strong tenant/schedule reference; ambiguous credits remain for manual review.
 - Contact and valuation forms use real database columns and report honest failure states.
@@ -51,6 +64,11 @@ assurance work that must be completed in the target environment.
   `aal2` session. The application includes TOTP enrollment, challenge and settings flows.
 - Authenticated server functions now use the documented public Supabase key fallback, preventing a
   deployment-only failure caused by an undocumented duplicate environment variable.
+- Every authenticated route is classified in a fail-closed role policy. Direct URLs are checked
+  before protected page data renders, with a bounded access-denied recovery flow; database RLS
+  remains the authoritative data boundary.
+- Route-policy tests cover all product roles, dynamic record routes, cross-role denial, unknown
+  routes and every protected destination exposed by desktop, mobile and command navigation.
 
 ## UI and flow changes
 
@@ -71,21 +89,23 @@ assurance work that must be completed in the target environment.
 - Saved-search email/push controls and “instant alert” claims were removed until a delivery
   service actually exists.
 - The valuation page no longer manufactures a price or unsupported accuracy percentage.
+- Property/listing loaders, map marker callbacks, inbox threads, signed media and marketplace
+  filters no longer retain stale React effect closures when their route or record changes.
 
 ## OWASP Top 10 coverage
 
-| Area | Current controls | Required launch evidence |
-| --- | --- | --- |
-| Broken access control | Supabase RLS, agency membership checks, constrained signup roles, explicit platform-admin authorization, atomic bank-match authorisation | Test every role against a migrated staging database |
-| Cryptographic failures | TLS/HSTS, server-only secrets, signed Stripe webhooks, random signing tokens | Rotate keys exposed in Git history; verify provider key scopes |
-| Injection | Zod validation, parameterised Supabase queries, safe DOM construction, HTTP(S)-only URL handling | Independent DAST and penetration test |
-| Insecure design | Fail-closed AVM, conservative bank reconciliation, idempotent payment processing | Threat-model workshop for payments, signing and document access |
-| Security misconfiguration | CSP and browser headers, ignored env files, CI dependency audit | Verify production headers, CORS, Supabase Auth URLs and storage policies |
-| Vulnerable components | Lockfile, clean `npm ci`, audit gate | Dependabot/Renovate and monthly upgrade ownership |
-| Authentication failures | Supabase Auth, safe redirects, invitation tokens, mandatory admin TOTP/AAL2, no demo password endpoint | Password and account recovery tests in production Auth tenant |
-| Integrity failures | Webhook HMAC validation, event idempotency, locked install | Protect `main`, require CI/review and sign releases |
-| Logging/monitoring failures | Structured server errors and webhook records | Configure Sentry/log drain, alerts, retention and incident runbook |
-| SSRF | HTTPS/allowlisted automation endpoints and HTTPS-only AVM endpoint | Egress controls at the hosting layer |
+| Area                        | Current controls                                                                                                                                                               | Required launch evidence                                                 |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------ |
+| Broken access control       | Supabase RLS, agency membership checks, constrained signup roles, fail-closed direct-route role policy, explicit platform-admin authorization, atomic bank-match authorisation | Test every role and RLS policy against a migrated staging database       |
+| Cryptographic failures      | TLS/HSTS, server-only secrets, signed Stripe webhooks, random signing tokens                                                                                                   | Rotate keys exposed in Git history; verify provider key scopes           |
+| Injection                   | Zod validation, parameterised Supabase queries, safe DOM construction, HTTP(S)-only URL handling                                                                               | Independent DAST and penetration test                                    |
+| Insecure design             | Fail-closed AVM, conservative bank reconciliation, idempotent payment processing                                                                                               | Threat-model workshop for payments, signing and document access          |
+| Security misconfiguration   | CSP and browser headers, ignored env files, CI dependency audit                                                                                                                | Verify production headers, CORS, Supabase Auth URLs and storage policies |
+| Vulnerable components       | Lockfile, clean `npm ci`, audit gate                                                                                                                                           | Dependabot/Renovate and monthly upgrade ownership                        |
+| Authentication failures     | Supabase Auth, safe redirects, invitation tokens, mandatory admin TOTP/AAL2, no demo password endpoint                                                                         | Password and account recovery tests in production Auth tenant            |
+| Integrity failures          | Webhook HMAC validation, event idempotency, locked install                                                                                                                     | Protect `main`, require CI/review and sign releases                      |
+| Logging/monitoring failures | Structured server errors and webhook records                                                                                                                                   | Configure Sentry/log drain, alerts, retention and incident runbook       |
+| SSRF                        | HTTPS/allowlisted automation endpoints and HTTPS-only AVM endpoint                                                                                                             | Egress controls at the hosting layer                                     |
 
 ## External launch blockers
 
