@@ -9,9 +9,10 @@ const errorMiddleware = createMiddleware().server(async ({ next }) => {
     return await next();
   } catch (error) {
     // A navigation, reload, closed tab, or cancelled asset request can close the
-    // socket while SSR is still running. Let the server entry quietly discard it.
+    // socket while SSR is still running. Complete it here so h3 cannot promote
+    // the harmless disconnect to a logged 500 before the server entry sees it.
     if (isRequestAbort(error)) {
-      throw error;
+      return new Response(null, { status: 499 });
     }
     if (error != null && typeof error === "object" && "statusCode" in error) {
       throw error;
