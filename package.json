@@ -10,7 +10,10 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "smoke:production": "node --experimental-strip-types scripts/smoke-production.ts"
+    "smoke:production": "node --experimental-strip-types scripts/smoke-production.ts",
+    "migrations:verify": "node --experimental-strip-types scripts/verify-migrations.ts",
+    "migrations:manifest": "node --experimental-strip-types scripts/verify-migrations.ts --write",
+    "launch:preflight": "node --experimental-strip-types scripts/preflight.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
