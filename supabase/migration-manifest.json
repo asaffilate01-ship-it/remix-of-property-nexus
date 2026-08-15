@@ -261,6 +261,10 @@
     {
       "file": "20260815040449_ff69235e-a58c-4581-bcca-6f21015cc4ad.sql",
       "sha256": "8ca3169390fcd0b88dec3303dc233c4481793eb7568e8dbdf92df7df51034266"
+    },
+    {
+      "file": "20260815203000_privacy_rights_requests.sql",
+      "sha256": "fe60526862fef7dee8c3884ca871cfa4ffb9e7d9c9277503e94a701e1ec63819"
     }
   ]
 }
