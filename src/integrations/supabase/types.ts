@@ -1881,6 +1881,86 @@ export type Database = {
         }
         Relationships: []
       }
+      privacy_request_events: {
+        Row: {
+          actor_id: string | null
+          created_at: string
+          event_type: string
+          from_status: string | null
+          id: string
+          request_id: string
+          to_status: string
+        }
+        Insert: {
+          actor_id?: string | null
+          created_at?: string
+          event_type: string
+          from_status?: string | null
+          id?: string
+          request_id: string
+          to_status: string
+        }
+        Update: {
+          actor_id?: string | null
+          created_at?: string
+          event_type?: string
+          from_status?: string | null
+          id?: string
+          request_id?: string
+          to_status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "privacy_request_events_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "privacy_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      privacy_requests: {
+        Row: {
+          completed_at: string | null
+          details: string | null
+          due_at: string
+          id: string
+          identity_verified_at: string | null
+          request_type: string
+          response_summary: string | null
+          status: string
+          submitted_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          details?: string | null
+          due_at?: string
+          id?: string
+          identity_verified_at?: string | null
+          request_type: string
+          response_summary?: string | null
+          status?: string
+          submitted_at?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          details?: string | null
+          due_at?: string
+          id?: string
+          identity_verified_at?: string | null
+          request_type?: string
+          response_summary?: string | null
+          status?: string
+          submitted_at?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -4354,6 +4434,10 @@ export type Database = {
           _tenancy_id: string
         }
         Returns: undefined
+      }
+      withdraw_privacy_request: {
+        Args: { _request_id: string }
+        Returns: boolean
       }
     }
     Enums: {
