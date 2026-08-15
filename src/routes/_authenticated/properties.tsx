@@ -603,12 +603,16 @@ function PropertiesPage() {
               }}
             >
               <div className="aspect-[16/10] relative bg-muted">
+                <div className="absolute inset-0 grid place-items-center text-muted-foreground/40">
+                  <Building2 aria-hidden="true" className="h-8 w-8" />
+                </div>
                 <StreetViewThumb
                   address={p.address}
                   city={p.city}
                   postcode={p.postcode}
                   className="absolute inset-0 h-full w-full"
                 />
+
                 <div className="absolute top-2 right-2 flex gap-1 flex-wrap justify-end">
                   {p.is_hmo && (
                     <Badge className="bg-accent text-accent-foreground border-0">HMO</Badge>
