@@ -1,33 +1,10 @@
 import { useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { isAppRole, type AppRole } from "@/lib/roles";
 
-export type AppRole =
-  | "admin"
-  | "agent"
-  | "landlord"
-  | "tenant"
-  | "buyer"
-  | "conveyancer"
-  | "contractor"
-  | "inventory_clerk"
-  | "utility_provider";
+export type { AppRole } from "@/lib/roles";
 
-const APP_ROLES: AppRole[] = [
-  "admin",
-  "agent",
-  "landlord",
-  "tenant",
-  "buyer",
-  "conveyancer",
-  "contractor",
-  "inventory_clerk",
-  "utility_provider",
-];
-
-function isAppRole(value: unknown): value is AppRole {
-  return typeof value === "string" && APP_ROLES.includes(value as AppRole);
-}
 
 type Workspace = {
   role: AppRole | null;
