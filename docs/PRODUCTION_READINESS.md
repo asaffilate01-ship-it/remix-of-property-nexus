@@ -13,6 +13,10 @@ assurance work that must be completed in the target environment.
   `npm run check`.
 - High-severity production dependency audit in GitHub Actions.
 - CI generates and retains a CycloneDX software bill of materials for each verified main/PR build.
+- The complete 65-file Supabase migration history is SHA-256 pinned. CI rejects changed, removed,
+  duplicated or unregistered migrations, duplicate timestamps, public tables without RLS,
+  SECURITY DEFINER functions without an explicit search path, RLS disablement and grants to the
+  PostgreSQL PUBLIC role.
 - npm 11 is the declared package manager and `package-lock.json` is the canonical dependency
   lockfile, preventing hosted builds from silently selecting a stale dependency graph.
 - TanStack server functions use the supported `validator` API; a source regression test rejects
@@ -120,8 +124,9 @@ These cannot be completed safely from the repository alone:
 
 1. Rotate every Supabase, Google Maps, Stripe and Lovable/provider credential that ever appeared
    in Git history. Removing `.env` from the current tree does not erase history.
-2. Reconcile the three duplicated historical Supabase migrations against the hosted migration
-   ledger, then apply `20260813223000_lock_down_public_leads.sql` and
+2. Compare the hosted Supabase migration ledger with the repository's 65-entry SHA-256 manifest
+   and resolve any hosted drift without rewriting applied files. Then apply
+   `20260813223000_lock_down_public_leads.sql` and
    `20260813224500_atomic_bank_matching.sql`, followed by the email-delivery migrations and
    `20260814203243_7a63a560-48cb-492c-8edd-192116675765.sql`, in staging and production.
 3. Regenerate Supabase TypeScript types after migrations; run the role/RLS test matrix using
@@ -148,6 +153,7 @@ These cannot be completed safely from the repository alone:
 
 ```sh
 npm ci
+npm run migrations:verify
 npm run check
 npm audit --omit=dev --audit-level=high
 npm run launch:preflight

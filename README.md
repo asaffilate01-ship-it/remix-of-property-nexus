@@ -19,7 +19,7 @@ Prefer working locally? You need Node.js and npm — [install with nvm](https://
 ```sh
 git clone <this-repository-url>
 cd <repository-name>
-npm i
+npm ci
 npm run dev
 ```
 
@@ -29,3 +29,7 @@ Set the production values documented in `.env.example` and run `npm run check`, 
 dependency audit and `npm run launch:preflight` before release. Platform administrator access
 requires the MFA flow at `/security/mfa` plus explicit service-role provisioning; follow the
 fail-closed procedure in [`docs/OPERATIONS.md`](docs/OPERATIONS.md).
+
+Database migrations are append-only and hash-pinned. Run `npm run migrations:verify` before
+opening a pull request and follow [`docs/DATABASE_RELEASE_RUNBOOK.md`](docs/DATABASE_RELEASE_RUNBOOK.md)
+when adding or deploying a migration.
