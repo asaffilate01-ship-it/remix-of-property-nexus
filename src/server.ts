@@ -2,6 +2,7 @@ import "./lib/error-capture";
 
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
+import { withSecurityHeaders } from "./lib/security-headers";
 
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
@@ -37,43 +38,6 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
   });
 }
 
-const CSP = [
-  "default-src 'self'",
-  "base-uri 'self'",
-  "object-src 'none'",
-  "frame-ancestors 'none'",
-  "form-action 'self'",
-  "img-src 'self' data: blob: https:",
-  "media-src 'self' blob: https:",
-  "font-src 'self' data: https://fonts.gstatic.com",
-  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-  "script-src 'self' 'unsafe-inline' https://maps.googleapis.com https://js.stripe.com",
-  "connect-src 'self' https: wss:",
-  "frame-src 'self' https://js.stripe.com https://www.google.com https://maps.google.com",
-  "upgrade-insecure-requests",
-].join("; ");
-
-function withSecurityHeaders(response: Response): Response {
-  const contentType = response.headers.get("content-type") ?? "";
-  const headers = new Headers(response.headers);
-  headers.set("X-Content-Type-Options", "nosniff");
-  headers.set("X-Frame-Options", "DENY");
-  headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-  headers.set(
-    "Permissions-Policy",
-    "camera=(self), microphone=(), geolocation=(self), payment=(self), interest-cohort=()",
-  );
-  headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
-  if (contentType.includes("text/html")) {
-    headers.set("Content-Security-Policy", CSP);
-  }
-  return new Response(response.body, {
-    status: response.status,
-    statusText: response.statusText,
-    headers,
-  });
-}
-
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
@@ -82,10 +46,12 @@ export default {
       return withSecurityHeaders(await normalizeCatastrophicSsrResponse(response));
     } catch (error) {
       console.error(error);
-      return withSecurityHeaders(new Response(renderErrorPage(), {
-        status: 500,
-        headers: { "content-type": "text/html; charset=utf-8" },
-      }));
+      return withSecurityHeaders(
+        new Response(renderErrorPage(), {
+          status: 500,
+          headers: { "content-type": "text/html; charset=utf-8" },
+        }),
+      );
     }
   },
 };

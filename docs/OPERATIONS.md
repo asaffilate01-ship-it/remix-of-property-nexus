@@ -13,7 +13,26 @@
    high-severity production audit, and
    `npm run launch:preflight` in the release environment.
 5. Deploy, then verify `GET /api/public/health` returns the expected release SHA and security
-   headers. Complete the role/RLS smoke-test matrix and a sandbox payment test before promotion.
+   headers. Run the GitHub `Production smoke` workflow with the exact HTTPS origin and deployed
+   release SHA. Complete the role/RLS smoke-test matrix and a sandbox payment test before promotion.
+
+## Automated production smoke evidence
+
+The read-only smoke command verifies the immutable health release, no-store policy, browser security
+headers, safe protected-route behavior, robots discovery and canonical sitemap. It never submits a
+form, creates data or prints a credential.
+
+Run it locally or through the manually gated `Production smoke` GitHub workflow:
+
+```sh
+SMOKE_BASE_URL=https://app.estately.co.uk \
+SMOKE_EXPECTED_RELEASE_SHA=YOUR_DEPLOYED_COMMIT \
+npm run smoke:production
+```
+
+Use an origin only: no path, query string, credentials or non-HTTPS URL. Preserve the successful
+workflow run with the release record. The quality workflow also retains a CycloneDX dependency SBOM
+for 30 days; retain the promoted release's SBOM with the longer-lived release evidence.
 
 ## Platform administrator provisioning
 
