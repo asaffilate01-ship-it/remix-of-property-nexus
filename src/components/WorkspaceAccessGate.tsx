@@ -44,7 +44,9 @@ export function WorkspaceAccessGate({ children }: { children: ReactNode }) {
     };
   }, [load, path]);
 
-  if (loading) {
+  // Only block the page on the very first check. Subsequent navigations keep the
+  // previous result on screen while the check refreshes in the background.
+  if (loading && access === null && !loadError) {
     return (
       <div
         className="flex min-h-52 items-center justify-center text-sm text-muted-foreground"
@@ -55,6 +57,7 @@ export function WorkspaceAccessGate({ children }: { children: ReactNode }) {
       </div>
     );
   }
+
 
   if (loadError) {
     return (
