@@ -13,7 +13,7 @@ assurance work that must be completed in the target environment.
   `npm run check`.
 - High-severity production dependency audit in GitHub Actions.
 - CI generates and retains a CycloneDX software bill of materials for each verified main/PR build.
-- The complete 65-file Supabase migration history is SHA-256 pinned. CI rejects changed, removed,
+- The complete 66-file Supabase migration history is SHA-256 pinned. CI rejects changed, removed,
   duplicated or unregistered migrations, duplicate timestamps, public tables without RLS,
   SECURITY DEFINER functions without an explicit search path, RLS disablement and grants to the
   PostgreSQL PUBLIC role.
@@ -80,6 +80,13 @@ assurance work that must be completed in the target environment.
   URLs and immutable release identity are present and non-placeholder.
 - A manually gated production workflow verifies the exact deployed release, health/cache headers,
   HTML security policy, protected-route redirect safety, robots discovery and canonical sitemap.
+- Signed-in users can submit and track UK GDPR access, portability, erasure, restriction and
+  objection requests from Settings. Active duplicates are blocked, target dates are recorded and
+  status changes produce an append-only event history.
+- Privacy operations are fail-closed to an explicitly authorised platform administrator using an
+  MFA-verified session; terminal decisions require a response summary.
+- CodeQL security-extended analysis runs on pull requests, `main` and weekly. Pull requests also
+  fail when they introduce a high-severity vulnerable dependency.
 
 ## UI and flow changes
 
@@ -124,7 +131,7 @@ These cannot be completed safely from the repository alone:
 
 1. Rotate every Supabase, Google Maps, Stripe and Lovable/provider credential that ever appeared
    in Git history. Removing `.env` from the current tree does not erase history.
-2. Compare the hosted Supabase migration ledger with the repository's 65-entry SHA-256 manifest
+2. Compare the hosted Supabase migration ledger with the repository's 66-entry SHA-256 manifest
    and resolve any hosted drift without rewriting applied files. Then apply
    `20260813223000_lock_down_public_leads.sql` and
    `20260813224500_atomic_bank_matching.sql`, followed by the email-delivery migrations and
@@ -146,8 +153,15 @@ These cannot be completed safely from the repository alone:
    and professional linguistic QA before Welsh can be marketed as a fully translated product.
 9. Complete accessibility testing with keyboard, screen reader, zoom and colour-contrast checks;
    complete independent penetration testing and UK legal/privacy review.
-10. Configure monitoring, backups, recovery drills, data retention/deletion, support ownership,
-    uptime checks and a rollback-tested deployment pipeline.
+10. Configure monitoring, backups, recovery drills, support ownership, uptime checks and a
+    rollback-tested deployment pipeline. Run the privacy access/export and erasure procedures
+    against staging and approve the production retention schedule.
+
+## Tracked engineering debt
+
+- ESLint reports inherited explicit `any` casts as warnings while continuing to fail on
+  formatting, React hook and security-relevant lint errors. Do not add new casts; replace the
+  existing Supabase boundary casts incrementally with generated `Database` types.
 
 ## Release command
 

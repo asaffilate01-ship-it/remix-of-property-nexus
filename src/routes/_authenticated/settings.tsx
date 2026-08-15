@@ -17,7 +17,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Check, CreditCard, ExternalLink, KeyRound, Languages, Loader2, Shield } from "lucide-react";
+import {
+  Check,
+  CreditCard,
+  ExternalLink,
+  KeyRound,
+  Languages,
+  Loader2,
+  Shield,
+} from "lucide-react";
 import { toast } from "sonner";
 import { useLocale } from "@/hooks/useLocale";
 import { LOCALE_LABELS, SUPPORTED_LOCALES, type AppLocale } from "@/lib/locale";
@@ -29,9 +37,10 @@ import {
   syncSubscriptionCheckout,
 } from "@/lib/billing.functions";
 import { PLAN_CODES, formatPlanPrice, type PlanCode } from "@/lib/plans";
+import { PrivacySettings } from "@/components/settings/PrivacySettings";
 
 const settingsSearchSchema = z.object({
-  tab: z.enum(["profile", "security", "permissions", "billing", "emails"]).optional(),
+  tab: z.enum(["profile", "security", "permissions", "billing", "emails", "privacy"]).optional(),
   plan: z.enum(PLAN_CODES).optional(),
   billing: z.enum(["success", "cancelled"]).optional(),
   session_id: z.string().max(255).optional(),
@@ -115,6 +124,7 @@ function SettingsPage() {
           <TabsTrigger value="permissions">Roles & permissions</TabsTrigger>
           <TabsTrigger value="billing">Plan & billing</TabsTrigger>
           <TabsTrigger value="emails">Email outbox</TabsTrigger>
+          <TabsTrigger value="privacy">Privacy & data</TabsTrigger>
         </TabsList>
         <TabsContent value="profile">
           <div className="space-y-4">
@@ -173,7 +183,8 @@ function SettingsPage() {
             <Card className="border-0 shadow-card">
               <CardContent className="max-w-lg space-y-4 p-6">
                 <div className="flex items-center gap-2 font-semibold">
-                  <Languages className="h-4 w-4 text-primary" aria-hidden="true" /> Language and region
+                  <Languages className="h-4 w-4 text-primary" aria-hidden="true" /> Language and
+                  region
                 </div>
                 <div>
                   <Label htmlFor="workspace-language">Workspace language</Label>
@@ -215,6 +226,9 @@ function SettingsPage() {
         <TabsContent value="emails">
           <EmailOutbox />
         </TabsContent>
+        <TabsContent value="privacy">
+          <PrivacySettings />
+        </TabsContent>
       </Tabs>
     </div>
   );
@@ -238,7 +252,9 @@ function SecuritySettings() {
       );
       setLoading(false);
     });
-    return () => { active = false; };
+    return () => {
+      active = false;
+    };
   }, []);
 
   return (
@@ -251,7 +267,8 @@ function SecuritySettings() {
           <div>
             <h2 className="font-semibold">Multi-factor authentication</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Protect sensitive property, customer and payment workflows with a time-based authenticator code.
+              Protect sensitive property, customer and payment workflows with a time-based
+              authenticator code.
             </p>
           </div>
         </div>
@@ -262,7 +279,9 @@ function SecuritySettings() {
             <div className="rounded-lg border p-4">
               <div className="text-xs text-muted-foreground">Authenticator</div>
               <div className="mt-1 font-medium">
-                {verifiedFactors > 0 ? `${verifiedFactors} verified factor${verifiedFactors === 1 ? "" : "s"}` : "Not configured"}
+                {verifiedFactors > 0
+                  ? `${verifiedFactors} verified factor${verifiedFactors === 1 ? "" : "s"}`
+                  : "Not configured"}
               </div>
             </div>
             <div className="rounded-lg border p-4">
@@ -280,7 +299,8 @@ function SecuritySettings() {
           </Link>
         </Button>
         <p className="text-xs text-muted-foreground">
-          Platform administrators are required to complete this check before admin data is released by database policies.
+          Platform administrators are required to complete this check before admin data is released
+          by database policies.
         </p>
       </CardContent>
     </Card>
@@ -328,22 +348,26 @@ function EmailOutbox() {
             {rows.map((r) => (
               <div key={r.id} className="flex items-center justify-between gap-3 p-3 text-sm">
                 <div className="min-w-0">
-                  <div className="truncate font-medium">{r.subject ?? r.template_name ?? "Notification"}</div>
+                  <div className="truncate font-medium">
+                    {r.subject ?? r.template_name ?? "Notification"}
+                  </div>
                   <div className="truncate text-xs text-muted-foreground">{r.recipient_email}</div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <span className="text-xs text-muted-foreground">
                     {new Date(r.created_at).toLocaleDateString()}
                   </span>
-                  <Badge variant={
-                    ["sent", "delivered"].includes(r.status)
-                      ? "default"
-                      : ["failed", "bounced", "complained"].includes(r.status)
-                        ? "destructive"
-                        : r.status === "suppressed"
-                          ? "outline"
-                          : "secondary"
-                  }>
+                  <Badge
+                    variant={
+                      ["sent", "delivered"].includes(r.status)
+                        ? "default"
+                        : ["failed", "bounced", "complained"].includes(r.status)
+                          ? "destructive"
+                          : r.status === "suppressed"
+                            ? "outline"
+                            : "secondary"
+                    }
+                  >
                     {r.status}
                   </Badge>
                 </div>
@@ -355,7 +379,6 @@ function EmailOutbox() {
     </Card>
   );
 }
-
 
 function BillingSettings({
   selectedPlan,

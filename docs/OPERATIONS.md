@@ -33,6 +33,30 @@ npm run smoke:production
 Use an origin only: no path, query string, credentials or non-HTTPS URL. Preserve the successful
 workflow run with the release record. The quality workflow also retains a CycloneDX dependency SBOM
 for 30 days; retain the promoted release's SBOM with the longer-lived release evidence.
+The Security workflow runs CodeQL on pull requests, `main` and weekly, and blocks pull requests that
+introduce high-severity vulnerable dependencies. Protect `main` so Quality and Security are required
+checks before merge.
+
+## Privacy rights operations
+
+Apply `20260815203000_privacy_rights_requests.sql` before enabling the Privacy & data settings tab.
+Users can submit and track access, portability, erasure, restriction and objection requests. An
+active request of the same type cannot be duplicated, and users may withdraw only requests that
+have not entered processing.
+
+The operations queue is visible only to an explicitly authorised platform administrator using an
+MFA-verified session. Before moving a request to `in_progress`, verify the requester's identity
+using an approved out-of-band procedure and record the verification evidence in the case-management
+ticket. Do not copy identity documents into the response summary.
+
+Review each request against tenancy, payment, tax, fraud-prevention and legal-hold duties. A
+completed or refused request requires a plain-language response summary. Complete the request by
+its one-month target unless a documented lawful extension applies. Preserve the append-only
+`privacy_request_events` history with the release and support evidence.
+
+For erasure, export the eligible data first, remove only data approved by the retention schedule,
+revoke active sessions and confirm any retained categories and expiry dates to the requester. Test
+one access/export and one erasure request end to end in staging before launch.
 
 ## Platform administrator provisioning
 

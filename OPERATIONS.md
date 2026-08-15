@@ -58,12 +58,12 @@ the migration intentionally does not trust or backfill historical admin assignme
 Send either `Authorization: Bearer <CRON_SECRET>` or `X-Cron-Secret: <CRON_SECRET>` with every
 request. The endpoints fail closed when the secret is absent.
 
-| Schedule | Endpoint | Purpose |
-| --- | --- | --- |
-| Every minute | `POST /api/public/hooks/process-email-outbox` | Claims, sends and retries transactional email |
+| Schedule           | Endpoint                                      | Purpose                                         |
+| ------------------ | --------------------------------------------- | ----------------------------------------------- |
+| Every minute       | `POST /api/public/hooks/process-email-outbox` | Claims, sends and retries transactional email   |
 | Every five minutes | `POST /api/public/hooks/match-saved-searches` | Records property matches and queues due digests |
-| Every minute | `POST /api/public/hooks/process-tracks` | Runs due workflow steps |
-| Daily at 07:00 UTC | `POST /api/public/hooks/expiry-reminders` | Queues contract and tenancy reminders |
+| Every minute       | `POST /api/public/hooks/process-tracks`       | Runs due workflow steps                         |
+| Daily at 07:00 UTC | `POST /api/public/hooks/expiry-reminders`     | Queues contract and tenancy reminders           |
 
 The saved-search value historically named `instant` means “on the next worker run”; with the
 recommended schedule its delivery target is within five minutes, not real-time.
