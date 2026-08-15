@@ -1,0 +1,38 @@
+name: Production smoke
+
+on:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: Exact HTTPS production origin, without a path
+        required: true
+        type: string
+      release_sha:
+        description: Immutable release identifier expected from the health endpoint
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-smoke-${{ inputs.base_url }}
+  cancel-in-progress: false
+
+jobs:
+  verify-deployment:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: production
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Verify deployed release, security headers, cache policy and discovery endpoints
+        run: npm run smoke:production
+        env:
+          SMOKE_BASE_URL: ${{ inputs.base_url }}
+          SMOKE_EXPECTED_RELEASE_SHA: ${{ inputs.release_sha }}

@@ -1,0 +1,266 @@
+{
+  "schemaVersion": 1,
+  "algorithm": "sha256",
+  "migrations": [
+    {
+      "file": "20260613024131_37abfc57-93c6-450d-8327-b338e845243d.sql",
+      "sha256": "90c1e7635cc307d92e62d44fe2d513aa0279c1ec2ed9871d020c6858e34bb3b6"
+    },
+    {
+      "file": "20260613024205_c9c82466-a7a3-41c3-9a09-4074e1b89ab1.sql",
+      "sha256": "f327cdffe75bb61b56be21e1846841ce3b14c1710b5258a19192728042b22b1b"
+    },
+    {
+      "file": "20260613025725_23862f91-7375-4b0b-b590-9582d2f5a844.sql",
+      "sha256": "4292e1b350ce9f25efd6f9dfa08f01cb56b432979fa47c87751b1eaa68497f85"
+    },
+    {
+      "file": "20260613031754_93ccaf10-f43d-4ecb-8b23-a0a31dd95f20.sql",
+      "sha256": "70665547dec37b7e9ba95329d28261cb1f011c7b218e8d8d79d83bdd0ea0d9c8"
+    },
+    {
+      "file": "20260613031840_ade71fa9-4aa6-4110-99a5-0e439cbcd3ec.sql",
+      "sha256": "f6a7bd08ee751b0421c07ddc42e4bc72932c0f89a5b075484c29fd497b04580f"
+    },
+    {
+      "file": "20260613032636_09f02576-3a81-4b22-bc1b-0fd1fc158a6b.sql",
+      "sha256": "7b91b2e4b0ce7f15ed56b2f3f85d7b79a03c9182b3a5218684b17311063a9e1d"
+    },
+    {
+      "file": "20260613033258_7830cfc9-2f0a-4269-a848-0db2bd6b74a5.sql",
+      "sha256": "9befcefb885814c1557f5b010a7db742e7fea4f2b4bbcf5fc7883d6a0ea0494f"
+    },
+    {
+      "file": "20260613035249_84efd24b-7e56-4e78-b23b-aa3363f9f89f.sql",
+      "sha256": "78b7a89ae3e4f512fcb39988d34d5235151cba60d1dcb64a992ef78560421a94"
+    },
+    {
+      "file": "20260613035545_50e4e974-dbf2-4ccc-a46c-7439b403117c.sql",
+      "sha256": "871cef24460b6c98977c07fdaaf02064693729417addf4f99d102afb2313ffb4"
+    },
+    {
+      "file": "20260613040343_113f932f-7dec-42e7-a973-9224315f2840.sql",
+      "sha256": "07fa888070df3f1f6996e807f5d508713617781dd258342b9eb62415b063d10c"
+    },
+    {
+      "file": "20260613040418_22de16dd-c67b-4d92-a110-25ce8cc25b56.sql",
+      "sha256": "4a5ef43e138067692fbd38b9c9b42f1daad3515dfc6915a639cf5fcee8995486"
+    },
+    {
+      "file": "20260613112940_980da659-b4af-4955-9cb4-406b07fb7fac.sql",
+      "sha256": "9233d9d4c2b8179e0d0f9177b9a9105aec1dcd3ec474c1610a9791d1bbd96ae4"
+    },
+    {
+      "file": "20260613134202_bd9fefb6-1d63-437f-bbb6-0a299d999258.sql",
+      "sha256": "e29bb2a2a2bbf92b23ca401ed0201a2cf3c791eb34248b4ea71cc44cf449cda1"
+    },
+    {
+      "file": "20260613134216_8b6b64fc-3055-4608-ac07-39ac5774a2f0.sql",
+      "sha256": "5a1b6a20c51a8efba8c3cd46d32e80a0c65424e54c76b96bdb2e14d6f6d8b0e9"
+    },
+    {
+      "file": "20260613135154_4f7020b0-d057-43e7-a98f-4ae1de31d33f.sql",
+      "sha256": "44233db08bd54667f2548ce58264fde307d6c4e945366aad4e12ecc2ea4a626f"
+    },
+    {
+      "file": "20260613135922_39302366-ebfc-4e9e-a64e-689419cdc4ce.sql",
+      "sha256": "7a9e393f46160c9a8e74fe40220a03d5720f8f649ed68c525c22f6b696acfe85"
+    },
+    {
+      "file": "20260613140132_b973b4a4-fcdd-4506-90be-d3aa126291e6.sql",
+      "sha256": "66c44b6e5a741322ca519256306cea7f8f9515da2978eef0abf36549097b61c9"
+    },
+    {
+      "file": "20260613140336_de55bff8-2296-485c-8f2e-ce9b9b239b64.sql",
+      "sha256": "a66f15540383a257836cbb2eda64804799bcde02236da69f57e47650a6de8959"
+    },
+    {
+      "file": "20260613141848_554837f0-b62f-4e07-ab44-d406b767d40f.sql",
+      "sha256": "75781a2109bdafeae057e3f34803a5b7c42a028f85272ca7e2439664eeb0b0e3"
+    },
+    {
+      "file": "20260613153006_81396ddc-63b4-44e2-8ed1-f616d45707b1.sql",
+      "sha256": "10bb487ce9dcc4a3281e3ff2b51e076be84fc9b57c5905f34746d7fa407e9495"
+    },
+    {
+      "file": "20260613155727_f4ffde1d-1990-447d-b224-de1accb319d7.sql",
+      "sha256": "97f6d8e4aea450c48978c421ed42364dca105ee139f2c0ff967c25572ce0129d"
+    },
+    {
+      "file": "20260613164638_4d9f044b-33ce-4579-a374-fecbfcd2d532.sql",
+      "sha256": "e432ff55aa31eb12f5e1c8b5f9f483f17c9c41f861d3e1db568a7661cda5dfe7"
+    },
+    {
+      "file": "20260613184039_8234ab2b-b638-40de-ab71-6d96f76713f7.sql",
+      "sha256": "bc8b2f741365a7b0bf7fff20fa5e81e1142e6922afb2fe10d974c8e60728d7c6"
+    },
+    {
+      "file": "20260613191335_0f9f6ee0-1092-491e-a53e-de502a5c0eb1.sql",
+      "sha256": "873586508930d46e599b5b467f38f44e8fd81543015b105b1d46c63da0c769c8"
+    },
+    {
+      "file": "20260613192503_ee8c86c7-24eb-481b-9469-07aaa15c29d6.sql",
+      "sha256": "0956feb78d954cf73784a5a3a562db25c061a14947d15bfefca00414d1c8112d"
+    },
+    {
+      "file": "20260613193658_942bd3f2-0d79-4a8c-9a4c-9869653e857b.sql",
+      "sha256": "05b590e3c2e463f9bc0bf6624b2b0451b61b141372b8873f649e661b2351d600"
+    },
+    {
+      "file": "20260613201002_b2be8e22-578a-45da-90b7-7ce7141437ea.sql",
+      "sha256": "6bffb028f428d37c34277ac4c904b92dfe03f3e926512b472c2c7824451ec40d"
+    },
+    {
+      "file": "20260613202646_16f7b898-cbfa-49a0-aa3f-f9b31ef40c5b.sql",
+      "sha256": "9b1d2c3d5057f5999b6ec9c9f6ffdd8d1862e4d6c5c0f4f045254c6a8aef6719"
+    },
+    {
+      "file": "20260613205542_238bbbe4-5307-49db-b79a-108da251b630.sql",
+      "sha256": "35eeeb8a0976e3743af3cbd4bb8f56384f10e019c7cc0cc6dc3b4290dc019142"
+    },
+    {
+      "file": "20260614125041_d8e96f8a-f8b5-4552-bcc8-c10f9f5b85e2.sql",
+      "sha256": "5428d042024094f1d06a60d52a5fba150585ba7ea527adde7b5492f2d1740990"
+    },
+    {
+      "file": "20260614132731_9d8a8017-24c4-4cb1-986c-2bb761b2e478.sql",
+      "sha256": "f8e1c61d66a35683565fc01bb53605b38a192fa7c69bc1aa9d4b216267866467"
+    },
+    {
+      "file": "20260614134818_5e9f25f8-2305-418b-85be-606d153a361b.sql",
+      "sha256": "4de480a03b84203632f35fe332f56dee5208bc5b29b5c3d5b16e65cd5764818b"
+    },
+    {
+      "file": "20260614140609_93632576-b5ef-4217-b5ea-bf1d822661d6.sql",
+      "sha256": "4eaf0fd1a997e79487a3109eb1af75aa3ab226b6019e3e938933867d665c87f3"
+    },
+    {
+      "file": "20260614172304_a08fccf5-3656-4822-8b9f-f61396dc1381.sql",
+      "sha256": "e063a055e8642c6139da7a45cdf3af8ac2590523c74ebe80167614a65e2f381e"
+    },
+    {
+      "file": "20260614172323_ab64bfda-ce60-44da-a37c-b14047ce4f81.sql",
+      "sha256": "61d026ce1c463edfa9dc924d375af8146a6329eee8d5c8ff4c0a67ae438619bf"
+    },
+    {
+      "file": "20260614192129_f2f86d18-3c73-4f2a-84dc-b43b3fa398c5.sql",
+      "sha256": "ab10e70fae2cce7804c7c88754c65fa1129fad575a2353b893722875bc8c2def"
+    },
+    {
+      "file": "20260614220644_4c650760-8c57-4191-84ad-51652930e4c5.sql",
+      "sha256": "b8bc0cb1c31d414890f1d12dd5e0327fa42a7791f21b659d4b1db790c7b6b975"
+    },
+    {
+      "file": "20260615223738_2be79ceb-fee9-4ace-99f9-91925ca3b0ab.sql",
+      "sha256": "0203458b12373613bcafeb2cb7531955d7cbd6ba1586aefc10ff615fd8d532c3"
+    },
+    {
+      "file": "20260616001508_32ef2c18-afa9-42cd-9af9-df60f023a15a.sql",
+      "sha256": "82492361c66ba63c88100cbe4739f0e4d92e616c905b5e1345e705b8c9e5ff73"
+    },
+    {
+      "file": "20260616002504_6e083827-598e-4a91-a5d9-75d1d25914f1.sql",
+      "sha256": "3d4e6fac472314837dbf068400f65c7393c6b3b583e279fea8554f5216ae53be"
+    },
+    {
+      "file": "20260616092713_013d5593-7fe8-4922-983d-75af7034be7e.sql",
+      "sha256": "58b4886b725b6a2e75bd5e3f5dc5abc1575ae40c860dc32252b13bf41e99c393"
+    },
+    {
+      "file": "20260618122114_335742e2-f986-48c1-b21e-c92b05828403.sql",
+      "sha256": "b8092ffa19e9114e26120e5e1df5c9567a02c6982f1a25c0c947ac31a7c26be0"
+    },
+    {
+      "file": "20260618130634_8db67038-837b-46ce-a615-b96c8d1fa41a.sql",
+      "sha256": "b826bfb999a1dccbe43c368da63d73f4ea33648c240c22ea53810b0d98e19b99"
+    },
+    {
+      "file": "20260618131252_90e9e37b-24fa-4eb4-85c0-fbba4d267550.sql",
+      "sha256": "8eaedcd97749f2c2e04fc2ce9e65f95f6b7c893e17f3f11bf4d6cc717b4bdf6b"
+    },
+    {
+      "file": "20260812224228_79d38847-09f2-48fc-80af-d3a69d59ed54.sql",
+      "sha256": "f0e78e672977c5337f75ba8069f30bee9a5d049ff3ba02c53ed0776b1cf34e76"
+    },
+    {
+      "file": "20260813103922_fd4714a9-3a8f-4d06-a0a2-ffba640cfc98.sql",
+      "sha256": "544428b1fc42f7cd9b0740b4450f57f0300639baff87655e7497da801640c859"
+    },
+    {
+      "file": "20260813104159_a2f5de7b-8089-4833-9844-5c629286af33.sql",
+      "sha256": "2884927da92d44eaf7f20caf28333dac92588d6c7639e52d403bd49e749e9d76"
+    },
+    {
+      "file": "20260813105319_78087686-65ce-43c8-af2c-8183e7988a54.sql",
+      "sha256": "a8f8626f8e2c0f9a9a99e96e1c8f7f327dea65481337eb60a1882b8047e2af12"
+    },
+    {
+      "file": "20260813120000_invalidate_demo_passwords.sql",
+      "sha256": "7ddc87e30232814fecdcd0b7437dcf87de63190dae17e83586e86793d3eec0d6"
+    },
+    {
+      "file": "20260813143000_agency_subscriptions.sql",
+      "sha256": "9bc00fc05ec2629196ab276e8f205eeb19e6aba8d952f61c48d5abe2ed459306"
+    },
+    {
+      "file": "20260813150000_rent_checkout_idempotency.sql",
+      "sha256": "62e6ffd7fc68b451cb52470b1d6c7fa18248d7b788ca635d9f72b064a38609d6"
+    },
+    {
+      "file": "20260813153000_agency_team_invitations.sql",
+      "sha256": "e801ad30f8eb43114893f8c70bb8999024ea2d0b3f4aa3bfd11f6f3ac3b4b0ac"
+    },
+    {
+      "file": "20260813214448_122d02e3-9675-4e2d-bfa7-d15bf16ddafd.sql",
+      "sha256": "f97f2afd256ffc906fbd61e303cb474f05f0c1daeeb1f6c2642cc3623d2fd241"
+    },
+    {
+      "file": "20260813214522_4d8590f3-f9ec-4289-b1d1-6932fa2a40ee.sql",
+      "sha256": "9f7302e3023698671fc3ab4c44044f11ff8c4f63743bb226b4571f5eee3792b6"
+    },
+    {
+      "file": "20260813214602_e41123ac-29ed-43bf-a636-567750392531.sql",
+      "sha256": "71fd50dd37c6288d0b5b81d244f31196f109b2f211755761e82c6528c153584a"
+    },
+    {
+      "file": "20260813223000_lock_down_public_leads.sql",
+      "sha256": "89aa5d68313436841277d6a6643670af863e4f966684dfaf300dcb01df3bf69a"
+    },
+    {
+      "file": "20260813224500_atomic_bank_matching.sql",
+      "sha256": "c1a3cae1e6b9aa93b2f0d68c7b78ab5cff47c570fe0ce2d12d2433e7b48da8c0"
+    },
+    {
+      "file": "20260813224816_c227709d-0e5b-4163-907f-c057c0e03058.sql",
+      "sha256": "4e078b831f6f09ab6f7e396893337c5985c8402af84f5b43c5e877b5d2272609"
+    },
+    {
+      "file": "20260814090000_email_delivery_worker.sql",
+      "sha256": "7d8acb6392ee01c3d42f81cc4e5eaf3973d048c6cdfe420ffe7dd6d9311f9895"
+    },
+    {
+      "file": "20260814110000_email_delivery_events.sql",
+      "sha256": "6d884e3f0c54bc244782a1617e676f6bef29ed6bffa4254011e939f3e669c43d"
+    },
+    {
+      "file": "20260814193057_f57c72b3-6767-4ada-a3b5-4e25051b2e7d.sql",
+      "sha256": "a6977e2555c88e55e515e6efe9af8d6155b224e646da2139beaf6904ba8c21a8"
+    },
+    {
+      "file": "20260814203243_7a63a560-48cb-492c-8edd-192116675765.sql",
+      "sha256": "b0c4dece8324c58668fa5615cb12220a256a79c63d64523cd212c01d1ebeee03"
+    },
+    {
+      "file": "20260814225703_ec41da4b-7b01-4a9b-84f0-79e55bbfeba0.sql",
+      "sha256": "bf63960c393514d7169f543875a3f78ea02875c0dfd20cd3f46e6f370f83c67f"
+    },
+    {
+      "file": "20260815040422_950ddf32-ddb3-4b3c-a2b3-1d94e32c34be.sql",
+      "sha256": "0e50172871a7420ceb9fd9f7813b21c84b118593654e0a48395643f63470fa21"
+    },
+    {
+      "file": "20260815040449_ff69235e-a58c-4581-bcca-6f21015cc4ad.sql",
+      "sha256": "8ca3169390fcd0b88dec3303dc233c4481793eb7568e8dbdf92df7df51034266"
+    }
+  ]
+}
