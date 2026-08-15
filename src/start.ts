@@ -1,12 +1,19 @@
 import { createStart, createMiddleware } from "@tanstack/react-start";
 
 import { renderErrorPage } from "./lib/error-page";
+import { isRequestAbort } from "./lib/request-errors";
 import { attachSupabaseAuth } from "@/integrations/supabase/auth-attacher";
 
 const errorMiddleware = createMiddleware().server(async ({ next }) => {
   try {
     return await next();
   } catch (error) {
+    // A navigation, reload, closed tab, or cancelled asset request can close the
+    // socket while SSR is still running. Complete it here so h3 cannot promote
+    // the harmless disconnect to a logged 500 before the server entry sees it.
+    if (isRequestAbort(error)) {
+      return new Response(null, { status: 499 });
+    }
     if (error != null && typeof error === "object" && "statusCode" in error) {
       throw error;
     }

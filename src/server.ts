@@ -2,6 +2,7 @@ import "./lib/error-capture";
 
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
+import { isRequestAbort } from "./lib/request-errors";
 import { withSecurityHeaders } from "./lib/security-headers";
 
 type ServerEntry = {
@@ -19,20 +20,6 @@ async function getServerEntry(): Promise<ServerEntry> {
   return serverEntryPromise;
 }
 
-function isClientAbort(error: unknown): boolean {
-  const seen = new Set<unknown>();
-  let current: any = error;
-  while (current && typeof current === "object" && !seen.has(current)) {
-    seen.add(current);
-    if (current.code === "ECONNRESET" || current.code === "ABORT_ERR") return true;
-    if (typeof current.message === "string" && /aborted|ECONNRESET/i.test(current.message)) {
-      return true;
-    }
-    current = current.cause;
-  }
-  return false;
-}
-
 // h3 swallows in-handler throws into a normal 500 Response with body
 // {"unhandled":true,"message":"HTTPError"} — try/catch alone never fires for those.
 async function normalizeCatastrophicSsrResponse(
@@ -43,7 +30,17 @@ async function normalizeCatastrophicSsrResponse(
   const contentType = response.headers.get("content-type") ?? "";
   if (!contentType.includes("application/json")) return response;
 
-  const body = await response.clone().text();
+  let body: string;
+  try {
+    body = await response.clone().text();
+  } catch (error) {
+    // The response body stream is tied to the incoming request in development.
+    // If that socket closes, even inspecting the error response can throw.
+    if (request.signal.aborted || isRequestAbort(error)) {
+      return new Response(null, { status: 499 });
+    }
+    throw error;
+  }
   if (!body.includes('"unhandled":true') || !body.includes('"message":"HTTPError"')) {
     return response;
   }
@@ -51,7 +48,7 @@ async function normalizeCatastrophicSsrResponse(
   const captured = consumeLastCapturedError();
   // The browser hung up mid-render (navigation away, closed tab, dev HMR reload).
   // Not an application fault — don't log it or paint an error page.
-  if (request.signal.aborted || isClientAbort(captured)) {
+  if (request.signal.aborted || isRequestAbort(captured)) {
     return new Response(null, { status: 499 });
   }
 
@@ -70,7 +67,7 @@ export default {
       const response = await handler.fetch(request, env, ctx);
       return withSecurityHeaders(await normalizeCatastrophicSsrResponse(request, response));
     } catch (error) {
-      if (request.signal.aborted || isClientAbort(error)) {
+      if (request.signal.aborted || isRequestAbort(error)) {
         return new Response(null, { status: 499 });
       }
       console.error(error);
