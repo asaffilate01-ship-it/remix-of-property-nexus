@@ -1,12 +1,24 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 import { Plus, ShieldCheck, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -47,17 +59,25 @@ const STATUS_TONE: Record<Rec["status"], string> = {
 
 export function PropertyCompliancePanel({ propertyId }: { propertyId: string }) {
   const [rows, setRows] = useState<Rec[]>([]);
-  const [editing, setEditing] = useState<{ id?: string; type: string; issued_on: string; expires_on: string; reference: string } | null>(null);
+  const [editing, setEditing] = useState<{
+    id?: string;
+    type: string;
+    issued_on: string;
+    expires_on: string;
+    reference: string;
+  } | null>(null);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     const { data } = await supabase
       .from("compliance_records")
       .select("id, type, issued_on, expires_on, status, reference")
       .eq("property_id", propertyId)
       .order("expires_on", { ascending: true, nullsFirst: false });
     setRows((data as Rec[]) ?? []);
-  };
-  useEffect(() => { load(); }, [propertyId]);
+  }, [propertyId]);
+  useEffect(() => {
+    void load();
+  }, [load]);
 
   const save = async () => {
     if (!editing) return;
@@ -89,7 +109,12 @@ export function PropertyCompliancePanel({ propertyId }: { propertyId: string }) 
     <div className="space-y-3">
       <div className="flex justify-between items-center">
         <div className="text-sm text-muted-foreground">{rows.length} records</div>
-        <Button size="sm" onClick={() => setEditing({ type: "gas_safety", issued_on: "", expires_on: "", reference: "" })}>
+        <Button
+          size="sm"
+          onClick={() =>
+            setEditing({ type: "gas_safety", issued_on: "", expires_on: "", reference: "" })
+          }
+        >
           <Plus className="h-3 w-3 mr-1" /> Add record
         </Button>
       </div>
@@ -117,11 +142,26 @@ export function PropertyCompliancePanel({ propertyId }: { propertyId: string }) 
               <Button
                 size="icon"
                 variant="ghost"
-                onClick={() => setEditing({ id: r.id, type: r.type, issued_on: r.issued_on ?? "", expires_on: r.expires_on ?? "", reference: r.reference ?? "" })}
+                onClick={() =>
+                  setEditing({
+                    id: r.id,
+                    type: r.type,
+                    issued_on: r.issued_on ?? "",
+                    expires_on: r.expires_on ?? "",
+                    reference: r.reference ?? "",
+                  })
+                }
               >
                 <span className="text-xs">Edit</span>
               </Button>
-              <Button size="icon" variant="ghost" className="text-destructive" onClick={() => del(r.id)}><Trash2 className="h-3 w-3" /></Button>
+              <Button
+                size="icon"
+                variant="ghost"
+                className="text-destructive"
+                onClick={() => del(r.id)}
+              >
+                <Trash2 className="h-3 w-3" />
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -129,24 +169,57 @@ export function PropertyCompliancePanel({ propertyId }: { propertyId: string }) 
 
       <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
         <DialogContent>
-          <DialogHeader><DialogTitle>{editing?.id ? "Edit record" : "Add compliance record"}</DialogTitle></DialogHeader>
+          <DialogHeader>
+            <DialogTitle>{editing?.id ? "Edit record" : "Add compliance record"}</DialogTitle>
+          </DialogHeader>
           {editing && (
             <div className="grid grid-cols-2 gap-3">
               <div className="col-span-2">
                 <Label>Type</Label>
-                <Select value={editing.type} onValueChange={(v) => setEditing({ ...editing, type: v })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                <Select
+                  value={editing.type}
+                  onValueChange={(v) => setEditing({ ...editing, type: v })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
-                    {TYPES.map((t) => <SelectItem key={t} value={t} className="capitalize">{t.replace(/_/g, " ")}</SelectItem>)}
+                    {TYPES.map((t) => (
+                      <SelectItem key={t} value={t} className="capitalize">
+                        {t.replace(/_/g, " ")}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
-              <div><Label>Issued on</Label><Input type="date" value={editing.issued_on} onChange={(e) => setEditing({ ...editing, issued_on: e.target.value })} /></div>
-              <div><Label>Expires on</Label><Input type="date" value={editing.expires_on} onChange={(e) => setEditing({ ...editing, expires_on: e.target.value })} /></div>
-              <div className="col-span-2"><Label>Reference</Label><Input value={editing.reference} onChange={(e) => setEditing({ ...editing, reference: e.target.value })} /></div>
+              <div>
+                <Label>Issued on</Label>
+                <Input
+                  type="date"
+                  value={editing.issued_on}
+                  onChange={(e) => setEditing({ ...editing, issued_on: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Expires on</Label>
+                <Input
+                  type="date"
+                  value={editing.expires_on}
+                  onChange={(e) => setEditing({ ...editing, expires_on: e.target.value })}
+                />
+              </div>
+              <div className="col-span-2">
+                <Label>Reference</Label>
+                <Input
+                  value={editing.reference}
+                  onChange={(e) => setEditing({ ...editing, reference: e.target.value })}
+                />
+              </div>
             </div>
           )}
-          <DialogFooter><Button onClick={save}>Save</Button></DialogFooter>
+          <DialogFooter>
+            <Button onClick={save}>Save</Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

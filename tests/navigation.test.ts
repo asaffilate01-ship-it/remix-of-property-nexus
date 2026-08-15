@@ -2,13 +2,13 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { describe, test } from "node:test";
 import {
-  APP_ROLES,
   commandActionsForRole,
   commandNavigationForRole,
   mobileTabsForRole,
   navigationSectionsForRole,
   searchResourcesForRole,
 } from "../src/lib/navigation.ts";
+import { APP_ROLES } from "../src/lib/roles.ts";
 
 describe("role-aware navigation", () => {
   test("fails closed while the database role is unresolved", () => {

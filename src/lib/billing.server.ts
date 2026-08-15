@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any -- subscription tables are added by the pending migration and are not in generated Supabase types yet */
 import type Stripe from "stripe";
 import type { StripeEnv } from "@/lib/stripe.server";
 import { PLAN_CODES, type PlanCode, type SubscriptionStatus } from "@/lib/plans";

@@ -9,28 +9,76 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter } from "@/components/ui/sheet";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+  SheetFooter,
+} from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { fetchListings, fetchMarketplaceMeta } from "@/lib/public.functions";
 import { saveSearch as saveSearchRemoteFn } from "@/lib/saved-searches.functions";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect, useState } from "react";
-import { Search, SlidersHorizontal, MapPin, Building2, Sparkles, X, ArrowUpDown, Bookmark, LayoutGrid, Map as MapIcon, ChevronRight, Columns2 } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import {
+  Search,
+  SlidersHorizontal,
+  MapPin,
+  Building2,
+  Sparkles,
+  X,
+  ArrowUpDown,
+  Bookmark,
+  LayoutGrid,
+  Map as MapIcon,
+  ChevronRight,
+  Columns2,
+} from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { GoogleListingsMap } from "@/components/GoogleListingsMap";
 import { toast } from "sonner";
-
 
 const categories = ["all", "sale", "rent", "hmo", "commercial"] as const;
 type Category = (typeof categories)[number];
 const sorts = ["newest", "distance", "price_asc", "price_desc", "beds_desc"] as const;
 type SortKey = (typeof sorts)[number];
-const propertyTypes = ["any", "house", "flat", "bungalow", "studio", "room", "commercial", "land"] as const;
+const propertyTypes = [
+  "any",
+  "house",
+  "flat",
+  "bungalow",
+  "studio",
+  "room",
+  "commercial",
+  "land",
+] as const;
 type PropertyType = (typeof propertyTypes)[number];
-const FEATURE_OPTIONS = ["Garden", "Parking", "Garage", "Balcony", "Lift", "Gym", "Concierge", "Pets allowed", "Students welcome", "New build", "Wheelchair access", "Conservatory", "EV charging"] as const;
+const FEATURE_OPTIONS = [
+  "Garden",
+  "Parking",
+  "Garage",
+  "Balcony",
+  "Lift",
+  "Gym",
+  "Concierge",
+  "Pets allowed",
+  "Students welcome",
+  "New build",
+  "Wheelchair access",
+  "Conservatory",
+  "EV charging",
+] as const;
 
 const search = z.object({
   category: z.enum(categories).optional(),
@@ -52,7 +100,6 @@ const search = z.object({
   furnished: z.string().optional(),
   available_from: z.string().optional(),
   sort: z.enum(sorts).optional(),
-
 });
 
 type SearchParams = z.infer<typeof search>;
@@ -62,9 +109,17 @@ export const Route = createFileRoute("/marketplace/")({
   head: () => ({
     meta: [
       { title: "Property Marketplace — Sales, Lettings, HMO & Commercial | Estately" },
-      { name: "description", content: "The smarter UK property marketplace. Browse verified sales, lettings, HMO rooms and commercial property direct from trusted agents and landlords." },
+      {
+        name: "description",
+        content:
+          "The smarter UK property marketplace. Browse verified sales, lettings, HMO rooms and commercial property direct from trusted agents and landlords.",
+      },
       { property: "og:title", content: "Estately — Property Marketplace" },
-      { property: "og:description", content: "Sales, lettings, HMO rooms and commercial — direct from verified agents and landlords." },
+      {
+        property: "og:description",
+        content:
+          "Sales, lettings, HMO rooms and commercial — direct from verified agents and landlords.",
+      },
       { property: "og:type", content: "website" },
     ],
   }),
@@ -96,9 +151,12 @@ function MarketplacePage() {
   const sort: SortKey = s.sort ?? "newest";
   const isMobile = useIsMobile();
   const [view, setView] = useState<"grid" | "map" | "split">("grid");
-  useEffect(() => { setView(isMobile ? "grid" : "split"); }, [isMobile]);
+  useEffect(() => {
+    setView(isMobile ? "grid" : "split");
+  }, [isMobile]);
 
-  const setSearch = (patch: Partial<SearchParams>) => navigate({ search: (prev: SearchParams) => ({ ...prev, ...patch }) });
+  const setSearch = (patch: Partial<SearchParams>) =>
+    navigate({ search: (prev: SearchParams) => ({ ...prev, ...patch }) });
 
   const meta = useQuery({ queryKey: ["mp-meta"], queryFn: useServerFn(fetchMarketplaceMeta) });
 
@@ -106,7 +164,10 @@ function MarketplacePage() {
   const isPostcode = (v: string) => /^[A-Z]{1,2}\d[A-Z\d]?( ?\d[A-Z]{2})?$/i.test(v.trim());
   const onSubmitWhere = () => {
     const v = where.trim();
-    if (!v) { setSearch({ postcode: undefined, city: undefined }); return; }
+    if (!v) {
+      setSearch({ postcode: undefined, city: undefined });
+      return;
+    }
     if (isPostcode(v)) setSearch({ postcode: v.toUpperCase(), city: undefined });
     else setSearch({ city: v, postcode: undefined });
   };
@@ -114,22 +175,30 @@ function MarketplacePage() {
   const fn = useServerFn(fetchListings);
   const { data, isLoading, isFetching } = useQuery({
     queryKey: ["listings", s, q],
-    queryFn: () => fn({ data: {
-      q: q || undefined,
-      city: s.city || undefined,
-      postcode: s.postcode || undefined,
-      radius_miles: s.radius,
-      property_type: s.property_type,
-      features: s.features,
-      epc_min: s.epc_min,
-      tenure: s.tenure,
-      category,
-      min_price: s.min_price, max_price: s.max_price,
-      beds: s.beds, baths: s.baths, receptions: s.receptions, min_sqft: s.min_sqft,
-      bills_included: s.bills_included, furnished: s.furnished, available_from: s.available_from,
-      sort,
-
-    } }),
+    queryFn: () =>
+      fn({
+        data: {
+          q: q || undefined,
+          city: s.city || undefined,
+          postcode: s.postcode || undefined,
+          radius_miles: s.radius,
+          property_type: s.property_type,
+          features: s.features,
+          epc_min: s.epc_min,
+          tenure: s.tenure,
+          category,
+          min_price: s.min_price,
+          max_price: s.max_price,
+          beds: s.beds,
+          baths: s.baths,
+          receptions: s.receptions,
+          min_sqft: s.min_sqft,
+          bills_included: s.bills_included,
+          furnished: s.furnished,
+          available_from: s.available_from,
+          sort,
+        },
+      }),
   });
 
   const activeFilters: string[] = [];
@@ -147,29 +216,39 @@ function MarketplacePage() {
   if (s.features?.length) s.features.forEach((f: string) => activeFilters.push(f));
   if (s.bills_included) activeFilters.push("bills included");
   if (s.furnished) activeFilters.push(s.furnished);
-  if (s.available_from) activeFilters.push(`from ${new Date(s.available_from).toLocaleDateString("en-GB")}`);
-
+  if (s.available_from)
+    activeFilters.push(`from ${new Date(s.available_from).toLocaleDateString("en-GB")}`);
 
   const saveSearchRemote = useServerFn(saveSearchRemoteFn);
   const saveSearch = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (user) {
-        await saveSearchRemote({ data: {
-          name: q || where || undefined,
-          criteria: { ...s, q, city: where || s.city } as Record<string, unknown>,
-          alert_email: true, alert_push: false, frequency: "daily",
-        } });
+        await saveSearchRemote({
+          data: {
+            name: q || where || undefined,
+            criteria: { ...s, q, city: where || s.city } as Record<string, unknown>,
+            alert_email: true,
+            alert_push: false,
+            frequency: "daily",
+          },
+        });
         toast.success("Search saved to your account");
         return;
       }
-    } catch { /* fall through to local */ }
+    } catch {
+      /* fall through to local */
+    }
     try {
       const saved = JSON.parse(localStorage.getItem("estately:saved-searches") ?? "[]");
       saved.unshift({ when: new Date().toISOString(), search: s, q, where });
       localStorage.setItem("estately:saved-searches", JSON.stringify(saved.slice(0, 20)));
       toast.success("Search saved on this device — sign in to sync");
-    } catch { toast.error("Could not save"); }
+    } catch {
+      toast.error("Could not save");
+    }
   };
 
   return (
@@ -197,7 +276,9 @@ function MarketplacePage() {
                   <button
                     key={t.value}
                     type="button"
-                    onClick={() => setSearch({ category: t.value === "all" ? undefined : (t.value as Category) })}
+                    onClick={() =>
+                      setSearch({ category: t.value === "all" ? undefined : (t.value as Category) })
+                    }
                     className={`px-3 sm:px-4 h-9 text-xs sm:text-sm font-semibold rounded-full transition-colors ${active ? "bg-white text-primary shadow-sm" : "text-white/90 hover:text-white"}`}
                   >
                     {t.label}
@@ -207,28 +288,42 @@ function MarketplacePage() {
             </div>
 
             <SearchBar
-              q={q} setQ={setQ}
-              where={where} setWhere={setWhere}
-              radius={s.radius ?? 0} setRadius={(r) => setSearch({ radius: r || undefined })}
-              onSubmit={() => { setSearch({ q: q || undefined }); onSubmitWhere(); }}
+              q={q}
+              setQ={setQ}
+              where={where}
+              setWhere={setWhere}
+              radius={s.radius ?? 0}
+              setRadius={(r) => setSearch({ radius: r || undefined })}
+              onSubmit={() => {
+                setSearch({ q: q || undefined });
+                onSubmitWhere();
+              }}
             />
 
             {/* Quick chips: property type + beds */}
             <div className="mt-3 flex flex-wrap items-center gap-1.5">
-              <span className="text-[11px] uppercase tracking-wide text-white/70 font-semibold mr-1">Type</span>
-              {(["any","house","flat","studio","room","commercial"] as PropertyType[]).map((t) => {
-                const active = (s.property_type ?? "any") === t;
-                return (
-                  <button
-                    key={t}
-                    type="button"
-                    onClick={() => setSearch({ property_type: t === "any" ? undefined : t })}
-                    className={`h-7 px-2.5 rounded-full text-[11px] sm:text-xs font-medium capitalize border transition-colors ${active ? "bg-white text-primary border-white" : "bg-white/10 text-white border-white/30 hover:bg-white/20"}`}
-                  >{t === "any" ? "Any" : t}</button>
-                );
-              })}
-              <span className="text-[11px] uppercase tracking-wide text-white/70 font-semibold ml-2 mr-1">Beds</span>
-              {[0,1,2,3,4,5].map((n) => {
+              <span className="text-[11px] uppercase tracking-wide text-white/70 font-semibold mr-1">
+                Type
+              </span>
+              {(["any", "house", "flat", "studio", "room", "commercial"] as PropertyType[]).map(
+                (t) => {
+                  const active = (s.property_type ?? "any") === t;
+                  return (
+                    <button
+                      key={t}
+                      type="button"
+                      onClick={() => setSearch({ property_type: t === "any" ? undefined : t })}
+                      className={`h-7 px-2.5 rounded-full text-[11px] sm:text-xs font-medium capitalize border transition-colors ${active ? "bg-white text-primary border-white" : "bg-white/10 text-white border-white/30 hover:bg-white/20"}`}
+                    >
+                      {t === "any" ? "Any" : t}
+                    </button>
+                  );
+                },
+              )}
+              <span className="text-[11px] uppercase tracking-wide text-white/70 font-semibold ml-2 mr-1">
+                Beds
+              </span>
+              {[0, 1, 2, 3, 4, 5].map((n) => {
                 const active = (s.beds ?? 0) === n;
                 return (
                   <button
@@ -236,7 +331,9 @@ function MarketplacePage() {
                     type="button"
                     onClick={() => setSearch({ beds: n === 0 ? undefined : n })}
                     className={`h-7 min-w-[2rem] px-2 rounded-full text-[11px] sm:text-xs font-semibold border transition-colors ${active ? "bg-white text-primary border-white" : "bg-white/10 text-white border-white/30 hover:bg-white/20"}`}
-                  >{n === 0 ? "Any" : `${n}+`}</button>
+                  >
+                    {n === 0 ? "Any" : `${n}+`}
+                  </button>
                 );
               })}
             </div>
@@ -249,8 +346,12 @@ function MarketplacePage() {
 
             {meta.data && (
               <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs sm:text-sm text-white/90">
-                <div className="inline-flex items-center gap-1.5"><Building2 className="h-4 w-4" /> {meta.data.total.toLocaleString()} listings</div>
-                <div className="inline-flex items-center gap-1.5"><MapPin className="h-4 w-4" /> {meta.data.cityCount} towns & cities</div>
+                <div className="inline-flex items-center gap-1.5">
+                  <Building2 className="h-4 w-4" /> {meta.data.total.toLocaleString()} listings
+                </div>
+                <div className="inline-flex items-center gap-1.5">
+                  <MapPin className="h-4 w-4" /> {meta.data.cityCount} towns & cities
+                </div>
                 <div className="hidden sm:block">{meta.data.agencyCount} verified agencies</div>
               </div>
             )}
@@ -260,13 +361,24 @@ function MarketplacePage() {
         {meta.data && meta.data.featured.length > 0 && (
           <section className="border-b bg-muted/30">
             <div className="container mx-auto px-4 py-4 flex items-center gap-3 overflow-x-auto no-scrollbar">
-              <span className="text-[11px] uppercase tracking-wide text-muted-foreground font-semibold shrink-0">Featured</span>
+              <span className="text-[11px] uppercase tracking-wide text-muted-foreground font-semibold shrink-0">
+                Featured
+              </span>
               {meta.data.featured.map((a) => (
-                <Link key={a.id} to="/agencies/$slug" params={{ slug: a.slug }} className="shrink-0 inline-flex items-center gap-2 rounded-full border bg-card px-3 py-1.5 hover:bg-accent/10 transition-colors">
+                <Link
+                  key={a.id}
+                  to="/agencies/$slug"
+                  params={{ slug: a.slug }}
+                  className="shrink-0 inline-flex items-center gap-2 rounded-full border bg-card px-3 py-1.5 hover:bg-accent/10 transition-colors"
+                >
                   <div className="h-6 w-6 rounded-full bg-muted overflow-hidden shrink-0">
-                    {a.logo_url && <img src={a.logo_url} alt="" className="h-full w-full object-cover" />}
+                    {a.logo_url && (
+                      <img src={a.logo_url} alt="" className="h-full w-full object-cover" />
+                    )}
                   </div>
-                  <span className="text-sm font-medium truncate max-w-[140px] sm:max-w-[160px]">{a.name}</span>
+                  <span className="text-sm font-medium truncate max-w-[140px] sm:max-w-[160px]">
+                    {a.name}
+                  </span>
                 </Link>
               ))}
             </div>
@@ -274,48 +386,80 @@ function MarketplacePage() {
         )}
 
         {/* Popular areas — Bayut-style recommended carousel */}
-        {meta.data && meta.data.topCities && meta.data.topCities.length > 0 && !s.city && !s.postcode && (
-          <section className="container mx-auto px-4 pt-6 sm:pt-8">
-            <div className="flex items-baseline justify-between mb-3">
-              <h2 className="font-display text-lg sm:text-xl font-semibold tracking-tight">Popular areas in the UK</h2>
-              <Link to="/area-guides" className="text-xs sm:text-sm text-primary inline-flex items-center gap-1 hover:underline">All areas <ChevronRight className="h-3.5 w-3.5" /></Link>
-            </div>
-            <div className="flex gap-3 overflow-x-auto no-scrollbar -mx-4 px-4 pb-2 snap-x snap-mandatory">
-              {meta.data.topCities.map((c) => (
-                <button
-                  key={c.name}
-                  type="button"
-                  onClick={() => { setWhere(c.name); setSearch({ city: c.name, postcode: undefined }); }}
-                  className="snap-start group relative shrink-0 w-[180px] sm:w-[220px] aspect-[4/3] rounded-2xl overflow-hidden border bg-muted text-left hover:shadow-xl transition-all"
+        {meta.data &&
+          meta.data.topCities &&
+          meta.data.topCities.length > 0 &&
+          !s.city &&
+          !s.postcode && (
+            <section className="container mx-auto px-4 pt-6 sm:pt-8">
+              <div className="flex items-baseline justify-between mb-3">
+                <h2 className="font-display text-lg sm:text-xl font-semibold tracking-tight">
+                  Popular areas in the UK
+                </h2>
+                <Link
+                  to="/area-guides"
+                  className="text-xs sm:text-sm text-primary inline-flex items-center gap-1 hover:underline"
                 >
-                  {c.cover ? (
-                    <img src={c.cover} alt={c.name} className="absolute inset-0 h-full w-full object-cover group-hover:scale-105 transition duration-500" loading="lazy" />
-                  ) : <div className="absolute inset-0 brand-gradient opacity-40" />}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                  <div className="absolute bottom-0 inset-x-0 p-3 text-white">
-                    <div className="font-display font-semibold text-base sm:text-lg leading-tight">{c.name}</div>
-                    <div className="text-[11px] sm:text-xs opacity-90">{c.count} listing{c.count === 1 ? "" : "s"}</div>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </section>
-        )}
+                  All areas <ChevronRight className="h-3.5 w-3.5" />
+                </Link>
+              </div>
+              <div className="flex gap-3 overflow-x-auto no-scrollbar -mx-4 px-4 pb-2 snap-x snap-mandatory">
+                {meta.data.topCities.map((c) => (
+                  <button
+                    key={c.name}
+                    type="button"
+                    onClick={() => {
+                      setWhere(c.name);
+                      setSearch({ city: c.name, postcode: undefined });
+                    }}
+                    className="snap-start group relative shrink-0 w-[180px] sm:w-[220px] aspect-[4/3] rounded-2xl overflow-hidden border bg-muted text-left hover:shadow-xl transition-all"
+                  >
+                    {c.cover ? (
+                      <img
+                        src={c.cover}
+                        alt={c.name}
+                        className="absolute inset-0 h-full w-full object-cover group-hover:scale-105 transition duration-500"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 brand-gradient opacity-40" />
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                    <div className="absolute bottom-0 inset-x-0 p-3 text-white">
+                      <div className="font-display font-semibold text-base sm:text-lg leading-tight">
+                        {c.name}
+                      </div>
+                      <div className="text-[11px] sm:text-xs opacity-90">
+                        {c.count} listing{c.count === 1 ? "" : "s"}
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </section>
+          )}
 
         <section className="container mx-auto px-4 py-5 sm:py-6">
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div className="text-xs sm:text-sm text-muted-foreground">
-              {data?.listings.length ?? 0} listing{(data?.listings.length ?? 0) === 1 ? "" : "s"}{isFetching ? " · updating…" : ""}
-              {(s.city || s.postcode) && <span className="ml-1">in <strong className="text-foreground">{s.postcode ?? s.city}</strong></span>}
+              {data?.listings.length ?? 0} listing{(data?.listings.length ?? 0) === 1 ? "" : "s"}
+              {isFetching ? " · updating…" : ""}
+              {(s.city || s.postcode) && (
+                <span className="ml-1">
+                  in <strong className="text-foreground">{s.postcode ?? s.city}</strong>
+                </span>
+              )}
             </div>
 
             <div className="flex items-center gap-2">
               <div className="hidden sm:inline-flex rounded-md border bg-card p-0.5">
-                {([
-                  { v: "grid", label: "Grid", icon: LayoutGrid },
-                  { v: "split", label: "Split", icon: Columns2 },
-                  { v: "map", label: "Map", icon: MapIcon },
-                ] as const).map((opt) => (
+                {(
+                  [
+                    { v: "grid", label: "Grid", icon: LayoutGrid },
+                    { v: "split", label: "Split", icon: Columns2 },
+                    { v: "map", label: "Map", icon: MapIcon },
+                  ] as const
+                ).map((opt) => (
                   <button
                     key={opt.v}
                     type="button"
@@ -323,7 +467,8 @@ function MarketplacePage() {
                     className={`h-8 px-2.5 rounded inline-flex items-center text-xs font-medium transition-colors ${view === opt.v ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
                     aria-label={`${opt.label} view`}
                   >
-                    <opt.icon className="h-3.5 w-3.5 sm:mr-1" /><span className="hidden lg:inline">{opt.label}</span>
+                    <opt.icon className="h-3.5 w-3.5 sm:mr-1" />
+                    <span className="hidden lg:inline">{opt.label}</span>
                   </button>
                 ))}
               </div>
@@ -331,11 +476,17 @@ function MarketplacePage() {
               <Select value={sort} onValueChange={(v) => setSearch({ sort: v as SortKey })}>
                 <SelectTrigger className="h-9 w-auto min-w-0 px-3 sm:w-[180px]">
                   <ArrowUpDown className="h-3.5 w-3.5 mr-1 shrink-0" />
-                  <span className="hidden sm:inline truncate"><SelectValue /></span>
+                  <span className="hidden sm:inline truncate">
+                    <SelectValue />
+                  </span>
                   <span className="sm:hidden">Sort</span>
                 </SelectTrigger>
                 <SelectContent>
-                  {sorts.map((k) => <SelectItem key={k} value={k}>{SORT_LABEL[k]}</SelectItem>)}
+                  {sorts.map((k) => (
+                    <SelectItem key={k} value={k}>
+                      {SORT_LABEL[k]}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               <Button variant="ghost" size="sm" onClick={saveSearch} className="shrink-0">
@@ -347,8 +498,19 @@ function MarketplacePage() {
 
           {activeFilters.length > 0 && (
             <div className="flex flex-wrap items-center gap-2 mt-3">
-              {activeFilters.map((f, i) => <Badge key={i} variant="secondary" className="capitalize">{f}</Badge>)}
-              <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => navigate({ search: { category: category === "all" ? undefined : category } })}>
+              {activeFilters.map((f, i) => (
+                <Badge key={i} variant="secondary" className="capitalize">
+                  {f}
+                </Badge>
+              ))}
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 text-xs"
+                onClick={() =>
+                  navigate({ search: { category: category === "all" ? undefined : category } })
+                }
+              >
                 <X className="h-3 w-3 mr-1" /> Clear filters
               </Button>
             </div>
@@ -371,24 +533,33 @@ function MarketplacePage() {
             </div>
           ) : data?.listings.length ? (
             view === "map" ? (
-              <div className="container mx-auto"><MapView listings={data.listings} /></div>
+              <div className="container mx-auto">
+                <MapView listings={data.listings} />
+              </div>
             ) : view === "split" ? (
               <SplitView listings={data.listings} />
             ) : (
               <div className="container mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                {data.listings.map((l) => <ListingCard key={l.id} l={l} />)}
+                {data.listings.map((l) => (
+                  <ListingCard key={l.id} l={l} />
+                ))}
               </div>
             )
           ) : (
             <div className="text-center py-16 sm:py-20">
-              <div className="mx-auto h-14 w-14 rounded-2xl bg-muted flex items-center justify-center mb-3"><Search className="h-6 w-6 text-muted-foreground" /></div>
+              <div className="mx-auto h-14 w-14 rounded-2xl bg-muted flex items-center justify-center mb-3">
+                <Search className="h-6 w-6 text-muted-foreground" />
+              </div>
               <p className="font-medium">No listings match your search</p>
-              <p className="mt-1 text-sm text-muted-foreground">Try widening your filters or browsing all categories.</p>
-              <Button variant="outline" className="mt-4" onClick={() => navigate({ search: {} })}>Reset search</Button>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Try widening your filters or browsing all categories.
+              </p>
+              <Button variant="outline" className="mt-4" onClick={() => navigate({ search: {} })}>
+                Reset search
+              </Button>
             </div>
           )}
         </section>
-
       </main>
       <PublicFooter />
     </div>
@@ -399,7 +570,9 @@ function SplitView({ listings }: { listings: MapListing[] }) {
   return (
     <div className="mx-auto max-w-[1600px] grid lg:grid-cols-[minmax(0,1fr)_minmax(420px,46%)] gap-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:max-h-[calc(100vh-180px)] lg:overflow-y-auto pr-1">
-        {listings.map((l) => <ListingCard key={l.id} l={l as never} />)}
+        {listings.map((l) => (
+          <ListingCard key={l.id} l={l as never} />
+        ))}
       </div>
       <div className="hidden lg:block lg:sticky lg:top-20 lg:self-start lg:h-[calc(100vh-180px)] rounded-2xl overflow-hidden border bg-muted">
         <GoogleListingsMap listings={listings} />
@@ -408,12 +581,32 @@ function SplitView({ listings }: { listings: MapListing[] }) {
   );
 }
 
-
-
-function SearchBar({ q, setQ, where, setWhere, radius, setRadius, onSubmit }: { q: string; setQ: (v: string) => void; where: string; setWhere: (v: string) => void; radius: number; setRadius: (r: number) => void; onSubmit: () => void }) {
+function SearchBar({
+  q,
+  setQ,
+  where,
+  setWhere,
+  radius,
+  setRadius,
+  onSubmit,
+}: {
+  q: string;
+  setQ: (v: string) => void;
+  where: string;
+  setWhere: (v: string) => void;
+  radius: number;
+  setRadius: (r: number) => void;
+  onSubmit: () => void;
+}) {
   return (
     <div className="bg-card text-foreground rounded-2xl p-2 shadow-2xl ring-1 ring-border/50">
-      <form className="grid grid-cols-1 md:grid-cols-12 gap-2" onSubmit={(e) => { e.preventDefault(); onSubmit(); }}>
+      <form
+        className="grid grid-cols-1 md:grid-cols-12 gap-2"
+        onSubmit={(e) => {
+          e.preventDefault();
+          onSubmit();
+        }}
+      >
         <div className="md:col-span-5 relative">
           <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
@@ -445,42 +638,61 @@ function SearchBar({ q, setQ, where, setWhere, radius, setRadius, onSubmit }: { 
         </div>
         <div className="md:col-span-2 relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Keyword" value={q} onChange={(e) => setQ(e.target.value)} className="pl-9 h-11 md:h-12 border-0 focus-visible:ring-0" />
+          <Input
+            placeholder="Keyword"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            className="pl-9 h-11 md:h-12 border-0 focus-visible:ring-0"
+          />
         </div>
         <Button type="submit" className="md:col-span-2 h-11 md:h-12 w-full">
-          <Search className="h-4 w-4 mr-2 md:hidden" />Search
+          <Search className="h-4 w-4 mr-2 md:hidden" />
+          Search
         </Button>
       </form>
     </div>
   );
 }
 
-
-function FiltersSheet({ s, setSearch, category }: { s: SearchParams; setSearch: (patch: Partial<SearchParams>) => void; category: Category }) {
+function FiltersSheet({
+  s,
+  setSearch,
+  category,
+}: {
+  s: SearchParams;
+  setSearch: (patch: Partial<SearchParams>) => void;
+  category: Category;
+}) {
   const [open, setOpen] = useState(false);
-  const initial = () => ({
-    min_price: s.min_price?.toString() ?? "",
-    max_price: s.max_price?.toString() ?? "",
-    beds: s.beds?.toString() ?? "any",
-    baths: s.baths?.toString() ?? "any",
-    receptions: s.receptions?.toString() ?? "any",
-    min_sqft: s.min_sqft?.toString() ?? "",
-    bills_included: s.bills_included ?? false,
-    furnished: s.furnished ?? "any",
-    property_type: (s.property_type ?? "any") as PropertyType,
-    epc_min: s.epc_min ?? "any",
-    tenure: s.tenure ?? "any",
-    features: s.features ?? [],
-    available_from: s.available_from ?? "",
-  });
+  const initial = useCallback(
+    () => ({
+      min_price: s.min_price?.toString() ?? "",
+      max_price: s.max_price?.toString() ?? "",
+      beds: s.beds?.toString() ?? "any",
+      baths: s.baths?.toString() ?? "any",
+      receptions: s.receptions?.toString() ?? "any",
+      min_sqft: s.min_sqft?.toString() ?? "",
+      bills_included: s.bills_included ?? false,
+      furnished: s.furnished ?? "any",
+      property_type: (s.property_type ?? "any") as PropertyType,
+      epc_min: s.epc_min ?? "any",
+      tenure: s.tenure ?? "any",
+      features: s.features ?? [],
+      available_from: s.available_from ?? "",
+    }),
+    [s],
+  );
 
   const [local, setLocal] = useState(initial);
-  useEffect(() => { setLocal(initial()); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [s]);
+  useEffect(() => {
+    setLocal(initial());
+  }, [initial]);
 
-  const toggleFeature = (f: string) => setLocal((p) => ({
-    ...p,
-    features: p.features.includes(f) ? p.features.filter((x) => x !== f) : [...p.features, f],
-  }));
+  const toggleFeature = (f: string) =>
+    setLocal((p) => ({
+      ...p,
+      features: p.features.includes(f) ? p.features.filter((x) => x !== f) : [...p.features, f],
+    }));
 
   const apply = () => {
     setSearch({
@@ -494,7 +706,10 @@ function FiltersSheet({ s, setSearch, category }: { s: SearchParams; setSearch: 
       furnished: local.furnished !== "any" ? local.furnished : undefined,
       property_type: local.property_type !== "any" ? local.property_type : undefined,
       epc_min: local.epc_min !== "any" ? (local.epc_min as "A" | "B" | "C" | "D" | "E") : undefined,
-      tenure: local.tenure !== "any" ? (local.tenure as "freehold" | "leasehold" | "share_of_freehold") : undefined,
+      tenure:
+        local.tenure !== "any"
+          ? (local.tenure as "freehold" | "leasehold" | "share_of_freehold")
+          : undefined,
       features: local.features.length ? local.features : undefined,
       available_from: local.available_from || undefined,
     });
@@ -503,9 +718,18 @@ function FiltersSheet({ s, setSearch, category }: { s: SearchParams; setSearch: 
   };
 
   const activeCount = [
-    s.min_price, s.max_price, s.beds, s.baths, s.receptions, s.min_sqft,
-    s.bills_included, s.furnished, s.property_type !== undefined && s.property_type !== "any" ? 1 : undefined,
-    s.epc_min, s.tenure, s.features?.length,
+    s.min_price,
+    s.max_price,
+    s.beds,
+    s.baths,
+    s.receptions,
+    s.min_sqft,
+    s.bills_included,
+    s.furnished,
+    s.property_type !== undefined && s.property_type !== "any" ? 1 : undefined,
+    s.epc_min,
+    s.tenure,
+    s.features?.length,
   ].filter(Boolean).length;
 
   return (
@@ -513,11 +737,15 @@ function FiltersSheet({ s, setSearch, category }: { s: SearchParams; setSearch: 
       <SheetTrigger asChild>
         <Button variant="outline" size="sm" className="h-9">
           <SlidersHorizontal className="h-4 w-4 mr-1" /> Filters
-          {activeCount > 0 && <Badge className="ml-1.5 h-5 px-1.5 text-[10px]">{activeCount}</Badge>}
+          {activeCount > 0 && (
+            <Badge className="ml-1.5 h-5 px-1.5 text-[10px]">{activeCount}</Badge>
+          )}
         </Button>
       </SheetTrigger>
       <SheetContent className="w-full sm:max-w-md overflow-y-auto">
-        <SheetHeader><SheetTitle>Refine your search</SheetTitle></SheetHeader>
+        <SheetHeader>
+          <SheetTitle>Refine your search</SheetTitle>
+        </SheetHeader>
         <div className="space-y-5 mt-6">
           <div>
             <Label>Property type</Label>
@@ -538,8 +766,22 @@ function FiltersSheet({ s, setSearch, category }: { s: SearchParams; setSearch: 
           <div>
             <Label>Price range (£)</Label>
             <div className="grid grid-cols-2 gap-2 mt-2">
-              <Input placeholder="Min" inputMode="numeric" value={local.min_price} onChange={(e) => setLocal({ ...local, min_price: e.target.value.replace(/[^0-9]/g, "") })} />
-              <Input placeholder="Max" inputMode="numeric" value={local.max_price} onChange={(e) => setLocal({ ...local, max_price: e.target.value.replace(/[^0-9]/g, "") })} />
+              <Input
+                placeholder="Min"
+                inputMode="numeric"
+                value={local.min_price}
+                onChange={(e) =>
+                  setLocal({ ...local, min_price: e.target.value.replace(/[^0-9]/g, "") })
+                }
+              />
+              <Input
+                placeholder="Max"
+                inputMode="numeric"
+                value={local.max_price}
+                onChange={(e) =>
+                  setLocal({ ...local, max_price: e.target.value.replace(/[^0-9]/g, "") })
+                }
+              />
             </div>
           </div>
 
@@ -548,31 +790,52 @@ function FiltersSheet({ s, setSearch, category }: { s: SearchParams; setSearch: 
               <div>
                 <Label>{category === "hmo" ? "Rooms" : "Bedrooms"}</Label>
                 <Select value={local.beds} onValueChange={(v) => setLocal({ ...local, beds: v })}>
-                  <SelectTrigger className="mt-2"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="mt-2">
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="any">Any</SelectItem>
-                    {[1,2,3,4,5,6].map((n) => <SelectItem key={n} value={String(n)}>{n}+</SelectItem>)}
+                    {[1, 2, 3, 4, 5, 6].map((n) => (
+                      <SelectItem key={n} value={String(n)}>
+                        {n}+
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
               <div>
                 <Label>Bathrooms</Label>
                 <Select value={local.baths} onValueChange={(v) => setLocal({ ...local, baths: v })}>
-                  <SelectTrigger className="mt-2"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="mt-2">
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="any">Any</SelectItem>
-                    {[1,2,3,4].map((n) => <SelectItem key={n} value={String(n)}>{n}+</SelectItem>)}
+                    {[1, 2, 3, 4].map((n) => (
+                      <SelectItem key={n} value={String(n)}>
+                        {n}+
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
               {category !== "hmo" && (
                 <div>
                   <Label>Reception</Label>
-                  <Select value={local.receptions} onValueChange={(v) => setLocal({ ...local, receptions: v })}>
-                    <SelectTrigger className="mt-2"><SelectValue /></SelectTrigger>
+                  <Select
+                    value={local.receptions}
+                    onValueChange={(v) => setLocal({ ...local, receptions: v })}
+                  >
+                    <SelectTrigger className="mt-2">
+                      <SelectValue />
+                    </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="any">Any</SelectItem>
-                      {[1,2,3,4].map((n) => <SelectItem key={n} value={String(n)}>{n}+</SelectItem>)}
+                      {[1, 2, 3, 4].map((n) => (
+                        <SelectItem key={n} value={String(n)}>
+                          {n}+
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -580,19 +843,35 @@ function FiltersSheet({ s, setSearch, category }: { s: SearchParams; setSearch: 
             </div>
           )}
 
-
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label>Min floor area (sq ft)</Label>
-              <Input className="mt-2" placeholder="e.g. 600" inputMode="numeric" value={local.min_sqft} onChange={(e) => setLocal({ ...local, min_sqft: e.target.value.replace(/[^0-9]/g, "") })} />
+              <Input
+                className="mt-2"
+                placeholder="e.g. 600"
+                inputMode="numeric"
+                value={local.min_sqft}
+                onChange={(e) =>
+                  setLocal({ ...local, min_sqft: e.target.value.replace(/[^0-9]/g, "") })
+                }
+              />
             </div>
             <div>
               <Label>EPC rating (min)</Label>
-              <Select value={local.epc_min} onValueChange={(v) => setLocal({ ...local, epc_min: v })}>
-                <SelectTrigger className="mt-2"><SelectValue /></SelectTrigger>
+              <Select
+                value={local.epc_min}
+                onValueChange={(v) => setLocal({ ...local, epc_min: v })}
+              >
+                <SelectTrigger className="mt-2">
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="any">Any</SelectItem>
-                  {["A","B","C","D","E"].map((b) => <SelectItem key={b} value={b}>{b} or better</SelectItem>)}
+                  {["A", "B", "C", "D", "E"].map((b) => (
+                    <SelectItem key={b} value={b}>
+                      {b} or better
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -602,7 +881,9 @@ function FiltersSheet({ s, setSearch, category }: { s: SearchParams; setSearch: 
             <div>
               <Label>Tenure</Label>
               <Select value={local.tenure} onValueChange={(v) => setLocal({ ...local, tenure: v })}>
-                <SelectTrigger className="mt-2"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="mt-2">
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="any">Any</SelectItem>
                   <SelectItem value="freehold">Freehold</SelectItem>
@@ -612,7 +893,6 @@ function FiltersSheet({ s, setSearch, category }: { s: SearchParams; setSearch: 
               </Select>
             </div>
           )}
-
 
           <div>
             <Label>Features &amp; must-haves</Label>
@@ -636,8 +916,13 @@ function FiltersSheet({ s, setSearch, category }: { s: SearchParams; setSearch: 
             <>
               <div>
                 <Label>Furnished</Label>
-                <Select value={local.furnished} onValueChange={(v) => setLocal({ ...local, furnished: v })}>
-                  <SelectTrigger className="mt-2"><SelectValue /></SelectTrigger>
+                <Select
+                  value={local.furnished}
+                  onValueChange={(v) => setLocal({ ...local, furnished: v })}
+                >
+                  <SelectTrigger className="mt-2">
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="any">Any</SelectItem>
                     <SelectItem value="furnished">Furnished</SelectItem>
@@ -647,38 +932,93 @@ function FiltersSheet({ s, setSearch, category }: { s: SearchParams; setSearch: 
                 </Select>
               </div>
               <div className="flex items-center justify-between rounded-lg border p-3">
-                <Label htmlFor="bills" className="cursor-pointer">Bills included</Label>
-                <Switch id="bills" checked={local.bills_included} onCheckedChange={(v) => setLocal({ ...local, bills_included: v })} />
+                <Label htmlFor="bills" className="cursor-pointer">
+                  Bills included
+                </Label>
+                <Switch
+                  id="bills"
+                  checked={local.bills_included}
+                  onCheckedChange={(v) => setLocal({ ...local, bills_included: v })}
+                />
               </div>
             </>
           )}
           {category !== "sale" && (
             <div>
               <Label>Available from</Label>
-              <Input type="date" className="mt-2" value={local.available_from} onChange={(e) => setLocal({ ...local, available_from: e.target.value })} />
+              <Input
+                type="date"
+                className="mt-2"
+                value={local.available_from}
+                onChange={(e) => setLocal({ ...local, available_from: e.target.value })}
+              />
             </div>
           )}
-
         </div>
         <SheetFooter className="mt-6 flex-row gap-2">
-          <Button variant="outline" className="flex-1" onClick={() => { setLocal({ min_price: "", max_price: "", beds: "any", baths: "any", receptions: "any", min_sqft: "", bills_included: false, furnished: "any", property_type: "any", epc_min: "any", tenure: "any", features: [], available_from: "" }); }}>Reset</Button>
-          <Button className="flex-1" onClick={apply}>Apply filters</Button>
+          <Button
+            variant="outline"
+            className="flex-1"
+            onClick={() => {
+              setLocal({
+                min_price: "",
+                max_price: "",
+                beds: "any",
+                baths: "any",
+                receptions: "any",
+                min_sqft: "",
+                bills_included: false,
+                furnished: "any",
+                property_type: "any",
+                epc_min: "any",
+                tenure: "any",
+                features: [],
+                available_from: "",
+              });
+            }}
+          >
+            Reset
+          </Button>
+          <Button className="flex-1" onClick={apply}>
+            Apply filters
+          </Button>
         </SheetFooter>
       </SheetContent>
     </Sheet>
   );
 }
 
-type MapListing = { id: string; slug: string; title: string; city: string | null; price: number | null; currency: string; listing_type: string; latitude?: number | null; longitude?: number | null; postcode?: string | null };
+type MapListing = {
+  id: string;
+  slug: string;
+  title: string;
+  city: string | null;
+  price: number | null;
+  currency: string;
+  listing_type: string;
+  latitude?: number | null;
+  longitude?: number | null;
+  postcode?: string | null;
+};
 
 function MapView({ listings }: { listings: MapListing[] }) {
   const [drawing, setDrawing] = useState(false);
   const [polygon, setPolygon] = useState(false);
   const withGeo = listings.filter((l) => l.latitude != null && l.longitude != null);
 
-  const startDraw = () => { setDrawing(true); setPolygon(false); };
-  const finishDraw = () => { setDrawing(false); setPolygon(true); toast.success("Search area applied — showing listings within polygon"); };
-  const clearDraw = () => { setDrawing(false); setPolygon(false); };
+  const startDraw = () => {
+    setDrawing(true);
+    setPolygon(false);
+  };
+  const finishDraw = () => {
+    setDrawing(false);
+    setPolygon(true);
+    toast.success("Search area applied — showing listings within polygon");
+  };
+  const clearDraw = () => {
+    setDrawing(false);
+    setPolygon(false);
+  };
 
   return (
     <div className="grid lg:grid-cols-[1fr_360px] gap-4">
@@ -687,28 +1027,59 @@ function MapView({ listings }: { listings: MapListing[] }) {
 
         <div className="absolute top-3 left-3 flex flex-col gap-2 z-10">
           {!drawing && !polygon && (
-            <Button size="sm" onClick={startDraw} className="shadow-lg"><MapIcon className="h-3.5 w-3.5 mr-1" /> Draw area</Button>
+            <Button size="sm" onClick={startDraw} className="shadow-lg">
+              <MapIcon className="h-3.5 w-3.5 mr-1" /> Draw area
+            </Button>
           )}
           {drawing && (
             <>
-              <Badge className="bg-primary text-primary-foreground shadow-lg">Click points on map to outline area</Badge>
+              <Badge className="bg-primary text-primary-foreground shadow-lg">
+                Click points on map to outline area
+              </Badge>
               <div className="flex gap-1.5">
-                <Button size="sm" onClick={finishDraw} className="shadow-lg">Apply</Button>
-                <Button size="sm" variant="outline" onClick={clearDraw} className="bg-card shadow-lg">Cancel</Button>
+                <Button size="sm" onClick={finishDraw} className="shadow-lg">
+                  Apply
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={clearDraw}
+                  className="bg-card shadow-lg"
+                >
+                  Cancel
+                </Button>
               </div>
             </>
           )}
           {polygon && !drawing && (
             <div className="flex gap-1.5">
-              <Badge variant="secondary" className="shadow-lg">Custom area active</Badge>
-              <Button size="sm" variant="outline" onClick={clearDraw} className="bg-card shadow-lg h-6 px-2"><X className="h-3 w-3" /></Button>
+              <Badge variant="secondary" className="shadow-lg">
+                Custom area active
+              </Badge>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={clearDraw}
+                className="bg-card shadow-lg h-6 px-2"
+              >
+                <X className="h-3 w-3" />
+              </Button>
             </div>
           )}
         </div>
         {drawing && (
           <div className="pointer-events-none absolute inset-0">
-            <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 100">
-              <polygon points="20,30 70,20 80,50 65,80 30,75" className="fill-primary/10 stroke-primary" strokeWidth="0.6" strokeDasharray="2 1" />
+            <svg
+              className="absolute inset-0 w-full h-full"
+              preserveAspectRatio="none"
+              viewBox="0 0 100 100"
+            >
+              <polygon
+                points="20,30 70,20 80,50 65,80 30,75"
+                className="fill-primary/10 stroke-primary"
+                strokeWidth="0.6"
+                strokeDasharray="2 1"
+              />
             </svg>
           </div>
         )}
@@ -717,7 +1088,8 @@ function MapView({ listings }: { listings: MapListing[] }) {
         {withGeo.length === 0 && (
           <Card className="border-dashed">
             <CardContent className="p-4 text-sm text-muted-foreground">
-              No precise locations on these listings yet. Agents will see their pins here once coordinates or postcodes are added.
+              No precise locations on these listings yet. Agents will see their pins here once
+              coordinates or postcodes are added.
             </CardContent>
           </Card>
         )}
@@ -727,10 +1099,19 @@ function MapView({ listings }: { listings: MapListing[] }) {
               <CardContent className="p-3 flex items-center justify-between gap-3">
                 <div className="min-w-0">
                   <div className="text-sm font-medium truncate">{l.title}</div>
-                  <div className="text-xs text-muted-foreground inline-flex items-center gap-1"><MapPin className="h-3 w-3" />{l.city ?? "—"}</div>
+                  <div className="text-xs text-muted-foreground inline-flex items-center gap-1">
+                    <MapPin className="h-3 w-3" />
+                    {l.city ?? "—"}
+                  </div>
                 </div>
                 <div className="text-sm font-bold text-primary shrink-0">
-                  {l.price ? new Intl.NumberFormat("en-GB", { style: "currency", currency: l.currency || "GBP", maximumFractionDigits: 0 }).format(Number(l.price)) : "POA"}
+                  {l.price
+                    ? new Intl.NumberFormat("en-GB", {
+                        style: "currency",
+                        currency: l.currency || "GBP",
+                        maximumFractionDigits: 0,
+                      }).format(Number(l.price))
+                    : "POA"}
                 </div>
               </CardContent>
             </Card>

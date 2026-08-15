@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as AccessDeniedRouteImport } from './routes/access-denied'
 import { Route as AgenciesRouteImport } from './routes/agencies'
 import { Route as AreaGuidesRouteImport } from './routes/area-guides'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -123,6 +124,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccessDeniedRoute = AccessDeniedRouteImport.update({
+  id: '/access-denied',
+  path: '/access-denied',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AgenciesRoute = AgenciesRouteImport.update({
@@ -641,6 +647,7 @@ const ApiPublicWebhooksResendRoute = ApiPublicWebhooksResendRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/access-denied': typeof AccessDeniedRoute
   '/agencies': typeof AgenciesRouteWithChildren
   '/area-guides': typeof AreaGuidesRouteWithChildren
   '/auth': typeof AuthRoute
@@ -743,6 +750,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/access-denied': typeof AccessDeniedRoute
   '/area-guides': typeof AreaGuidesRouteWithChildren
   '/auth': typeof AuthRoute
   '/business': typeof BusinessRoute
@@ -844,6 +852,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/about': typeof AboutRoute
+  '/access-denied': typeof AccessDeniedRoute
   '/agencies': typeof AgenciesRouteWithChildren
   '/area-guides': typeof AreaGuidesRouteWithChildren
   '/auth': typeof AuthRoute
@@ -948,6 +957,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/access-denied'
     | '/agencies'
     | '/area-guides'
     | '/auth'
@@ -1050,6 +1060,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/access-denied'
     | '/area-guides'
     | '/auth'
     | '/business'
@@ -1150,6 +1161,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/about'
+    | '/access-denied'
     | '/agencies'
     | '/area-guides'
     | '/auth'
@@ -1254,6 +1266,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AboutRoute: typeof AboutRoute
+  AccessDeniedRoute: typeof AccessDeniedRoute
   AgenciesRoute: typeof AgenciesRouteWithChildren
   AreaGuidesRoute: typeof AreaGuidesRouteWithChildren
   AuthRoute: typeof AuthRoute
@@ -1315,6 +1328,13 @@ declare module '@tanstack/react-router' {
       path: '/about'
       fullPath: '/about'
       preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/access-denied': {
+      id: '/access-denied'
+      path: '/access-denied'
+      fullPath: '/access-denied'
+      preLoaderRoute: typeof AccessDeniedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/agencies': {
@@ -2215,6 +2235,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AboutRoute: AboutRoute,
+  AccessDeniedRoute: AccessDeniedRoute,
   AgenciesRoute: AgenciesRouteWithChildren,
   AreaGuidesRoute: AreaGuidesRouteWithChildren,
   AuthRoute: AuthRoute,

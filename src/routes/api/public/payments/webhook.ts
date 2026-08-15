@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any -- pending subscription tables and payment RPC are not present in generated Supabase types until migrations run */
 import { createFileRoute } from "@tanstack/react-router";
 import type Stripe from "stripe";
 import { createStripeClient, type StripeEnv, verifyWebhook } from "@/lib/stripe.server";

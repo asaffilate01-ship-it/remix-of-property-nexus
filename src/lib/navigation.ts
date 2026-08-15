@@ -44,7 +44,7 @@ import {
   Workflow,
   Wrench,
 } from "lucide-react";
-import type { AppRole } from "@/hooks/useUserRole";
+import type { AppRole } from "@/lib/roles";
 
 export type NavigationItem = {
   to: string;
@@ -64,18 +64,6 @@ export type NavigationAction = NavigationItem & {
 };
 
 export type SearchResource = "properties" | "contacts" | "listings" | "leads" | "workOrders";
-
-export const APP_ROLES: AppRole[] = [
-  "admin",
-  "agent",
-  "landlord",
-  "tenant",
-  "buyer",
-  "conveyancer",
-  "contractor",
-  "inventory_clerk",
-  "utility_provider",
-];
 
 const FULL: NavigationSection[] = [
   {

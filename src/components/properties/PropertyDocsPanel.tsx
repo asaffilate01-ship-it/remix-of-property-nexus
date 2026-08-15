@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -21,15 +21,17 @@ export function PropertyDocsPanel({ propertyId }: { propertyId: string }) {
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     const { data } = await supabase
       .from("documents")
       .select("id, name, folder, storage_path, mime_type, size_bytes, created_at")
       .eq("property_id", propertyId)
       .order("created_at", { ascending: false });
     setDocs((data as Doc[]) ?? []);
-  };
-  useEffect(() => { load(); }, [propertyId]);
+  }, [propertyId]);
+  useEffect(() => {
+    void load();
+  }, [load]);
 
   const upload = async (file: File) => {
     setUploading(true);
@@ -37,7 +39,9 @@ export function PropertyDocsPanel({ propertyId }: { propertyId: string }) {
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) throw new Error("Not signed in");
       const path = `property/${propertyId}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
-      const { error: upErr } = await supabase.storage.from("documents").upload(path, file, { upsert: false });
+      const { error: upErr } = await supabase.storage
+        .from("documents")
+        .upload(path, file, { upsert: false });
       if (upErr) throw upErr;
       const { error } = await supabase.from("documents").insert({
         name: file.name,
@@ -61,7 +65,9 @@ export function PropertyDocsPanel({ propertyId }: { propertyId: string }) {
   };
 
   const openDoc = async (d: Doc) => {
-    const { data, error } = await supabase.storage.from("documents").createSignedUrl(d.storage_path, 600);
+    const { data, error } = await supabase.storage
+      .from("documents")
+      .createSignedUrl(d.storage_path, 600);
     if (error) return toast.error(error.message);
     window.open(data.signedUrl, "_blank");
   };
@@ -105,15 +111,26 @@ export function PropertyDocsPanel({ propertyId }: { propertyId: string }) {
               <div className="min-w-0">
                 <div className="font-medium truncate text-sm">{d.name}</div>
                 <div className="text-xs text-muted-foreground flex gap-2">
-                  <Badge variant="outline" className="text-[10px]">{d.folder}</Badge>
+                  <Badge variant="outline" className="text-[10px]">
+                    {d.folder}
+                  </Badge>
                   {d.size_bytes && <span>{(d.size_bytes / 1024).toFixed(0)} KB</span>}
                   <span>{new Date(d.created_at).toLocaleDateString()}</span>
                 </div>
               </div>
             </div>
             <div className="flex gap-1">
-              <Button size="icon" variant="ghost" onClick={() => openDoc(d)}><Download className="h-3 w-3" /></Button>
-              <Button size="icon" variant="ghost" className="text-destructive" onClick={() => del(d)}><Trash2 className="h-3 w-3" /></Button>
+              <Button size="icon" variant="ghost" onClick={() => openDoc(d)}>
+                <Download className="h-3 w-3" />
+              </Button>
+              <Button
+                size="icon"
+                variant="ghost"
+                className="text-destructive"
+                onClick={() => del(d)}
+              >
+                <Trash2 className="h-3 w-3" />
+              </Button>
             </div>
           </CardContent>
         </Card>
