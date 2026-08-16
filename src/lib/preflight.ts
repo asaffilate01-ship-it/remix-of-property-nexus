@@ -27,6 +27,7 @@ const REQUIRED = [
   "BILLING_UNLIMITED_PRICE_ID_LIVE",
   "GOOGLE_MAPS_API_KEY",
   "ENABLE_DEMO_BANK_FEED",
+  "ENABLE_SIMULATED_REFERENCING",
 ] as const;
 
 function isPlaceholder(value: string): boolean {
@@ -107,6 +108,9 @@ export function validateProductionEnvironment(env: Environment): PreflightResult
   }
   if (env.ENABLE_DEMO_BANK_FEED !== "false") {
     errors.push("ENABLE_DEMO_BANK_FEED must be explicitly set to false");
+  }
+  if (env.ENABLE_SIMULATED_REFERENCING !== "false") {
+    errors.push("ENABLE_SIMULATED_REFERENCING must be explicitly set to false");
   }
 
   const billingEnvironment = env.BILLING_STRIPE_ENV?.trim();

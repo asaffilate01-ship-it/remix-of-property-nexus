@@ -97,6 +97,13 @@ WHERE user_id = 'OPERATOR_USER_UUID';`, then revoke active Auth sessions from th
 console. Review every historical `user_roles.role = 'admin'` row before granting an authorization;
 the migration intentionally does not trust or backfill historical admin assignments.
 
+## Simulated provider flags
+
+`ENABLE_DEMO_BANK_FEED` and `ENABLE_SIMULATED_REFERENCING` must both be `false` in production; the
+preflight check fails otherwise. With simulated referencing disabled, requesting a check without a
+real provider fails closed and records nothing, so no fabricated result can reach a user. Demo
+sign-in accounts remain available for role testing.
+
 ## Scheduled workers
 
 Send either `Authorization: Bearer <CRON_SECRET>` or `X-Cron-Secret: <CRON_SECRET>` with every

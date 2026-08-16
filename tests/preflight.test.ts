@@ -30,6 +30,7 @@ const valid = {
   BILLING_UNLIMITED_PRICE_ID_LIVE: "price_unlimited_real",
   GOOGLE_MAPS_API_KEY: "google_connection_real",
   ENABLE_DEMO_BANK_FEED: "false",
+  ENABLE_SIMULATED_REFERENCING: "false",
 };
 
 describe("production preflight", () => {
