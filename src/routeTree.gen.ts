@@ -33,6 +33,7 @@ import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as SavedSearchesRouteImport } from './routes/saved-searches'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as UnlockRouteImport } from './routes/unlock'
 import { Route as ValuationRouteImport } from './routes/valuation'
 import { Route as AuthenticatedAgencyRouteImport } from './routes/_authenticated/agency'
 import { Route as AuthenticatedAiCopyRouteImport } from './routes/_authenticated/ai-copy'
@@ -230,6 +231,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UnlockRoute = UnlockRouteImport.update({
+  id: '/unlock',
+  path: '/unlock',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ValuationRoute = ValuationRouteImport.update({
@@ -674,6 +680,7 @@ export interface FileRoutesByFullPath {
   '/saved-searches': typeof SavedSearchesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/unlock': typeof UnlockRoute
   '/valuation': typeof ValuationRoute
   '/agency': typeof AuthenticatedAgencyRoute
   '/ai-copy': typeof AuthenticatedAiCopyRoute
@@ -776,6 +783,7 @@ export interface FileRoutesByTo {
   '/saved-searches': typeof SavedSearchesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/unlock': typeof UnlockRoute
   '/valuation': typeof ValuationRoute
   '/agency': typeof AuthenticatedAgencyRoute
   '/ai-copy': typeof AuthenticatedAiCopyRoute
@@ -881,6 +889,7 @@ export interface FileRoutesById {
   '/saved-searches': typeof SavedSearchesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/unlock': typeof UnlockRoute
   '/valuation': typeof ValuationRoute
   '/_authenticated/agency': typeof AuthenticatedAgencyRoute
   '/_authenticated/ai-copy': typeof AuthenticatedAiCopyRoute
@@ -987,6 +996,7 @@ export interface FileRouteTypes {
     | '/saved-searches'
     | '/sitemap.xml'
     | '/terms'
+    | '/unlock'
     | '/valuation'
     | '/agency'
     | '/ai-copy'
@@ -1089,6 +1099,7 @@ export interface FileRouteTypes {
     | '/saved-searches'
     | '/sitemap.xml'
     | '/terms'
+    | '/unlock'
     | '/valuation'
     | '/agency'
     | '/ai-copy'
@@ -1193,6 +1204,7 @@ export interface FileRouteTypes {
     | '/saved-searches'
     | '/sitemap.xml'
     | '/terms'
+    | '/unlock'
     | '/valuation'
     | '/_authenticated/agency'
     | '/_authenticated/ai-copy'
@@ -1299,6 +1311,7 @@ export interface RootRouteChildren {
   SavedSearchesRoute: typeof SavedSearchesRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
+  UnlockRoute: typeof UnlockRoute
   ValuationRoute: typeof ValuationRoute
   BlogSlugRoute: typeof BlogSlugRoute
   ModulesSlugRoute: typeof ModulesSlugRoute
@@ -1488,6 +1501,13 @@ declare module '@tanstack/react-router' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/unlock': {
+      id: '/unlock'
+      path: '/unlock'
+      fullPath: '/unlock'
+      preLoaderRoute: typeof UnlockRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/valuation': {
@@ -2276,6 +2296,7 @@ const rootRouteChildren: RootRouteChildren = {
   SavedSearchesRoute: SavedSearchesRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
+  UnlockRoute: UnlockRoute,
   ValuationRoute: ValuationRoute,
   BlogSlugRoute: BlogSlugRoute,
   ModulesSlugRoute: ModulesSlugRoute,
