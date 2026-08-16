@@ -230,6 +230,12 @@ export const requestReferencingCheck = createServerFn({ method: "POST" })
     if (e2) throw new Error(e2.message);
 
     if (provider === "simulated") {
+      if (process.env.ENABLE_SIMULATED_REFERENCING !== "true") {
+        await context.supabase.from("referencing_checks").delete().eq("id", created!.id);
+        throw new Error(
+          "Simulated referencing is disabled. Connect a referencing provider before requesting checks.",
+        );
+      }
       const sim = simulateCheck(data.check_type, {
         income: kase.income_monthly,
         consent: kase.credit_consent,
