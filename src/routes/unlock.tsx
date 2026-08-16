@@ -25,10 +25,11 @@ function UnlockPage() {
   const unlock = useServerFn(unlockSite);
   const [error, setError] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [password, setPassword] = useState("");
 
-  async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const password = String(new FormData(event.currentTarget).get("password") ?? "");
+  async function submit(event?: React.FormEvent<HTMLFormElement>) {
+    event?.preventDefault();
+    if (busy || !password) return;
     setBusy(true);
     setError(false);
     try {
@@ -62,13 +63,15 @@ function UnlockPage() {
           <p className="mt-2 text-sm text-muted-foreground">
             The full platform is in private preview. Enter the access password to continue.
           </p>
-          <form onSubmit={onSubmit} className="mt-6 space-y-3">
+          <form method="post" onSubmit={submit} className="mt-6 space-y-3">
             <Input
               name="password"
               type="password"
               autoComplete="current-password"
               placeholder="Access password"
               aria-label="Access password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
               required
             />
             {error && (
@@ -76,7 +79,15 @@ function UnlockPage() {
                 That password isn&rsquo;t right. Try again.
               </p>
             )}
-            <Button type="submit" className="w-full" disabled={busy}>
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={busy}
+              onClick={(event) => {
+                event.preventDefault();
+                void submit();
+              }}
+            >
               {busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />}
               Enter platform
             </Button>
