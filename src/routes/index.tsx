@@ -252,15 +252,15 @@ function PromoHome() {
                     className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-accent/10 blur-2xl transition-opacity duration-500 group-hover:opacity-100 opacity-0"
                     aria-hidden
                   />
-                  <div className="relative mb-5 flex items-center gap-4">
+                  <div className="relative mb-5 flex items-center justify-between gap-4">
                     <div className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-accent/10 gold-hairline transition-transform duration-500 group-hover:-translate-y-0.5">
                       <IsoIcon name={isoFor[audience.title]} size={40} alt="" />
                     </div>
-                    <audience.icon
-                      className="h-5 w-5 text-accent/70 transition-colors group-hover:text-accent"
-                      aria-hidden="true"
-                    />
+                    <span className="grid h-9 w-9 place-items-center rounded-full border border-border/70 text-accent/70 transition-colors group-hover:border-accent/40 group-hover:text-accent">
+                      <audience.icon className="h-4 w-4" aria-hidden="true" />
+                    </span>
                   </div>
+
                   <h3 className="relative text-xl font-semibold">{audience.title}</h3>
                   <p className="relative mt-2 text-sm text-muted-foreground">{audience.body}</p>
                   <div className="divider-gold my-5" />
