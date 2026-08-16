@@ -282,15 +282,21 @@ function PromoHome() {
                 Everything already built into the platform.
               </h2>
             </div>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
               {platform.map((item) => (
-                <div key={item.title} className="rounded-2xl border bg-card p-6">
-                  <item.icon className="h-5 w-5 text-accent" aria-hidden="true" />
+                <div
+                  key={item.title}
+                  className="group rounded-2xl border bg-card p-6 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-prestige"
+                >
+                  <div className="grid h-10 w-10 place-items-center rounded-xl bg-accent/10 text-accent transition-colors group-hover:bg-accent/20">
+                    <item.icon className="h-5 w-5" aria-hidden="true" />
+                  </div>
                   <h3 className="mt-4 font-semibold">{item.title}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.body}</p>
                 </div>
               ))}
             </div>
+
           </div>
         </section>
 
