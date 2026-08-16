@@ -166,9 +166,10 @@ function PromoHome() {
           />
           <div className="container relative mx-auto grid items-center gap-10 px-4 pt-20 pb-16 md:pt-28 md:pb-24 lg:grid-cols-2">
             <div>
-              <div className="mb-4 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-accent">
+              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-accent">
                 <Sparkles className="h-3.5 w-3.5" aria-hidden="true" /> Private preview
               </div>
+
               <h1 className="mb-6 text-4xl font-bold leading-[1.05] tracking-tight md:text-6xl">
                 One property platform for everyone in the deal.
               </h1>
@@ -178,12 +179,16 @@ function PromoHome() {
                 single premium workspace.
               </p>
               <div className="flex flex-wrap gap-3">
-                <Button asChild size="lg">
+                <Button asChild size="lg" className="btn-prestige group">
                   <Link to="/unlock">
                     Enter with preview password{" "}
-                    <ArrowRight className="ml-1.5 h-4 w-4" aria-hidden="true" />
+                    <ArrowRight
+                      className="ml-1.5 h-4 w-4 transition-transform group-hover:translate-x-0.5"
+                      aria-hidden="true"
+                    />
                   </Link>
                 </Button>
+
                 <Button asChild size="lg" variant="outline">
                   <a href="mailto:hello@estately.co.uk?subject=Estately%20preview%20access">
                     Request access
@@ -195,7 +200,9 @@ function PromoHome() {
               </p>
             </div>
             <div className="relative">
-              <div className="aspect-[4/3] overflow-hidden rounded-3xl border shadow-2xl">
+              <div className="pointer-events-none absolute -inset-6 rounded-[2rem] bg-accent/10 blur-3xl" aria-hidden />
+              <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border ring-prestige">
+
                 <img
                   src={heroHome}
                   alt="Estately property workspace preview"
