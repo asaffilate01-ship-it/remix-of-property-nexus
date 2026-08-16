@@ -143,17 +143,20 @@ const stats = [
 function PromoHome() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <header className="border-b">
-        <div className="container mx-auto flex items-center justify-between gap-4 px-4 py-4">
-          <div className="flex items-center gap-2">
-            <Building2 className="h-6 w-6 text-accent" aria-hidden="true" />
+      <header className="sticky top-0 z-40 border-b glass">
+        <div className="container mx-auto flex items-center justify-between gap-4 px-4 py-3.5">
+          <div className="flex items-center gap-2.5">
+            <span className="grid h-9 w-9 place-items-center rounded-xl bg-accent/12 gold-hairline">
+              <Building2 className="h-5 w-5 text-accent" aria-hidden="true" />
+            </span>
             <span className="font-display text-lg font-bold tracking-tight">Estately</span>
           </div>
-          <Button asChild size="sm">
+          <Button asChild size="sm" className="btn-prestige">
             <Link to="/unlock">
               <Lock className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" /> Preview access
             </Link>
           </Button>
+
         </div>
       </header>
 
