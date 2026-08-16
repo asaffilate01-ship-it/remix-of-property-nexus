@@ -3,6 +3,7 @@ import {
   ArrowRight,
   Banknote,
   Building2,
+  Check,
   ClipboardCheck,
   Hammer,
   Home,
@@ -18,10 +19,11 @@ import {
   Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { IsoIcon, type IsoIconName } from "@/components/iso/IsoIcon";
 import heroHome from "@/assets/hero-home.jpg";
 import heroPattern from "@/assets/hero-pattern.jpg";
 import { siteUrl } from "@/lib/site-url";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
