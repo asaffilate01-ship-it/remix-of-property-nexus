@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowRight,
@@ -22,6 +23,10 @@ import { Button } from "@/components/ui/button";
 import { IsoIcon, type IsoIconName } from "@/components/iso/IsoIcon";
 import heroHome from "@/assets/hero-home.jpg";
 import heroPattern from "@/assets/hero-pattern.jpg";
+import shotMarketplace from "@/assets/shot-marketplace.jpg";
+import shotDashboard from "@/assets/shot-dashboard.jpg";
+import shotHome from "@/assets/shot-home.jpg";
+import shotBusiness from "@/assets/shot-business.jpg";
 import { siteUrl } from "@/lib/site-url";
 
 
@@ -139,6 +144,134 @@ const stats = [
   { value: "335", label: "UK towns with local pages" },
   { value: "1", label: "Platform replacing the stack" },
 ];
+
+const screens = [
+  {
+    id: "marketplace",
+    label: "Marketplace",
+    title: "Search that behaves like a portal, owned by you",
+    body: "Split grid and map search, HMO rooms, commercial stock and verified agency badges — every listing published straight from the CRM.",
+    image: shotMarketplace,
+  },
+  {
+    id: "dashboard",
+    label: "Agency CRM",
+    title: "One control centre for the whole branch",
+    body: "Leads, viewings, pipeline and offers with launch checklists, branch switching, command palette and role-aware navigation.",
+    image: shotDashboard,
+  },
+  {
+    id: "site",
+    label: "Public site",
+    title: "A marketing site that sells the platform",
+    body: "Fast, SEO-tuned pages for buyers, renters, landlords and agents, with local market pages across 335 UK towns.",
+    image: shotHome,
+  },
+  {
+    id: "business",
+    label: "For business",
+    title: "Built to replace the legacy stack",
+    body: "Plans, migration paths and the commercial story for agencies moving off Reapit, Alto, Arthur and Goodlord.",
+    image: shotBusiness,
+  },
+] as const;
+
+function ProductShowcase() {
+  const [active, setActive] = useState<string>(screens[0].id);
+  const current = screens.find((s) => s.id === active) ?? screens[0];
+
+  return (
+    <section className="border-b bg-muted/20">
+      <div className="container mx-auto px-4 py-16 md:py-24">
+        <div className="mb-10 flex flex-wrap items-end justify-between gap-6">
+          <div className="max-w-2xl">
+            <div className="mb-3 text-xs font-semibold uppercase tracking-widest text-accent">
+              Real screens, not mockups
+            </div>
+            <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
+              A look inside the platform.
+            </h2>
+            <p className="mt-3 text-muted-foreground">
+              Screenshots taken straight from the live product behind the preview password.
+            </p>
+          </div>
+          <div
+            className="no-scrollbar -mx-1 flex max-w-full gap-1.5 overflow-x-auto rounded-full border bg-card/70 p-1.5 shadow-card"
+            role="tablist"
+            aria-label="Product screenshots"
+          >
+            {screens.map((screen) => (
+              <button
+                key={screen.id}
+                type="button"
+                role="tab"
+                aria-selected={screen.id === active}
+                onClick={() => setActive(screen.id)}
+                className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+                  screen.id === active
+                    ? "btn-prestige"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {screen.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="grid items-center gap-8 lg:grid-cols-[1.55fr_1fr]">
+          <div className="relative">
+            <div
+              className="pointer-events-none absolute -inset-6 rounded-[2.5rem] bg-accent/10 blur-3xl"
+              aria-hidden
+            />
+            <figure className="relative overflow-hidden rounded-2xl border bg-card ring-prestige">
+              <div className="flex items-center gap-1.5 border-b bg-muted/50 px-4 py-2.5">
+                <span className="h-2.5 w-2.5 rounded-full bg-destructive/60" aria-hidden />
+                <span className="h-2.5 w-2.5 rounded-full bg-warning/70" aria-hidden />
+                <span className="h-2.5 w-2.5 rounded-full bg-success/60" aria-hidden />
+                <span className="ml-3 truncate rounded-md bg-background/70 px-2.5 py-1 text-[11px] text-muted-foreground">
+                  estately.co.uk — {current.label.toLowerCase()}
+                </span>
+              </div>
+              <img
+                key={current.id}
+                src={current.image}
+                alt={`Estately ${current.label} screen`}
+                width={1600}
+                height={1000}
+                loading="lazy"
+                className="w-full animate-in fade-in duration-500"
+              />
+            </figure>
+          </div>
+
+          <div>
+            <h3 className="text-2xl font-semibold">{current.title}</h3>
+            <div className="divider-gold my-5" />
+            <p className="text-muted-foreground">{current.body}</p>
+            <ul className="mt-6 space-y-2.5 text-sm">
+              {["Live data, real workflows", "Role-aware permissions throughout", "Same experience on mobile and native"].map(
+                (point) => (
+                  <li key={point} className="flex gap-2.5">
+                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-accent" aria-hidden="true" />
+                    <span className="text-muted-foreground">{point}</span>
+                  </li>
+                ),
+              )}
+            </ul>
+            <Button asChild className="btn-prestige mt-7">
+              <Link to="/unlock">
+                Unlock the full preview
+                <ArrowRight className="ml-1.5 h-4 w-4" aria-hidden="true" />
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
 
 function PromoHome() {
   return (
@@ -281,6 +414,8 @@ function PromoHome() {
 
           </div>
         </section>
+
+        <ProductShowcase />
 
         <section className="border-b bg-muted/20">
           <div className="container mx-auto px-4 py-16 md:py-24">
