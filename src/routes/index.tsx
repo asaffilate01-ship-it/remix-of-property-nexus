@@ -23,6 +23,10 @@ import { Button } from "@/components/ui/button";
 import { IsoIcon, type IsoIconName } from "@/components/iso/IsoIcon";
 import heroHome from "@/assets/hero-home.jpg";
 import heroPattern from "@/assets/hero-pattern.jpg";
+import shotMarketplace from "@/assets/shot-marketplace.jpg";
+import shotDashboard from "@/assets/shot-dashboard.jpg";
+import shotHome from "@/assets/shot-home.jpg";
+import shotBusiness from "@/assets/shot-business.jpg";
 import { siteUrl } from "@/lib/site-url";
 
 
