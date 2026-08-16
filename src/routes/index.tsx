@@ -3,6 +3,7 @@ import {
   ArrowRight,
   Banknote,
   Building2,
+  Check,
   ClipboardCheck,
   Hammer,
   Home,
@@ -18,10 +19,11 @@ import {
   Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { IsoIcon, type IsoIconName } from "@/components/iso/IsoIcon";
 import heroHome from "@/assets/hero-home.jpg";
 import heroPattern from "@/assets/hero-pattern.jpg";
 import { siteUrl } from "@/lib/site-url";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -112,6 +114,16 @@ const audiences = [
   },
 ];
 
+const isoFor: Record<string, IsoIconName> = {
+  "Estate & letting agents": "agent",
+  "Landlords & property owners": "house",
+  "Renters & tenants": "key",
+  "Buyers & sellers": "chart",
+  "Contractors & third parties": "wrench",
+};
+
+
+
 const platform = [
   { icon: ShieldCheck, title: "Security & permissions", body: "Row-level security, agency scoping, nine roles, MFA for admin actions and a UK GDPR privacy centre." },
   { icon: Banknote, title: "Payments & accounting", body: "Card rent collection, subscription billing, bank reconciliation, statements and arrears workflows." },
@@ -131,17 +143,20 @@ const stats = [
 function PromoHome() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <header className="border-b">
-        <div className="container mx-auto flex items-center justify-between gap-4 px-4 py-4">
-          <div className="flex items-center gap-2">
-            <Building2 className="h-6 w-6 text-accent" aria-hidden="true" />
+      <header className="sticky top-0 z-40 border-b glass">
+        <div className="container mx-auto flex items-center justify-between gap-4 px-4 py-3.5">
+          <div className="flex items-center gap-2.5">
+            <span className="grid h-9 w-9 place-items-center rounded-xl bg-accent/12 gold-hairline">
+              <Building2 className="h-5 w-5 text-accent" aria-hidden="true" />
+            </span>
             <span className="font-display text-lg font-bold tracking-tight">Estately</span>
           </div>
-          <Button asChild size="sm">
+          <Button asChild size="sm" className="btn-prestige">
             <Link to="/unlock">
               <Lock className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" /> Preview access
             </Link>
           </Button>
+
         </div>
       </header>
 
@@ -154,9 +169,10 @@ function PromoHome() {
           />
           <div className="container relative mx-auto grid items-center gap-10 px-4 pt-20 pb-16 md:pt-28 md:pb-24 lg:grid-cols-2">
             <div>
-              <div className="mb-4 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-accent">
+              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-accent">
                 <Sparkles className="h-3.5 w-3.5" aria-hidden="true" /> Private preview
               </div>
+
               <h1 className="mb-6 text-4xl font-bold leading-[1.05] tracking-tight md:text-6xl">
                 One property platform for everyone in the deal.
               </h1>
@@ -166,12 +182,16 @@ function PromoHome() {
                 single premium workspace.
               </p>
               <div className="flex flex-wrap gap-3">
-                <Button asChild size="lg">
+                <Button asChild size="lg" className="btn-prestige group">
                   <Link to="/unlock">
                     Enter with preview password{" "}
-                    <ArrowRight className="ml-1.5 h-4 w-4" aria-hidden="true" />
+                    <ArrowRight
+                      className="ml-1.5 h-4 w-4 transition-transform group-hover:translate-x-0.5"
+                      aria-hidden="true"
+                    />
                   </Link>
                 </Button>
+
                 <Button asChild size="lg" variant="outline">
                   <a href="mailto:hello@estately.co.uk?subject=Estately%20preview%20access">
                     Request access
@@ -183,7 +203,9 @@ function PromoHome() {
               </p>
             </div>
             <div className="relative">
-              <div className="aspect-[4/3] overflow-hidden rounded-3xl border shadow-2xl">
+              <div className="pointer-events-none absolute -inset-6 rounded-[2rem] bg-accent/10 blur-3xl" aria-hidden />
+              <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border ring-prestige">
+
                 <img
                   src={heroHome}
                   alt="Estately property workspace preview"
@@ -195,15 +217,20 @@ function PromoHome() {
         </section>
 
         <section className="border-b bg-muted/30">
-          <div className="container mx-auto grid gap-6 px-4 py-12 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="container mx-auto grid gap-px overflow-hidden px-4 py-12 sm:grid-cols-2 lg:grid-cols-4">
             {stats.map((stat) => (
-              <div key={stat.label}>
-                <div className="font-display text-3xl font-bold">{stat.value}</div>
-                <div className="mt-1 text-sm text-muted-foreground">{stat.label}</div>
+              <div key={stat.label} className="px-1 sm:border-l sm:first:border-l-0 sm:pl-6">
+                <div className="font-display text-4xl font-bold tabular gold-text">
+                  {stat.value}
+                </div>
+                <div className="mt-1.5 text-sm leading-snug text-muted-foreground">
+                  {stat.label}
+                </div>
               </div>
             ))}
           </div>
         </section>
+
 
         <section className="border-b">
           <div className="container mx-auto px-4 py-16 md:py-24">
@@ -217,28 +244,41 @@ function PromoHome() {
             </div>
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {audiences.map((audience) => (
-                <Card key={audience.title} className="border-border/60">
-                  <CardContent className="p-7">
-                    <div className="mb-5 grid h-11 w-11 place-items-center rounded-xl bg-accent/10">
-                      <audience.icon className="h-5 w-5 text-accent" aria-hidden="true" />
+                <article
+                  key={audience.title}
+                  className="prestige-card group relative overflow-hidden p-7"
+                >
+                  <div
+                    className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-accent/10 blur-2xl transition-opacity duration-500 group-hover:opacity-100 opacity-0"
+                    aria-hidden
+                  />
+                  <div className="relative mb-5 flex items-center justify-between gap-4">
+                    <div className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-accent/10 gold-hairline transition-transform duration-500 group-hover:-translate-y-0.5">
+                      <IsoIcon name={isoFor[audience.title]} size={40} alt="" />
                     </div>
-                    <h3 className="text-xl font-semibold">{audience.title}</h3>
-                    <p className="mt-2 text-sm text-muted-foreground">{audience.body}</p>
-                    <ul className="mt-5 space-y-2 text-sm">
-                      {audience.points.map((point) => (
-                        <li key={point} className="flex gap-2">
-                          <ArrowRight
-                            className="mt-1 h-3.5 w-3.5 shrink-0 text-accent"
-                            aria-hidden="true"
-                          />
-                          <span className="text-muted-foreground">{point}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
+                    <span className="grid h-9 w-9 place-items-center rounded-full border border-border/70 text-accent/70 transition-colors group-hover:border-accent/40 group-hover:text-accent">
+                      <audience.icon className="h-4 w-4" aria-hidden="true" />
+                    </span>
+                  </div>
+
+                  <h3 className="relative text-xl font-semibold">{audience.title}</h3>
+                  <p className="relative mt-2 text-sm text-muted-foreground">{audience.body}</p>
+                  <div className="divider-gold my-5" />
+                  <ul className="relative space-y-2.5 text-sm">
+                    {audience.points.map((point) => (
+                      <li key={point} className="flex gap-2.5">
+                        <Check
+                          className="mt-0.5 h-4 w-4 shrink-0 text-accent"
+                          aria-hidden="true"
+                        />
+                        <span className="text-muted-foreground">{point}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </article>
               ))}
             </div>
+
           </div>
         </section>
 
@@ -252,15 +292,21 @@ function PromoHome() {
                 Everything already built into the platform.
               </h2>
             </div>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
               {platform.map((item) => (
-                <div key={item.title} className="rounded-2xl border bg-card p-6">
-                  <item.icon className="h-5 w-5 text-accent" aria-hidden="true" />
+                <div
+                  key={item.title}
+                  className="group rounded-2xl border bg-card p-6 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-prestige"
+                >
+                  <div className="grid h-10 w-10 place-items-center rounded-xl bg-accent/10 text-accent transition-colors group-hover:bg-accent/20">
+                    <item.icon className="h-5 w-5" aria-hidden="true" />
+                  </div>
                   <h3 className="mt-4 font-semibold">{item.title}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.body}</p>
                 </div>
               ))}
             </div>
+
           </div>
         </section>
 
