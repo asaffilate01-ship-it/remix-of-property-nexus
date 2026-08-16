@@ -25,7 +25,28 @@ const errorMiddleware = createMiddleware().server(async ({ next }) => {
   }
 });
 
+// Promo gate: the marketing homepage stays public, everything else needs the
+// shared preview password until the launch period ends.
+const promoGateMiddleware = createMiddleware().server(async ({ next, request }) => {
+  const accepts = request.headers.get("accept") ?? "";
+  if (request.method !== "GET" || !accepts.includes("text/html")) return next();
+
+  const url = new URL(request.url);
+  const { isOpenPath, getGateSession } = await import("./lib/gate.server");
+  if (isOpenPath(url.pathname)) return next();
+
+  try {
+    const session = await getGateSession();
+    if (session.data.unlocked) return next();
+  } catch {
+    // Session cookie unreadable (rotated secret) — fall through to the gate.
+  }
+
+  const target = `/unlock?next=${encodeURIComponent(url.pathname + url.search)}`;
+  return new Response(null, { status: 302, headers: { location: target } });
+});
+
 export const startInstance = createStart(() => ({
   functionMiddleware: [attachSupabaseAuth],
-  requestMiddleware: [errorMiddleware],
+  requestMiddleware: [errorMiddleware, promoGateMiddleware],
 }));

@@ -22,6 +22,7 @@ import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as ForAgentsRouteImport } from './routes/for-agents'
 import { Route as ForLandlordsRouteImport } from './routes/for-landlords'
+import { Route as HomeRouteImport } from './routes/home'
 import { Route as MarketplaceRouteImport } from './routes/marketplace'
 import { Route as MortgageRouteImport } from './routes/mortgage'
 import { Route as PlatformRouteImport } from './routes/platform'
@@ -32,6 +33,7 @@ import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as SavedSearchesRouteImport } from './routes/saved-searches'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as UnlockRouteImport } from './routes/unlock'
 import { Route as ValuationRouteImport } from './routes/valuation'
 import { Route as AuthenticatedAgencyRouteImport } from './routes/_authenticated/agency'
 import { Route as AuthenticatedAiCopyRouteImport } from './routes/_authenticated/ai-copy'
@@ -176,6 +178,11 @@ const ForLandlordsRoute = ForLandlordsRouteImport.update({
   path: '/for-landlords',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HomeRoute = HomeRouteImport.update({
+  id: '/home',
+  path: '/home',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MarketplaceRoute = MarketplaceRouteImport.update({
   id: '/marketplace',
   path: '/marketplace',
@@ -224,6 +231,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UnlockRoute = UnlockRouteImport.update({
+  id: '/unlock',
+  path: '/unlock',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ValuationRoute = ValuationRouteImport.update({
@@ -657,6 +669,7 @@ export interface FileRoutesByFullPath {
   '/cookies': typeof CookiesRoute
   '/for-agents': typeof ForAgentsRoute
   '/for-landlords': typeof ForLandlordsRoute
+  '/home': typeof HomeRoute
   '/marketplace': typeof MarketplaceRouteWithChildren
   '/mortgage': typeof MortgageRoute
   '/platform': typeof PlatformRoute
@@ -667,6 +680,7 @@ export interface FileRoutesByFullPath {
   '/saved-searches': typeof SavedSearchesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/unlock': typeof UnlockRoute
   '/valuation': typeof ValuationRoute
   '/agency': typeof AuthenticatedAgencyRoute
   '/ai-copy': typeof AuthenticatedAiCopyRoute
@@ -759,6 +773,7 @@ export interface FileRoutesByTo {
   '/cookies': typeof CookiesRoute
   '/for-agents': typeof ForAgentsRoute
   '/for-landlords': typeof ForLandlordsRoute
+  '/home': typeof HomeRoute
   '/mortgage': typeof MortgageRoute
   '/platform': typeof PlatformRoute
   '/pricing': typeof PricingRoute
@@ -768,6 +783,7 @@ export interface FileRoutesByTo {
   '/saved-searches': typeof SavedSearchesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/unlock': typeof UnlockRoute
   '/valuation': typeof ValuationRoute
   '/agency': typeof AuthenticatedAgencyRoute
   '/ai-copy': typeof AuthenticatedAiCopyRoute
@@ -862,6 +878,7 @@ export interface FileRoutesById {
   '/cookies': typeof CookiesRoute
   '/for-agents': typeof ForAgentsRoute
   '/for-landlords': typeof ForLandlordsRoute
+  '/home': typeof HomeRoute
   '/marketplace': typeof MarketplaceRouteWithChildren
   '/mortgage': typeof MortgageRoute
   '/platform': typeof PlatformRoute
@@ -872,6 +889,7 @@ export interface FileRoutesById {
   '/saved-searches': typeof SavedSearchesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/unlock': typeof UnlockRoute
   '/valuation': typeof ValuationRoute
   '/_authenticated/agency': typeof AuthenticatedAgencyRoute
   '/_authenticated/ai-copy': typeof AuthenticatedAiCopyRoute
@@ -967,6 +985,7 @@ export interface FileRouteTypes {
     | '/cookies'
     | '/for-agents'
     | '/for-landlords'
+    | '/home'
     | '/marketplace'
     | '/mortgage'
     | '/platform'
@@ -977,6 +996,7 @@ export interface FileRouteTypes {
     | '/saved-searches'
     | '/sitemap.xml'
     | '/terms'
+    | '/unlock'
     | '/valuation'
     | '/agency'
     | '/ai-copy'
@@ -1069,6 +1089,7 @@ export interface FileRouteTypes {
     | '/cookies'
     | '/for-agents'
     | '/for-landlords'
+    | '/home'
     | '/mortgage'
     | '/platform'
     | '/pricing'
@@ -1078,6 +1099,7 @@ export interface FileRouteTypes {
     | '/saved-searches'
     | '/sitemap.xml'
     | '/terms'
+    | '/unlock'
     | '/valuation'
     | '/agency'
     | '/ai-copy'
@@ -1171,6 +1193,7 @@ export interface FileRouteTypes {
     | '/cookies'
     | '/for-agents'
     | '/for-landlords'
+    | '/home'
     | '/marketplace'
     | '/mortgage'
     | '/platform'
@@ -1181,6 +1204,7 @@ export interface FileRouteTypes {
     | '/saved-searches'
     | '/sitemap.xml'
     | '/terms'
+    | '/unlock'
     | '/valuation'
     | '/_authenticated/agency'
     | '/_authenticated/ai-copy'
@@ -1276,6 +1300,7 @@ export interface RootRouteChildren {
   CookiesRoute: typeof CookiesRoute
   ForAgentsRoute: typeof ForAgentsRoute
   ForLandlordsRoute: typeof ForLandlordsRoute
+  HomeRoute: typeof HomeRoute
   MarketplaceRoute: typeof MarketplaceRouteWithChildren
   MortgageRoute: typeof MortgageRoute
   PlatformRoute: typeof PlatformRoute
@@ -1286,6 +1311,7 @@ export interface RootRouteChildren {
   SavedSearchesRoute: typeof SavedSearchesRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
+  UnlockRoute: typeof UnlockRoute
   ValuationRoute: typeof ValuationRoute
   BlogSlugRoute: typeof BlogSlugRoute
   ModulesSlugRoute: typeof ModulesSlugRoute
@@ -1400,6 +1426,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ForLandlordsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/home': {
+      id: '/home'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof HomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/marketplace': {
       id: '/marketplace'
       path: '/marketplace'
@@ -1468,6 +1501,13 @@ declare module '@tanstack/react-router' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/unlock': {
+      id: '/unlock'
+      path: '/unlock'
+      fullPath: '/unlock'
+      preLoaderRoute: typeof UnlockRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/valuation': {
@@ -2245,6 +2285,7 @@ const rootRouteChildren: RootRouteChildren = {
   CookiesRoute: CookiesRoute,
   ForAgentsRoute: ForAgentsRoute,
   ForLandlordsRoute: ForLandlordsRoute,
+  HomeRoute: HomeRoute,
   MarketplaceRoute: MarketplaceRouteWithChildren,
   MortgageRoute: MortgageRoute,
   PlatformRoute: PlatformRoute,
@@ -2255,6 +2296,7 @@ const rootRouteChildren: RootRouteChildren = {
   SavedSearchesRoute: SavedSearchesRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
+  UnlockRoute: UnlockRoute,
   ValuationRoute: ValuationRoute,
   BlogSlugRoute: BlogSlugRoute,
   ModulesSlugRoute: ModulesSlugRoute,
