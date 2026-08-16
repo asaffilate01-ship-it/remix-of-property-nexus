@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Download, X, WifiOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { isNativeApp } from "@/lib/native";
+
 
 type BeforeInstallPromptEvent = Event & {
   prompt: () => Promise<void>;
@@ -49,7 +51,9 @@ export function InstallPrompt() {
     );
   }
 
-  if (!deferred) return null;
+  // Already running inside the native iOS/Android shell — nothing to install.
+  if (!deferred || isNativeApp()) return null;
+
 
   return (
     <div

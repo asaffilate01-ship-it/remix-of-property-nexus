@@ -17,6 +17,8 @@ import { InstallPrompt } from "@/components/InstallPrompt";
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { registerServiceWorker } from "@/lib/register-sw";
+import { initNativeShell } from "@/lib/native";
+
 import { SITE_URL } from "@/lib/site-url";
 
 function NotFoundComponent() {
@@ -156,6 +158,11 @@ function RootComponent() {
   useEffect(() => {
     registerServiceWorker();
   }, []);
+
+  // Native (iOS/Android) shell: status bar, splash screen, Android back button.
+  // No-op in the browser and PWA.
+  useEffect(() => initNativeShell(() => router.history.back()), [router]);
+
 
   useEffect(() => {
     const { data } = supabase.auth.onAuthStateChange((event, session) => {
