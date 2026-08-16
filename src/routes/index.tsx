@@ -114,6 +114,16 @@ const audiences = [
   },
 ];
 
+const isoFor: Record<string, IsoIconName> = {
+  "Estate & letting agents": "agent",
+  "Landlords & property owners": "house",
+  "Renters & tenants": "key",
+  "Buyers & sellers": "chart",
+  "Contractors & third parties": "wrench",
+};
+
+
+
 const platform = [
   { icon: ShieldCheck, title: "Security & permissions", body: "Row-level security, agency scoping, nine roles, MFA for admin actions and a UK GDPR privacy centre." },
   { icon: Banknote, title: "Payments & accounting", body: "Card rent collection, subscription billing, bank reconciliation, statements and arrears workflows." },
@@ -197,15 +207,20 @@ function PromoHome() {
         </section>
 
         <section className="border-b bg-muted/30">
-          <div className="container mx-auto grid gap-6 px-4 py-12 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="container mx-auto grid gap-px overflow-hidden px-4 py-12 sm:grid-cols-2 lg:grid-cols-4">
             {stats.map((stat) => (
-              <div key={stat.label}>
-                <div className="font-display text-3xl font-bold">{stat.value}</div>
-                <div className="mt-1 text-sm text-muted-foreground">{stat.label}</div>
+              <div key={stat.label} className="px-1 sm:border-l sm:first:border-l-0 sm:pl-6">
+                <div className="font-display text-4xl font-bold tabular gold-text">
+                  {stat.value}
+                </div>
+                <div className="mt-1.5 text-sm leading-snug text-muted-foreground">
+                  {stat.label}
+                </div>
               </div>
             ))}
           </div>
         </section>
+
 
         <section className="border-b">
           <div className="container mx-auto px-4 py-16 md:py-24">
@@ -219,28 +234,41 @@ function PromoHome() {
             </div>
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {audiences.map((audience) => (
-                <Card key={audience.title} className="border-border/60">
-                  <CardContent className="p-7">
-                    <div className="mb-5 grid h-11 w-11 place-items-center rounded-xl bg-accent/10">
-                      <audience.icon className="h-5 w-5 text-accent" aria-hidden="true" />
+                <article
+                  key={audience.title}
+                  className="prestige-card group relative overflow-hidden p-7"
+                >
+                  <div
+                    className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-accent/10 blur-2xl transition-opacity duration-500 group-hover:opacity-100 opacity-0"
+                    aria-hidden
+                  />
+                  <div className="relative mb-5 flex items-center gap-4">
+                    <div className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-accent/10 gold-hairline transition-transform duration-500 group-hover:-translate-y-0.5">
+                      <IsoIcon name={isoFor[audience.title]} size={40} alt="" />
                     </div>
-                    <h3 className="text-xl font-semibold">{audience.title}</h3>
-                    <p className="mt-2 text-sm text-muted-foreground">{audience.body}</p>
-                    <ul className="mt-5 space-y-2 text-sm">
-                      {audience.points.map((point) => (
-                        <li key={point} className="flex gap-2">
-                          <ArrowRight
-                            className="mt-1 h-3.5 w-3.5 shrink-0 text-accent"
-                            aria-hidden="true"
-                          />
-                          <span className="text-muted-foreground">{point}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
+                    <audience.icon
+                      className="h-5 w-5 text-accent/70 transition-colors group-hover:text-accent"
+                      aria-hidden="true"
+                    />
+                  </div>
+                  <h3 className="relative text-xl font-semibold">{audience.title}</h3>
+                  <p className="relative mt-2 text-sm text-muted-foreground">{audience.body}</p>
+                  <div className="divider-gold my-5" />
+                  <ul className="relative space-y-2.5 text-sm">
+                    {audience.points.map((point) => (
+                      <li key={point} className="flex gap-2.5">
+                        <Check
+                          className="mt-0.5 h-4 w-4 shrink-0 text-accent"
+                          aria-hidden="true"
+                        />
+                        <span className="text-muted-foreground">{point}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </article>
               ))}
             </div>
+
           </div>
         </section>
 
