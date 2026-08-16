@@ -49,7 +49,9 @@ export function InstallPrompt() {
     );
   }
 
-  if (!deferred) return null;
+  // Already running inside the native iOS/Android shell — nothing to install.
+  if (!deferred || isNativeApp()) return null;
+
 
   return (
     <div
