@@ -12,9 +12,9 @@ import { siteUrl } from "@/lib/site-url";
 export const Route = createFileRoute("/mortgage")({
   head: () => ({
     meta: [
-      { title: "Mortgage calculator — Estately" },
+      { title: "Mortgage calculator — Gabley" },
       { name: "description", content: "Calculate your monthly mortgage repayments, stamp duty and affordability for any UK property." },
-      { property: "og:title", content: "Mortgage calculator — Estately" },
+      { property: "og:title", content: "Mortgage calculator — Gabley" },
       { property: "og:description", content: "Monthly repayments, stamp duty and affordability — instantly." },
     ],
     links: [{ rel: "canonical", href: siteUrl("/mortgage") }],

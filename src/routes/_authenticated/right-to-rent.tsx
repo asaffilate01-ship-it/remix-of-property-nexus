@@ -8,7 +8,7 @@ import { UserCheck, Plus } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 
 export const Route = createFileRoute("/_authenticated/right-to-rent")({
-  head: () => ({ meta: [{ title: "Right to Rent — Estately" }] }),
+  head: () => ({ meta: [{ title: "Right to Rent — Gabley" }] }),
   component: RtrPage,
 });
 

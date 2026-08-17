@@ -8,7 +8,7 @@ import { Clock } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 
 export const Route = createFileRoute("/_authenticated/automations/runs")({
-  head: () => ({ meta: [{ title: "Automation runs — Estately" }] }),
+  head: () => ({ meta: [{ title: "Automation runs — Gabley" }] }),
   component: RunsPage,
 });
 

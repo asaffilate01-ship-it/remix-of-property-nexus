@@ -15,11 +15,11 @@ describe("transactional email rendering", () => {
         document_title: "Tenancy <script>alert(1)</script>",
         signing_path: "/sign/safe-token",
       },
-    }, "https://app.estately.example");
+    }, "https://app.gabley.example");
 
     assert.match(email.html, /&lt;img/);
     assert.doesNotMatch(email.html, /<script>/);
-    assert.match(email.html, /https:\/\/app\.estately\.example\/sign\/safe-token/);
+    assert.match(email.html, /https:\/\/app\.gabley\.example\/sign\/safe-token/);
   });
 
   test("does not allow an outbox value to create an external action link", () => {
@@ -30,9 +30,9 @@ describe("transactional email rendering", () => {
       html: null,
       template_name: "signature-request",
       template_data: { signing_path: "https://evil.example/phish" },
-    }, "https://app.estately.example");
+    }, "https://app.gabley.example");
     assert.doesNotMatch(email.html, /evil\.example/);
-    assert.match(email.html, /https:\/\/app\.estately\.example\//);
+    assert.match(email.html, /https:\/\/app\.gabley\.example\//);
   });
 
   test("escapes generic automation content instead of trusting stored HTML", () => {
@@ -43,7 +43,7 @@ describe("transactional email rendering", () => {
       html: "<script>alert(1)</script><b>Hello</b>",
       template_name: "generic-notification",
       template_data: {},
-    }, "https://app.estately.example");
+    }, "https://app.gabley.example");
     assert.doesNotMatch(email.html, /<script>/);
     assert.match(email.text, /Hello/);
     assert.equal(escapeHtml("<>&\"'"), "&lt;&gt;&amp;&quot;&#39;");

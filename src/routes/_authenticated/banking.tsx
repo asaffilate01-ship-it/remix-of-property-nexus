@@ -17,7 +17,7 @@ import {
 } from "@/lib/banking.functions";
 
 export const Route = createFileRoute("/_authenticated/banking")({
-  head: () => ({ meta: [{ title: "Bank reconciliation — Estately" }] }),
+  head: () => ({ meta: [{ title: "Bank reconciliation — Gabley" }] }),
   component: BankingPage,
 });
 

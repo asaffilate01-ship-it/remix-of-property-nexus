@@ -71,9 +71,9 @@ function layout(title: string, content: string, preheader: string): string {
 <div style="display:none;max-height:0;overflow:hidden;opacity:0">${escapeHtml(preheader)}</div>
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f8fafc;padding:28px 12px"><tr><td align="center">
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:600px;background:#fff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden">
-<tr><td style="padding:22px 28px;background:#0f172a;color:#fff;font-size:21px;font-weight:700">Estately</td></tr>
+<tr><td style="padding:22px 28px;background:#0f172a;color:#fff;font-size:21px;font-weight:700">Gabley</td></tr>
 <tr><td style="padding:30px 28px"><h1 style="margin:0 0 18px;font-size:24px;line-height:1.25">${escapeHtml(title)}</h1>${content}</td></tr>
-<tr><td style="padding:18px 28px;border-top:1px solid #e2e8f0;color:#64748b;font-size:12px;line-height:1.5">This is a service email from Estately. If you were not expecting it, you can safely ignore it.</td></tr>
+<tr><td style="padding:18px 28px;border-top:1px solid #e2e8f0;color:#64748b;font-size:12px;line-height:1.5">This is a service email from Gabley. If you were not expecting it, you can safely ignore it.</td></tr>
 </table></td></tr></table></body></html>`;
 }
 
@@ -136,7 +136,7 @@ function expiryReminder(data: UnknownRecord): RenderedEmail {
 }
 
 function genericNotification(email: OutboxEmail, data: UnknownRecord): RenderedEmail {
-  const subject = stringValue(email.subject, "Notification from Estately").slice(0, 200);
+  const subject = stringValue(email.subject, "Notification from Gabley").slice(0, 200);
   const body = stringValue(data.body, stripMarkup(email.html) || "You have a new notification.").slice(0, 10_000);
   const content = `<p style="white-space:pre-wrap;line-height:1.65">${escapeHtml(body)}</p>`;
   return { subject, html: layout(subject, content, subject), text: body };

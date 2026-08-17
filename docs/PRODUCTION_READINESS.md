@@ -1,4 +1,4 @@
-# Estately production-readiness record
+# Gabley production-readiness record
 
 Updated: 15 August 2026
 

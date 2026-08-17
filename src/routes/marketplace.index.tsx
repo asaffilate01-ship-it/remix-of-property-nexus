@@ -108,13 +108,13 @@ export const Route = createFileRoute("/marketplace/")({
   validateSearch: search,
   head: () => ({
     meta: [
-      { title: "Property Marketplace — Sales, Lettings, HMO & Commercial | Estately" },
+      { title: "Property Marketplace — Sales, Lettings, HMO & Commercial | Gabley" },
       {
         name: "description",
         content:
           "The smarter UK property marketplace. Browse verified sales, lettings, HMO rooms and commercial property direct from trusted agents and landlords.",
       },
-      { property: "og:title", content: "Estately — Property Marketplace" },
+      { property: "og:title", content: "Gabley — Property Marketplace" },
       {
         property: "og:description",
         content:
@@ -242,9 +242,9 @@ function MarketplacePage() {
       /* fall through to local */
     }
     try {
-      const saved = JSON.parse(localStorage.getItem("estately:saved-searches") ?? "[]");
+      const saved = JSON.parse(localStorage.getItem("gabley:saved-searches") ?? "[]");
       saved.unshift({ when: new Date().toISOString(), search: s, q, where });
-      localStorage.setItem("estately:saved-searches", JSON.stringify(saved.slice(0, 20)));
+      localStorage.setItem("gabley:saved-searches", JSON.stringify(saved.slice(0, 20)));
       toast.success("Search saved on this device — sign in to sync");
     } catch {
       toast.error("Could not save");

@@ -7,7 +7,7 @@ const URL = siteUrl("/property-for-sale");
 
 export const Route = createFileRoute("/property-for-sale/")({
   head: () => {
-    const title = "Property for sale in the UK — Estately";
+    const title = "Property for sale in the UK — Gabley";
     const desc = `Browse houses, flats and land for sale across ${LOCATIONS.length} UK towns and cities, listed by verified estate agents.`;
     return {
       meta: [

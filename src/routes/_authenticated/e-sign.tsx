@@ -16,7 +16,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { listSigningRequests, sendForSignature } from "@/lib/contracts.functions";
 
 export const Route = createFileRoute("/_authenticated/e-sign")({
-  head: () => ({ meta: [{ title: "E-signatures — Estately" }] }),
+  head: () => ({ meta: [{ title: "E-signatures — Gabley" }] }),
   component: ESignPage,
 });
 

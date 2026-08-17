@@ -19,7 +19,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { deleteBranch, listBranches, saveBranch } from "@/lib/branches.functions";
 
 export const Route = createFileRoute("/_authenticated/branches")({
-  head: () => ({ meta: [{ title: "Branches — Estately" }] }),
+  head: () => ({ meta: [{ title: "Branches — Gabley" }] }),
   component: BranchesPage,
 });
 

@@ -5,7 +5,7 @@ import { Smartphone, Camera, ClipboardList, Wrench } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 
 export const Route = createFileRoute("/_authenticated/mobile-inspection")({
-  head: () => ({ meta: [{ title: "On-site inspection — Estately" }] }),
+  head: () => ({ meta: [{ title: "On-site inspection — Gabley" }] }),
   component: MobileInspectionPage,
 });
 

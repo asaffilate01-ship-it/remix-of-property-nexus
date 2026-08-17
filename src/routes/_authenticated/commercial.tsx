@@ -7,7 +7,7 @@ import { Briefcase } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 
 export const Route = createFileRoute("/_authenticated/commercial")({
-  head: () => ({ meta: [{ title: "Commercial — Estately" }] }),
+  head: () => ({ meta: [{ title: "Commercial — Gabley" }] }),
   component: CommercialPage,
 });
 

@@ -17,11 +17,11 @@ export const Route = createFileRoute("/blog/$slug")({
   },
   head: ({ params, loaderData }) => {
     const p = loaderData;
-    if (!p) return { meta: [{ title: "Article not found — Estately" }] };
+    if (!p) return { meta: [{ title: "Article not found — Gabley" }] };
     const url = `${SITE}/blog/${params.slug}`;
     return {
       meta: [
-        { title: `${p.title} — Estately` },
+        { title: `${p.title} — Gabley` },
         { name: "description", content: p.excerpt },
         { property: "og:title", content: p.title },
         { property: "og:description", content: p.excerpt },

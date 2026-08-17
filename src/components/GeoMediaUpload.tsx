@@ -47,7 +47,7 @@ async function watermarkImage(file: File, info: { lat?: number; lng?: number; wh
       const geo = info.lat != null && info.lng != null
         ? `${info.lat.toFixed(5)}, ${info.lng.toFixed(5)}`
         : "Location unavailable";
-      ctx.fillText(`Estately • ${when}`, pad, canvas.height - barH + pad);
+      ctx.fillText(`Gabley • ${when}`, pad, canvas.height - barH + pad);
       ctx.font = `400 ${Math.round(fs * 0.85)}px system-ui, -apple-system, Segoe UI, sans-serif`;
       ctx.fillStyle = "rgba(255,255,255,0.9)";
       ctx.fillText(geo, pad, canvas.height - barH + pad + fs + 4);

@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Building2, Users, PoundSterling, ShieldAlert } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/portal/landlord")({
-  head: () => ({ meta: [{ title: "Landlord portal — Estately" }] }),
+  head: () => ({ meta: [{ title: "Landlord portal — Gabley" }] }),
   component: LandlordPortal,
 });
 

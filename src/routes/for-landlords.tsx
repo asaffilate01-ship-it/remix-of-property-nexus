@@ -8,9 +8,9 @@ import heroLandlords from "@/assets/hero-landlords.jpg";
 export const Route = createFileRoute("/for-landlords")({
   head: () => ({
     meta: [
-      { title: "For Landlords — Estately" },
+      { title: "For Landlords — Gabley" },
       { name: "description", content: "Compliance, tenancy and income management for portfolio landlords. Sales, lettings, HMO and commercial — one workspace." },
-      { property: "og:title", content: "Estately for Landlords" },
+      { property: "og:title", content: "Gabley for Landlords" },
       { property: "og:image", content: heroLandlords },
     ],
   }),

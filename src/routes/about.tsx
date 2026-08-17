@@ -10,9 +10,9 @@ import { siteUrl } from "@/lib/site-url";
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
-      { title: "About — Estately" },
+      { title: "About — Gabley" },
       { name: "description", content: "We're rebuilding the property stack — from the marketplace down to the back office — for the next generation of UK agencies and landlords." },
-      { property: "og:title", content: "About Estately" },
+      { property: "og:title", content: "About Gabley" },
       { property: "og:description", content: "Rebuilding the UK property stack, end-to-end." },
       { property: "og:url", content: siteUrl("/about") },
     ],
@@ -41,12 +41,12 @@ function AboutPage() {
         <section className="relative overflow-hidden border-b">
           <div className="absolute inset-0 opacity-[0.05] bg-cover bg-center" style={{ backgroundImage: `url(${heroPattern})` }} aria-hidden />
           <div className="container mx-auto px-4 py-20 md:py-28 max-w-3xl relative">
-            <div className="text-xs font-semibold tracking-widest text-accent uppercase mb-4">About Estately</div>
+            <div className="text-xs font-semibold tracking-widest text-accent uppercase mb-4">About Gabley</div>
             <h1 className="text-4xl md:text-5xl font-bold mb-6 tracking-tight leading-tight">
               The UK property stack should be one workspace, not twelve subscriptions.
             </h1>
             <p className="text-lg text-muted-foreground leading-relaxed">
-              We started Estately because every agency we knew was juggling a CRM, a portal, a referencing tool, a compliance tracker, a tenant app and a spreadsheet. Different vendors, different logins, different data. The cost was real — and so was the friction. So we rebuilt the stack as one product.
+              We started Gabley because every agency we knew was juggling a CRM, a portal, a referencing tool, a compliance tracker, a tenant app and a spreadsheet. Different vendors, different logins, different data. The cost was real — and so was the friction. So we rebuilt the stack as one product.
             </p>
           </div>
         </section>

@@ -19,8 +19,8 @@ export default defineConfig({
       devOptions: { enabled: false },
       includeAssets: ["favicon.png", "apple-touch-icon.png"],
       manifest: {
-        name: "Estately — Property OS",
-        short_name: "Estately",
+        name: "Gabley — Property OS",
+        short_name: "Gabley",
         description: "Sales, lettings, HMO and commercial in one premium workspace.",
         theme_color: "#0f172a",
         background_color: "#0f172a",

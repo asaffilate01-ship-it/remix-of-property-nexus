@@ -23,7 +23,7 @@ const lifecycleQueryOptions = (id: string) =>
   });
 
 export const Route = createFileRoute("/_authenticated/tenancies/$id")({
-  head: () => ({ meta: [{ title: "Tenancy lifecycle — Estately" }] }),
+  head: () => ({ meta: [{ title: "Tenancy lifecycle — Gabley" }] }),
   loader: ({ context, params }) =>
     context.queryClient.ensureQueryData(lifecycleQueryOptions(params.id)),
   component: TenancyDetail,

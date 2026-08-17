@@ -95,8 +95,8 @@ export const Route = createFileRoute("/agencies/$slug")({
   head: ({ params, loaderData }) => {
     const a = (loaderData as { agency?: { name?: string; description?: string; logo_url?: string; cover_image?: string; city?: string } } | undefined)?.agency;
     const url = siteUrl(`/agencies/${params.slug}`);
-    const title = a?.name ? `${a.name}${a.city ? ` — ${a.city}` : ""} | Estately` : "Agency — Estately";
-    const desc = a?.description?.slice(0, 155) ?? `Browse properties from ${a?.name ?? "this agency"} on Estately.`;
+    const title = a?.name ? `${a.name}${a.city ? ` — ${a.city}` : ""} | Gabley` : "Agency — Gabley";
+    const desc = a?.description?.slice(0, 155) ?? `Browse properties from ${a?.name ?? "this agency"} on Gabley.`;
     const img = a?.cover_image || a?.logo_url;
     return {
       meta: [
@@ -189,7 +189,7 @@ function AgencyPage() {
           <Card className="border-0 shadow-card">
             <CardContent className="p-5">
               <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3">Get in touch</div>
-              <PhoneReveal phone={a.phone} email={a.email} whatsapp={a.phone} agencyName={a.name} context={`Enquiry via ${a.name}'s Estately page.`} />
+              <PhoneReveal phone={a.phone} email={a.email} whatsapp={a.phone} agencyName={a.name} context={`Enquiry via ${a.name}'s Gabley page.`} />
             </CardContent>
           </Card>
           <Card className="border-0 shadow-card">

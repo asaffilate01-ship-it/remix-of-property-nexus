@@ -1,6 +1,6 @@
 # Native apps (iOS & Android)
 
-Estately ships a Capacitor native shell alongside the web app and PWA. The shell
+Gabley ships a Capacitor native shell alongside the web app and PWA. The shell
 loads the deployed site, so native builds always run the latest release without
 resubmitting to the stores for content changes.
 
@@ -8,7 +8,7 @@ resubmitting to the stores for content changes.
 
 `capacitor.config.ts`
 
-- `appId`: `app.lovable.estately` — change to your own reverse-domain bundle ID
+- `appId`: `app.lovable.gabley` — change to your own reverse-domain bundle ID
   before submitting to the stores.
 - `server.url`: defaults to the production URL, overridable with
   `CAPACITOR_SERVER_URL` (use your local IP + port for on-device dev).

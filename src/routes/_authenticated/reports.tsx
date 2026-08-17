@@ -8,7 +8,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/reports")({
-  head: () => ({ meta: [{ title: "Reports — Estately" }] }),
+  head: () => ({ meta: [{ title: "Reports — Gabley" }] }),
   component: ReportsPage,
 });
 

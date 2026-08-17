@@ -30,7 +30,7 @@ export function BuyerDashboard({ name }: { name: string }) {
           <Sparkles className="h-3 w-3 text-accent" /> Buyer portal
         </div>
         <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">Hi{name ? `, ${name.split(" ")[0]}` : ""}.</h1>
-        <p className="text-muted-foreground mt-1">Find your next home on Estately.</p>
+        <p className="text-muted-foreground mt-1">Find your next home on Gabley.</p>
         <div className="mt-4">
           <Button asChild className="shadow-lg shadow-primary/20"><Link to="/marketplace"><Search className="mr-2 h-4 w-4" /> Browse properties</Link></Button>
         </div>

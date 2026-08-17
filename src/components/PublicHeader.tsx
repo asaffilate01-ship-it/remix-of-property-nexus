@@ -39,7 +39,7 @@ const groups: Group[] = [
   {
     label: "Company",
     items: [
-      { to: "/about", label: "About Estately", desc: "Our story and team", icon: Info },
+      { to: "/about", label: "About Gabley", desc: "Our story and team", icon: Info },
       { to: "/contact", label: "Contact us", desc: "Talk to sales or support", icon: Mail },
     ],
   },
@@ -84,7 +84,7 @@ export function PublicHeader() {
           <span className="brand-gradient inline-flex h-9 w-9 items-center justify-center rounded-lg text-white shadow-sm">
             <Building2 className="h-4 w-4" />
           </span>
-          <span className="tracking-tight">Estately</span>
+          <span className="tracking-tight">Gabley</span>
         </Link>
 
         <nav className="hidden lg:flex items-center gap-1">

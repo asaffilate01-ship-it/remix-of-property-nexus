@@ -84,14 +84,14 @@ export function AppSidebar() {
         <Link
           to="/"
           className="flex items-center gap-2 rounded-md px-2 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring"
-          aria-label="Estately home"
+          aria-label="Gabley home"
           onClick={closeMobileMenu}
         >
           <span className="brand-gradient inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-white">
             <Building2 className="h-4 w-4" aria-hidden="true" />
           </span>
           {!collapsed && (
-            <span className="font-bold tracking-tight text-sidebar-foreground">Estately</span>
+            <span className="font-bold tracking-tight text-sidebar-foreground">Gabley</span>
           )}
         </Link>
         {!collapsed &&

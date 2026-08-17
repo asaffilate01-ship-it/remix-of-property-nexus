@@ -17,9 +17,9 @@ import { siteUrl } from "@/lib/site-url";
 export const Route = createFileRoute("/business")({
   head: () => ({
     meta: [
-      { title: "Estately for agencies — the property OS for UK estate agents" },
+      { title: "Gabley for agencies — the property OS for UK estate agents" },
       { name: "description", content: "One platform for sales, lettings, HMO, compliance and role-specific portals. 30 days free, then from £29.99/mo per branch." },
-      { property: "og:title", content: "Estately for agencies — the property OS" },
+      { property: "og:title", content: "Gabley for agencies — the property OS" },
       { property: "og:description", content: "CRM + portal + compliance in one place. 30 days free, then from £29.99/mo per branch." },
       { property: "og:url", content: siteUrl("/business") },
     ],
@@ -112,7 +112,7 @@ function BusinessPage() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {[
               { icon: <Building2 className="h-5 w-5" />, t: "Sales & lettings CRM", d: "Leads, viewings, offers, deals — branch and team friendly." },
-              { icon: <Globe className="h-5 w-5" />, t: "Public marketplace", d: "Listings auto-syndicate to the Estately portal — no per-lead fees." },
+              { icon: <Globe className="h-5 w-5" />, t: "Public marketplace", d: "Listings auto-syndicate to the Gabley portal — no per-lead fees." },
               { icon: <ShieldCheck className="h-5 w-5" />, t: "Compliance hub", d: "Gas, EICR, EPC, HMO licences, Renters' Rights readiness." },
               { icon: <Users className="h-5 w-5" />, t: "Owner & tenant portals", d: "Statements, repairs and documents with role-specific views." },
               { icon: <BarChart3 className="h-5 w-5" />, t: "Reports & KPIs", d: "Branch performance, negotiator league, stock turn." },
@@ -211,7 +211,7 @@ function BusinessPage() {
             {[
               { title: "Run operations", body: "Manage listings, leads, viewings, offers, tenancies, compliance and work orders from one workspace." },
               { title: "Keep people informed", body: "Give tenants, landlords, vendors, contractors and conveyancers focused portal views." },
-              { title: "Publish and measure", body: "Publish to the Estately marketplace and track agency and branch performance without per-lead fees." },
+              { title: "Publish and measure", body: "Publish to the Gabley marketplace and track agency and branch performance without per-lead fees." },
             ].map((item) => (
               <Card key={item.title} className="border-0 shadow-card h-full">
                 <CardContent className="p-6">

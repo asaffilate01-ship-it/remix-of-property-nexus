@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { PageHeader } from "@/components/PageHeader";
 
 export const Route = createFileRoute("/_authenticated/automations/")({
-  head: () => ({ meta: [{ title: "Automations — Estately" }] }),
+  head: () => ({ meta: [{ title: "Automations — Gabley" }] }),
   component: AutomationsIndex,
 });
 

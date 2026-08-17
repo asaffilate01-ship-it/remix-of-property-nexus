@@ -40,13 +40,13 @@ import { siteUrl } from "@/lib/site-url";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Estately — One property platform for agents, owners, renters & buyers" },
+      { title: "Gabley — One property platform for agents, owners, renters & buyers" },
       {
         name: "description",
         content:
-          "Estately joins a public property marketplace with agency CRM, compliance, tenancy, payments and portals for landlords, renters, buyers, sellers and contractors. Private preview.",
+          "Gabley joins a public property marketplace with agency CRM, compliance, tenancy, payments and portals for landlords, renters, buyers, sellers and contractors. Private preview.",
       },
-      { property: "og:title", content: "Estately — One property platform for everyone in the deal" },
+      { property: "og:title", content: "Gabley — One property platform for everyone in the deal" },
       {
         property: "og:description",
         content:
@@ -56,7 +56,7 @@ export const Route = createFileRoute("/")({
       { property: "og:type", content: "website" },
       { property: "og:image", content: siteUrl("/apple-touch-icon.png") },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Estately — One property platform for everyone in the deal" },
+      { name: "twitter:title", content: "Gabley — One property platform for everyone in the deal" },
       {
         name: "twitter:description",
         content:
@@ -169,8 +169,8 @@ const stats = [
 
 const faqs = [
   {
-    q: "What is Estately?",
-    a: "Estately is a single property platform combining a public marketplace, agency CRM, compliance hub, tenancy and payment tools, plus portals for landlords, renters, buyers, sellers and contractors.",
+    q: "What is Gabley?",
+    a: "Gabley is a single property platform combining a public marketplace, agency CRM, compliance hub, tenancy and payment tools, plus portals for landlords, renters, buyers, sellers and contractors.",
   },
   {
     q: "Why is the site password protected?",
@@ -181,7 +181,7 @@ const faqs = [
     a: "If you already have the preview password, use the Preview access button. Otherwise request access by email and we will send credentials with a short guided walkthrough.",
   },
   {
-    q: "Which systems does Estately replace?",
+    q: "Which systems does Gabley replace?",
     a: "Agencies typically use it in place of a stack such as Reapit, Alto, Dezrez, Arthur, Goodlord or PayProp — listings, pipeline, tenancies, compliance, statements and payments live in one workspace.",
   },
   {
@@ -198,7 +198,7 @@ const faqs = [
   },
   {
     q: "Can I use it on mobile?",
-    a: "Yes. Estately is an installable PWA with an offline shell and mobile capture, and native iOS and Android shells are ready for store submission.",
+    a: "Yes. Gabley is an installable PWA with an offline shell and mobile capture, and native iOS and Android shells are ready for store submission.",
   },
 ];
 
@@ -290,13 +290,13 @@ function ProductShowcase() {
                 <span className="h-2.5 w-2.5 rounded-full bg-warning/70" aria-hidden />
                 <span className="h-2.5 w-2.5 rounded-full bg-success/60" aria-hidden />
                 <span className="ml-3 truncate rounded-md bg-background/70 px-2.5 py-1 text-[11px] text-muted-foreground">
-                  estately.co.uk — {current.label.toLowerCase()}
+                  gabley.co.uk — {current.label.toLowerCase()}
                 </span>
               </div>
               <img
                 key={current.id}
                 src={current.image}
-                alt={`Estately ${current.label} screen`}
+                alt={`Gabley ${current.label} screen`}
                 width={1600}
                 height={1000}
                 loading="lazy"
@@ -342,7 +342,7 @@ function PromoHome() {
             <span className="grid h-9 w-9 place-items-center rounded-xl bg-accent/12 gold-hairline">
               <Building2 className="h-5 w-5 text-accent" aria-hidden="true" />
             </span>
-            <span className="font-display text-lg font-bold tracking-tight">Estately</span>
+            <span className="font-display text-lg font-bold tracking-tight">Gabley</span>
           </div>
           <Button asChild size="sm" className="btn-prestige">
             <Link to="/unlock">
@@ -370,7 +370,7 @@ function PromoHome() {
                 One property platform for everyone in the deal.
               </h1>
               <p className="mb-7 max-w-xl text-base text-muted-foreground sm:text-lg md:mb-8 md:text-xl">
-                Estately brings the marketplace, agency CRM, compliance, tenancies, payments and
+                Gabley brings the marketplace, agency CRM, compliance, tenancies, payments and
                 every portal — agents, owners, renters, buyers, sellers and contractors — into a
                 single premium workspace.
               </p>
@@ -386,7 +386,7 @@ function PromoHome() {
                 </Button>
 
                 <Button asChild size="lg" variant="outline" className="w-full sm:w-auto">
-                  <a href="mailto:hello@estately.co.uk?subject=Estately%20preview%20access">
+                  <a href="mailto:hello@gabley.co.uk?subject=Gabley%20preview%20access">
                     Request access
                   </a>
                 </Button>
@@ -401,7 +401,7 @@ function PromoHome() {
 
                 <img
                   src={heroHome}
-                  alt="Estately property workspace preview"
+                  alt="Gabley property workspace preview"
                   className="h-full w-full object-cover"
                 />
               </div>
@@ -549,7 +549,7 @@ function PromoHome() {
                   <Link to="/unlock">Enter platform</Link>
                 </Button>
                 <Button asChild size="lg" variant="outline" className="w-full sm:w-auto">
-                  <a href="mailto:hello@estately.co.uk?subject=Estately%20preview%20access">
+                  <a href="mailto:hello@gabley.co.uk?subject=Gabley%20preview%20access">
                     Request access
                   </a>
                 </Button>
@@ -562,7 +562,7 @@ function PromoHome() {
 
       <footer className="border-t">
         <div className="container mx-auto flex flex-wrap items-center justify-between gap-3 px-4 py-8 text-sm text-muted-foreground">
-          <span>&copy; {new Date().getFullYear()} Estately. All rights reserved.</span>
+          <span>&copy; {new Date().getFullYear()} Gabley. All rights reserved.</span>
           <Link to="/unlock" className="font-medium text-accent">
             Preview access
           </Link>

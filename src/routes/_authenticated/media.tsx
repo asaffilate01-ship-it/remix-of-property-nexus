@@ -7,7 +7,7 @@ import { Image as ImageIcon } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 
 export const Route = createFileRoute("/_authenticated/media")({
-  head: () => ({ meta: [{ title: "Floorplans & EPC — Estately" }] }),
+  head: () => ({ meta: [{ title: "Floorplans & EPC — Gabley" }] }),
   component: MediaPage,
 });
 

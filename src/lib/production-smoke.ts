@@ -92,7 +92,7 @@ export async function runProductionSmoke(
         cache: "no-store",
         redirect: "manual",
         signal: AbortSignal.timeout(timeoutMs),
-        headers: { "user-agent": "Estately-Production-Smoke/1.0" },
+        headers: { "user-agent": "Gabley-Production-Smoke/1.0" },
       });
       checkCommonHeaders(response, label, errors);
       return response;

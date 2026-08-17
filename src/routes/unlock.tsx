@@ -10,11 +10,11 @@ import { Card, CardContent } from "@/components/ui/card";
 export const Route = createFileRoute("/unlock")({
   head: () => ({
     meta: [
-      { title: "Private preview access — Estately" },
-      { name: "description", content: "Enter the preview password to access the Estately platform." },
+      { title: "Private preview access — Gabley" },
+      { name: "description", content: "Enter the preview password to access the Gabley platform." },
       { name: "robots", content: "noindex" },
-      { property: "og:title", content: "Private preview access — Estately" },
-      { property: "og:description", content: "Enter the preview password to access the Estately platform." },
+      { property: "og:title", content: "Private preview access — Gabley" },
+      { property: "og:description", content: "Enter the preview password to access the Gabley platform." },
     ],
   }),
   component: UnlockPage,
@@ -54,7 +54,7 @@ function UnlockPage() {
         <CardContent className="p-8">
           <div className="flex items-center gap-2 mb-6">
             <Building2 className="h-6 w-6 text-accent" />
-            <span className="font-display text-lg font-bold tracking-tight">Estately</span>
+            <span className="font-display text-lg font-bold tracking-tight">Gabley</span>
           </div>
           <div className="h-11 w-11 rounded-xl bg-accent/10 grid place-items-center mb-5">
             <Lock className="h-5 w-5 text-accent" aria-hidden="true" />

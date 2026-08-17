@@ -1,4 +1,4 @@
-# Estately operations runbook
+# Gabley operations runbook
 
 ## Deployment order
 
@@ -25,7 +25,7 @@ form, creates data or prints a credential.
 Run it locally or through the manually gated `Production smoke` GitHub workflow:
 
 ```sh
-SMOKE_BASE_URL=https://app.estately.co.uk \
+SMOKE_BASE_URL=https://app.gabley.co.uk \
 SMOKE_EXPECTED_RELEASE_SHA=YOUR_DEPLOYED_COMMIT \
 npm run smoke:production
 ```

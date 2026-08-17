@@ -13,7 +13,7 @@ export const Route = createFileRoute("/api/public/health")({
           ? configuredRelease
           : "unknown";
         return Response.json(
-          { status: "ok", service: "estately-web", release: release.slice(0, 64) },
+          { status: "ok", service: "gabley-web", release: release.slice(0, 64) },
           {
             headers: {
               "cache-control": "no-store",

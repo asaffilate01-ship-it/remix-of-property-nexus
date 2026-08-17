@@ -50,7 +50,7 @@ import {
 } from "@/lib/documents.functions";
 
 export const Route = createFileRoute("/_authenticated/documents")({
-  head: () => ({ meta: [{ title: "Documents — Estately" }] }),
+  head: () => ({ meta: [{ title: "Documents — Gabley" }] }),
   component: DocumentsPage,
 });
 

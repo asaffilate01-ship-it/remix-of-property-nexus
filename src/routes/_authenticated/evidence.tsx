@@ -7,7 +7,7 @@ import { Camera } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 
 export const Route = createFileRoute("/_authenticated/evidence")({
-  head: () => ({ meta: [{ title: "Evidence capture — Estately" }] }),
+  head: () => ({ meta: [{ title: "Evidence capture — Gabley" }] }),
   component: EvidencePage,
 });
 

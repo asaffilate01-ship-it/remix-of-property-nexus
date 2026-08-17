@@ -8,7 +8,7 @@ import { BedDouble, Plus } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 
 export const Route = createFileRoute("/_authenticated/hmo")({
-  head: () => ({ meta: [{ title: "HMO & rooms — Estately" }] }),
+  head: () => ({ meta: [{ title: "HMO & rooms — Gabley" }] }),
   component: HmoPage,
 });
 

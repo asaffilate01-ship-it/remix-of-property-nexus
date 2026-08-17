@@ -12,7 +12,7 @@ import { Grid2x2, Map as MapIcon, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/survey")({
-  head: () => ({ meta: [{ title: "Survey & site capture — Estately" }] }),
+  head: () => ({ meta: [{ title: "Survey & site capture — Gabley" }] }),
   component: SurveyPage,
 });
 

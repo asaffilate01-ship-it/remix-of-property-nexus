@@ -16,7 +16,7 @@ import { SignaturePad } from "@/components/SignaturePad";
 import exifr from "exifr";
 
 export const Route = createFileRoute("/visit/$token")({
-  head: () => ({ meta: [{ title: "Contractor visit — Estately" }, { name: "description", content: "Check in, capture evidence and complete your work order visit." }, { name: "robots", content: "noindex" }] }),
+  head: () => ({ meta: [{ title: "Contractor visit — Gabley" }, { name: "description", content: "Check in, capture evidence and complete your work order visit." }, { name: "robots", content: "noindex" }] }),
   component: VisitPage,
 });
 

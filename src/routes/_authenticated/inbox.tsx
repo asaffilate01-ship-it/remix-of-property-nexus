@@ -18,7 +18,7 @@ import { toast } from "sonner";
 import { Send, Plus, MessageSquare } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/inbox")({
-  head: () => ({ meta: [{ title: "Inbox — Estately" }] }),
+  head: () => ({ meta: [{ title: "Inbox — Gabley" }] }),
   component: Inbox,
 });
 

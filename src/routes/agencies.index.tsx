@@ -14,9 +14,9 @@ import { useMemo, useState } from "react";
 export const Route = createFileRoute("/agencies/")({
   head: () => ({
     meta: [
-      { title: "Find a property agent — verified UK agents & agencies | Estately" },
-      { name: "description", content: "Browse verified letting and sales agencies on Estately. Filter by city, rating and specialty." },
-      { property: "og:title", content: "Find a property agent on Estately" },
+      { title: "Find a property agent — verified UK agents & agencies | Gabley" },
+      { name: "description", content: "Browse verified letting and sales agencies on Gabley. Filter by city, rating and specialty." },
+      { property: "og:title", content: "Find a property agent on Gabley" },
       { property: "og:description", content: "Verified UK letting and sales agents with live listing counts and reviews." },
     ],
   }),
@@ -53,7 +53,7 @@ function AgenciesPage() {
           <div className="container mx-auto px-4 py-12 md:py-16">
             <h1 className="font-display text-3xl md:text-5xl font-bold tracking-tight">Find a verified agent</h1>
             <p className="mt-3 text-white/85 max-w-2xl">
-              Browse {data?.agencies.length ?? "—"} UK letting and sales agencies, including {verifiedCount} verified by Estately.
+              Browse {data?.agencies.length ?? "—"} UK letting and sales agencies, including {verifiedCount} verified by Gabley.
             </p>
             <div className="mt-6 max-w-xl bg-card rounded-2xl p-2 shadow-elevated flex items-center gap-2">
               <Search className="h-4 w-4 text-muted-foreground ml-2" />

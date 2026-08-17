@@ -47,7 +47,7 @@ export const linkContactToUser = createServerFn({ method: "POST" })
     if (listError) throw new Error(listError.message);
     const match = list.users.find((u) => (u.email ?? "").toLowerCase() === email);
     if (!match) {
-      throw new Error("No Estately account uses that email yet — ask them to sign up first.");
+      throw new Error("No Gabley account uses that email yet — ask them to sign up first.");
     }
 
     const { error } = await supabase

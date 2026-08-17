@@ -8,7 +8,7 @@ import { ClipboardCheck, Plus } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 
 export const Route = createFileRoute("/_authenticated/referencing-cases")({
-  head: () => ({ meta: [{ title: "Referencing — Estately" }] }),
+  head: () => ({ meta: [{ title: "Referencing — Gabley" }] }),
   component: ReferencingPage,
 });
 

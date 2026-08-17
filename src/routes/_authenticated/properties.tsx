@@ -71,7 +71,7 @@ import { ComplianceEditor, type ComplianceMap } from "@/components/listings/Comp
 export const Route = createFileRoute("/_authenticated/properties")({
   validateSearch: (search: Record<string, unknown>): { create?: boolean } =>
     search.create === true || search.create === "true" ? { create: true } : {},
-  head: () => ({ meta: [{ title: "Properties — Estately" }] }),
+  head: () => ({ meta: [{ title: "Properties — Gabley" }] }),
   component: PropertiesPage,
 });
 

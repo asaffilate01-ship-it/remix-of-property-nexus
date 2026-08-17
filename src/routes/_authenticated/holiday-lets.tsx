@@ -14,7 +14,7 @@ import { toast } from "sonner";
 import { PageHeader } from "@/components/PageHeader";
 
 export const Route = createFileRoute("/_authenticated/holiday-lets")({
-  head: () => ({ meta: [{ title: "Holiday lets — Estately" }] }),
+  head: () => ({ meta: [{ title: "Holiday lets — Gabley" }] }),
   component: HolidayLetsPage,
 });
 

@@ -79,12 +79,12 @@ const MODULES: Record<string, Module> = {
 export const Route = createFileRoute("/modules/$slug")({
   head: ({ params }) => {
     const m = MODULES[params.slug];
-    if (!m) return { meta: [{ title: "Module — Estately" }] };
+    if (!m) return { meta: [{ title: "Module — Gabley" }] };
     return {
       meta: [
-        { title: `${m.title} module — Estately` },
+        { title: `${m.title} module — Gabley` },
         { name: "description", content: m.description },
-        { property: "og:title", content: `${m.title} — Estately` },
+        { property: "og:title", content: `${m.title} — Gabley` },
         { property: "og:description", content: m.description },
       ],
     };

@@ -26,11 +26,11 @@ jobs:
       - run: npm run check
       - run: npm audit --omit=dev --audit-level=high
       - name: Generate CycloneDX software bill of materials
-        run: npm sbom --sbom-format cyclonedx > estately.cdx.json
+        run: npm sbom --sbom-format cyclonedx > gabley.cdx.json
       - name: Upload software bill of materials
         uses: actions/upload-artifact@v7
         with:
-          name: estately-cyclonedx-sbom
-          path: estately.cdx.json
+          name: gabley-cyclonedx-sbom
+          path: gabley.cdx.json
           if-no-files-found: error
           retention-days: 30

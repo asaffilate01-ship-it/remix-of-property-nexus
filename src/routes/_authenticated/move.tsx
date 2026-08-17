@@ -7,7 +7,7 @@ import { PackageOpen } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 
 export const Route = createFileRoute("/_authenticated/move")({
-  head: () => ({ meta: [{ title: "Move in / out — Estately" }] }),
+  head: () => ({ meta: [{ title: "Move in / out — Gabley" }] }),
   component: MovePage,
 });
 

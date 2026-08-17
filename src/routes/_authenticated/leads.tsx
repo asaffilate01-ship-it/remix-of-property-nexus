@@ -36,7 +36,7 @@ function slaHours(createdAt: string, status: Stage) {
 }
 
 export const Route = createFileRoute("/_authenticated/leads")({
-  head: () => ({ meta: [{ title: "Leads — Estately" }] }),
+  head: () => ({ meta: [{ title: "Leads — Gabley" }] }),
   component: LeadsPage,
 });
 

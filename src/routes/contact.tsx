@@ -16,9 +16,9 @@ import { siteUrl } from "@/lib/site-url";
 export const Route = createFileRoute("/contact")({
   head: () => ({
     meta: [
-      { title: "Contact — Estately" },
+      { title: "Contact — Gabley" },
       { name: "description", content: "Talk to our team about a free trial, a migration from your current CRM, or a tailored demo for your agency or portfolio." },
-      { property: "og:title", content: "Contact Estately" },
+      { property: "og:title", content: "Contact Gabley" },
       { property: "og:url", content: siteUrl("/contact") },
     ],
     links: [{ rel: "canonical", href: siteUrl("/contact") }],
@@ -72,7 +72,7 @@ function ContactPage() {
                 <div className="h-10 w-10 rounded-xl bg-accent/10 grid place-items-center shrink-0"><Mail className="h-5 w-5 text-accent" /></div>
                 <div>
                   <div className="text-xs uppercase tracking-wide text-muted-foreground">Email</div>
-                  <a className="font-semibold hover:text-accent" href="mailto:hello@estately.app">hello@estately.app</a>
+                  <a className="font-semibold hover:text-accent" href="mailto:hello@gabley.co.uk">hello@gabley.co.uk</a>
                   <div className="text-sm text-muted-foreground mt-1">Sales, support and general queries.</div>
                 </div>
               </CardContent></Card>

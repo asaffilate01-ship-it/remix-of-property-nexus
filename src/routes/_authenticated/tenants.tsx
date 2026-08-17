@@ -17,7 +17,7 @@ import { TenantBioEditor, type TenantBio } from "@/components/tenancy/TenantBioE
 import { TenantComplianceEditor, type TenantComplianceMap } from "@/components/tenancy/TenantComplianceEditor";
 
 export const Route = createFileRoute("/_authenticated/tenants")({
-  head: () => ({ meta: [{ title: "Tenants — Estately" }] }),
+  head: () => ({ meta: [{ title: "Tenants — Gabley" }] }),
   component: TenantsPage,
 });
 

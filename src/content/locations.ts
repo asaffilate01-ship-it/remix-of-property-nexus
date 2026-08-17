@@ -669,7 +669,7 @@ function generatedLocations(): UkLocation[] {
       county,
       region,
       postcodes: [postcode],
-      intro: `${name} sits in ${county} and is covered by the ${postcode} postcode area. This page tracks every live sale and rental listing in ${name} from verified agents on Estately, with local pricing, bedroom mix and HMO availability updated as new properties are published.`,
+      intro: `${name} sits in ${county} and is covered by the ${postcode} postcode area. This page tracks every live sale and rental listing in ${name} from verified agents on Gabley, with local pricing, bedroom mix and HMO availability updated as new properties are published.`,
       neighbourhoods: [],
       transport: [],
       nearby: [],

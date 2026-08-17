@@ -3,7 +3,7 @@
 declare global {
   interface Window {
     google?: typeof google;
-    __estatelyInitMap?: () => void;
+    __gableyInitMap?: () => void;
   }
 }
 
@@ -23,14 +23,14 @@ export function loadGoogleMaps(): Promise<void> {
   if (!key) return Promise.reject(new Error("Google Maps key missing"));
 
   // If a previous attempt injected the tag, don't inject again.
-  const existing = document.querySelector<HTMLScriptElement>('script[data-estately-gmaps="1"]');
+  const existing = document.querySelector<HTMLScriptElement>('script[data-gabley-gmaps="1"]');
 
   loaderPromise = new Promise<void>((resolve, reject) => {
     const settle = () => {
       if (window.google?.maps) resolve();
       else reject(new Error("Google Maps loaded without google.maps namespace"));
     };
-    window.__estatelyInitMap = settle;
+    window.__gableyInitMap = settle;
 
     if (existing) {
       // Script already there (e.g. HMR) — wait for it.
@@ -41,8 +41,8 @@ export function loadGoogleMaps(): Promise<void> {
     }
 
     const s = document.createElement("script");
-    s.dataset.estatelyGmaps = "1";
-    s.src = `https://maps.googleapis.com/maps/api/js?key=${key}&libraries=places&loading=async&callback=__estatelyInitMap${channel ? `&channel=${channel}` : ""}`;
+    s.dataset.gableyGmaps = "1";
+    s.src = `https://maps.googleapis.com/maps/api/js?key=${key}&libraries=places&loading=async&callback=__gableyInitMap${channel ? `&channel=${channel}` : ""}`;
     s.async = true;
     s.defer = true;
     s.onerror = () => {

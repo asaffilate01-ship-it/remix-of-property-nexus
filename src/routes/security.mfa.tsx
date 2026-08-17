@@ -35,7 +35,7 @@ export const Route = createFileRoute("/security/mfa")({
     }
     return { user: data.user };
   },
-  head: () => ({ meta: [{ title: "Secure your account — Estately" }] }),
+  head: () => ({ meta: [{ title: "Secure your account — Gabley" }] }),
   component: MfaPage,
 });
 
@@ -85,7 +85,7 @@ function MfaPage() {
     }
     const enrollment = await supabase.auth.mfa.enroll({
       factorType: "totp",
-      friendlyName: "Estately authenticator",
+      friendlyName: "Gabley authenticator",
     });
     if (enrollment.error) {
       setError("Unable to start authenticator setup. Please try again.");
@@ -138,7 +138,7 @@ function MfaPage() {
           <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground">
             <Building2 className="h-5 w-5" />
           </span>
-          Estately
+          Gabley
         </div>
         <Card className="border-0 shadow-elevated">
           <CardContent className="p-6 sm:p-8">

@@ -14,7 +14,7 @@ import { RentCheckoutDialog } from "@/components/RentCheckoutDialog";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 
 export const Route = createFileRoute("/_authenticated/portal/tenant")({
-  head: () => ({ meta: [{ title: "Tenant portal — Estately" }] }),
+  head: () => ({ meta: [{ title: "Tenant portal — Gabley" }] }),
   component: TenantPortal,
 });
 

@@ -8,7 +8,7 @@ import { ClipboardList, Plus } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 
 export const Route = createFileRoute("/_authenticated/inspections")({
-  head: () => ({ meta: [{ title: "Inspections — Estately" }] }),
+  head: () => ({ meta: [{ title: "Inspections — Gabley" }] }),
   component: InspectionsPage,
 });
 

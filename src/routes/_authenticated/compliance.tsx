@@ -25,7 +25,7 @@ import { toast } from "sonner";
 import { PageHeader } from "@/components/PageHeader";
 
 export const Route = createFileRoute("/_authenticated/compliance")({
-  head: () => ({ meta: [{ title: "Compliance — Estately" }] }),
+  head: () => ({ meta: [{ title: "Compliance — Gabley" }] }),
   component: CompliancePage,
 });
 

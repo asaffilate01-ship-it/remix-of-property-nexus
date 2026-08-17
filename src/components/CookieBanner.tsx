@@ -3,7 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { Cookie, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const KEY = "estately.cookie-consent.v1";
+const KEY = "gabley.cookie-consent.v1";
 type Choice = "all" | "essential";
 
 export function CookieBanner() {
@@ -33,7 +33,7 @@ export function CookieBanner() {
             <div className="text-sm">
               <div className="font-medium">We use cookies</div>
               <p className="text-muted-foreground mt-0.5">
-                Essential cookies keep Estately running. With your consent we also use analytics cookies to improve the product.{" "}
+                Essential cookies keep Gabley running. With your consent we also use analytics cookies to improve the product.{" "}
                 <Link to="/cookies" className="underline hover:text-foreground">Read more</Link>.
               </p>
             </div>

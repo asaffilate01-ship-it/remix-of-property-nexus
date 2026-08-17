@@ -14,7 +14,7 @@ import { toast } from "sonner";
 import { PageHeader } from "@/components/PageHeader";
 
 export const Route = createFileRoute("/_authenticated/templates")({
-  head: () => ({ meta: [{ title: "Templates — Estately" }] }),
+  head: () => ({ meta: [{ title: "Templates — Gabley" }] }),
   component: TemplatesPage,
 });
 
