@@ -182,21 +182,21 @@ function ProductShowcase() {
 
   return (
     <section className="border-b bg-muted/20">
-      <div className="container mx-auto px-4 py-16 md:py-24">
-        <div className="mb-10 flex flex-wrap items-end justify-between gap-6">
+      <div className="container mx-auto px-4 py-12 md:py-24">
+        <div className="mb-8 flex flex-wrap items-end justify-between gap-5 md:mb-10 md:gap-6">
           <div className="max-w-2xl">
             <div className="mb-3 text-xs font-semibold uppercase tracking-widest text-accent">
               Real screens, not mockups
             </div>
-            <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl md:text-4xl">
               A look inside the platform.
             </h2>
-            <p className="mt-3 text-muted-foreground">
+            <p className="mt-3 text-sm text-muted-foreground sm:text-base">
               Screenshots taken straight from the live product behind the preview password.
             </p>
           </div>
           <div
-            className="no-scrollbar -mx-1 flex max-w-full gap-1.5 overflow-x-auto rounded-full border bg-card/70 p-1.5 shadow-card"
+            className="no-scrollbar -mx-1 flex w-full max-w-full gap-1.5 overflow-x-auto rounded-full border bg-card/70 p-1.5 shadow-card sm:w-auto"
             role="tablist"
             aria-label="Product screenshots"
           >
@@ -207,7 +207,7 @@ function ProductShowcase() {
                 role="tab"
                 aria-selected={screen.id === active}
                 onClick={() => setActive(screen.id)}
-                className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+                className={`whitespace-nowrap rounded-full px-3.5 py-2 text-sm font-medium transition-colors sm:px-4 ${
                   screen.id === active
                     ? "btn-prestige"
                     : "text-muted-foreground hover:text-foreground"
@@ -220,6 +220,7 @@ function ProductShowcase() {
         </div>
 
         <div className="grid items-center gap-8 lg:grid-cols-[1.55fr_1fr]">
+
           <div className="relative">
             <div
               className="pointer-events-none absolute -inset-6 rounded-[2.5rem] bg-accent/10 blur-3xl"
