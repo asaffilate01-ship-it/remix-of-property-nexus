@@ -71,7 +71,7 @@ function HomePage() {
           <div className="container mx-auto px-4 pt-20 pb-16 md:pt-28 md:pb-24 grid lg:grid-cols-2 gap-10 items-center relative">
             <div>
               <div className="inline-flex items-center gap-2 text-xs font-semibold tracking-widest text-accent uppercase mb-4">
-                <Sparkles className="h-3.5 w-3.5" /> The complete property OS
+                <Sparkles className="h-3.5 w-3.5" /> Where property comes together
               </div>
               <h1 className="text-4xl md:text-6xl font-bold mb-6 tracking-tight leading-[1.05]">
                 One platform for every<br className="hidden md:block" /> property in your portfolio.

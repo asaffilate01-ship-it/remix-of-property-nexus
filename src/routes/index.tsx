@@ -40,13 +40,13 @@ import { siteUrl } from "@/lib/site-url";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Gabley — One property platform for agents, owners, renters & buyers" },
+      { title: "Gabley — Where property comes together" },
       {
         name: "description",
         content:
           "Gabley joins a public property marketplace with agency CRM, compliance, tenancy, payments and portals for landlords, renters, buyers, sellers and contractors. Private preview.",
       },
-      { property: "og:title", content: "Gabley — One property platform for everyone in the deal" },
+      { property: "og:title", content: "Gabley — Where property comes together" },
       {
         property: "og:description",
         content:
@@ -56,7 +56,7 @@ export const Route = createFileRoute("/")({
       { property: "og:type", content: "website" },
       { property: "og:image", content: siteUrl("/apple-touch-icon.png") },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Gabley — One property platform for everyone in the deal" },
+      { name: "twitter:title", content: "Gabley — Where property comes together" },
       {
         name: "twitter:description",
         content:

@@ -86,7 +86,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
-      { title: "Gabley — The complete OS for estate & letting agents" },
+      { title: "Gabley — Where property comes together" },
       { name: "description", content: "Sales, lettings, HMO and commercial in one premium workspace. Marketplace, CRM and compliance for modern UK agencies and landlords." },
       { name: "author", content: "Gabley" },
       { name: "theme-color", content: "#0f172a" },
@@ -99,11 +99,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:site_name", content: "Gabley" },
 
       { property: "og:type", content: "website" },
-      { property: "og:title", content: "Gabley — The complete OS for estate & letting agents" },
+      { property: "og:title", content: "Gabley — Where property comes together" },
       { property: "og:description", content: "Sales, lettings, HMO and commercial in one premium workspace. Marketplace, CRM and compliance for modern UK agencies and landlords." },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@gabley" },
-      { name: "twitter:title", content: "Gabley — The complete OS for estate & letting agents" },
+      { name: "twitter:title", content: "Gabley — Where property comes together" },
       { name: "twitter:description", content: "Sales, lettings, HMO and commercial in one premium workspace. Marketplace, CRM and compliance for modern UK agencies and landlords." },
       { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/5b415fed-3cb3-40a6-a327-43976fd44f6c" },
       { property: "og:image:width", content: "1200" },

@@ -18,7 +18,7 @@ export function PublicFooter() {
             <span className="brand-gradient inline-flex h-7 w-7 items-center justify-center rounded-md text-white"><Building2 className="h-3.5 w-3.5" /></span>
             Gabley
           </div>
-          <p className="text-muted-foreground max-w-sm">The complete property OS for modern estate and letting agencies.</p>
+          <p className="text-muted-foreground max-w-sm">Where property comes together. Sales, lettings, HMO and commercial in one workspace.</p>
           <div className="mt-4 flex items-center gap-2">
             {SOCIALS.map(({ href, label, Icon }) => (
               <a
