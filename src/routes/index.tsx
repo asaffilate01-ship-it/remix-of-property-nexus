@@ -152,6 +152,42 @@ const stats = [
   { value: "1", label: "Platform replacing the stack" },
 ];
 
+const faqs = [
+  {
+    q: "What is Estately?",
+    a: "Estately is a single property platform combining a public marketplace, agency CRM, compliance hub, tenancy and payment tools, plus portals for landlords, renters, buyers, sellers and contractors.",
+  },
+  {
+    q: "Why is the site password protected?",
+    a: "We are in a private promo preview while the launch rollout is finished. This page is public; the full product sits behind a preview password so early access stays invite-only.",
+  },
+  {
+    q: "How do I get preview access?",
+    a: "If you already have the preview password, use the Preview access button. Otherwise request access by email and we will send credentials with a short guided walkthrough.",
+  },
+  {
+    q: "Which systems does Estately replace?",
+    a: "Agencies typically use it in place of a stack such as Reapit, Alto, Dezrez, Arthur, Goodlord or PayProp — listings, pipeline, tenancies, compliance, statements and payments live in one workspace.",
+  },
+  {
+    q: "Does it handle HMOs, commercial and holiday lets?",
+    a: "Yes. Room-level HMO rents, inspections and licensing, commercial stock and holiday-let scheduling are all built in alongside standard sales and lettings.",
+  },
+  {
+    q: "How are payments and rent collection handled?",
+    a: "Card rent collection, subscription billing, bank reconciliation, statements and arrears workflows are built in, with test mode available before you go live.",
+  },
+  {
+    q: "Is my data secure and UK GDPR compliant?",
+    a: "Every table is protected by row-level security with agency scoping and nine roles, MFA on sensitive admin actions, and a privacy centre for UK GDPR data requests.",
+  },
+  {
+    q: "Can I use it on mobile?",
+    a: "Yes. Estately is an installable PWA with an offline shell and mobile capture, and native iOS and Android shells are ready for store submission.",
+  },
+];
+
+
 const screens = [
   {
     id: "marketplace",
