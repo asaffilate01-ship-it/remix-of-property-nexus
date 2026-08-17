@@ -14,7 +14,7 @@ export const Route = createFileRoute("/area-guides/$slug")({
   },
   head: ({ loaderData }) => {
     const a = loaderData;
-    if (!a) return { meta: [{ title: "Area guide — Estately" }] };
+    if (!a) return { meta: [{ title: "Area guide — Gabley" }] };
     const title = `${a.name} area guide — schools, transport, prices`;
     const desc = `${a.name} (${a.postcode}) area guide: avg price ${a.price}, avg rent ${a.rent}/mo, ${a.yield} yield. Schools, transport and price trends.`;
     return {

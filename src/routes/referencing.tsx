@@ -15,7 +15,7 @@ import { toast } from "sonner";
 import { createReferencingCase } from "@/lib/referencing.functions";
 
 export const Route = createFileRoute("/referencing")({
-  head: () => ({ meta: [{ title: "Tenant referencing | Estately" }, { name: "description", content: "Complete your tenant reference online — identity, employment, landlord history and affordability — in under 10 minutes." }] }),
+  head: () => ({ meta: [{ title: "Tenant referencing | Gabley" }, { name: "description", content: "Complete your tenant reference online — identity, employment, landlord history and affordability — in under 10 minutes." }] }),
   component: ReferencingPage,
 });
 
@@ -181,7 +181,7 @@ function ReferencingPage() {
                 </div>
                 <label className="flex items-start gap-3 rounded-lg border p-3 cursor-pointer">
                   <input type="checkbox" className="mt-1" checked={data.consent} onChange={(e) => set("consent", e.target.checked)} />
-                  <span className="text-sm">I consent to Estately and its referencing partner verifying my employment, landlord history, credit file and right to rent under UK GDPR.</span>
+                  <span className="text-sm">I consent to Gabley and its referencing partner verifying my employment, landlord history, credit file and right to rent under UK GDPR.</span>
                 </label>
               </>)}
             </CardContent>

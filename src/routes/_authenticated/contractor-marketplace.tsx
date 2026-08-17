@@ -9,7 +9,7 @@ import { Hammer, Star, Mail, Phone } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 
 export const Route = createFileRoute("/_authenticated/contractor-marketplace")({
-  head: () => ({ meta: [{ title: "Find a contractor — Estately" }] }),
+  head: () => ({ meta: [{ title: "Find a contractor — Gabley" }] }),
   component: ContractorMarketplacePage,
 });
 

@@ -120,8 +120,8 @@ export const Route = createFileRoute("/marketplace/$slug")({
     const url = siteUrl(`/marketplace/${params.slug}`);
     const priceStr = l?.price ? `£${Number(l.price).toLocaleString()}` : "";
     const headline = l?.title ? `${l.title}${l.city ? `, ${l.city}` : ""}` : "Listing";
-    const title = l?.title ? `${headline}${priceStr ? ` — ${priceStr}` : ""} | Estately` : "Listing — Estately";
-    const desc = l?.description?.slice(0, 155) ?? `${l?.bedrooms ?? ""} bed property ${l?.purpose === "sale" ? "for sale" : "to let"}${l?.city ? ` in ${l.city}` : ""} on Estately.`;
+    const title = l?.title ? `${headline}${priceStr ? ` — ${priceStr}` : ""} | Gabley` : "Listing — Gabley";
+    const desc = l?.description?.slice(0, 155) ?? `${l?.bedrooms ?? ""} bed property ${l?.purpose === "sale" ? "for sale" : "to let"}${l?.city ? ` in ${l.city}` : ""} on Gabley.`;
     return {
       meta: [
         { title },
@@ -314,7 +314,7 @@ function ListingDetail() {
                   email={l.agencies.email}
                   whatsapp={l.agencies.phone}
                   agencyName={l.agencies.name}
-                  context={`Enquiry about "${l.title}" on Estately.`}
+                  context={`Enquiry about "${l.title}" on Gabley.`}
                 />
                 {l.agencies.website && (
                   <a href={l.agencies.website} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary">

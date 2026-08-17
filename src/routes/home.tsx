@@ -11,9 +11,9 @@ import { siteUrl } from "@/lib/site-url";
 export const Route = createFileRoute("/home")({
   head: () => ({
     meta: [
-      { title: "Estately — The property OS for modern UK agencies & landlords" },
-      { name: "description", content: "Estately combines a public property marketplace with a complete CRM, compliance hub and tenant portal. One workspace for sales, lettings, HMO and commercial." },
-      { property: "og:title", content: "Estately — The property OS" },
+      { title: "Gabley — The property OS for modern UK agencies & landlords" },
+      { name: "description", content: "Gabley combines a public property marketplace with a complete CRM, compliance hub and tenant portal. One workspace for sales, lettings, HMO and commercial." },
+      { property: "og:title", content: "Gabley — The property OS" },
       { property: "og:description", content: "Marketplace + CRM + compliance in one premium workspace." },
       { property: "og:url", content: siteUrl("/home") },
       { property: "og:type", content: "website" },
@@ -51,7 +51,7 @@ const pillars = [
 const replaces = ["Reapit", "Alto", "Dezrez", "Arthur", "Goodlord", "Apex27", "Rentman", "PayProp"];
 
 const featured = [
-  { quote: "Estately replaced three tools for us. Lettings, compliance and the portal — all in one workspace.", who: "Maya R.", role: "Lettings director, Manchester" },
+  { quote: "Gabley replaced three tools for us. Lettings, compliance and the portal — all in one workspace.", who: "Maya R.", role: "Lettings director, Manchester" },
   { quote: "We moved 14 branches in a weekend. Onboarding was honestly painless.", who: "Daniel K.", role: "Operations, national agency" },
   { quote: "The HMO module pays for itself. Room-level rent and inspections are night-and-day better.", who: "Priya S.", role: "Portfolio landlord" },
 ];
@@ -71,13 +71,13 @@ function HomePage() {
           <div className="container mx-auto px-4 pt-20 pb-16 md:pt-28 md:pb-24 grid lg:grid-cols-2 gap-10 items-center relative">
             <div>
               <div className="inline-flex items-center gap-2 text-xs font-semibold tracking-widest text-accent uppercase mb-4">
-                <Sparkles className="h-3.5 w-3.5" /> The complete property OS
+                <Sparkles className="h-3.5 w-3.5" /> Where property comes together
               </div>
               <h1 className="text-4xl md:text-6xl font-bold mb-6 tracking-tight leading-[1.05]">
                 One platform for every<br className="hidden md:block" /> property in your portfolio.
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-xl">
-                Estately is a public marketplace, a full agency CRM, a compliance hub and a tenant portal — joined up, branded and built for modern UK agencies and landlords.
+                Gabley is a public marketplace, a full agency CRM, a compliance hub and a tenant portal — joined up, branded and built for modern UK agencies and landlords.
               </p>
               <div className="flex flex-wrap gap-3">
                 <Button asChild size="lg">

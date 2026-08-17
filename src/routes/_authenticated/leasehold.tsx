@@ -7,7 +7,7 @@ import { Landmark } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 
 export const Route = createFileRoute("/_authenticated/leasehold")({
-  head: () => ({ meta: [{ title: "Leasehold register — Estately" }] }),
+  head: () => ({ meta: [{ title: "Leasehold register — Gabley" }] }),
   component: LeaseholdPage,
 });
 

@@ -7,7 +7,7 @@ import { Vault } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 
 export const Route = createFileRoute("/_authenticated/deposits")({
-  head: () => ({ meta: [{ title: "Deposits — Estately" }] }),
+  head: () => ({ meta: [{ title: "Deposits — Gabley" }] }),
   component: DepositsPage,
 });
 

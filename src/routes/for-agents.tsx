@@ -8,9 +8,9 @@ import heroAgents from "@/assets/hero-agents.jpg";
 export const Route = createFileRoute("/for-agents")({
   head: () => ({
     meta: [
-      { title: "For Agents — Estately" },
+      { title: "For Agents — Gabley" },
       { name: "description", content: "Agency CRM for sales and lettings — leads, pipeline, listings and branches in one place." },
-      { property: "og:title", content: "Estately for Agents" },
+      { property: "og:title", content: "Gabley for Agents" },
       { property: "og:image", content: heroAgents },
     ],
   }),
@@ -39,7 +39,7 @@ function ForAgents() {
               </div>
             </div>
             <div className="relative rounded-3xl overflow-hidden shadow-2xl ring-1 ring-border/50">
-              <img src={heroAgents} alt="Estate agent at desk using Estately CRM" width={1536} height={1024} className="w-full h-[340px] md:h-[460px] object-cover" />
+              <img src={heroAgents} alt="Estate agent at desk using Gabley CRM" width={1536} height={1024} className="w-full h-[340px] md:h-[460px] object-cover" />
             </div>
           </div>
         </section>
@@ -47,7 +47,7 @@ function ForAgents() {
           {[
             { icon: Inbox, title: "Unified inbox", body: "Every enquiry from the marketplace lands in your team's inbox — assigned, tagged and ready." },
             { icon: Kanban, title: "Sales & lettings pipeline", body: "Drag deals through stages — viewing, offer, negotiation, agreed, completed." },
-            { icon: Tag, title: "Listings management", body: "Publish to the Estately marketplace and your own portals. Manage photos, status and pricing." },
+            { icon: Tag, title: "Listings management", body: "Publish to the Gabley marketplace and your own portals. Manage photos, status and pricing." },
             { icon: Users, title: "Branded agency page", body: "Public profile with logo, team, contact, reviews and active listings." },
           ].map((f) => (
             <div key={f.title} className="flex gap-4">

@@ -16,7 +16,7 @@ type Deal = { id: string; title: string; contact_name: string | null; stage: typ
 export const Route = createFileRoute("/_authenticated/pipeline")({
   validateSearch: (search: Record<string, unknown>): { create?: boolean } =>
     search.create === true || search.create === "true" ? { create: true } : {},
-  head: () => ({ meta: [{ title: "Pipeline — Estately" }] }),
+  head: () => ({ meta: [{ title: "Pipeline — Gabley" }] }),
   component: PipelinePage,
 });
 

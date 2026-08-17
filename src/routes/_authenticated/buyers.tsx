@@ -16,7 +16,7 @@ import { safeExternalUrl } from "@/lib/url-safety";
 import { PageHeader } from "@/components/PageHeader";
 
 export const Route = createFileRoute("/_authenticated/buyers")({
-  head: () => ({ meta: [{ title: "Buyers — Estately" }] }),
+  head: () => ({ meta: [{ title: "Buyers — Gabley" }] }),
   component: BuyersPage,
 });
 

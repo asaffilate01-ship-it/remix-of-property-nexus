@@ -9,7 +9,7 @@ import { listBranches } from "@/lib/branches.functions";
 
 type Branch = { id: string; name: string; postcode: string | null; is_primary: boolean };
 
-const STORAGE_KEY = "estately:active-branch";
+const STORAGE_KEY = "gabley:active-branch";
 
 export function BranchSwitcher() {
   const fetchBranches = useServerFn(listBranches);
@@ -35,7 +35,7 @@ export function BranchSwitcher() {
     setActive(b);
     setOpen(false);
     try { localStorage.setItem(STORAGE_KEY, b.id); } catch { /* noop */ }
-    window.dispatchEvent(new CustomEvent("estately:branch-changed", { detail: b.id }));
+    window.dispatchEvent(new CustomEvent("gabley:branch-changed", { detail: b.id }));
     toast.success(`Switched to ${b.name}`);
   };
 
@@ -108,8 +108,8 @@ export function useActiveBranchId(): string | null {
       const ev = e as CustomEvent<string>;
       setId(ev.detail ?? null);
     };
-    window.addEventListener("estately:branch-changed", onChange);
-    return () => window.removeEventListener("estately:branch-changed", onChange);
+    window.addEventListener("gabley:branch-changed", onChange);
+    return () => window.removeEventListener("gabley:branch-changed", onChange);
   }, []);
   return id;
 }

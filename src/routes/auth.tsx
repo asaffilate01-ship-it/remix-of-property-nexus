@@ -39,7 +39,7 @@ function getRedirectTarget(redirect?: string) {
 
 export const Route = createFileRoute("/auth")({
   validateSearch: searchSchema,
-  head: () => ({ meta: [{ title: "Sign in — Estately" }] }),
+  head: () => ({ meta: [{ title: "Sign in — Gabley" }] }),
   component: AuthPage,
 });
 
@@ -161,19 +161,19 @@ function AuthPage() {
           <span className="bg-white/20 backdrop-blur inline-flex h-10 w-10 items-center justify-center rounded-lg">
             <Building2 className="h-5 w-5" />
           </span>
-          Estately
+          Gabley
         </Link>
         <div className="max-w-md relative z-10">
           <h1 className="text-4xl xl:text-5xl font-bold tracking-tight mb-4 leading-[1.1]">
             Your portfolio, your team — one calm workspace.
           </h1>
           <p className="text-white/80 text-lg">
-            Marketplace, compliance and CRM. Estately is built for modern estate and letting
+            Marketplace, compliance and CRM. Gabley is built for modern estate and letting
             agencies.
           </p>
         </div>
         <div className="text-sm text-white/60 relative z-10">
-          © {new Date().getFullYear()} Estately
+          © {new Date().getFullYear()} Gabley
         </div>
       </div>
       <div className="flex items-center justify-center p-6 md:p-12">

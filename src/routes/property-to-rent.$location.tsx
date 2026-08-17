@@ -15,12 +15,12 @@ export const Route = createFileRoute("/property-to-rent/$location")({
   head: ({ params, loaderData }) => {
     const url = `${SITE}/property-to-rent/${params.location}`;
     if (!loaderData) {
-      return { meta: [{ title: "Area unavailable — Estately" }, { name: "robots", content: "noindex" }] };
+      return { meta: [{ title: "Area unavailable — Gabley" }, { name: "robots", content: "noindex" }] };
     }
     const { location: loc, stats } = loaderData;
     const title = stats.total
-      ? `Property to rent in ${loc.name} — ${stats.total} homes | Estately`
-      : `Property to rent in ${loc.name}, ${loc.county} | Estately`;
+      ? `Property to rent in ${loc.name} — ${stats.total} homes | Gabley`
+      : `Property to rent in ${loc.name}, ${loc.county} | Gabley`;
     const desc = stats.total
       ? `Find ${stats.total} properties to rent in ${loc.name}, ${loc.county}: flats, houses, HMO rooms and student lets from verified letting agents.`
       : `Flats, houses and HMO rooms to rent in ${loc.name}, ${loc.county}. Set an alert and be first to see new lets from verified letting agents.`;

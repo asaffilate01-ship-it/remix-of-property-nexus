@@ -8,7 +8,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { useUserRole } from "@/hooks/useUserRole";
 
 export const Route = createFileRoute("/_authenticated/vendor-portal")({
-  head: () => ({ meta: [{ title: "Vendor portal — Estately" }] }),
+  head: () => ({ meta: [{ title: "Vendor portal — Gabley" }] }),
   component: VendorPortalPage,
 });
 

@@ -80,7 +80,7 @@ export function PhoneReveal({ phone, email, whatsapp, agencyName, context }: Pro
       <div className="grid grid-cols-2 gap-2">
         {wa && (
           <Button asChild variant="outline" className="bg-[#25D366]/5 border-[#25D366]/30 hover:bg-[#25D366]/10 text-foreground">
-            <a href={`https://wa.me/${digits(wa).replace(/^\+/, "")}?text=${encodeURIComponent(context ?? "Hi, I'd like to enquire about a property listed on Estately.")}`} target="_blank" rel="noreferrer">
+            <a href={`https://wa.me/${digits(wa).replace(/^\+/, "")}?text=${encodeURIComponent(context ?? "Hi, I'd like to enquire about a property listed on Gabley.")}`} target="_blank" rel="noreferrer">
               <MessageCircle className="h-4 w-4 mr-1.5 text-[#25D366]" /> WhatsApp
             </a>
           </Button>

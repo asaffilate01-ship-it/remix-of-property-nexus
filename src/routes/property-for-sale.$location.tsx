@@ -15,12 +15,12 @@ export const Route = createFileRoute("/property-for-sale/$location")({
   head: ({ params, loaderData }) => {
     const url = `${SITE}/property-for-sale/${params.location}`;
     if (!loaderData) {
-      return { meta: [{ title: "Area unavailable — Estately" }, { name: "robots", content: "noindex" }] };
+      return { meta: [{ title: "Area unavailable — Gabley" }, { name: "robots", content: "noindex" }] };
     }
     const { location: loc, stats } = loaderData;
     const title = stats.total
-      ? `Property for sale in ${loc.name} — ${stats.total} homes | Estately`
-      : `Property for sale in ${loc.name}, ${loc.county} | Estately`;
+      ? `Property for sale in ${loc.name} — ${stats.total} homes | Gabley`
+      : `Property for sale in ${loc.name}, ${loc.county} | Gabley`;
     const desc = stats.total
       ? `Browse ${stats.total} properties for sale in ${loc.name}, ${loc.county} from verified UK estate agents. Covering ${loc.postcodes.join(", ")} postcodes.`
       : `Houses and flats for sale in ${loc.name}, ${loc.county}. Set an alert and be first to see new listings across ${loc.postcodes.join(", ")} postcodes.`;

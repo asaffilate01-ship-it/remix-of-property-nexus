@@ -12,7 +12,7 @@ import { useAuth } from "@/lib/use-auth";
 import { listSavedSearches, deleteSavedSearch, saveSearch as saveSearchFn } from "@/lib/saved-searches.functions";
 
 export const Route = createFileRoute("/saved-searches")({
-  head: () => ({ meta: [{ title: "Saved property searches | Estately" }, { name: "description", content: "Save property searches and quickly re-run your favourite filters across devices." }] }),
+  head: () => ({ meta: [{ title: "Saved property searches | Gabley" }, { name: "description", content: "Save property searches and quickly re-run your favourite filters across devices." }] }),
   component: SavedSearchesPage,
 });
 
@@ -40,7 +40,7 @@ function SavedSearchesPage() {
   // Load local fallback always (so signed-out users see history)
   useEffect(() => {
     try {
-      const raw = JSON.parse(localStorage.getItem("estately:saved-searches") ?? "[]") as LocalSaved[];
+      const raw = JSON.parse(localStorage.getItem("gabley:saved-searches") ?? "[]") as LocalSaved[];
       setLocal(raw.map((r, i) => ({ ...r, id: r.id ?? String(i), alert: r.alert ?? { email: true, push: false, frequency: "daily" } })));
     } catch { /* noop */ }
   }, []);
@@ -65,7 +65,7 @@ function SavedSearchesPage() {
           frequency: it.alert?.frequency ?? "daily",
         } });
       }
-      localStorage.removeItem("estately:saved-searches");
+      localStorage.removeItem("gabley:saved-searches");
       setLocal([]);
       const r = await fetchList({});
       setRemote(r.items as RemoteSaved[]);
@@ -83,7 +83,7 @@ function SavedSearchesPage() {
   const removeLocal = (id: string) => {
     const next = local.filter((i) => i.id !== id);
     setLocal(next);
-    localStorage.setItem("estately:saved-searches", JSON.stringify(next));
+    localStorage.setItem("gabley:saved-searches", JSON.stringify(next));
     toast.success("Removed");
   };
 

@@ -31,7 +31,7 @@ const emptyForm: AgencyForm = {
 };
 
 export const Route = createFileRoute("/_authenticated/agency")({
-  head: () => ({ meta: [{ title: "Agency profile — Estately" }] }),
+  head: () => ({ meta: [{ title: "Agency profile — Gabley" }] }),
   component: AgencyPage,
 });
 

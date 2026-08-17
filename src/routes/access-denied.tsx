@@ -27,7 +27,7 @@ export const Route = createFileRoute("/access-denied")({
   },
   head: () => ({
     meta: [
-      { title: "Access restricted — Estately" },
+      { title: "Access restricted — Gabley" },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),

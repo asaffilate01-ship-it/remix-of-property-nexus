@@ -15,10 +15,10 @@ export const Route = createFileRoute("/complaints")({
   component: ComplaintsPage,
   head: () => ({
     meta: [
-      { title: "Complaints — Estately" },
-      { name: "description", content: "Estately complaints procedure and escalation route to The Property Ombudsman." },
-      { property: "og:title", content: "Complaints — Estately" },
-      { property: "og:description", content: "How to raise a complaint with Estately and escalate to The Property Ombudsman." },
+      { title: "Complaints — Gabley" },
+      { name: "description", content: "Gabley complaints procedure and escalation route to The Property Ombudsman." },
+      { property: "og:title", content: "Complaints — Gabley" },
+      { property: "og:description", content: "How to raise a complaint with Gabley and escalate to The Property Ombudsman." },
       { property: "og:url", content: siteUrl("/complaints") },
     ],
     links: [{ rel: "canonical", href: siteUrl("/complaints") }],
@@ -38,7 +38,7 @@ function ComplaintsPage() {
     const body = encodeURIComponent(
       `Name: ${form.name}\nReference: ${form.reference || "(none)"}\n\n${form.detail}`,
     );
-    window.location.href = `mailto:complaints@estately.app?subject=${encodeURIComponent("Complaint — " + form.name)}&body=${body}`;
+    window.location.href = `mailto:complaints@gabley.co.uk?subject=${encodeURIComponent("Complaint — " + form.name)}&body=${body}`;
     setSent(true);
   };
 

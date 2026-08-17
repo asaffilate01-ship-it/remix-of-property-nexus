@@ -139,7 +139,7 @@ const slugify = (s: string) =>
   Math.random().toString(36).slice(2, 7);
 
 export const Route = createFileRoute("/_authenticated/listings")({
-  head: () => ({ meta: [{ title: "Listings — Estately" }] }),
+  head: () => ({ meta: [{ title: "Listings — Gabley" }] }),
   validateSearch: (search: Record<string, unknown>): { new?: boolean } =>
     search.new === true || search.new === "true" ? { new: true } : {},
   component: ListingsPage,
@@ -420,7 +420,7 @@ function ListingsPage() {
     <div className="space-y-6">
       <PageHeader
         title="Listings"
-        description="Pick a property and publish it to the Estately marketplace and/or your own agency website."
+        description="Pick a property and publish it to the Gabley marketplace and/or your own agency website."
         actions={
           <Dialog open={open} onOpenChange={onListingDialogChange}>
             <DialogTrigger asChild>
@@ -783,7 +783,7 @@ function ListingForm({
         </div>
         <div className="flex items-center justify-between">
           <Label htmlFor="mp" className="cursor-pointer">
-            Estately marketplace
+            Gabley marketplace
           </Label>
           <Switch
             id="mp"

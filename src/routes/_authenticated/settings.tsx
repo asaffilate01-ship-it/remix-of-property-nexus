@@ -48,7 +48,7 @@ const settingsSearchSchema = z.object({
 
 export const Route = createFileRoute("/_authenticated/settings")({
   validateSearch: settingsSearchSchema,
-  head: () => ({ meta: [{ title: "Settings — Estately" }] }),
+  head: () => ({ meta: [{ title: "Settings — Gabley" }] }),
   component: SettingsPage,
 });
 

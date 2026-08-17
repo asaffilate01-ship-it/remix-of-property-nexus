@@ -3,7 +3,7 @@ import { describe, test } from "node:test";
 import { runProductionSmoke } from "../src/lib/production-smoke.ts";
 
 const release = "abc123def456";
-const origin = "https://app.estately.co.uk";
+const origin = "https://app.gabley.co.uk";
 const commonHeaders = {
   "x-content-type-options": "nosniff",
   "x-frame-options": "DENY",
@@ -22,7 +22,7 @@ function passingFetch(input: string | URL | Request): Promise<Response> {
   const url = new URL(input instanceof Request ? input.url : input.toString());
   const responses: Record<string, Response> = {
     "/api/public/health": Response.json(
-      { status: "ok", service: "estately-web", release },
+      { status: "ok", service: "gabley-web", release },
       {
         headers: {
           ...commonHeaders,
@@ -31,7 +31,7 @@ function passingFetch(input: string | URL | Request): Promise<Response> {
         },
       },
     ),
-    "/": new Response("<!doctype html><title>Estately</title>", { headers: htmlHeaders }),
+    "/": new Response("<!doctype html><title>Gabley</title>", { headers: htmlHeaders }),
     "/robots.txt": new Response(`User-agent: *\nSitemap: ${origin}/sitemap.xml`, {
       headers: commonHeaders,
     }),
@@ -107,7 +107,7 @@ describe("production deployment smoke test", () => {
   test("rejects insecure or non-origin targets before fetching", async () => {
     await assert.rejects(
       runProductionSmoke(
-        { baseUrl: "http://app.estately.co.uk/path", expectedRelease: release },
+        { baseUrl: "http://app.gabley.co.uk/path", expectedRelease: release },
         passingFetch,
       ),
       /HTTPS origin/,

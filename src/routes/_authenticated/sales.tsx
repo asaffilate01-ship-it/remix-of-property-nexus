@@ -13,7 +13,7 @@ import { toast } from "sonner";
 import { PageHeader } from "@/components/PageHeader";
 
 export const Route = createFileRoute("/_authenticated/sales")({
-  head: () => ({ meta: [{ title: "Sales pipeline — Estately" }] }),
+  head: () => ({ meta: [{ title: "Sales pipeline — Gabley" }] }),
   component: SalesPage,
 });
 

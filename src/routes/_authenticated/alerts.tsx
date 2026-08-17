@@ -7,7 +7,7 @@ import { Bell, ShieldCheck, Banknote, RefreshCcw, CalendarDays } from "lucide-re
 import { PageHeader } from "@/components/PageHeader";
 
 export const Route = createFileRoute("/_authenticated/alerts")({
-  head: () => ({ meta: [{ title: "Alerts — Estately" }] }),
+  head: () => ({ meta: [{ title: "Alerts — Gabley" }] }),
   component: AlertsPage,
 });
 

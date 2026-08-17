@@ -4,8 +4,8 @@ import { cn } from "@/lib/utils";
 type Kind = "verified" | "photos" | "agency";
 
 const META: Record<Kind, { label: string; icon: typeof BadgeCheck; cls: string; title: string }> = {
-  verified: { label: "Truecheck", icon: ShieldCheck, cls: "bg-success/10 text-success border-success/30", title: "Listing details verified by Estately" },
-  photos: { label: "Verified photos", icon: Camera, cls: "bg-primary/10 text-primary border-primary/30", title: "Photos taken or verified by Estately" },
+  verified: { label: "Truecheck", icon: ShieldCheck, cls: "bg-success/10 text-success border-success/30", title: "Listing details verified by Gabley" },
+  photos: { label: "Verified photos", icon: Camera, cls: "bg-primary/10 text-primary border-primary/30", title: "Photos taken or verified by Gabley" },
   agency: { label: "Verified agency", icon: BadgeCheck, cls: "bg-success/10 text-success border-success/30", title: "Agency identity and licence verified" },
 };
 

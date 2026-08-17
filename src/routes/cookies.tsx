@@ -8,17 +8,17 @@ export const Route = createFileRoute("/cookies")({
   component: CookiesPage,
   head: () => ({
     meta: [
-      { title: "Cookie Policy — Estately" },
-      { name: "description", content: "Which cookies Estately uses, why, and how to change your preferences." },
-      { property: "og:title", content: "Cookie Policy — Estately" },
-      { property: "og:description", content: "Cookies used by Estately and how to manage them." },
+      { title: "Cookie Policy — Gabley" },
+      { name: "description", content: "Which cookies Gabley uses, why, and how to change your preferences." },
+      { property: "og:title", content: "Cookie Policy — Gabley" },
+      { property: "og:description", content: "Cookies used by Gabley and how to manage them." },
       { property: "og:url", content: siteUrl("/cookies") },
     ],
     links: [{ rel: "canonical", href: siteUrl("/cookies") }],
   }),
 });
 
-const KEY = "estately.cookie-consent.v1";
+const KEY = "gabley.cookie-consent.v1";
 
 function CookiesPage() {
   const reset = () => {

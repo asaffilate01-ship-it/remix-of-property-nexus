@@ -6,7 +6,7 @@ export type GateSession = { unlocked?: boolean };
 export function gateSessionConfig() {
   return {
     password: process.env["SESSION_SECRET"]!,
-    name: "estately-promo-gate",
+    name: "gabley-promo-gate",
     maxAge: 60 * 60 * 24 * 30,
     cookie: { httpOnly: true, secure: true, sameSite: "lax" as const, path: "/" },
   };

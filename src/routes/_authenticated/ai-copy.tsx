@@ -12,7 +12,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { generateListingCopy } from "@/lib/ai-copy.functions";
 
 export const Route = createFileRoute("/_authenticated/ai-copy")({
-  head: () => ({ meta: [{ title: "AI listing copy — Estately" }] }),
+  head: () => ({ meta: [{ title: "AI listing copy — Gabley" }] }),
   component: AiCopyPage,
 });
 

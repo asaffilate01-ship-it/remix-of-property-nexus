@@ -62,7 +62,7 @@ export function GoogleListingsMap({
             label: l.price
               ? {
                   text: priceShort(l.price, l.currency),
-                  className: "estately-pin",
+                  className: "gabley-pin",
                   color: "#fff",
                   fontSize: "11px",
                   fontWeight: "600",

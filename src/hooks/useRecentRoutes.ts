@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 
 export type RecentRoute = { to: string; label: string; at: number };
 
-const KEY = "estately:recent-routes";
+const KEY = "gabley:recent-routes";
 const MAX = 6;
 
 function read(): RecentRoute[] {
@@ -21,7 +21,7 @@ function write(items: RecentRoute[]) {
   if (typeof window === "undefined") return;
   try {
     window.localStorage.setItem(KEY, JSON.stringify(items));
-    window.dispatchEvent(new Event("estately:recent-routes:change"));
+    window.dispatchEvent(new Event("gabley:recent-routes:change"));
   } catch {
     /* quota — ignore */
   }
@@ -41,10 +41,10 @@ export function useRecentRoutes() {
 
   useEffect(() => {
     const onChange = () => setItems(read());
-    window.addEventListener("estately:recent-routes:change", onChange);
+    window.addEventListener("gabley:recent-routes:change", onChange);
     window.addEventListener("storage", onChange);
     return () => {
-      window.removeEventListener("estately:recent-routes:change", onChange);
+      window.removeEventListener("gabley:recent-routes:change", onChange);
       window.removeEventListener("storage", onChange);
     };
   }, []);

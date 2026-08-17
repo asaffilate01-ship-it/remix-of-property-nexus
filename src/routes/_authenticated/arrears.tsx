@@ -7,7 +7,7 @@ import { Banknote, AlertTriangle } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 
 export const Route = createFileRoute("/_authenticated/arrears")({
-  head: () => ({ meta: [{ title: "Arrears — Estately" }] }),
+  head: () => ({ meta: [{ title: "Arrears — Gabley" }] }),
   component: ArrearsPage,
 });
 

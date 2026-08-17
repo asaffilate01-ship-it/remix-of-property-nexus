@@ -9,9 +9,9 @@ import { siteUrl } from "@/lib/site-url";
 export const Route = createFileRoute("/area-guides")({
   head: () => ({
     meta: [
-      { title: "UK area guides — schools, transport, prices — Estately" },
+      { title: "UK area guides — schools, transport, prices — Gabley" },
       { name: "description", content: "In-depth area guides for every UK postcode: school ratings, transport, crime, demographics, sold prices and rental yields." },
-      { property: "og:title", content: "UK area guides — Estately" },
+      { property: "og:title", content: "UK area guides — Gabley" },
       { property: "og:description", content: "Schools, transport, crime and price trends — for every UK postcode." },
     ],
     links: [{ rel: "canonical", href: siteUrl("/area-guides") }],

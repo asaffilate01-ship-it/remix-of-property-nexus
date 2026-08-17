@@ -38,7 +38,7 @@ export const POSTS: Post[] = [
     body: [
       "The abolition of Section 21 means every possession claim now runs through Section 8 grounds. Documentation discipline is no longer optional.",
       "Periodic tenancies become the default — fixed terms above 12 months are out. This changes how rent reviews and notice periods are structured.",
-      "Estately's compliance engine auto-flags affected tenancies and pre-fills the new prescribed forms. Onboarding takes under 10 minutes.",
+      "Gabley's compliance engine auto-flags affected tenancies and pre-fills the new prescribed forms. Onboarding takes under 10 minutes.",
     ],
   },
   {
@@ -53,7 +53,7 @@ export const POSTS: Post[] = [
     body: [
       "AI-generated descriptions outperformed agent-written copy on click-through by 18%, but only when the prompt included three property-specific facts.",
       "Generic AI copy underperformed both human and fact-anchored AI — the lesson is that grounding matters more than model size.",
-      "Estately's generator forces structured facts into the prompt and produces headline, summary, bullets and social caption in one pass.",
+      "Gabley's generator forces structured facts into the prompt and produces headline, summary, bullets and social caption in one pass.",
     ],
   },
 ];

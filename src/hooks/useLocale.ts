@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { DEFAULT_LOCALE, isAppLocale, type AppLocale } from "@/lib/locale";
 
-const STORAGE_KEY = "estately:locale";
-const CHANGE_EVENT = "estately:locale-change";
+const STORAGE_KEY = "gabley:locale";
+const CHANGE_EVENT = "gabley:locale-change";
 
 function preferredLocale(): AppLocale {
   if (typeof window === "undefined") return DEFAULT_LOCALE;

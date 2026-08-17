@@ -5,7 +5,7 @@ import { CONTENT_SECURITY_POLICY, withSecurityHeaders } from "../src/lib/securit
 describe("production response security headers", () => {
   test("makes every HTML response private and non-cacheable", async () => {
     const response = withSecurityHeaders(
-      new Response("<!doctype html><title>Estately</title>", {
+      new Response("<!doctype html><title>Gabley</title>", {
         headers: {
           "content-type": "text/html; charset=utf-8",
           "cache-control": "public, max-age=3600",
@@ -19,7 +19,7 @@ describe("production response security headers", () => {
     assert.equal(response.headers.get("x-content-type-options"), "nosniff");
     assert.equal(response.headers.get("x-permitted-cross-domain-policies"), "none");
     assert.equal(response.headers.get("cross-origin-opener-policy"), "same-origin-allow-popups");
-    assert.equal(await response.text(), "<!doctype html><title>Estately</title>");
+    assert.equal(await response.text(), "<!doctype html><title>Gabley</title>");
   });
 
   test("preserves API cache policy and does not attach an HTML CSP", () => {

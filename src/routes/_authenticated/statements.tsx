@@ -7,7 +7,7 @@ import { Receipt } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 
 export const Route = createFileRoute("/_authenticated/statements")({
-  head: () => ({ meta: [{ title: "Owner statements — Estately" }] }),
+  head: () => ({ meta: [{ title: "Owner statements — Gabley" }] }),
   component: StatementsPage,
 });
 

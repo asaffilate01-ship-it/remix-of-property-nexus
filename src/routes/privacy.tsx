@@ -7,13 +7,13 @@ export const Route = createFileRoute("/privacy")({
   component: PrivacyPage,
   head: () => ({
     meta: [
-      { title: "Privacy Policy — Estately" },
+      { title: "Privacy Policy — Gabley" },
       {
         name: "description",
-        content: "How Estately collects, uses and protects your personal data under UK GDPR.",
+        content: "How Gabley collects, uses and protects your personal data under UK GDPR.",
       },
-      { property: "og:title", content: "Privacy Policy — Estately" },
-      { property: "og:description", content: "How Estately handles personal data under UK GDPR." },
+      { property: "og:title", content: "Privacy Policy — Gabley" },
+      { property: "og:description", content: "How Gabley handles personal data under UK GDPR." },
       { property: "og:url", content: siteUrl("/privacy") },
     ],
     links: [{ rel: "canonical", href: siteUrl("/privacy") }],
@@ -29,7 +29,7 @@ function PrivacyPage() {
         <p className="text-muted-foreground text-sm">Last updated: 15 August 2026</p>
 
         <p>
-          Estately Ltd ("we", "us") is the data controller for personal data we process about you.
+          Gabley Ltd ("we", "us") is the data controller for personal data we process about you.
           We are registered with the UK Information Commissioner's Office.
         </p>
 
@@ -88,12 +88,12 @@ function PrivacyPage() {
           lodge a complaint with the ICO. Signed-in users can submit and track a request in the{" "}
           <a href="/settings?tab=privacy">privacy centre</a>. We may need to verify your identity
           and will normally respond within one month. You may also email{" "}
-          <a href="mailto:privacy@estately.app">privacy@estately.app</a>.
+          <a href="mailto:privacy@gabley.co.uk">privacy@gabley.co.uk</a>.
         </p>
 
         <h2>Contact</h2>
         <p>
-          Data Protection Officer: <a href="mailto:privacy@estately.app">privacy@estately.app</a>
+          Data Protection Officer: <a href="mailto:privacy@gabley.co.uk">privacy@gabley.co.uk</a>
         </p>
       </main>
       <PublicFooter />

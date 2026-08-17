@@ -6,7 +6,7 @@ import { Printer, ArrowLeft, Bed, Bath, Sofa, Ruler, Zap, Home } from "lucide-re
 import { ListingImage } from "@/components/ListingImage";
 
 export const Route = createFileRoute("/_authenticated/listing/$id/window-card")({
-  head: () => ({ meta: [{ title: "Window card — Estately" }] }),
+  head: () => ({ meta: [{ title: "Window card — Gabley" }] }),
   component: WindowCardPage,
 });
 
@@ -153,8 +153,8 @@ function WindowCardPage() {
         {/* Footer */}
         <div className="absolute" />
         <div className="mt-6 pt-3 border-t border-neutral-300 flex items-center justify-between text-xs text-neutral-600">
-          <div className="inline-flex items-center gap-1.5"><Home className="h-3.5 w-3.5" /> Estately</div>
-          <div>estately.app/marketplace/{l.slug}</div>
+          <div className="inline-flex items-center gap-1.5"><Home className="h-3.5 w-3.5" /> Gabley</div>
+          <div>gabley.co.uk/marketplace/{l.slug}</div>
         </div>
       </div>
 

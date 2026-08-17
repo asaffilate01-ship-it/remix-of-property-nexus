@@ -35,7 +35,7 @@ import {
 } from "@/lib/team.functions";
 
 export const Route = createFileRoute("/_authenticated/team")({
-  head: () => ({ meta: [{ title: "Team — Estately" }] }),
+  head: () => ({ meta: [{ title: "Team — Gabley" }] }),
   component: TeamPage,
 });
 

@@ -9,7 +9,7 @@ type BeforeInstallPromptEvent = Event & {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 };
 
-const DISMISS_KEY = "estately:install-dismissed";
+const DISMISS_KEY = "gabley:install-dismissed";
 
 /** Native-app install affordance + offline indicator. Renders nothing when irrelevant. */
 export function InstallPrompt() {
@@ -65,7 +65,7 @@ export function InstallPrompt() {
           <Download className="h-4 w-4" />
         </span>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold text-foreground">Install Estately</p>
+          <p className="text-sm font-semibold text-foreground">Install Gabley</p>
           <p className="mt-0.5 text-xs text-muted-foreground">
             Add it to your home screen for full-screen access and faster launches.
           </p>

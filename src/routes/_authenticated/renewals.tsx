@@ -8,7 +8,7 @@ import { RefreshCcw, CalendarDays } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 
 export const Route = createFileRoute("/_authenticated/renewals")({
-  head: () => ({ meta: [{ title: "Renewals — Estately" }] }),
+  head: () => ({ meta: [{ title: "Renewals — Gabley" }] }),
   component: RenewalsPage,
 });
 

@@ -16,9 +16,9 @@ import { siteUrl } from "@/lib/site-url";
 export const Route = createFileRoute("/valuation")({
   head: () => ({
     meta: [
-      { title: "Property valuation — Estately" },
-      { name: "description", content: "Request an indicative online property valuation or book a local appraisal with Estately." },
-      { property: "og:title", content: "Property valuation — Estately" },
+      { title: "Property valuation — Gabley" },
+      { name: "description", content: "Request an indicative online property valuation or book a local appraisal with Gabley." },
+      { property: "og:title", content: "Property valuation — Gabley" },
       { property: "og:description", content: "Request a UK sale or rental valuation." },
     ],
     links: [{ rel: "canonical", href: siteUrl("/valuation") }],
@@ -156,14 +156,14 @@ function ValuationPage() {
                     <CheckCircle2 className="h-5 w-5 text-success shrink-0 mt-0.5" />
                     <div>
                       <div className="font-semibold">Booked — we'll be in touch</div>
-                      <p className="text-sm text-muted-foreground">A local Estately partner agent will contact you within one working day with a free in-person valuation.</p>
+                      <p className="text-sm text-muted-foreground">A local Gabley partner agent will contact you within one working day with a free in-person valuation.</p>
                     </div>
                   </div>
                 ) : (
                   <div className="rounded-lg border p-4 bg-muted/30 space-y-3">
                     <div>
                       <div className="font-semibold">Want a higher-confidence appraisal?</div>
-                      <p className="text-sm text-muted-foreground">Book a free in-person valuation with a local Estately partner agent who can assess condition, finish and local demand.</p>
+                      <p className="text-sm text-muted-foreground">Book a free in-person valuation with a local Gabley partner agent who can assess condition, finish and local demand.</p>
                     </div>
                     <div className="grid sm:grid-cols-3 gap-2">
                       <Input placeholder="Your name" value={contact.name} onChange={(e) => setContact({ ...contact, name: e.target.value })} />

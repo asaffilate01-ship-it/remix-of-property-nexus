@@ -19,7 +19,7 @@ import { linkContactToUser } from "@/lib/contacts.functions";
 export const Route = createFileRoute("/_authenticated/contacts")({
   validateSearch: (search: Record<string, unknown>): { create?: boolean } =>
     search.create === true || search.create === "true" ? { create: true } : {},
-  head: () => ({ meta: [{ title: "Contacts — Estately" }] }),
+  head: () => ({ meta: [{ title: "Contacts — Gabley" }] }),
   component: ContactsPage,
 });
 
@@ -207,8 +207,8 @@ function ContactsPage() {
                 </div>
                 <p className="mt-1 text-xs text-muted-foreground">
                   {linkedUserId
-                    ? "This contact is linked to an Estately account and can see their assigned jobs, visits and documents."
-                    : "Link an existing Estately account so this contact can sign in and see only their own jobs. Access is never granted by email alone."}
+                    ? "This contact is linked to an Gabley account and can see their assigned jobs, visits and documents."
+                    : "Link an existing Gabley account so this contact can sign in and see only their own jobs. Access is never granted by email alone."}
                 </p>
                 <div className="mt-2 flex gap-2">
                   <Input

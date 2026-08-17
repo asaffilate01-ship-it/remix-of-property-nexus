@@ -2,11 +2,11 @@ import { Link } from "@tanstack/react-router";
 import { Building2, Twitter, Facebook, Instagram, Youtube, Linkedin } from "lucide-react";
 
 const SOCIALS = [
-  { href: "https://x.com/estately", label: "X (Twitter)", Icon: Twitter },
-  { href: "https://facebook.com/estately", label: "Facebook", Icon: Facebook },
-  { href: "https://instagram.com/estately", label: "Instagram", Icon: Instagram },
-  { href: "https://youtube.com/@estately", label: "YouTube", Icon: Youtube },
-  { href: "https://linkedin.com/company/estately", label: "LinkedIn", Icon: Linkedin },
+  { href: "https://x.com/gabley", label: "X (Twitter)", Icon: Twitter },
+  { href: "https://facebook.com/gabley", label: "Facebook", Icon: Facebook },
+  { href: "https://instagram.com/gabley", label: "Instagram", Icon: Instagram },
+  { href: "https://youtube.com/@gabley", label: "YouTube", Icon: Youtube },
+  { href: "https://linkedin.com/company/gabley", label: "LinkedIn", Icon: Linkedin },
 ];
 
 export function PublicFooter() {
@@ -16,9 +16,9 @@ export function PublicFooter() {
         <div className="md:col-span-2">
           <div className="flex items-center gap-2 font-bold text-base mb-2">
             <span className="brand-gradient inline-flex h-7 w-7 items-center justify-center rounded-md text-white"><Building2 className="h-3.5 w-3.5" /></span>
-            Estately
+            Gabley
           </div>
-          <p className="text-muted-foreground max-w-sm">The complete property OS for modern estate and letting agencies.</p>
+          <p className="text-muted-foreground max-w-sm">Where property comes together. Sales, lettings, HMO and commercial in one workspace.</p>
           <div className="mt-4 flex items-center gap-2">
             {SOCIALS.map(({ href, label, Icon }) => (
               <a
@@ -65,7 +65,7 @@ export function PublicFooter() {
         </div>
       </div>
       <div className="border-t py-6 text-center text-xs text-muted-foreground px-4">
-        © {new Date().getFullYear()} Estately Ltd. All rights reserved. Regulated by Property Ombudsman & ICO registered.
+        © {new Date().getFullYear()} Gabley Ltd. All rights reserved. Regulated by Property Ombudsman & ICO registered.
       </div>
     </footer>
   );

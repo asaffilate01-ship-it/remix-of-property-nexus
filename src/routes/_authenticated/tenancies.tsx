@@ -17,7 +17,7 @@ const tenanciesQueryOptions = () =>
   });
 
 export const Route = createFileRoute("/_authenticated/tenancies")({
-  head: () => ({ meta: [{ title: "Tenancies — Estately" }] }),
+  head: () => ({ meta: [{ title: "Tenancies — Gabley" }] }),
   loader: ({ context }) =>
     context.queryClient.ensureQueryData(tenanciesQueryOptions()),
   component: TenanciesPage,

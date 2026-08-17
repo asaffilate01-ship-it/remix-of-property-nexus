@@ -10,7 +10,7 @@ import { BuyerDashboard } from "@/components/dashboards/BuyerDashboard";
 import { SimpleRoleDashboard } from "@/components/dashboards/SimpleRoleDashboard";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
-  head: () => ({ meta: [{ title: "Dashboard — Estately" }] }),
+  head: () => ({ meta: [{ title: "Dashboard — Gabley" }] }),
   component: Dashboard,
 });
 

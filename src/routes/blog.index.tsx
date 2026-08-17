@@ -8,9 +8,9 @@ import { siteUrl } from "@/lib/site-url";
 export const Route = createFileRoute("/blog/")({
   head: () => ({
     meta: [
-      { title: "Blog — property insight & market data — Estately" },
-      { name: "description", content: "UK property market analysis, landlord compliance updates and product news from the Estately team." },
-      { property: "og:title", content: "Estately Blog" },
+      { title: "Blog — property insight & market data — Gabley" },
+      { name: "description", content: "UK property market analysis, landlord compliance updates and product news from the Gabley team." },
+      { property: "og:title", content: "Gabley Blog" },
       { property: "og:description", content: "Market data, compliance and product insight for UK property professionals." },
       { property: "og:url", content: siteUrl("/blog") },
     ],
@@ -26,7 +26,7 @@ function BlogIndex() {
       <section className="container max-w-6xl py-12 md:py-20">
         <div className="text-center mb-10">
           <Badge variant="outline" className="mb-4">Insight</Badge>
-          <h1 className="font-display text-3xl md:text-5xl font-bold tracking-tight">The Estately Blog</h1>
+          <h1 className="font-display text-3xl md:text-5xl font-bold tracking-tight">The Gabley Blog</h1>
           <p className="text-muted-foreground mt-3 max-w-xl mx-auto">
             Market data, compliance and product thinking for landlords, agents and developers.
           </p>

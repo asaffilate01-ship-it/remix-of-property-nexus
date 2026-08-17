@@ -11,7 +11,7 @@ import { format } from "date-fns";
 
 export const Route = createFileRoute("/_authenticated/work-orders/$id")({
   ssr: false,
-  head: () => ({ meta: [{ title: "Work order — Estately" }] }),
+  head: () => ({ meta: [{ title: "Work order — Gabley" }] }),
   component: WorkOrderDetail,
   errorComponent: ({ error, reset }) => (
     <div className="p-6 space-y-3">
