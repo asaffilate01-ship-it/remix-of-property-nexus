@@ -422,20 +422,20 @@ function PromoHome() {
         <ProductShowcase />
 
         <section className="border-b bg-muted/20">
-          <div className="container mx-auto px-4 py-16 md:py-24">
-            <div className="mb-12 max-w-2xl">
+          <div className="container mx-auto px-4 py-12 md:py-24">
+            <div className="mb-8 max-w-2xl md:mb-12">
               <div className="mb-3 text-xs font-semibold uppercase tracking-widest text-accent">
                 Under the hood
               </div>
-              <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
+              <h2 className="text-2xl font-bold tracking-tight sm:text-3xl md:text-4xl">
                 Everything already built into the platform.
               </h2>
             </div>
-            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 sm:gap-5 md:grid-cols-2 lg:grid-cols-3">
               {platform.map((item) => (
                 <div
                   key={item.title}
-                  className="group rounded-2xl border bg-card p-6 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-prestige"
+                  className="group rounded-2xl border bg-card p-5 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-prestige sm:p-6"
                 >
                   <div className="grid h-10 w-10 place-items-center rounded-xl bg-accent/10 text-accent transition-colors group-hover:bg-accent/20">
                     <item.icon className="h-5 w-5" aria-hidden="true" />
@@ -449,22 +449,48 @@ function PromoHome() {
           </div>
         </section>
 
+        {/* FAQs */}
+        <section id="faqs" className="border-b">
+          <div className="container mx-auto px-4 py-12 md:py-24">
+            <div className="mb-8 max-w-2xl md:mb-10">
+              <div className="mb-3 text-xs font-semibold uppercase tracking-widest text-accent">
+                Questions
+              </div>
+              <h2 className="text-2xl font-bold tracking-tight sm:text-3xl md:text-4xl">
+                Frequently asked questions.
+              </h2>
+            </div>
+            <Accordion type="single" collapsible className="mx-auto max-w-3xl">
+              {faqs.map((faq, i) => (
+                <AccordionItem key={faq.q} value={`faq-${i}`}>
+                  <AccordionTrigger className="text-left text-base font-semibold">
+                    {faq.q}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-sm leading-relaxed text-muted-foreground">
+                    {faq.a}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </div>
+        </section>
+
         <section>
-          <div className="container mx-auto px-4 py-20 md:py-28">
-            <div className="mx-auto max-w-4xl rounded-3xl border bg-gradient-to-br from-accent/10 via-background to-accent/5 p-10 text-center md:p-16">
-              <Users className="mx-auto mb-5 h-10 w-10 text-accent" aria-hidden="true" />
-              <h2 className="mb-4 text-3xl font-bold tracking-tight md:text-4xl">
+          <div className="container mx-auto px-4 py-14 md:py-28">
+            <div className="mx-auto max-w-4xl rounded-3xl border bg-gradient-to-br from-accent/10 via-background to-accent/5 p-7 text-center sm:p-10 md:p-16">
+              <Users className="mx-auto mb-5 h-9 w-9 text-accent sm:h-10 sm:w-10" aria-hidden="true" />
+              <h2 className="mb-4 text-2xl font-bold tracking-tight sm:text-3xl md:text-4xl">
                 Want to see the whole platform?
               </h2>
-              <p className="mx-auto mb-8 max-w-xl text-lg text-muted-foreground">
+              <p className="mx-auto mb-7 max-w-xl text-base text-muted-foreground sm:text-lg md:mb-8">
                 Preview access is invite-only while we finish the launch rollout. Already have the
                 password? Head straight in.
               </p>
-              <div className="flex flex-wrap justify-center gap-3">
-                <Button asChild size="lg">
+              <div className="flex flex-col justify-center gap-3 sm:flex-row sm:flex-wrap">
+                <Button asChild size="lg" className="w-full sm:w-auto">
                   <Link to="/unlock">Enter platform</Link>
                 </Button>
-                <Button asChild size="lg" variant="outline">
+                <Button asChild size="lg" variant="outline" className="w-full sm:w-auto">
                   <a href="mailto:hello@estately.co.uk?subject=Estately%20preview%20access">
                     Request access
                   </a>
@@ -473,6 +499,7 @@ function PromoHome() {
             </div>
           </div>
         </section>
+
       </main>
 
       <footer className="border-t">
