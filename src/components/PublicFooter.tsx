@@ -1,5 +1,6 @@
+import gableyLogo from "@/assets/gabley-logo.png.asset.json";
 import { Link } from "@tanstack/react-router";
-import { Building2, Twitter, Facebook, Instagram, Youtube, Linkedin } from "lucide-react";
+import { Twitter, Facebook, Instagram, Youtube, Linkedin } from "lucide-react";
 
 const SOCIALS = [
   { href: "https://x.com/gabley", label: "X (Twitter)", Icon: Twitter },
@@ -14,10 +15,7 @@ export function PublicFooter() {
     <footer className="border-t bg-muted/40 mt-16">
       <div className="container mx-auto px-4 py-12 grid gap-8 md:grid-cols-5 text-sm">
         <div className="md:col-span-2">
-          <div className="flex items-center gap-2 font-bold text-base mb-2">
-            <span className="brand-gradient inline-flex h-7 w-7 items-center justify-center rounded-md text-white"><Building2 className="h-3.5 w-3.5" /></span>
-            Gabley
-          </div>
+          <img src={gableyLogo.url} alt="Gabley" className="h-8 w-auto mb-3" />
           <p className="text-muted-foreground max-w-sm">Where property comes together. Sales, lettings, HMO and commercial in one workspace.</p>
           <div className="mt-4 flex items-center gap-2">
             {SOCIALS.map(({ href, label, Icon }) => (

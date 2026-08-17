@@ -34,6 +34,7 @@ import shotMarketplace from "@/assets/shot-marketplace.jpg";
 import shotDashboard from "@/assets/shot-dashboard.jpg";
 import shotHome from "@/assets/shot-home.jpg";
 import shotBusiness from "@/assets/shot-business.jpg";
+import gableyLogo from "@/assets/gabley-logo.png.asset.json";
 import { siteUrl } from "@/lib/site-url";
 
 
@@ -339,14 +340,8 @@ function PromoHome() {
       <header className="sticky top-0 z-40 border-b glass">
         <div className="container mx-auto flex items-center justify-between gap-4 px-4 py-3.5">
           <div className="flex items-center gap-2.5">
-            <span className="grid h-9 w-9 place-items-center rounded-xl bg-accent/12 gold-hairline">
-              <Building2 className="h-5 w-5 text-accent" aria-hidden="true" />
-            </span>
-            <span className="flex flex-col leading-tight">
-              <span className="font-display text-lg font-bold tracking-tight">Gabley</span>
-              <span className="hidden text-[11px] text-muted-foreground sm:block">Where property comes together</span>
-            </span>
-
+            <img src={gableyLogo.url} alt="Gabley" className="h-8 w-auto sm:h-9" />
+            <span className="hidden text-[11px] text-muted-foreground sm:block">Where property comes together</span>
           </div>
           <Button asChild size="sm" className="btn-prestige">
             <Link to="/unlock">

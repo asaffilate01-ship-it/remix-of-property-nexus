@@ -1,4 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
+import gableyLogo from "@/assets/gabley-logo.png.asset.json";
 import { Building2, Menu, ChevronDown, Search, Bookmark, Calculator, Banknote, MapPin, ClipboardCheck, Briefcase, Users, BookOpen, Info, Mail, Tag, LogOut, LayoutDashboard } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -80,11 +81,8 @@ export function PublicHeader() {
   return (
     <header className="sticky top-0 z-40 border-b bg-background/70 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto flex h-16 items-center justify-between gap-4 px-4">
-        <Link to="/" className="flex items-center gap-2 font-bold text-lg shrink-0">
-          <span className="brand-gradient inline-flex h-9 w-9 items-center justify-center rounded-lg text-white shadow-sm">
-            <Building2 className="h-4 w-4" />
-          </span>
-          <span className="tracking-tight">Gabley</span>
+        <Link to="/" className="flex items-center shrink-0">
+          <img src={gableyLogo.url} alt="Gabley" className="h-8 w-auto" />
         </Link>
 
         <nav className="hidden lg:flex items-center gap-1">
