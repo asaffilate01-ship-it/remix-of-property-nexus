@@ -34,6 +34,7 @@ import shotMarketplace from "@/assets/shot-marketplace.jpg";
 import shotDashboard from "@/assets/shot-dashboard.jpg";
 import shotHome from "@/assets/shot-home.jpg";
 import shotBusiness from "@/assets/shot-business.jpg";
+import gableyLogo from "@/assets/gabley-logo.png.asset.json";
 import { siteUrl } from "@/lib/site-url";
 
 
