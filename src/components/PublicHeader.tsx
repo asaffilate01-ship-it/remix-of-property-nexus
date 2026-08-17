@@ -1,4 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
+import gableyLogo from "@/assets/gabley-logo.png.asset.json";
 import { Building2, Menu, ChevronDown, Search, Bookmark, Calculator, Banknote, MapPin, ClipboardCheck, Briefcase, Users, BookOpen, Info, Mail, Tag, LogOut, LayoutDashboard } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
