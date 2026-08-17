@@ -248,10 +248,10 @@ function ProductShowcase() {
           </div>
 
           <div>
-            <h3 className="text-2xl font-semibold">{current.title}</h3>
-            <div className="divider-gold my-5" />
-            <p className="text-muted-foreground">{current.body}</p>
-            <ul className="mt-6 space-y-2.5 text-sm">
+            <h3 className="text-xl font-semibold sm:text-2xl">{current.title}</h3>
+            <div className="divider-gold my-4 sm:my-5" />
+            <p className="text-sm text-muted-foreground sm:text-base">{current.body}</p>
+            <ul className="mt-5 space-y-2.5 text-sm sm:mt-6">
               {["Live data, real workflows", "Role-aware permissions throughout", "Same experience on mobile and native"].map(
                 (point) => (
                   <li key={point} className="flex gap-2.5">
@@ -261,13 +261,14 @@ function ProductShowcase() {
                 ),
               )}
             </ul>
-            <Button asChild className="btn-prestige mt-7">
+            <Button asChild className="btn-prestige mt-6 w-full sm:mt-7 sm:w-auto">
               <Link to="/unlock">
                 Unlock the full preview
                 <ArrowRight className="ml-1.5 h-4 w-4" aria-hidden="true" />
               </Link>
             </Button>
           </div>
+
         </div>
       </div>
     </section>
