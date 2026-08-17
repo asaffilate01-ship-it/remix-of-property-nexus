@@ -300,22 +300,22 @@ function PromoHome() {
             style={{ backgroundImage: `url(${heroPattern})` }}
             aria-hidden
           />
-          <div className="container relative mx-auto grid items-center gap-10 px-4 pt-20 pb-16 md:pt-28 md:pb-24 lg:grid-cols-2">
+          <div className="container relative mx-auto grid items-center gap-8 px-4 pt-12 pb-12 sm:pt-16 md:gap-10 md:pt-28 md:pb-24 lg:grid-cols-2">
             <div>
-              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-accent">
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-accent sm:text-xs">
                 <Sparkles className="h-3.5 w-3.5" aria-hidden="true" /> Private preview
               </div>
 
-              <h1 className="mb-6 text-4xl font-bold leading-[1.05] tracking-tight md:text-6xl">
+              <h1 className="mb-4 text-[1.9rem] font-bold leading-[1.1] tracking-tight sm:text-4xl md:mb-6 md:text-6xl">
                 One property platform for everyone in the deal.
               </h1>
-              <p className="mb-8 max-w-xl text-lg text-muted-foreground md:text-xl">
+              <p className="mb-7 max-w-xl text-base text-muted-foreground sm:text-lg md:mb-8 md:text-xl">
                 Estately brings the marketplace, agency CRM, compliance, tenancies, payments and
                 every portal — agents, owners, renters, buyers, sellers and contractors — into a
                 single premium workspace.
               </p>
-              <div className="flex flex-wrap gap-3">
-                <Button asChild size="lg" className="btn-prestige group">
+              <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                <Button asChild size="lg" className="btn-prestige group w-full sm:w-auto">
                   <Link to="/unlock">
                     Enter with preview password{" "}
                     <ArrowRight
@@ -325,19 +325,19 @@ function PromoHome() {
                   </Link>
                 </Button>
 
-                <Button asChild size="lg" variant="outline">
+                <Button asChild size="lg" variant="outline" className="w-full sm:w-auto">
                   <a href="mailto:hello@estately.co.uk?subject=Estately%20preview%20access">
                     Request access
                   </a>
                 </Button>
               </div>
-              <p className="mt-6 text-xs text-muted-foreground">
+              <p className="mt-5 text-xs text-muted-foreground md:mt-6">
                 The full product is password protected during the promo period.
               </p>
             </div>
             <div className="relative">
               <div className="pointer-events-none absolute -inset-6 rounded-[2rem] bg-accent/10 blur-3xl" aria-hidden />
-              <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border ring-prestige">
+              <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border ring-prestige md:rounded-3xl">
 
                 <img
                   src={heroHome}
@@ -350,13 +350,13 @@ function PromoHome() {
         </section>
 
         <section className="border-b bg-muted/30">
-          <div className="container mx-auto grid gap-px overflow-hidden px-4 py-12 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="container mx-auto grid grid-cols-2 gap-y-6 overflow-hidden px-4 py-10 sm:gap-px sm:py-12 lg:grid-cols-4">
             {stats.map((stat) => (
-              <div key={stat.label} className="px-1 sm:border-l sm:first:border-l-0 sm:pl-6">
-                <div className="font-display text-4xl font-bold tabular gold-text">
+              <div key={stat.label} className="min-w-0 px-1 sm:border-l sm:first:border-l-0 sm:pl-6">
+                <div className="font-display text-3xl font-bold tabular gold-text sm:text-4xl">
                   {stat.value}
                 </div>
-                <div className="mt-1.5 text-sm leading-snug text-muted-foreground">
+                <div className="mt-1.5 text-xs leading-snug text-muted-foreground sm:text-sm">
                   {stat.label}
                 </div>
               </div>
@@ -366,21 +366,22 @@ function PromoHome() {
 
 
         <section className="border-b">
-          <div className="container mx-auto px-4 py-16 md:py-24">
-            <div className="mb-12 max-w-2xl">
+          <div className="container mx-auto px-4 py-12 md:py-24">
+            <div className="mb-8 max-w-2xl md:mb-12">
               <div className="mb-3 text-xs font-semibold uppercase tracking-widest text-accent">
                 Built for every side of property
               </div>
-              <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
+              <h2 className="text-2xl font-bold tracking-tight sm:text-3xl md:text-4xl">
                 Whoever you are in the transaction, there&rsquo;s a workspace for you.
               </h2>
             </div>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-5 md:grid-cols-2 md:gap-6 lg:grid-cols-3">
               {audiences.map((audience) => (
                 <article
                   key={audience.title}
-                  className="prestige-card group relative overflow-hidden p-7"
+                  className="prestige-card group relative overflow-hidden p-5 sm:p-7"
                 >
+
                   <div
                     className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-accent/10 blur-2xl transition-opacity duration-500 group-hover:opacity-100 opacity-0"
                     aria-hidden
