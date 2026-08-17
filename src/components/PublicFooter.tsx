@@ -1,5 +1,6 @@
+import gableyLogo from "@/assets/gabley-logo.png.asset.json";
 import { Link } from "@tanstack/react-router";
-import { Building2, Twitter, Facebook, Instagram, Youtube, Linkedin } from "lucide-react";
+import { Twitter, Facebook, Instagram, Youtube, Linkedin } from "lucide-react";
 
 const SOCIALS = [
   { href: "https://x.com/gabley", label: "X (Twitter)", Icon: Twitter },
