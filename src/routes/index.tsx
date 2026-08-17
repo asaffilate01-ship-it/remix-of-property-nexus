@@ -371,8 +371,9 @@ function PromoHome() {
               </div>
 
               <h1 className="mb-4 text-[1.9rem] font-bold leading-[1.1] tracking-tight sm:text-4xl md:mb-6 md:text-6xl">
-                One property platform for everyone in the deal.
+                Where property comes together.
               </h1>
+
               <p className="mb-7 max-w-xl text-base text-muted-foreground sm:text-lg md:mb-8 md:text-xl">
                 Gabley brings the marketplace, agency CRM, compliance, tenancies, payments and
                 every portal — agents, owners, renters, buyers, sellers and contractors — into a
