@@ -20,7 +20,14 @@ import {
   Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { IsoIcon, type IsoIconName } from "@/components/iso/IsoIcon";
+
 import heroHome from "@/assets/hero-home.jpg";
 import heroPattern from "@/assets/hero-pattern.jpg";
 import shotMarketplace from "@/assets/shot-marketplace.jpg";
