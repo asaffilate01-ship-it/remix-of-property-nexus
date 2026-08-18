@@ -592,7 +592,7 @@ function PromoHome() {
         </section>
 
         {/* FAQs */}
-        <section id="faqs" className="border-b">
+        <section id="faqs" className="border-b scroll-mt-16">
           <div className="container mx-auto px-4 py-12 md:py-24">
             <div className="mb-8 max-w-2xl md:mb-10">
               <div className="mb-3 text-xs font-semibold uppercase tracking-widest text-accent">
@@ -652,6 +652,8 @@ function PromoHome() {
           </Link>
         </div>
       </footer>
+
+      <PromoTabBar />
     </div>
   );
 }
