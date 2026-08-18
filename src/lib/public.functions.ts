@@ -49,6 +49,19 @@ function haversineMiles(a: { lat: number; lng: number }, b: { lat: number; lng: 
   return 2 * R * Math.asin(Math.sqrt(s));
 }
 
+function pointInPolygon(lat: number, lng: number, poly: { lat: number; lng: number }[]): boolean {
+  let inside = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const yi = poly[i].lat;
+    const xi = poly[i].lng;
+    const yj = poly[j].lat;
+    const xj = poly[j].lng;
+    const intersects = yi > lat !== yj > lat && lng < ((xj - xi) * (lat - yi)) / (yj - yi) + xi;
+    if (intersects) inside = !inside;
+  }
+  return inside;
+}
+
 function getRoomRents(rooms: unknown): number[] {
   if (!Array.isArray(rooms)) return [];
   return rooms
