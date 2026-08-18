@@ -242,7 +242,7 @@ function ProductShowcase() {
   const current = screens.find((s) => s.id === active) ?? screens[0];
 
   return (
-    <section className="border-b bg-muted/20">
+    <section id="inside" className="border-b bg-muted/20 scroll-mt-16">
       <div className="container mx-auto px-4 py-12 md:py-24">
         <div className="mb-8 flex flex-wrap items-end justify-between gap-5 md:mb-10 md:gap-6">
           <div className="max-w-2xl">
@@ -436,8 +436,8 @@ function PromoHome() {
         </div>
       </header>
 
-      <main className="flex-1">
-        <section className="relative overflow-hidden border-b">
+      <main className="flex-1 pb-16 md:pb-0">
+        <section id="top" className="relative overflow-hidden border-b scroll-mt-16">
           <div
             className="absolute inset-0 opacity-[0.06] bg-cover bg-center"
             style={{ backgroundImage: `url(${heroPattern})` }}
@@ -509,7 +509,7 @@ function PromoHome() {
         </section>
 
 
-        <section className="border-b">
+        <section id="audiences" className="border-b scroll-mt-16">
           <div className="container mx-auto px-4 py-12 md:py-24">
             <div className="mb-8 max-w-2xl md:mb-12">
               <div className="mb-3 text-xs font-semibold uppercase tracking-widest text-accent">
@@ -644,7 +644,7 @@ function PromoHome() {
 
       </main>
 
-      <footer className="border-t">
+      <footer className="border-t pb-16 md:pb-0">
         <div className="container mx-auto flex flex-wrap items-center justify-between gap-3 px-4 py-8 text-sm text-muted-foreground">
           <span>&copy; {new Date().getFullYear()} Gabley. All rights reserved.</span>
           <Link to="/unlock" className="font-medium text-accent">
