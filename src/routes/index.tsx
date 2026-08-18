@@ -646,7 +646,9 @@ function PromoHome() {
 
       <footer className="border-t pb-16 md:pb-0">
         <div className="container mx-auto flex flex-wrap items-center justify-between gap-3 px-4 py-8 text-sm text-muted-foreground">
-          <span>&copy; {new Date().getFullYear()} Gabley. All rights reserved.</span>
+          <span>
+            &copy; {new Date().getFullYear()} iTechLounge Ltd. Gabley is a trading name of iTechLounge Ltd.
+          </span>
           <Link to="/unlock" className="font-medium text-accent">
             Preview access
           </Link>
