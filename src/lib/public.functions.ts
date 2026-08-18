@@ -49,6 +49,19 @@ function haversineMiles(a: { lat: number; lng: number }, b: { lat: number; lng: 
   return 2 * R * Math.asin(Math.sqrt(s));
 }
 
+function pointInPolygon(lat: number, lng: number, poly: { lat: number; lng: number }[]): boolean {
+  let inside = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const yi = poly[i].lat;
+    const xi = poly[i].lng;
+    const yj = poly[j].lat;
+    const xj = poly[j].lng;
+    const intersects = yi > lat !== yj > lat && lng < ((xj - xi) * (lat - yi)) / (yj - yi) + xi;
+    if (intersects) inside = !inside;
+  }
+  return inside;
+}
+
 function getRoomRents(rooms: unknown): number[] {
   if (!Array.isArray(rooms)) return [];
   return rooms
@@ -133,6 +146,14 @@ export const fetchListings = createServerFn({ method: "GET" })
     available_from: z.string().optional(),
     sort: sortSchema,
     agency_id: z.string().uuid().optional(),
+    bbox: z
+      .object({ north: z.number(), south: z.number(), east: z.number(), west: z.number() })
+      .optional(),
+    polygon: z
+      .array(z.object({ lat: z.number(), lng: z.number() }))
+      .min(3)
+      .max(500)
+      .optional(),
   }).optional())
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -191,6 +212,29 @@ export const fetchListings = createServerFn({ method: "GET" })
       listings = listings.filter((l) => {
         const feats = Array.isArray(l.features) ? (l.features as unknown[]).map((x) => String(x).toLowerCase()) : [];
         return wanted.every((w) => feats.some((f) => f.includes(w)));
+      });
+    }
+
+    // Map viewport ("search this area") filter
+    if (data?.bbox) {
+      const b = data.bbox;
+      listings = listings.filter((l) => {
+        const lat = l.latitude != null ? Number(l.latitude) : null;
+        const lng = l.longitude != null ? Number(l.longitude) : null;
+        if (lat == null || lng == null) return false;
+        const inLng = b.west <= b.east ? lng >= b.west && lng <= b.east : lng >= b.west || lng <= b.east;
+        return lat >= b.south && lat <= b.north && inLng;
+      });
+    }
+
+    // Draw-a-search polygon filter (ray casting)
+    if (data?.polygon && data.polygon.length >= 3) {
+      const poly = data.polygon;
+      listings = listings.filter((l) => {
+        const lat = l.latitude != null ? Number(l.latitude) : null;
+        const lng = l.longitude != null ? Number(l.longitude) : null;
+        if (lat == null || lng == null) return false;
+        return pointInPolygon(lat, lng, poly);
       });
     }
 

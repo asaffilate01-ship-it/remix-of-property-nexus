@@ -222,6 +222,8 @@ function ListingDetail() {
 
           <KeyFacts l={l} />
 
+          <EpcGraph rating={l.epc_rating} />
+
           <Tabs defaultValue="overview">
             <TabsList>
               <TabsTrigger value="overview">Overview</TabsTrigger>
@@ -343,9 +345,109 @@ function ListingDetail() {
           </div>
         </section>
       )}
+
+      <StickyEnquiryBar
+        price={price}
+        isSale={isSale}
+        phone={l.agencies?.phone ?? null}
+        email={l.agencies?.email ?? null}
+        agencyName={l.agencies?.name ?? "the agent"}
+        title={l.title}
+      />
     </Shell>
   );
 }
+
+const EPC_BANDS = [
+  { band: "A", cls: "bg-[#008054]" },
+  { band: "B", cls: "bg-[#19b459]" },
+  { band: "C", cls: "bg-[#8dce46]" },
+  { band: "D", cls: "bg-[#ffd500]" },
+  { band: "E", cls: "bg-[#fcaa65]" },
+  { band: "F", cls: "bg-[#ef8023]" },
+  { band: "G", cls: "bg-[#e9153b]" },
+] as const;
+
+function EpcGraph({ rating }: { rating: string | null | undefined }) {
+  if (!rating) return null;
+  const current = rating.trim().toUpperCase().charAt(0);
+  return (
+    <section aria-labelledby="epc-heading" className="rounded-2xl border bg-card p-5">
+      <h2 id="epc-heading" className="text-sm font-semibold mb-3">
+        Energy performance (EPC)
+      </h2>
+      <div className="space-y-1.5">
+        {EPC_BANDS.map((b, i) => {
+          const active = b.band === current;
+          return (
+            <div key={b.band} className="flex items-center gap-3">
+              <div
+                className={`${b.cls} flex h-6 items-center justify-end rounded-sm px-2 text-[11px] font-bold text-white`}
+                style={{ width: `${34 + i * 9}%` }}
+              >
+                {b.band}
+              </div>
+              {active && (
+                <span className="rounded-md bg-foreground px-2 py-0.5 text-[11px] font-semibold text-background">
+                  This property
+                </span>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+function StickyEnquiryBar({
+  price,
+  isSale,
+  phone,
+  email,
+  agencyName,
+  title,
+}: {
+  price: string;
+  isSale: boolean;
+  phone: string | null;
+  email: string | null;
+  agencyName: string;
+  title: string;
+}) {
+  return (
+    <div className="lg:hidden sticky bottom-0 z-40 border-t bg-background/95 backdrop-blur pb-[env(safe-area-inset-bottom)]">
+      <div className="container mx-auto flex items-center gap-3 px-4 py-3">
+        <div className="min-w-0 flex-1">
+          <div className="truncate text-base font-bold text-primary">
+            {price}
+            {!isSale && <span className="text-xs font-normal text-muted-foreground"> pcm</span>}
+          </div>
+          <div className="truncate text-[11px] text-muted-foreground">{agencyName}</div>
+        </div>
+        {phone && (
+          <Button asChild variant="outline" size="sm">
+            <a href={`tel:${phone}`} aria-label={`Call ${agencyName}`}>
+              Call
+            </a>
+          </Button>
+        )}
+        <Button asChild size="sm">
+          <a
+            href={
+              email
+                ? `mailto:${email}?subject=${encodeURIComponent(`Enquiry about ${title}`)}`
+                : "#enquire"
+            }
+          >
+            Enquire
+          </a>
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 
 function Gallery({ photos, title, isHmo, purpose }: { photos: string[]; title: string; isHmo: boolean; purpose: string | null }) {
   const [openAt, setOpenAt] = useState<number | null>(null);

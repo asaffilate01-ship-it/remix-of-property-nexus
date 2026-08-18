@@ -46,7 +46,12 @@ import {
   Columns2,
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { GoogleListingsMap } from "@/components/GoogleListingsMap";
+import {
+  GoogleListingsMap,
+  type MapBounds,
+  type MapPoint,
+} from "@/components/GoogleListingsMap";
+import { aiParseSearch, type AiSearchFilters } from "@/lib/ai-search.functions";
 import { toast } from "sonner";
 
 const categories = ["all", "sale", "rent", "hmo", "commercial"] as const;
@@ -172,12 +177,35 @@ function MarketplacePage() {
     else setSearch({ city: v, postcode: undefined });
   };
 
+  // Map-driven refinements (viewport + draw-a-search)
+  const [hoverId, setHoverId] = useState<string | null>(null);
+  const [bbox, setBbox] = useState<MapBounds | null>(null);
+  const [polygon, setPolygon] = useState<MapPoint[] | null>(null);
+  const controls: MapControls = {
+    hoverId,
+    setHoverId,
+    polygon,
+    setPolygon: (p) => {
+      setPolygon(p);
+      if (p) {
+        setBbox(null);
+        toast.success("Custom map area applied");
+      }
+    },
+    onSearchArea: (b) => {
+      setPolygon(null);
+      setBbox(b);
+    },
+  };
+
   const fn = useServerFn(fetchListings);
   const { data, isLoading, isFetching } = useQuery({
-    queryKey: ["listings", s, q],
+    queryKey: ["listings", s, q, bbox, polygon],
     queryFn: () =>
       fn({
         data: {
+          bbox: bbox ?? undefined,
+          polygon: polygon ?? undefined,
           q: q || undefined,
           city: s.city || undefined,
           postcode: s.postcode || undefined,
@@ -297,6 +325,34 @@ function MarketplacePage() {
               onSubmit={() => {
                 setSearch({ q: q || undefined });
                 onSubmitWhere();
+              }}
+            />
+
+            <AiSearchBar
+              onApply={(filters, summary) => {
+                if (filters.city) setWhere(filters.city);
+                else if (filters.postcode) setWhere(filters.postcode);
+                if (filters.q !== undefined) setQ(filters.q ?? "");
+                setBbox(null);
+                setPolygon(null);
+                navigate({
+                  search: {
+                    category: filters.category,
+                    city: filters.city,
+                    postcode: filters.postcode,
+                    property_type: filters.property_type,
+                    min_price: filters.min_price,
+                    max_price: filters.max_price,
+                    beds: filters.beds,
+                    baths: filters.baths,
+                    features: filters.features,
+                    furnished: filters.furnished,
+                    bills_included: filters.bills_included,
+                    radius: filters.radius,
+                    q: filters.q,
+                  },
+                });
+                toast.success(summary);
               }}
             />
 
@@ -496,20 +552,24 @@ function MarketplacePage() {
             </div>
           </div>
 
-          {activeFilters.length > 0 && (
+          {(activeFilters.length > 0 || bbox || polygon) && (
             <div className="flex flex-wrap items-center gap-2 mt-3">
               {activeFilters.map((f, i) => (
                 <Badge key={i} variant="secondary" className="capitalize">
                   {f}
                 </Badge>
               ))}
+              {bbox && <Badge variant="secondary">map area</Badge>}
+              {polygon && <Badge variant="secondary">drawn area</Badge>}
               <Button
                 variant="ghost"
                 size="sm"
                 className="h-7 text-xs"
-                onClick={() =>
-                  navigate({ search: { category: category === "all" ? undefined : category } })
-                }
+                onClick={() => {
+                  setBbox(null);
+                  setPolygon(null);
+                  navigate({ search: { category: category === "all" ? undefined : category } });
+                }}
               >
                 <X className="h-3 w-3 mr-1" /> Clear filters
               </Button>
@@ -534,10 +594,10 @@ function MarketplacePage() {
           ) : data?.listings.length ? (
             view === "map" ? (
               <div className="container mx-auto">
-                <MapView listings={data.listings} />
+                <MapView listings={data.listings} controls={controls} />
               </div>
             ) : view === "split" ? (
-              <SplitView listings={data.listings} />
+              <SplitView listings={data.listings} controls={controls} />
             ) : (
               <div className="container mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {data.listings.map((l) => (
@@ -566,16 +626,99 @@ function MarketplacePage() {
   );
 }
 
-function SplitView({ listings }: { listings: MapListing[] }) {
+function SplitView({ listings, controls }: { listings: MapListing[]; controls: MapControls }) {
   return (
     <div className="mx-auto max-w-[1600px] grid lg:grid-cols-[minmax(0,1fr)_minmax(420px,46%)] gap-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:max-h-[calc(100vh-180px)] lg:overflow-y-auto pr-1">
         {listings.map((l) => (
-          <ListingCard key={l.id} l={l as never} />
+          <div
+            key={l.id}
+            onMouseEnter={() => controls.setHoverId(l.id)}
+            onMouseLeave={() => controls.setHoverId(null)}
+            className={`rounded-xl transition-shadow ${controls.hoverId === l.id ? "ring-2 ring-accent" : ""}`}
+          >
+            <ListingCard l={l as never} />
+          </div>
         ))}
       </div>
       <div className="hidden lg:block lg:sticky lg:top-20 lg:self-start lg:h-[calc(100vh-180px)] rounded-2xl overflow-hidden border bg-muted">
-        <GoogleListingsMap listings={listings} />
+        <GoogleListingsMap
+          listings={listings}
+          activeId={controls.hoverId}
+          onHoverListing={controls.setHoverId}
+          onSearchArea={controls.onSearchArea}
+          polygon={controls.polygon}
+          onPolygonChange={controls.setPolygon}
+        />
+      </div>
+    </div>
+  );
+}
+
+const AI_EXAMPLES = [
+  "2 bed flat in Manchester under £1,200 with parking",
+  "Family house to buy near Leeds, 4 beds, garden, under £450k",
+  "HMO room in Birmingham with bills included",
+];
+
+function AiSearchBar({
+  onApply,
+}: {
+  onApply: (filters: AiSearchFilters, summary: string) => void;
+}) {
+  const parse = useServerFn(aiParseSearch);
+  const [value, setValue] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const run = async (text: string) => {
+    const query = text.trim();
+    if (query.length < 3 || busy) return;
+    setBusy(true);
+    try {
+      const res = await parse({ data: { query } });
+      onApply(res.filters, res.summary);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "AI search failed");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="mt-3">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          void run(value);
+        }}
+        className="flex items-center gap-2 rounded-2xl bg-white/12 p-1.5 ring-1 ring-white/25 backdrop-blur"
+      >
+        <Sparkles className="ml-2 h-4 w-4 shrink-0 text-white/80" />
+        <input
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder="Describe your ideal home — AI will set the filters"
+          aria-label="AI property search"
+          className="h-10 min-w-0 flex-1 bg-transparent text-sm text-white placeholder:text-white/60 focus:outline-none"
+        />
+        <Button type="submit" size="sm" disabled={busy} className="h-9 shrink-0">
+          {busy ? "Thinking…" : "Ask AI"}
+        </Button>
+      </form>
+      <div className="mt-2 flex flex-wrap gap-1.5">
+        {AI_EXAMPLES.map((ex) => (
+          <button
+            key={ex}
+            type="button"
+            onClick={() => {
+              setValue(ex);
+              void run(ex);
+            }}
+            className="rounded-full border border-white/25 bg-white/10 px-2.5 py-1 text-[11px] text-white/85 transition-colors hover:bg-white/20"
+          >
+            {ex}
+          </button>
+        ))}
       </div>
     </div>
   );
@@ -1001,88 +1144,28 @@ type MapListing = {
   postcode?: string | null;
 };
 
-function MapView({ listings }: { listings: MapListing[] }) {
-  const [drawing, setDrawing] = useState(false);
-  const [polygon, setPolygon] = useState(false);
-  const withGeo = listings.filter((l) => l.latitude != null && l.longitude != null);
+type MapControls = {
+  hoverId: string | null;
+  setHoverId: (id: string | null) => void;
+  onSearchArea: (b: MapBounds) => void;
+  polygon: MapPoint[] | null;
+  setPolygon: (p: MapPoint[] | null) => void;
+};
 
-  const startDraw = () => {
-    setDrawing(true);
-    setPolygon(false);
-  };
-  const finishDraw = () => {
-    setDrawing(false);
-    setPolygon(true);
-    toast.success("Search area applied — showing listings within polygon");
-  };
-  const clearDraw = () => {
-    setDrawing(false);
-    setPolygon(false);
-  };
+function MapView({ listings, controls }: { listings: MapListing[]; controls: MapControls }) {
+  const withGeo = listings.filter((l) => l.latitude != null && l.longitude != null);
 
   return (
     <div className="grid lg:grid-cols-[1fr_360px] gap-4">
       <div className="relative rounded-2xl overflow-hidden border aspect-[4/3] lg:aspect-auto lg:h-[600px] bg-muted">
-        <GoogleListingsMap listings={listings} />
-
-        <div className="absolute top-3 left-3 flex flex-col gap-2 z-10">
-          {!drawing && !polygon && (
-            <Button size="sm" onClick={startDraw} className="shadow-lg">
-              <MapIcon className="h-3.5 w-3.5 mr-1" /> Draw area
-            </Button>
-          )}
-          {drawing && (
-            <>
-              <Badge className="bg-primary text-primary-foreground shadow-lg">
-                Click points on map to outline area
-              </Badge>
-              <div className="flex gap-1.5">
-                <Button size="sm" onClick={finishDraw} className="shadow-lg">
-                  Apply
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={clearDraw}
-                  className="bg-card shadow-lg"
-                >
-                  Cancel
-                </Button>
-              </div>
-            </>
-          )}
-          {polygon && !drawing && (
-            <div className="flex gap-1.5">
-              <Badge variant="secondary" className="shadow-lg">
-                Custom area active
-              </Badge>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={clearDraw}
-                className="bg-card shadow-lg h-6 px-2"
-              >
-                <X className="h-3 w-3" />
-              </Button>
-            </div>
-          )}
-        </div>
-        {drawing && (
-          <div className="pointer-events-none absolute inset-0">
-            <svg
-              className="absolute inset-0 w-full h-full"
-              preserveAspectRatio="none"
-              viewBox="0 0 100 100"
-            >
-              <polygon
-                points="20,30 70,20 80,50 65,80 30,75"
-                className="fill-primary/10 stroke-primary"
-                strokeWidth="0.6"
-                strokeDasharray="2 1"
-              />
-            </svg>
-          </div>
-        )}
+        <GoogleListingsMap
+          listings={listings}
+          activeId={controls.hoverId}
+          onHoverListing={controls.setHoverId}
+          onSearchArea={controls.onSearchArea}
+          polygon={controls.polygon}
+          onPolygonChange={controls.setPolygon}
+        />
       </div>
       <div className="space-y-2 lg:max-h-[600px] lg:overflow-y-auto pr-1">
         {withGeo.length === 0 && (
@@ -1094,8 +1177,17 @@ function MapView({ listings }: { listings: MapListing[] }) {
           </Card>
         )}
         {listings.map((l) => (
-          <Link key={l.id} to="/marketplace/$slug" params={{ slug: l.slug }} className="block">
-            <Card className="border hover:shadow-card transition-shadow">
+          <Link
+            key={l.id}
+            to="/marketplace/$slug"
+            params={{ slug: l.slug }}
+            className="block"
+            onMouseEnter={() => controls.setHoverId(l.id)}
+            onMouseLeave={() => controls.setHoverId(null)}
+          >
+            <Card
+              className={`border transition-shadow ${controls.hoverId === l.id ? "shadow-xl ring-2 ring-accent" : "hover:shadow-card"}`}
+            >
               <CardContent className="p-3 flex items-center justify-between gap-3">
                 <div className="min-w-0">
                   <div className="text-sm font-medium truncate">{l.title}</div>
