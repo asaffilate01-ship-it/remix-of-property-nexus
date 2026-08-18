@@ -51,7 +51,7 @@ import {
   type MapBounds,
   type MapPoint,
 } from "@/components/GoogleListingsMap";
-import { aiParseSearch } from "@/lib/ai-search.functions";
+import { aiParseSearch, type AiSearchFilters } from "@/lib/ai-search.functions";
 import { toast } from "sonner";
 
 const categories = ["all", "sale", "rent", "hmo", "commercial"] as const;
