@@ -202,6 +202,29 @@ export const fetchListings = createServerFn({ method: "GET" })
       });
     }
 
+    // Map viewport ("search this area") filter
+    if (data?.bbox) {
+      const b = data.bbox;
+      listings = listings.filter((l) => {
+        const lat = l.latitude != null ? Number(l.latitude) : null;
+        const lng = l.longitude != null ? Number(l.longitude) : null;
+        if (lat == null || lng == null) return false;
+        const inLng = b.west <= b.east ? lng >= b.west && lng <= b.east : lng >= b.west || lng <= b.east;
+        return lat >= b.south && lat <= b.north && inLng;
+      });
+    }
+
+    // Draw-a-search polygon filter (ray casting)
+    if (data?.polygon && data.polygon.length >= 3) {
+      const poly = data.polygon;
+      listings = listings.filter((l) => {
+        const lat = l.latitude != null ? Number(l.latitude) : null;
+        const lng = l.longitude != null ? Number(l.longitude) : null;
+        if (lat == null || lng == null) return false;
+        return pointInPolygon(lat, lng, poly);
+      });
+    }
+
     // Distance filter + annotation
     const resolvedCentroid: { lat: number; lng: number; label: string } | null = centroid;
     let withDistance: (typeof listings[number] & { distance_miles: number | null })[] = listings.map((l) => ({ ...l, distance_miles: null }));
