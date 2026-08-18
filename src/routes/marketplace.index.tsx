@@ -552,20 +552,24 @@ function MarketplacePage() {
             </div>
           </div>
 
-          {activeFilters.length > 0 && (
+          {(activeFilters.length > 0 || bbox || polygon) && (
             <div className="flex flex-wrap items-center gap-2 mt-3">
               {activeFilters.map((f, i) => (
                 <Badge key={i} variant="secondary" className="capitalize">
                   {f}
                 </Badge>
               ))}
+              {bbox && <Badge variant="secondary">map area</Badge>}
+              {polygon && <Badge variant="secondary">drawn area</Badge>}
               <Button
                 variant="ghost"
                 size="sm"
                 className="h-7 text-xs"
-                onClick={() =>
-                  navigate({ search: { category: category === "all" ? undefined : category } })
-                }
+                onClick={() => {
+                  setBbox(null);
+                  setPolygon(null);
+                  navigate({ search: { category: category === "all" ? undefined : category } });
+                }}
               >
                 <X className="h-3 w-3 mr-1" /> Clear filters
               </Button>
