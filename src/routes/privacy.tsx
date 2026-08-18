@@ -29,8 +29,8 @@ function PrivacyPage() {
         <p className="text-muted-foreground text-sm">Last updated: 15 August 2026</p>
 
         <p>
-          Gabley Ltd ("we", "us") is the data controller for personal data we process about you.
-          We are registered with the UK Information Commissioner's Office.
+          Gabley is a trading name of iTechLounge Ltd ("we", "us"), the data controller for personal
+          data we process about you. We are registered with the UK Information Commissioner's Office.
         </p>
 
         <h2>What we collect</h2>

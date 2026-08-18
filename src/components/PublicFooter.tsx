@@ -63,7 +63,7 @@ export function PublicFooter() {
         </div>
       </div>
       <div className="border-t py-6 text-center text-xs text-muted-foreground px-4">
-        © {new Date().getFullYear()} Gabley Ltd. All rights reserved. Regulated by Property Ombudsman & ICO registered.
+        © {new Date().getFullYear()} iTechLounge Ltd. All rights reserved. Gabley is a trading name of iTechLounge Ltd. Regulated by Property Ombudsman &amp; ICO registered.
       </div>
     </footer>
   );

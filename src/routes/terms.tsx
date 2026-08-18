@@ -26,7 +26,7 @@ function TermsPage() {
         <p className="text-muted-foreground text-sm">Last updated: {new Date().toLocaleDateString("en-GB", { year: "numeric", month: "long", day: "numeric" })}</p>
 
         <h2>1. Acceptance</h2>
-        <p>By accessing or using Gabley ("the Service"), you agree to be bound by these Terms. If you do not agree, do not use the Service.</p>
+        <p>By accessing or using Gabley ("the Service"), you agree to be bound by these Terms. If you do not agree, do not use the Service. Gabley is a trading name of iTechLounge Ltd, the provider of the Service.</p>
 
         <h2>2. The Service</h2>
         <p>Gabley provides software-as-a-service tools for estate and letting agencies, landlords, tenants and prospective property buyers/renters, including a marketplace of listings, CRM, HMO management, compliance tracking, work-order management and related features.</p>
