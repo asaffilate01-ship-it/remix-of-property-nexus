@@ -1001,88 +1001,28 @@ type MapListing = {
   postcode?: string | null;
 };
 
-function MapView({ listings }: { listings: MapListing[] }) {
-  const [drawing, setDrawing] = useState(false);
-  const [polygon, setPolygon] = useState(false);
-  const withGeo = listings.filter((l) => l.latitude != null && l.longitude != null);
+type MapControls = {
+  hoverId: string | null;
+  setHoverId: (id: string | null) => void;
+  onSearchArea: (b: MapBounds) => void;
+  polygon: MapPoint[] | null;
+  setPolygon: (p: MapPoint[] | null) => void;
+};
 
-  const startDraw = () => {
-    setDrawing(true);
-    setPolygon(false);
-  };
-  const finishDraw = () => {
-    setDrawing(false);
-    setPolygon(true);
-    toast.success("Search area applied — showing listings within polygon");
-  };
-  const clearDraw = () => {
-    setDrawing(false);
-    setPolygon(false);
-  };
+function MapView({ listings, controls }: { listings: MapListing[]; controls: MapControls }) {
+  const withGeo = listings.filter((l) => l.latitude != null && l.longitude != null);
 
   return (
     <div className="grid lg:grid-cols-[1fr_360px] gap-4">
       <div className="relative rounded-2xl overflow-hidden border aspect-[4/3] lg:aspect-auto lg:h-[600px] bg-muted">
-        <GoogleListingsMap listings={listings} />
-
-        <div className="absolute top-3 left-3 flex flex-col gap-2 z-10">
-          {!drawing && !polygon && (
-            <Button size="sm" onClick={startDraw} className="shadow-lg">
-              <MapIcon className="h-3.5 w-3.5 mr-1" /> Draw area
-            </Button>
-          )}
-          {drawing && (
-            <>
-              <Badge className="bg-primary text-primary-foreground shadow-lg">
-                Click points on map to outline area
-              </Badge>
-              <div className="flex gap-1.5">
-                <Button size="sm" onClick={finishDraw} className="shadow-lg">
-                  Apply
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={clearDraw}
-                  className="bg-card shadow-lg"
-                >
-                  Cancel
-                </Button>
-              </div>
-            </>
-          )}
-          {polygon && !drawing && (
-            <div className="flex gap-1.5">
-              <Badge variant="secondary" className="shadow-lg">
-                Custom area active
-              </Badge>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={clearDraw}
-                className="bg-card shadow-lg h-6 px-2"
-              >
-                <X className="h-3 w-3" />
-              </Button>
-            </div>
-          )}
-        </div>
-        {drawing && (
-          <div className="pointer-events-none absolute inset-0">
-            <svg
-              className="absolute inset-0 w-full h-full"
-              preserveAspectRatio="none"
-              viewBox="0 0 100 100"
-            >
-              <polygon
-                points="20,30 70,20 80,50 65,80 30,75"
-                className="fill-primary/10 stroke-primary"
-                strokeWidth="0.6"
-                strokeDasharray="2 1"
-              />
-            </svg>
-          </div>
-        )}
+        <GoogleListingsMap
+          listings={listings}
+          activeId={controls.hoverId}
+          onHoverListing={controls.setHoverId}
+          onSearchArea={controls.onSearchArea}
+          polygon={controls.polygon}
+          onPolygonChange={controls.setPolygon}
+        />
       </div>
       <div className="space-y-2 lg:max-h-[600px] lg:overflow-y-auto pr-1">
         {withGeo.length === 0 && (
@@ -1094,8 +1034,17 @@ function MapView({ listings }: { listings: MapListing[] }) {
           </Card>
         )}
         {listings.map((l) => (
-          <Link key={l.id} to="/marketplace/$slug" params={{ slug: l.slug }} className="block">
-            <Card className="border hover:shadow-card transition-shadow">
+          <Link
+            key={l.id}
+            to="/marketplace/$slug"
+            params={{ slug: l.slug }}
+            className="block"
+            onMouseEnter={() => controls.setHoverId(l.id)}
+            onMouseLeave={() => controls.setHoverId(null)}
+          >
+            <Card
+              className={`border transition-shadow ${controls.hoverId === l.id ? "shadow-xl ring-2 ring-accent" : "hover:shadow-card"}`}
+            >
               <CardContent className="p-3 flex items-center justify-between gap-3">
                 <div className="min-w-0">
                   <div className="text-sm font-medium truncate">{l.title}</div>
