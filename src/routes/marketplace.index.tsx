@@ -566,16 +566,30 @@ function MarketplacePage() {
   );
 }
 
-function SplitView({ listings }: { listings: MapListing[] }) {
+function SplitView({ listings, controls }: { listings: MapListing[]; controls: MapControls }) {
   return (
     <div className="mx-auto max-w-[1600px] grid lg:grid-cols-[minmax(0,1fr)_minmax(420px,46%)] gap-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:max-h-[calc(100vh-180px)] lg:overflow-y-auto pr-1">
         {listings.map((l) => (
-          <ListingCard key={l.id} l={l as never} />
+          <div
+            key={l.id}
+            onMouseEnter={() => controls.setHoverId(l.id)}
+            onMouseLeave={() => controls.setHoverId(null)}
+            className={`rounded-xl transition-shadow ${controls.hoverId === l.id ? "ring-2 ring-accent" : ""}`}
+          >
+            <ListingCard l={l as never} />
+          </div>
         ))}
       </div>
       <div className="hidden lg:block lg:sticky lg:top-20 lg:self-start lg:h-[calc(100vh-180px)] rounded-2xl overflow-hidden border bg-muted">
-        <GoogleListingsMap listings={listings} />
+        <GoogleListingsMap
+          listings={listings}
+          activeId={controls.hoverId}
+          onHoverListing={controls.setHoverId}
+          onSearchArea={controls.onSearchArea}
+          polygon={controls.polygon}
+          onPolygonChange={controls.setPolygon}
+        />
       </div>
     </div>
   );
