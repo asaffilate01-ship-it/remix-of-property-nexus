@@ -177,12 +177,35 @@ function MarketplacePage() {
     else setSearch({ city: v, postcode: undefined });
   };
 
+  // Map-driven refinements (viewport + draw-a-search)
+  const [hoverId, setHoverId] = useState<string | null>(null);
+  const [bbox, setBbox] = useState<MapBounds | null>(null);
+  const [polygon, setPolygon] = useState<MapPoint[] | null>(null);
+  const controls: MapControls = {
+    hoverId,
+    setHoverId,
+    polygon,
+    setPolygon: (p) => {
+      setPolygon(p);
+      if (p) {
+        setBbox(null);
+        toast.success("Custom map area applied");
+      }
+    },
+    onSearchArea: (b) => {
+      setPolygon(null);
+      setBbox(b);
+    },
+  };
+
   const fn = useServerFn(fetchListings);
   const { data, isLoading, isFetching } = useQuery({
-    queryKey: ["listings", s, q],
+    queryKey: ["listings", s, q, bbox, polygon],
     queryFn: () =>
       fn({
         data: {
+          bbox: bbox ?? undefined,
+          polygon: polygon ?? undefined,
           q: q || undefined,
           city: s.city || undefined,
           postcode: s.postcode || undefined,
