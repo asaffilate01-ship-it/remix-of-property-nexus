@@ -651,6 +651,75 @@ function SplitView({ listings, controls }: { listings: MapListing[]; controls: M
   );
 }
 
+const AI_EXAMPLES = [
+  "2 bed flat in Manchester under £1,200 with parking",
+  "Family house to buy near Leeds, 4 beds, garden, under £450k",
+  "HMO room in Birmingham with bills included",
+];
+
+function AiSearchBar({
+  onApply,
+}: {
+  onApply: (filters: AiSearchFilters, summary: string) => void;
+}) {
+  const parse = useServerFn(aiParseSearch);
+  const [value, setValue] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const run = async (text: string) => {
+    const query = text.trim();
+    if (query.length < 3 || busy) return;
+    setBusy(true);
+    try {
+      const res = await parse({ data: { query } });
+      onApply(res.filters, res.summary);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "AI search failed");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="mt-3">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          void run(value);
+        }}
+        className="flex items-center gap-2 rounded-2xl bg-white/12 p-1.5 ring-1 ring-white/25 backdrop-blur"
+      >
+        <Sparkles className="ml-2 h-4 w-4 shrink-0 text-white/80" />
+        <input
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder="Describe your ideal home — AI will set the filters"
+          aria-label="AI property search"
+          className="h-10 min-w-0 flex-1 bg-transparent text-sm text-white placeholder:text-white/60 focus:outline-none"
+        />
+        <Button type="submit" size="sm" disabled={busy} className="h-9 shrink-0">
+          {busy ? "Thinking…" : "Ask AI"}
+        </Button>
+      </form>
+      <div className="mt-2 flex flex-wrap gap-1.5">
+        {AI_EXAMPLES.map((ex) => (
+          <button
+            key={ex}
+            type="button"
+            onClick={() => {
+              setValue(ex);
+              void run(ex);
+            }}
+            className="rounded-full border border-white/25 bg-white/10 px-2.5 py-1 text-[11px] text-white/85 transition-colors hover:bg-white/20"
+          >
+            {ex}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function SearchBar({
   q,
   setQ,
