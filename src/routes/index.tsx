@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowRight,
@@ -17,6 +17,8 @@ import {
   ShieldCheck,
   Smartphone,
   Sparkles,
+  HelpCircle,
+  LayoutGrid,
   Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
