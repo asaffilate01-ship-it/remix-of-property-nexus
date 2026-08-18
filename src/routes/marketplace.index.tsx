@@ -562,10 +562,10 @@ function MarketplacePage() {
           ) : data?.listings.length ? (
             view === "map" ? (
               <div className="container mx-auto">
-                <MapView listings={data.listings} />
+                <MapView listings={data.listings} controls={controls} />
               </div>
             ) : view === "split" ? (
-              <SplitView listings={data.listings} />
+              <SplitView listings={data.listings} controls={controls} />
             ) : (
               <div className="container mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {data.listings.map((l) => (
