@@ -222,6 +222,8 @@ function ListingDetail() {
 
           <KeyFacts l={l} />
 
+          <EpcGraph rating={l.epc_rating} />
+
           <Tabs defaultValue="overview">
             <TabsList>
               <TabsTrigger value="overview">Overview</TabsTrigger>
