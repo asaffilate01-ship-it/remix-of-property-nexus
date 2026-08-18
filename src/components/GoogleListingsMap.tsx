@@ -71,7 +71,6 @@ export function GoogleListingsMap({
             zoom: 6,
             mapTypeControl: false,
             streetViewControl: true,
-            streetViewControl_: undefined as never,
             fullscreenControl: true,
             clickableIcons: false,
             gestureHandling: "greedy",
