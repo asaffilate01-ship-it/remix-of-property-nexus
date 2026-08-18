@@ -328,6 +328,34 @@ function MarketplacePage() {
               }}
             />
 
+            <AiSearchBar
+              onApply={(filters, summary) => {
+                if (filters.city) setWhere(filters.city);
+                else if (filters.postcode) setWhere(filters.postcode);
+                if (filters.q !== undefined) setQ(filters.q ?? "");
+                setBbox(null);
+                setPolygon(null);
+                navigate({
+                  search: {
+                    category: filters.category,
+                    city: filters.city,
+                    postcode: filters.postcode,
+                    property_type: filters.property_type,
+                    min_price: filters.min_price,
+                    max_price: filters.max_price,
+                    beds: filters.beds,
+                    baths: filters.baths,
+                    features: filters.features,
+                    furnished: filters.furnished,
+                    bills_included: filters.bills_included,
+                    radius: filters.radius,
+                    q: filters.q,
+                  },
+                });
+                toast.success(summary);
+              }}
+            />
+
             {/* Quick chips: property type + beds */}
             <div className="mt-3 flex flex-wrap items-center gap-1.5">
               <span className="text-[11px] uppercase tracking-wide text-white/70 font-semibold mr-1">
