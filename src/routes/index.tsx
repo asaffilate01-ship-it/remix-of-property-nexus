@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowRight,
@@ -17,6 +17,8 @@ import {
   ShieldCheck,
   Smartphone,
   Sparkles,
+  HelpCircle,
+  LayoutGrid,
   Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -240,7 +242,7 @@ function ProductShowcase() {
   const current = screens.find((s) => s.id === active) ?? screens[0];
 
   return (
-    <section className="border-b bg-muted/20">
+    <section id="inside" className="border-b bg-muted/20 scroll-mt-16">
       <div className="container mx-auto px-4 py-12 md:py-24">
         <div className="mb-8 flex flex-wrap items-end justify-between gap-5 md:mb-10 md:gap-6">
           <div className="max-w-2xl">
@@ -334,6 +336,88 @@ function ProductShowcase() {
   );
 }
 
+const promoTabs = [
+  { id: "top", label: "Home", icon: Home },
+  { id: "audiences", label: "For you", icon: Users },
+  { id: "inside", label: "Inside", icon: LayoutGrid },
+  { id: "faqs", label: "FAQs", icon: HelpCircle },
+] as const;
+
+function PromoTabBar() {
+  const [active, setActive] = useState<string>("top");
+
+  useEffect(() => {
+    const sections = promoTabs
+      .map((t) => document.getElementById(t.id))
+      .filter((el): el is HTMLElement => Boolean(el));
+    if (sections.length === 0) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (visible) setActive(visible.target.id);
+      },
+      { rootMargin: "-45% 0px -45% 0px", threshold: [0, 0.25, 0.5, 1] },
+    );
+    sections.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+
+  const go = useCallback((id: string) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+    setActive(id);
+  }, []);
+
+  return (
+    <nav
+      aria-label="Promo page sections"
+      className="fixed inset-x-0 bottom-0 z-50 border-t border-border/60 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80 md:hidden"
+      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+    >
+      <ul className="grid h-16 grid-cols-5">
+        {promoTabs.map((tab) => {
+          const isActive = active === tab.id;
+          return (
+            <li key={tab.id} className="contents">
+              <button
+                type="button"
+                onClick={() => go(tab.id)}
+                aria-current={isActive ? "true" : undefined}
+                className={`relative flex min-h-11 flex-col items-center justify-center gap-1 text-[10px] font-medium transition-colors focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary ${
+                  isActive ? "text-accent" : "text-muted-foreground"
+                }`}
+              >
+                {isActive && (
+                  <span
+                    className="absolute top-0 h-0.5 w-8 rounded-b-full bg-accent"
+                    aria-hidden="true"
+                  />
+                )}
+                <tab.icon className="h-5 w-5" aria-hidden="true" />
+                <span className="max-w-full truncate px-1 leading-none">{tab.label}</span>
+              </button>
+            </li>
+          );
+        })}
+        <li className="contents">
+          <Link
+            to="/unlock"
+            className="flex min-h-11 flex-col items-center justify-center gap-1 text-[10px] font-semibold text-accent focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary"
+          >
+            <span className="grid h-6 w-6 place-items-center rounded-full bg-accent/15">
+              <Lock className="h-3.5 w-3.5" aria-hidden="true" />
+            </span>
+            <span className="leading-none">Unlock</span>
+          </Link>
+        </li>
+      </ul>
+    </nav>
+  );
+}
+
 function PromoHome() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -352,8 +436,8 @@ function PromoHome() {
         </div>
       </header>
 
-      <main className="flex-1">
-        <section className="relative overflow-hidden border-b">
+      <main className="flex-1 pb-16 md:pb-0">
+        <section id="top" className="relative overflow-hidden border-b scroll-mt-16">
           <div
             className="absolute inset-0 opacity-[0.06] bg-cover bg-center"
             style={{ backgroundImage: `url(${heroPattern})` }}
@@ -425,7 +509,7 @@ function PromoHome() {
         </section>
 
 
-        <section className="border-b">
+        <section id="audiences" className="border-b scroll-mt-16">
           <div className="container mx-auto px-4 py-12 md:py-24">
             <div className="mb-8 max-w-2xl md:mb-12">
               <div className="mb-3 text-xs font-semibold uppercase tracking-widest text-accent">
@@ -508,7 +592,7 @@ function PromoHome() {
         </section>
 
         {/* FAQs */}
-        <section id="faqs" className="border-b">
+        <section id="faqs" className="border-b scroll-mt-16">
           <div className="container mx-auto px-4 py-12 md:py-24">
             <div className="mb-8 max-w-2xl md:mb-10">
               <div className="mb-3 text-xs font-semibold uppercase tracking-widest text-accent">
@@ -560,7 +644,7 @@ function PromoHome() {
 
       </main>
 
-      <footer className="border-t">
+      <footer className="border-t pb-16 md:pb-0">
         <div className="container mx-auto flex flex-wrap items-center justify-between gap-3 px-4 py-8 text-sm text-muted-foreground">
           <span>&copy; {new Date().getFullYear()} Gabley. All rights reserved.</span>
           <Link to="/unlock" className="font-medium text-accent">
@@ -568,6 +652,8 @@ function PromoHome() {
           </Link>
         </div>
       </footer>
+
+      <PromoTabBar />
     </div>
   );
 }
