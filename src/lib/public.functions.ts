@@ -133,6 +133,14 @@ export const fetchListings = createServerFn({ method: "GET" })
     available_from: z.string().optional(),
     sort: sortSchema,
     agency_id: z.string().uuid().optional(),
+    bbox: z
+      .object({ north: z.number(), south: z.number(), east: z.number(), west: z.number() })
+      .optional(),
+    polygon: z
+      .array(z.object({ lat: z.number(), lng: z.number() }))
+      .min(3)
+      .max(500)
+      .optional(),
   }).optional())
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
