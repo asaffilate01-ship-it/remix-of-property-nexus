@@ -425,8 +425,8 @@ function PromoHome() {
         <div className="container mx-auto flex items-center justify-between gap-4 px-4 py-3.5">
           <div className="flex items-center gap-2.5">
             <img src={gableyLogo.url} alt="Gabley" className="h-8 w-auto sm:h-9" />
-            <span className="hidden text-[11px] text-muted-foreground sm:block">Where property comes together</span>
           </div>
+
           <Button asChild size="sm" className="btn-prestige">
             <Link to="/unlock">
               <Lock className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" /> Preview access
