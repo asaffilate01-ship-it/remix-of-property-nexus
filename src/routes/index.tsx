@@ -656,6 +656,8 @@ function PromoHome() {
           </div>
         </section>
 
+        <PricingSection />
+
         <ProductShowcase />
 
         <section className="border-b bg-muted/20">
