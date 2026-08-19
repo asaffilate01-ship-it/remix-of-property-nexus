@@ -649,11 +649,18 @@ function PromoHome() {
           <span>
             &copy; {new Date().getFullYear()} iTechLounge Ltd. Gabley is a trading name of iTechLounge Ltd.
           </span>
-          <Link to="/unlock" className="font-medium text-accent">
-            Preview access
-          </Link>
+          <nav className="flex flex-wrap items-center gap-x-4 gap-y-2">
+            <Link to="/terms" className="hover:text-foreground">Terms</Link>
+            <Link to="/privacy" className="hover:text-foreground">Privacy</Link>
+            <Link to="/cookies" className="hover:text-foreground">Cookies</Link>
+            <Link to="/complaints" className="hover:text-foreground">Complaints</Link>
+            <Link to="/unlock" className="font-medium text-accent">
+              Preview access
+            </Link>
+          </nav>
         </div>
       </footer>
+
 
       <PromoTabBar />
     </div>
