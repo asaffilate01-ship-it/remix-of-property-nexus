@@ -61,13 +61,13 @@ export async function buildCopilotContext(supabase: any, userId: string): Promis
   let arrearsTotal = 0;
   try {
     const { data } = await supabase
-      .from("rent_charges")
-      .select("amount, amount_paid, due_date, status")
-      .lt("due_date", today)
+      .from("rent_invoices")
+      .select("amount, status, paid_at, rent_schedule(due_day)")
       .neq("status", "paid")
+      .is("paid_at", null)
       .limit(500);
     for (const r of data ?? []) {
-      const outstanding = Number(r.amount ?? 0) - Number(r.amount_paid ?? 0);
+      const outstanding = Number(r.amount ?? 0);
       if (outstanding > 0) {
         arrearsCount += 1;
         arrearsTotal += outstanding;
@@ -80,14 +80,14 @@ export async function buildCopilotContext(supabase: any, userId: string): Promis
   let expiring: CopilotContext["compliance_expiring_30d"] = [];
   try {
     const { data } = await supabase
-      .from("compliance_items")
-      .select("item_type, expires_on, properties(address)")
+      .from("compliance_records")
+      .select("type, expires_on, properties(address)")
       .gte("expires_on", today)
       .lte("expires_on", in30)
       .order("expires_on")
       .limit(15);
     expiring = (data ?? []).map((r: any) => ({
-      type: String(r.item_type ?? "certificate"),
+      type: String(r.type ?? "certificate"),
       property: r.properties?.address ?? null,
       expires_on: String(r.expires_on),
     }));
