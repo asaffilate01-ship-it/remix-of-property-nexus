@@ -113,6 +113,7 @@ import { Route as ApiPublicHooksMatchSavedSearchesRouteImport } from './routes/a
 import { Route as ApiPublicHooksProcessEmailOutboxRouteImport } from './routes/api/public/hooks/process-email-outbox'
 import { Route as ApiPublicHooksProcessTracksRouteImport } from './routes/api/public/hooks/process-tracks'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
+import { Route as ApiPublicWebhooksEsignRouteImport } from './routes/api/public/webhooks/esign'
 import { Route as ApiPublicWebhooksResendRouteImport } from './routes/api/public/webhooks/resend'
 
 const IndexRoute = IndexRouteImport.update({
@@ -656,6 +657,11 @@ const ApiPublicPaymentsWebhookRoute =
     path: '/api/public/payments/webhook',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicWebhooksEsignRoute = ApiPublicWebhooksEsignRouteImport.update({
+  id: '/api/public/webhooks/esign',
+  path: '/api/public/webhooks/esign',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicWebhooksResendRoute = ApiPublicWebhooksResendRouteImport.update({
   id: '/api/public/webhooks/resend',
   path: '/api/public/webhooks/resend',
@@ -766,6 +772,7 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/process-email-outbox': typeof ApiPublicHooksProcessEmailOutboxRoute
   '/api/public/hooks/process-tracks': typeof ApiPublicHooksProcessTracksRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/api/public/webhooks/esign': typeof ApiPublicWebhooksEsignRoute
   '/api/public/webhooks/resend': typeof ApiPublicWebhooksResendRoute
 }
 export interface FileRoutesByTo {
@@ -869,6 +876,7 @@ export interface FileRoutesByTo {
   '/api/public/hooks/process-email-outbox': typeof ApiPublicHooksProcessEmailOutboxRoute
   '/api/public/hooks/process-tracks': typeof ApiPublicHooksProcessTracksRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/api/public/webhooks/esign': typeof ApiPublicWebhooksEsignRoute
   '/api/public/webhooks/resend': typeof ApiPublicWebhooksResendRoute
 }
 export interface FileRoutesById {
@@ -977,6 +985,7 @@ export interface FileRoutesById {
   '/api/public/hooks/process-email-outbox': typeof ApiPublicHooksProcessEmailOutboxRoute
   '/api/public/hooks/process-tracks': typeof ApiPublicHooksProcessTracksRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/api/public/webhooks/esign': typeof ApiPublicWebhooksEsignRoute
   '/api/public/webhooks/resend': typeof ApiPublicWebhooksResendRoute
 }
 export interface FileRouteTypes {
@@ -1085,6 +1094,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/process-email-outbox'
     | '/api/public/hooks/process-tracks'
     | '/api/public/payments/webhook'
+    | '/api/public/webhooks/esign'
     | '/api/public/webhooks/resend'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -1188,6 +1198,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/process-email-outbox'
     | '/api/public/hooks/process-tracks'
     | '/api/public/payments/webhook'
+    | '/api/public/webhooks/esign'
     | '/api/public/webhooks/resend'
   id:
     | '__root__'
@@ -1295,6 +1306,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/process-email-outbox'
     | '/api/public/hooks/process-tracks'
     | '/api/public/payments/webhook'
+    | '/api/public/webhooks/esign'
     | '/api/public/webhooks/resend'
   fileRoutesById: FileRoutesById
 }
@@ -1343,6 +1355,7 @@ export interface RootRouteChildren {
   ApiPublicHooksProcessEmailOutboxRoute: typeof ApiPublicHooksProcessEmailOutboxRoute
   ApiPublicHooksProcessTracksRoute: typeof ApiPublicHooksProcessTracksRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
+  ApiPublicWebhooksEsignRoute: typeof ApiPublicWebhooksEsignRoute
   ApiPublicWebhooksResendRoute: typeof ApiPublicWebhooksResendRoute
 }
 
@@ -2076,6 +2089,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/webhooks/esign': {
+      id: '/api/public/webhooks/esign'
+      path: '/api/public/webhooks/esign'
+      fullPath: '/api/public/webhooks/esign'
+      preLoaderRoute: typeof ApiPublicWebhooksEsignRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/webhooks/resend': {
       id: '/api/public/webhooks/resend'
       path: '/api/public/webhooks/resend'
@@ -2336,6 +2356,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksProcessEmailOutboxRoute: ApiPublicHooksProcessEmailOutboxRoute,
   ApiPublicHooksProcessTracksRoute: ApiPublicHooksProcessTracksRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
+  ApiPublicWebhooksEsignRoute: ApiPublicWebhooksEsignRoute,
   ApiPublicWebhooksResendRoute: ApiPublicWebhooksResendRoute,
 }
 export const routeTree = rootRouteImport
