@@ -16,8 +16,8 @@ import {
   Search,
   ShieldCheck,
   Smartphone,
-  Sparkles,
   HelpCircle,
+
   LayoutGrid,
   Users,
 } from "lucide-react";
