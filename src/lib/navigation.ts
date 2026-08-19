@@ -17,6 +17,7 @@ import {
   FileText,
   FolderLock,
   Gavel,
+  Globe,
   Hammer,
   Handshake,
   Heart,
@@ -86,6 +87,7 @@ const FULL: NavigationSection[] = [
       { to: "/commercial", label: "Commercial", icon: Briefcase },
       { to: "/media", label: "Floorplans & EPC", icon: ImageIcon },
       { to: "/ai-copy", label: "AI listing copy", icon: Sparkles },
+      { to: "/portals", label: "Portals & providers", icon: Globe },
     ],
   },
   {
@@ -239,6 +241,7 @@ const AGENT: NavigationSection[] = [
       { to: "/properties", label: "Properties", icon: Building2 },
       { to: "/media", label: "Floorplans & EPC", icon: ImageIcon },
       { to: "/ai-copy", label: "AI listing copy", icon: Sparkles },
+      { to: "/portals", label: "Portals & providers", icon: Globe },
     ],
   },
   {
