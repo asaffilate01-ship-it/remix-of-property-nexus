@@ -3,19 +3,25 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowRight,
   Banknote,
+  Bot,
   Building2,
+  Camera,
   Check,
   ClipboardCheck,
+  FileSignature,
   Hammer,
   Home,
   Kanban,
   KeyRound,
+  Languages,
   Lock,
   Mail,
+  Megaphone,
   MessageSquare,
   Search,
   ShieldCheck,
   Smartphone,
+  Sparkles,
   HelpCircle,
 
   LayoutGrid,
@@ -38,6 +44,7 @@ import shotHome from "@/assets/shot-home.jpg";
 import shotBusiness from "@/assets/shot-business.jpg";
 import gableyLogo from "@/assets/gabley-logo.png.asset.json";
 import { siteUrl } from "@/lib/site-url";
+import { PLANS, formatPlanPrice } from "@/lib/plans";
 
 
 export const Route = createFileRoute("/")({
