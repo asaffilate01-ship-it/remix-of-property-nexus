@@ -437,6 +437,7 @@ function ProductShowcase() {
 const promoTabs = [
   { id: "top", label: "Home", icon: Home },
   { id: "audiences", label: "For you", icon: Users },
+  { id: "pricing", label: "Pricing", icon: Banknote },
   { id: "inside", label: "Inside", icon: LayoutGrid },
   { id: "faqs", label: "FAQs", icon: HelpCircle },
 ] as const;
