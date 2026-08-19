@@ -445,11 +445,8 @@ function PromoHome() {
           />
           <div className="container relative mx-auto grid items-center gap-8 px-4 pt-12 pb-12 sm:pt-16 md:gap-10 md:pt-28 md:pb-24 lg:grid-cols-2">
             <div>
-              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-accent sm:text-xs">
-                <Sparkles className="h-3.5 w-3.5" aria-hidden="true" /> Private preview
-              </div>
-
               <h1 className="mb-4 text-[1.9rem] font-bold leading-[1.1] tracking-tight sm:text-4xl md:mb-6 md:text-6xl">
+
                 Where property comes together.
               </h1>
 
