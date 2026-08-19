@@ -107,6 +107,7 @@ import { Route as AuthenticatedWorkOrdersIdRouteImport } from './routes/_authent
 import { Route as ApiPublicHealthRouteImport } from './routes/api/public/health'
 import { Route as ApiPublicReferencingWebhookRouteImport } from './routes/api/public/referencing-webhook'
 import { Route as AuthenticatedListingIdWindowCardRouteImport } from './routes/_authenticated/listing.$id.window-card'
+import { Route as ApiPublicFeedsFileRouteImport } from './routes/api/public/feeds.$file'
 import { Route as ApiPublicHooksExpiryRemindersRouteImport } from './routes/api/public/hooks/expiry-reminders'
 import { Route as ApiPublicHooksMatchSavedSearchesRouteImport } from './routes/api/public/hooks/match-saved-searches'
 import { Route as ApiPublicHooksProcessEmailOutboxRouteImport } from './routes/api/public/hooks/process-email-outbox'
@@ -620,6 +621,11 @@ const AuthenticatedListingIdWindowCardRoute =
     path: '/listing/$id/window-card',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiPublicFeedsFileRoute = ApiPublicFeedsFileRouteImport.update({
+  id: '/api/public/feeds/$file',
+  path: '/api/public/feeds/$file',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicHooksExpiryRemindersRoute =
   ApiPublicHooksExpiryRemindersRouteImport.update({
     id: '/api/public/hooks/expiry-reminders',
@@ -754,6 +760,7 @@ export interface FileRoutesByFullPath {
   '/api/public/referencing-webhook': typeof ApiPublicReferencingWebhookRoute
   '/automations/': typeof AuthenticatedAutomationsIndexRoute
   '/listing/$id/window-card': typeof AuthenticatedListingIdWindowCardRoute
+  '/api/public/feeds/$file': typeof ApiPublicFeedsFileRoute
   '/api/public/hooks/expiry-reminders': typeof ApiPublicHooksExpiryRemindersRoute
   '/api/public/hooks/match-saved-searches': typeof ApiPublicHooksMatchSavedSearchesRoute
   '/api/public/hooks/process-email-outbox': typeof ApiPublicHooksProcessEmailOutboxRoute
@@ -856,6 +863,7 @@ export interface FileRoutesByTo {
   '/api/public/referencing-webhook': typeof ApiPublicReferencingWebhookRoute
   '/automations': typeof AuthenticatedAutomationsIndexRoute
   '/listing/$id/window-card': typeof AuthenticatedListingIdWindowCardRoute
+  '/api/public/feeds/$file': typeof ApiPublicFeedsFileRoute
   '/api/public/hooks/expiry-reminders': typeof ApiPublicHooksExpiryRemindersRoute
   '/api/public/hooks/match-saved-searches': typeof ApiPublicHooksMatchSavedSearchesRoute
   '/api/public/hooks/process-email-outbox': typeof ApiPublicHooksProcessEmailOutboxRoute
@@ -963,6 +971,7 @@ export interface FileRoutesById {
   '/api/public/referencing-webhook': typeof ApiPublicReferencingWebhookRoute
   '/_authenticated/automations/': typeof AuthenticatedAutomationsIndexRoute
   '/_authenticated/listing/$id/window-card': typeof AuthenticatedListingIdWindowCardRoute
+  '/api/public/feeds/$file': typeof ApiPublicFeedsFileRoute
   '/api/public/hooks/expiry-reminders': typeof ApiPublicHooksExpiryRemindersRoute
   '/api/public/hooks/match-saved-searches': typeof ApiPublicHooksMatchSavedSearchesRoute
   '/api/public/hooks/process-email-outbox': typeof ApiPublicHooksProcessEmailOutboxRoute
@@ -1070,6 +1079,7 @@ export interface FileRouteTypes {
     | '/api/public/referencing-webhook'
     | '/automations/'
     | '/listing/$id/window-card'
+    | '/api/public/feeds/$file'
     | '/api/public/hooks/expiry-reminders'
     | '/api/public/hooks/match-saved-searches'
     | '/api/public/hooks/process-email-outbox'
@@ -1172,6 +1182,7 @@ export interface FileRouteTypes {
     | '/api/public/referencing-webhook'
     | '/automations'
     | '/listing/$id/window-card'
+    | '/api/public/feeds/$file'
     | '/api/public/hooks/expiry-reminders'
     | '/api/public/hooks/match-saved-searches'
     | '/api/public/hooks/process-email-outbox'
@@ -1278,6 +1289,7 @@ export interface FileRouteTypes {
     | '/api/public/referencing-webhook'
     | '/_authenticated/automations/'
     | '/_authenticated/listing/$id/window-card'
+    | '/api/public/feeds/$file'
     | '/api/public/hooks/expiry-reminders'
     | '/api/public/hooks/match-saved-searches'
     | '/api/public/hooks/process-email-outbox'
@@ -1325,6 +1337,7 @@ export interface RootRouteChildren {
   PropertyToRentIndexRoute: typeof PropertyToRentIndexRoute
   ApiPublicHealthRoute: typeof ApiPublicHealthRoute
   ApiPublicReferencingWebhookRoute: typeof ApiPublicReferencingWebhookRoute
+  ApiPublicFeedsFileRoute: typeof ApiPublicFeedsFileRoute
   ApiPublicHooksExpiryRemindersRoute: typeof ApiPublicHooksExpiryRemindersRoute
   ApiPublicHooksMatchSavedSearchesRoute: typeof ApiPublicHooksMatchSavedSearchesRoute
   ApiPublicHooksProcessEmailOutboxRoute: typeof ApiPublicHooksProcessEmailOutboxRoute
@@ -2021,6 +2034,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedListingIdWindowCardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/feeds/$file': {
+      id: '/api/public/feeds/$file'
+      path: '/api/public/feeds/$file'
+      fullPath: '/api/public/feeds/$file'
+      preLoaderRoute: typeof ApiPublicFeedsFileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/expiry-reminders': {
       id: '/api/public/hooks/expiry-reminders'
       path: '/api/public/hooks/expiry-reminders'
@@ -2310,6 +2330,7 @@ const rootRouteChildren: RootRouteChildren = {
   PropertyToRentIndexRoute: PropertyToRentIndexRoute,
   ApiPublicHealthRoute: ApiPublicHealthRoute,
   ApiPublicReferencingWebhookRoute: ApiPublicReferencingWebhookRoute,
+  ApiPublicFeedsFileRoute: ApiPublicFeedsFileRoute,
   ApiPublicHooksExpiryRemindersRoute: ApiPublicHooksExpiryRemindersRoute,
   ApiPublicHooksMatchSavedSearchesRoute: ApiPublicHooksMatchSavedSearchesRoute,
   ApiPublicHooksProcessEmailOutboxRoute: ApiPublicHooksProcessEmailOutboxRoute,
