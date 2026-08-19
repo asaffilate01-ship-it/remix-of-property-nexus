@@ -209,12 +209,28 @@ export const requestReferencingCheck = createServerFn({ method: "POST" })
     // Load case for context + authorization (agency member or tenant)
     const { data: kase, error: e1 } = await context.supabase
       .from("referencing_cases")
-      .select("id, income_monthly, credit_consent, previous_landlord, agency_id")
+      .select("id, income_monthly, credit_consent, previous_landlord, applicant, employment, agency_id")
       .eq("id", data.case_id)
       .single();
     if (e1 || !kase) throw new Error("Case not found");
 
-    const provider = data.provider || "simulated";
+    // Provider precedence: explicit override → agency connection → simulated.
+    let connectionConfig: Record<string, unknown> | null = null;
+    let provider = data.provider ?? "";
+    if (kase.agency_id) {
+      const { data: conn } = await context.supabase
+        .from("provider_connections")
+        .select("provider, enabled, config")
+        .eq("agency_id", kase.agency_id)
+        .eq("kind", "referencing")
+        .maybeSingle();
+      if (conn?.enabled) {
+        connectionConfig = (conn.config ?? {}) as Record<string, unknown>;
+        if (!provider) provider = conn.provider;
+      }
+    }
+    if (!provider) provider = "simulated";
+
     const insertRow = {
       case_id: data.case_id,
       check_type: data.check_type,
@@ -252,15 +268,44 @@ export const requestReferencingCheck = createServerFn({ method: "POST" })
         })
         .eq("id", created!.id);
       if (e3) throw new Error(e3.message);
-    } else {
-      // Real provider integration would go here:
-      // 1. Call provider API with applicant + check_type
-      // 2. Store external_ref returned by provider on the row
-      // 3. Final result comes in via /api/public/referencing-webhook
-      throw new Error(`Provider "${provider}" not yet wired. Configure secrets and webhook first.`);
+      return { id: created!.id, provider, status: sim.status };
     }
-    return { id: created!.id };
+
+    // Live provider: submit and wait for the signed webhook to deliver the decision.
+    try {
+      const { submitReferencingCheck } = await import("@/lib/referencing-providers.server");
+      const { getServerSiteUrl } = await import("@/lib/site-url.server");
+      const submission = await submitReferencingCheck(provider as any, connectionConfig, {
+        check_type: data.check_type,
+        case_id: kase.id,
+        check_id: created!.id,
+        applicant: (kase.applicant ?? {}) as Record<string, unknown>,
+        employment: (kase.employment ?? {}) as Record<string, unknown>,
+        previous_landlord: (kase.previous_landlord ?? {}) as Record<string, unknown>,
+        income_monthly: kase.income_monthly ?? null,
+        credit_consent: Boolean(kase.credit_consent),
+        callback_url: `${getServerSiteUrl()}/api/public/referencing-webhook`,
+      });
+      const { error: e4 } = await context.supabase
+        .from("referencing_checks")
+        .update({
+          external_ref: submission.external_ref,
+          status: submission.status,
+          result: submission.raw as any,
+          ...(submission.status !== "in_progress" ? { completed_at: new Date().toISOString() } : {}),
+        })
+        .eq("id", created!.id);
+      if (e4) throw new Error(e4.message);
+      return { id: created!.id, provider, status: submission.status };
+    } catch (err: any) {
+      await context.supabase
+        .from("referencing_checks")
+        .update({ status: "error", result: { error: String(err?.message ?? err).slice(0, 500) }, completed_at: new Date().toISOString() })
+        .eq("id", created!.id);
+      throw new Error(String(err?.message ?? err));
+    }
   });
+
 
 export const cancelReferencingCheck = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

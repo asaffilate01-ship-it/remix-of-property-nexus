@@ -64,6 +64,7 @@ import { Route as AuthenticatedMobileInspectionRouteImport } from './routes/_aut
 import { Route as AuthenticatedMoveRouteImport } from './routes/_authenticated/move'
 import { Route as AuthenticatedOffersRouteImport } from './routes/_authenticated/offers'
 import { Route as AuthenticatedPipelineRouteImport } from './routes/_authenticated/pipeline'
+import { Route as AuthenticatedPortalsRouteImport } from './routes/_authenticated/portals'
 import { Route as AuthenticatedPropertiesRouteImport } from './routes/_authenticated/properties'
 import { Route as AuthenticatedReferencingCasesRouteImport } from './routes/_authenticated.referencing-cases'
 import { Route as AuthenticatedRenewalsRouteImport } from './routes/_authenticated/renewals'
@@ -107,11 +108,13 @@ import { Route as AuthenticatedWorkOrdersIdRouteImport } from './routes/_authent
 import { Route as ApiPublicHealthRouteImport } from './routes/api/public/health'
 import { Route as ApiPublicReferencingWebhookRouteImport } from './routes/api/public/referencing-webhook'
 import { Route as AuthenticatedListingIdWindowCardRouteImport } from './routes/_authenticated/listing.$id.window-card'
+import { Route as ApiPublicFeedsFileRouteImport } from './routes/api/public/feeds.$file'
 import { Route as ApiPublicHooksExpiryRemindersRouteImport } from './routes/api/public/hooks/expiry-reminders'
 import { Route as ApiPublicHooksMatchSavedSearchesRouteImport } from './routes/api/public/hooks/match-saved-searches'
 import { Route as ApiPublicHooksProcessEmailOutboxRouteImport } from './routes/api/public/hooks/process-email-outbox'
 import { Route as ApiPublicHooksProcessTracksRouteImport } from './routes/api/public/hooks/process-tracks'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
+import { Route as ApiPublicWebhooksEsignRouteImport } from './routes/api/public/webhooks/esign'
 import { Route as ApiPublicWebhooksResendRouteImport } from './routes/api/public/webhooks/resend'
 
 const IndexRoute = IndexRouteImport.update({
@@ -393,6 +396,11 @@ const AuthenticatedPipelineRoute = AuthenticatedPipelineRouteImport.update({
   path: '/pipeline',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedPortalsRoute = AuthenticatedPortalsRouteImport.update({
+  id: '/portals',
+  path: '/portals',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedPropertiesRoute = AuthenticatedPropertiesRouteImport.update({
   id: '/properties',
   path: '/properties',
@@ -620,6 +628,11 @@ const AuthenticatedListingIdWindowCardRoute =
     path: '/listing/$id/window-card',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiPublicFeedsFileRoute = ApiPublicFeedsFileRouteImport.update({
+  id: '/api/public/feeds/$file',
+  path: '/api/public/feeds/$file',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicHooksExpiryRemindersRoute =
   ApiPublicHooksExpiryRemindersRouteImport.update({
     id: '/api/public/hooks/expiry-reminders',
@@ -650,6 +663,11 @@ const ApiPublicPaymentsWebhookRoute =
     path: '/api/public/payments/webhook',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicWebhooksEsignRoute = ApiPublicWebhooksEsignRouteImport.update({
+  id: '/api/public/webhooks/esign',
+  path: '/api/public/webhooks/esign',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicWebhooksResendRoute = ApiPublicWebhooksResendRouteImport.update({
   id: '/api/public/webhooks/resend',
   path: '/api/public/webhooks/resend',
@@ -711,6 +729,7 @@ export interface FileRoutesByFullPath {
   '/move': typeof AuthenticatedMoveRoute
   '/offers': typeof AuthenticatedOffersRoute
   '/pipeline': typeof AuthenticatedPipelineRoute
+  '/portals': typeof AuthenticatedPortalsRoute
   '/properties': typeof AuthenticatedPropertiesRoute
   '/referencing-cases': typeof AuthenticatedReferencingCasesRoute
   '/renewals': typeof AuthenticatedRenewalsRoute
@@ -754,11 +773,13 @@ export interface FileRoutesByFullPath {
   '/api/public/referencing-webhook': typeof ApiPublicReferencingWebhookRoute
   '/automations/': typeof AuthenticatedAutomationsIndexRoute
   '/listing/$id/window-card': typeof AuthenticatedListingIdWindowCardRoute
+  '/api/public/feeds/$file': typeof ApiPublicFeedsFileRoute
   '/api/public/hooks/expiry-reminders': typeof ApiPublicHooksExpiryRemindersRoute
   '/api/public/hooks/match-saved-searches': typeof ApiPublicHooksMatchSavedSearchesRoute
   '/api/public/hooks/process-email-outbox': typeof ApiPublicHooksProcessEmailOutboxRoute
   '/api/public/hooks/process-tracks': typeof ApiPublicHooksProcessTracksRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/api/public/webhooks/esign': typeof ApiPublicWebhooksEsignRoute
   '/api/public/webhooks/resend': typeof ApiPublicWebhooksResendRoute
 }
 export interface FileRoutesByTo {
@@ -813,6 +834,7 @@ export interface FileRoutesByTo {
   '/move': typeof AuthenticatedMoveRoute
   '/offers': typeof AuthenticatedOffersRoute
   '/pipeline': typeof AuthenticatedPipelineRoute
+  '/portals': typeof AuthenticatedPortalsRoute
   '/properties': typeof AuthenticatedPropertiesRoute
   '/referencing-cases': typeof AuthenticatedReferencingCasesRoute
   '/renewals': typeof AuthenticatedRenewalsRoute
@@ -856,11 +878,13 @@ export interface FileRoutesByTo {
   '/api/public/referencing-webhook': typeof ApiPublicReferencingWebhookRoute
   '/automations': typeof AuthenticatedAutomationsIndexRoute
   '/listing/$id/window-card': typeof AuthenticatedListingIdWindowCardRoute
+  '/api/public/feeds/$file': typeof ApiPublicFeedsFileRoute
   '/api/public/hooks/expiry-reminders': typeof ApiPublicHooksExpiryRemindersRoute
   '/api/public/hooks/match-saved-searches': typeof ApiPublicHooksMatchSavedSearchesRoute
   '/api/public/hooks/process-email-outbox': typeof ApiPublicHooksProcessEmailOutboxRoute
   '/api/public/hooks/process-tracks': typeof ApiPublicHooksProcessTracksRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/api/public/webhooks/esign': typeof ApiPublicWebhooksEsignRoute
   '/api/public/webhooks/resend': typeof ApiPublicWebhooksResendRoute
 }
 export interface FileRoutesById {
@@ -920,6 +944,7 @@ export interface FileRoutesById {
   '/_authenticated/move': typeof AuthenticatedMoveRoute
   '/_authenticated/offers': typeof AuthenticatedOffersRoute
   '/_authenticated/pipeline': typeof AuthenticatedPipelineRoute
+  '/_authenticated/portals': typeof AuthenticatedPortalsRoute
   '/_authenticated/properties': typeof AuthenticatedPropertiesRoute
   '/_authenticated/referencing-cases': typeof AuthenticatedReferencingCasesRoute
   '/_authenticated/renewals': typeof AuthenticatedRenewalsRoute
@@ -963,11 +988,13 @@ export interface FileRoutesById {
   '/api/public/referencing-webhook': typeof ApiPublicReferencingWebhookRoute
   '/_authenticated/automations/': typeof AuthenticatedAutomationsIndexRoute
   '/_authenticated/listing/$id/window-card': typeof AuthenticatedListingIdWindowCardRoute
+  '/api/public/feeds/$file': typeof ApiPublicFeedsFileRoute
   '/api/public/hooks/expiry-reminders': typeof ApiPublicHooksExpiryRemindersRoute
   '/api/public/hooks/match-saved-searches': typeof ApiPublicHooksMatchSavedSearchesRoute
   '/api/public/hooks/process-email-outbox': typeof ApiPublicHooksProcessEmailOutboxRoute
   '/api/public/hooks/process-tracks': typeof ApiPublicHooksProcessTracksRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/api/public/webhooks/esign': typeof ApiPublicWebhooksEsignRoute
   '/api/public/webhooks/resend': typeof ApiPublicWebhooksResendRoute
 }
 export interface FileRouteTypes {
@@ -1027,6 +1054,7 @@ export interface FileRouteTypes {
     | '/move'
     | '/offers'
     | '/pipeline'
+    | '/portals'
     | '/properties'
     | '/referencing-cases'
     | '/renewals'
@@ -1070,11 +1098,13 @@ export interface FileRouteTypes {
     | '/api/public/referencing-webhook'
     | '/automations/'
     | '/listing/$id/window-card'
+    | '/api/public/feeds/$file'
     | '/api/public/hooks/expiry-reminders'
     | '/api/public/hooks/match-saved-searches'
     | '/api/public/hooks/process-email-outbox'
     | '/api/public/hooks/process-tracks'
     | '/api/public/payments/webhook'
+    | '/api/public/webhooks/esign'
     | '/api/public/webhooks/resend'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -1129,6 +1159,7 @@ export interface FileRouteTypes {
     | '/move'
     | '/offers'
     | '/pipeline'
+    | '/portals'
     | '/properties'
     | '/referencing-cases'
     | '/renewals'
@@ -1172,11 +1203,13 @@ export interface FileRouteTypes {
     | '/api/public/referencing-webhook'
     | '/automations'
     | '/listing/$id/window-card'
+    | '/api/public/feeds/$file'
     | '/api/public/hooks/expiry-reminders'
     | '/api/public/hooks/match-saved-searches'
     | '/api/public/hooks/process-email-outbox'
     | '/api/public/hooks/process-tracks'
     | '/api/public/payments/webhook'
+    | '/api/public/webhooks/esign'
     | '/api/public/webhooks/resend'
   id:
     | '__root__'
@@ -1235,6 +1268,7 @@ export interface FileRouteTypes {
     | '/_authenticated/move'
     | '/_authenticated/offers'
     | '/_authenticated/pipeline'
+    | '/_authenticated/portals'
     | '/_authenticated/properties'
     | '/_authenticated/referencing-cases'
     | '/_authenticated/renewals'
@@ -1278,11 +1312,13 @@ export interface FileRouteTypes {
     | '/api/public/referencing-webhook'
     | '/_authenticated/automations/'
     | '/_authenticated/listing/$id/window-card'
+    | '/api/public/feeds/$file'
     | '/api/public/hooks/expiry-reminders'
     | '/api/public/hooks/match-saved-searches'
     | '/api/public/hooks/process-email-outbox'
     | '/api/public/hooks/process-tracks'
     | '/api/public/payments/webhook'
+    | '/api/public/webhooks/esign'
     | '/api/public/webhooks/resend'
   fileRoutesById: FileRoutesById
 }
@@ -1325,11 +1361,13 @@ export interface RootRouteChildren {
   PropertyToRentIndexRoute: typeof PropertyToRentIndexRoute
   ApiPublicHealthRoute: typeof ApiPublicHealthRoute
   ApiPublicReferencingWebhookRoute: typeof ApiPublicReferencingWebhookRoute
+  ApiPublicFeedsFileRoute: typeof ApiPublicFeedsFileRoute
   ApiPublicHooksExpiryRemindersRoute: typeof ApiPublicHooksExpiryRemindersRoute
   ApiPublicHooksMatchSavedSearchesRoute: typeof ApiPublicHooksMatchSavedSearchesRoute
   ApiPublicHooksProcessEmailOutboxRoute: typeof ApiPublicHooksProcessEmailOutboxRoute
   ApiPublicHooksProcessTracksRoute: typeof ApiPublicHooksProcessTracksRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
+  ApiPublicWebhooksEsignRoute: typeof ApiPublicWebhooksEsignRoute
   ApiPublicWebhooksResendRoute: typeof ApiPublicWebhooksResendRoute
 }
 
@@ -1720,6 +1758,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPipelineRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/portals': {
+      id: '/_authenticated/portals'
+      path: '/portals'
+      fullPath: '/portals'
+      preLoaderRoute: typeof AuthenticatedPortalsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/properties': {
       id: '/_authenticated/properties'
       path: '/properties'
@@ -2021,6 +2066,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedListingIdWindowCardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/feeds/$file': {
+      id: '/api/public/feeds/$file'
+      path: '/api/public/feeds/$file'
+      fullPath: '/api/public/feeds/$file'
+      preLoaderRoute: typeof ApiPublicFeedsFileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/expiry-reminders': {
       id: '/api/public/hooks/expiry-reminders'
       path: '/api/public/hooks/expiry-reminders'
@@ -2054,6 +2106,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/payments/webhook'
       fullPath: '/api/public/payments/webhook'
       preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/webhooks/esign': {
+      id: '/api/public/webhooks/esign'
+      path: '/api/public/webhooks/esign'
+      fullPath: '/api/public/webhooks/esign'
+      preLoaderRoute: typeof ApiPublicWebhooksEsignRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/webhooks/resend': {
@@ -2153,6 +2212,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMoveRoute: typeof AuthenticatedMoveRoute
   AuthenticatedOffersRoute: typeof AuthenticatedOffersRoute
   AuthenticatedPipelineRoute: typeof AuthenticatedPipelineRoute
+  AuthenticatedPortalsRoute: typeof AuthenticatedPortalsRoute
   AuthenticatedPropertiesRoute: typeof AuthenticatedPropertiesRoute
   AuthenticatedReferencingCasesRoute: typeof AuthenticatedReferencingCasesRoute
   AuthenticatedRenewalsRoute: typeof AuthenticatedRenewalsRoute
@@ -2206,6 +2266,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMoveRoute: AuthenticatedMoveRoute,
   AuthenticatedOffersRoute: AuthenticatedOffersRoute,
   AuthenticatedPipelineRoute: AuthenticatedPipelineRoute,
+  AuthenticatedPortalsRoute: AuthenticatedPortalsRoute,
   AuthenticatedPropertiesRoute: AuthenticatedPropertiesRoute,
   AuthenticatedReferencingCasesRoute: AuthenticatedReferencingCasesRoute,
   AuthenticatedRenewalsRoute: AuthenticatedRenewalsRoute,
@@ -2310,11 +2371,13 @@ const rootRouteChildren: RootRouteChildren = {
   PropertyToRentIndexRoute: PropertyToRentIndexRoute,
   ApiPublicHealthRoute: ApiPublicHealthRoute,
   ApiPublicReferencingWebhookRoute: ApiPublicReferencingWebhookRoute,
+  ApiPublicFeedsFileRoute: ApiPublicFeedsFileRoute,
   ApiPublicHooksExpiryRemindersRoute: ApiPublicHooksExpiryRemindersRoute,
   ApiPublicHooksMatchSavedSearchesRoute: ApiPublicHooksMatchSavedSearchesRoute,
   ApiPublicHooksProcessEmailOutboxRoute: ApiPublicHooksProcessEmailOutboxRoute,
   ApiPublicHooksProcessTracksRoute: ApiPublicHooksProcessTracksRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
+  ApiPublicWebhooksEsignRoute: ApiPublicWebhooksEsignRoute,
   ApiPublicWebhooksResendRoute: ApiPublicWebhooksResendRoute,
 }
 export const routeTree = rootRouteImport

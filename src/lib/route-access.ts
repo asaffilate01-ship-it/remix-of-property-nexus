@@ -37,6 +37,7 @@ export const AUTHENTICATED_ROUTE_BASES = [
   "/pipeline",
   "/portal/landlord",
   "/portal/tenant",
+  "/portals",
   "/properties",
   "/referencing-cases",
   "/renewals",
