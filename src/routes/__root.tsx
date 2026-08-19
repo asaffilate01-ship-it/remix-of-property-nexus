@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { CookieBanner } from "@/components/CookieBanner";
+import { ConsentedAnalytics } from "@/components/ConsentedAnalytics";
 import { InstallPrompt } from "@/components/InstallPrompt";
 
 import { Toaster } from "@/components/ui/sonner";
@@ -187,6 +188,7 @@ function RootComponent() {
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
       <CookieBanner />
+      <ConsentedAnalytics />
       <InstallPrompt />
       <Toaster position="top-right" richColors closeButton />
 
