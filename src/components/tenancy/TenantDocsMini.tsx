@@ -46,7 +46,7 @@ export function TenantDocsMini({
     try {
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) throw new Error("Sign in required");
-      const path = `tenants/${tenancyId}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
+      const path = `${u.user.id}/tenancy/${tenancyId}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
       const up = await supabase.storage
         .from("documents")
         .upload(path, file, { contentType: file.type });

@@ -38,7 +38,7 @@ export function PropertyDocsPanel({ propertyId }: { propertyId: string }) {
     try {
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) throw new Error("Not signed in");
-      const path = `property/${propertyId}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
+      const path = `${u.user.id}/property/${propertyId}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
       const { error: upErr } = await supabase.storage
         .from("documents")
         .upload(path, file, { upsert: false });
