@@ -62,7 +62,7 @@ export async function buildCopilotContext(supabase: any, userId: string): Promis
   try {
     const { data } = await supabase
       .from("rent_invoices")
-      .select("amount, status, paid_at, rent_schedule(due_day)")
+      .select("amount, status, paid_at")
       .neq("status", "paid")
       .is("paid_at", null)
       .limit(500);
