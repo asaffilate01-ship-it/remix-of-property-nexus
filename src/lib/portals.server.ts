@@ -109,7 +109,7 @@ function buildBlm(listings: FeedListing[], channel: FeedChannel, origin: string)
       imgs[0] ?? "", imgs[1] ?? "", imgs[2] ?? "",
       l.floorplan_url ?? "",
       l.tour_url ?? "",
-      l.status === "live" ? "1" : "0",
+      l.status === "published" ? "1" : "0",
       l.latitude ?? "", l.longitude ?? "",
       l.updated_at.replace("T", " ").slice(0, 19),
       l.created_at.replace("T", " ").slice(0, 19),
@@ -130,7 +130,7 @@ function buildZpgXml(listings: FeedListing[], channel: FeedChannel, origin: stri
     <branch_reference>${esc(channel.branch_ref ?? "")}</branch_reference>
     <listing_reference>${esc(l.slug)}</listing_reference>
     <channel>${isSale(l) ? "sales" : "lettings"}</channel>
-    <life_cycle_status>${l.status === "live" ? "available" : "hidden"}</life_cycle_status>
+    <life_cycle_status>${l.status === "published" ? "available" : "hidden"}</life_cycle_status>
     <display_address>${esc([l.address, l.city].filter(Boolean).join(", "))}</display_address>
     <address>
       <line_1>${esc(l.address)}</line_1>
@@ -173,7 +173,7 @@ function buildOtmXml(listings: FeedListing[], channel: FeedChannel, origin: stri
       return `  <property id="${esc(l.id)}">
     <agent_ref>${esc(l.id)}</agent_ref>
     <branch_id>${esc(channel.branch_ref ?? "")}</branch_id>
-    <status>${l.status === "live" ? "available" : "withdrawn"}</status>
+    <status>${l.status === "published" ? "available" : "withdrawn"}</status>
     <department>${isSale(l) ? "residential sales" : "residential lettings"}</department>
     <address>${esc([l.address, l.city].filter(Boolean).join(", "))}</address>
     <postcode>${esc(l.postcode)}</postcode>
@@ -360,7 +360,7 @@ function buildZpgJsonPush(l: FeedListing, channel: FeedChannel, origin: string):
   return JSON.stringify({
     branch_reference: channel.branch_ref ?? "",
     listing_reference: l.slug,
-    life_cycle_status: l.status === "live" ? "available" : "hidden",
+    life_cycle_status: l.status === "published" ? "available" : "hidden",
     channel: isSale(l) ? "sales" : "lettings",
     property_type: l.property_type_code ?? "flat",
     detailed_description: [{ heading: l.title, text: l.description ?? "" }],
