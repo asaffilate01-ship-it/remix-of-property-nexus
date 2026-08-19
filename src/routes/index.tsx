@@ -191,6 +191,10 @@ const faqs = [
     a: "If you already have the preview password, use the Preview access button. Otherwise request access by email and we will send credentials with a short guided walkthrough.",
   },
   {
+    q: "What does the pricing include?",
+    a: "Every branch pays one flat monthly fee that covers the full CRM, marketplace, compliance hub, portals and mobile tools. Optional add-ons such as AI Copilot, portal syndication, WhatsApp & SMS and advanced e-sign can be enabled per branch.",
+  },
+  {
     q: "Which systems does Gabley replace?",
     a: "Agencies typically use it in place of a stack such as Reapit, Alto, Dezrez, Arthur, Goodlord or PayProp — listings, pipeline, tenancies, compliance, statements and payments live in one workspace.",
   },
