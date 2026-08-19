@@ -476,7 +476,7 @@ function PromoTabBar() {
       className="fixed inset-x-0 bottom-0 z-50 border-t border-border/60 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80 md:hidden"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
-      <ul className="grid h-16 grid-cols-5">
+      <ul className="grid h-16 grid-cols-6">
         {promoTabs.map((tab) => {
           const isActive = active === tab.id;
           return (
