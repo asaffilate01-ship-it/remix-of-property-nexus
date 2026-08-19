@@ -265,6 +265,14 @@
     {
       "file": "20260815203000_privacy_rights_requests.sql",
       "sha256": "fe60526862fef7dee8c3884ca871cfa4ffb9e7d9c9277503e94a701e1ec63819"
+    },
+    {
+      "file": "20260819184555_26e3ad7b-ac95-4355-9dea-a0a36e8caf9e.sql",
+      "sha256": "0e2d057798a4831430fd8f9b7cb3125086e2a930da47acac73c5af180fd14e1e"
+    },
+    {
+      "file": "20260819184620_f97810b7-9189-4e0a-9fde-f03316488085.sql",
+      "sha256": "a08a33094e6c8735991913d70ad0aa8433cfc1fac43c12774bb8b79a9b0774f1"
     }
   ]
 }

@@ -3,19 +3,25 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowRight,
   Banknote,
+  Bot,
   Building2,
+  Camera,
   Check,
   ClipboardCheck,
+  FileSignature,
   Hammer,
   Home,
   Kanban,
   KeyRound,
+  Languages,
   Lock,
   Mail,
+  Megaphone,
   MessageSquare,
   Search,
   ShieldCheck,
   Smartphone,
+  Sparkles,
   HelpCircle,
 
   LayoutGrid,
@@ -38,6 +44,7 @@ import shotHome from "@/assets/shot-home.jpg";
 import shotBusiness from "@/assets/shot-business.jpg";
 import gableyLogo from "@/assets/gabley-logo.png.asset.json";
 import { siteUrl } from "@/lib/site-url";
+import { PLANS, formatPlanPrice } from "@/lib/plans";
 
 
 export const Route = createFileRoute("/")({
@@ -184,6 +191,10 @@ const faqs = [
     a: "If you already have the preview password, use the Preview access button. Otherwise request access by email and we will send credentials with a short guided walkthrough.",
   },
   {
+    q: "What does the pricing include?",
+    a: "Every branch pays one flat monthly fee that covers the full CRM, marketplace, compliance hub, portals and mobile tools. Optional add-ons such as AI Copilot, portal syndication, WhatsApp & SMS and advanced e-sign can be enabled per branch.",
+  },
+  {
     q: "Which systems does Gabley replace?",
     a: "Agencies typically use it in place of a stack such as Reapit, Alto, Dezrez, Arthur, Goodlord or PayProp — listings, pipeline, tenancies, compliance, statements and payments live in one workspace.",
   },
@@ -236,6 +247,97 @@ const screens = [
     image: shotBusiness,
   },
 ] as const;
+
+const ADDONS = [
+  { icon: Bot, name: "AI Copilot", price: "£19.99/mo", desc: "Smart descriptions, auto-replies, tenancy summaries and lease abstraction." },
+  { icon: Camera, name: "AI Photo & Floorplan", price: "£14.99/mo", desc: "Auto-enhance listing photos, virtual staging and AI-generated floorplans." },
+  { icon: MessageSquare, name: "WhatsApp & SMS", price: "£9.99/mo", desc: "Two-way WhatsApp and SMS reminders for viewings, rent and inspections." },
+  { icon: FileSignature, name: "Advanced e-sign", price: "£12.99/mo", desc: "eIDAS Advanced Electronic Signatures with RFC 3161 timestamps and audit trail." },
+  { icon: Megaphone, name: "Portal syndication+", price: "£24.99/mo", desc: "Push listings to Rightmove, Zoopla, OnTheMarket and PrimeLocation." },
+  { icon: Languages, name: "Multi-language", price: "£7.99/mo", desc: "Auto-translate listings and tenant comms into 12 languages." },
+];
+
+function PricingSection() {
+  return (
+    <section id="pricing" className="border-b bg-muted/30 scroll-mt-16">
+      <div className="container mx-auto px-4 py-12 md:py-24">
+        <div className="mb-8 max-w-2xl md:mb-12">
+          <div className="mb-3 text-xs font-semibold uppercase tracking-widest text-accent">
+            Simple, branch-first pricing
+          </div>
+          <h2 className="text-2xl font-bold tracking-tight sm:text-3xl md:text-4xl">
+            One flat fee per branch. No portal commission.
+          </h2>
+          <p className="mt-3 text-sm text-muted-foreground sm:text-base">
+            Start with 30 days free. Every plan includes the full CRM, marketplace, compliance hub and portals. Add-ons can be toggled per branch in Settings.
+          </p>
+        </div>
+
+        <div className="grid gap-5 md:grid-cols-3">
+          {Object.values(PLANS).map((p) => (
+            <article
+              key={p.code}
+              className={`relative rounded-2xl border bg-card p-6 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-prestige ${
+                p.popular ? "ring-2 ring-accent shadow-elevated" : ""
+              }`}
+            >
+              {p.popular && (
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-accent px-3 py-0.5 text-xs font-semibold text-accent-foreground">
+                  Most popular
+                </span>
+              )}
+              <div className="font-semibold">{p.name}</div>
+              <div className="mt-3 flex items-baseline gap-1">
+                <span className="font-display text-4xl font-bold">{formatPlanPrice(p)}</span>
+                <span className="text-sm text-muted-foreground">/mo per branch</span>
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">{p.description}</p>
+              <Button asChild className="btn-prestige mt-5 w-full" size="sm">
+                <Link to="/business">Start 30-day free trial</Link>
+              </Button>
+              <ul className="mt-5 space-y-2 text-sm">
+                <li className="flex items-start gap-2">
+                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-accent" aria-hidden="true" />
+                  <span>30 days free — no card required</span>
+                </li>
+                {p.features.map((f) => (
+                  <li key={f} className="flex items-start gap-2">
+                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-accent" aria-hidden="true" />
+                    <span>{f}</span>
+                  </li>
+                ))}
+              </ul>
+            </article>
+          ))}
+        </div>
+
+        <div className="mt-12 md:mt-14">
+          <div className="mb-6 flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-accent" aria-hidden="true" />
+            <span className="text-sm font-semibold">Optional add-ons</span>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {ADDONS.map((a) => (
+              <div
+                key={a.name}
+                className="rounded-2xl border bg-card p-5 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-prestige"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="grid h-10 w-10 place-items-center rounded-xl bg-accent/10 text-accent">
+                    <a.icon className="h-5 w-5" aria-hidden="true" />
+                  </div>
+                  <span className="text-sm font-semibold text-accent whitespace-nowrap">{a.price}</span>
+                </div>
+                <div className="mt-3 font-semibold">{a.name}</div>
+                <p className="mt-1.5 text-sm text-muted-foreground">{a.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
 
 function ProductShowcase() {
   const [active, setActive] = useState<string>(screens[0].id);
@@ -339,6 +441,7 @@ function ProductShowcase() {
 const promoTabs = [
   { id: "top", label: "Home", icon: Home },
   { id: "audiences", label: "For you", icon: Users },
+  { id: "pricing", label: "Pricing", icon: Banknote },
   { id: "inside", label: "Inside", icon: LayoutGrid },
   { id: "faqs", label: "FAQs", icon: HelpCircle },
 ] as const;
@@ -377,7 +480,7 @@ function PromoTabBar() {
       className="fixed inset-x-0 bottom-0 z-50 border-t border-border/60 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80 md:hidden"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
-      <ul className="grid h-16 grid-cols-5">
+      <ul className="grid h-16 grid-cols-6">
         {promoTabs.map((tab) => {
           const isActive = active === tab.id;
           return (
@@ -557,6 +660,8 @@ function PromoHome() {
 
           </div>
         </section>
+
+        <PricingSection />
 
         <ProductShowcase />
 
