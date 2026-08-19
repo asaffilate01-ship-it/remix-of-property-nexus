@@ -178,10 +178,10 @@ function BusinessPage() {
 
             {/* Add-ons */}
             <div className="mt-14 max-w-5xl mx-auto">
-              <div className="text-center max-w-2xl mx-auto mb-8">
-                <Badge variant="outline" className="mb-3"><Sparkles className="h-3 w-3 mr-1.5" /> Planned add-ons</Badge>
-                <h3 className="font-display text-2xl md:text-3xl font-bold">AI & power features on the roadmap</h3>
-                <p className="text-muted-foreground mt-3 text-sm">These add-ons are not available for purchase yet. Pricing is indicative and will be confirmed before launch.</p>
+            <div className="text-center max-w-2xl mx-auto mb-8">
+                <Badge variant="outline" className="mb-3"><Sparkles className="h-3 w-3 mr-1.5" /> Optional add-ons</Badge>
+                <h3 className="font-display text-2xl md:text-3xl font-bold">Power up your branch plan</h3>
+                <p className="text-muted-foreground mt-3 text-sm">Enable any of these extras per branch from Settings → Billing. All pricing is per branch, per month.</p>
               </div>
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {ADDONS.map((a) => (
