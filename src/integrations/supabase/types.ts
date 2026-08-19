@@ -1881,6 +1881,165 @@ export type Database = {
         }
         Relationships: []
       }
+      portal_channels: {
+        Row: {
+          agency_id: string
+          auto_publish: boolean
+          branch_id: string | null
+          branch_ref: string | null
+          config: Json
+          created_at: string
+          enabled: boolean
+          feed_token: string
+          id: string
+          last_feed_at: string | null
+          network_ref: string | null
+          portal: Database["public"]["Enums"]["portal_id"]
+          updated_at: string
+        }
+        Insert: {
+          agency_id: string
+          auto_publish?: boolean
+          branch_id?: string | null
+          branch_ref?: string | null
+          config?: Json
+          created_at?: string
+          enabled?: boolean
+          feed_token?: string
+          id?: string
+          last_feed_at?: string | null
+          network_ref?: string | null
+          portal: Database["public"]["Enums"]["portal_id"]
+          updated_at?: string
+        }
+        Update: {
+          agency_id?: string
+          auto_publish?: boolean
+          branch_id?: string | null
+          branch_ref?: string | null
+          config?: Json
+          created_at?: string
+          enabled?: boolean
+          feed_token?: string
+          id?: string
+          last_feed_at?: string | null
+          network_ref?: string | null
+          portal?: Database["public"]["Enums"]["portal_id"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "portal_channels_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "portal_channels_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      portal_events: {
+        Row: {
+          action: string
+          channel_id: string
+          created_at: string
+          detail: string | null
+          id: string
+          listing_id: string | null
+          ok: boolean
+        }
+        Insert: {
+          action: string
+          channel_id: string
+          created_at?: string
+          detail?: string | null
+          id?: string
+          listing_id?: string | null
+          ok?: boolean
+        }
+        Update: {
+          action?: string
+          channel_id?: string
+          created_at?: string
+          detail?: string | null
+          id?: string
+          listing_id?: string | null
+          ok?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "portal_events_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "portal_channels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "portal_events_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      portal_listings: {
+        Row: {
+          channel_id: string
+          created_at: string
+          external_ref: string | null
+          id: string
+          last_error: string | null
+          last_pushed_at: string | null
+          listing_id: string
+          status: Database["public"]["Enums"]["portal_listing_status"]
+          updated_at: string
+        }
+        Insert: {
+          channel_id: string
+          created_at?: string
+          external_ref?: string | null
+          id?: string
+          last_error?: string | null
+          last_pushed_at?: string | null
+          listing_id: string
+          status?: Database["public"]["Enums"]["portal_listing_status"]
+          updated_at?: string
+        }
+        Update: {
+          channel_id?: string
+          created_at?: string
+          external_ref?: string | null
+          id?: string
+          last_error?: string | null
+          last_pushed_at?: string | null
+          listing_id?: string
+          status?: Database["public"]["Enums"]["portal_listing_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "portal_listings_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "portal_channels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "portal_listings_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       privacy_request_events: {
         Row: {
           actor_id: string | null
@@ -2206,6 +2365,47 @@ export type Database = {
           sort_order?: number
         }
         Relationships: []
+      }
+      provider_connections: {
+        Row: {
+          agency_id: string
+          config: Json
+          created_at: string
+          enabled: boolean
+          id: string
+          kind: Database["public"]["Enums"]["provider_kind"]
+          provider: string
+          updated_at: string
+        }
+        Insert: {
+          agency_id: string
+          config?: Json
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          kind: Database["public"]["Enums"]["provider_kind"]
+          provider: string
+          updated_at?: string
+        }
+        Update: {
+          agency_id?: string
+          config?: Json
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          kind?: Database["public"]["Enums"]["provider_kind"]
+          provider?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_connections_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       rate_limits: {
         Row: {
@@ -3113,6 +3313,8 @@ export type Database = {
           created_at: string
           created_by: string | null
           deal_id: string | null
+          esign_external_ref: string | null
+          esign_provider: string | null
           expires_on: string | null
           id: string
           last_reminder_at: string | null
@@ -3138,6 +3340,8 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           deal_id?: string | null
+          esign_external_ref?: string | null
+          esign_provider?: string | null
           expires_on?: string | null
           id?: string
           last_reminder_at?: string | null
@@ -3163,6 +3367,8 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           deal_id?: string | null
+          esign_external_ref?: string | null
+          esign_provider?: string | null
           expires_on?: string | null
           id?: string
           last_reminder_at?: string | null
@@ -3853,6 +4059,44 @@ export type Database = {
           },
         ]
       }
+      usage_snapshots: {
+        Row: {
+          active_tenancies: number
+          agency_id: string
+          created_at: string
+          id: string
+          live_listings: number
+          managed_properties: number
+          period_month: string
+        }
+        Insert: {
+          active_tenancies?: number
+          agency_id: string
+          created_at?: string
+          id?: string
+          live_listings?: number
+          managed_properties?: number
+          period_month: string
+        }
+        Update: {
+          active_tenancies?: number
+          agency_id?: string
+          created_at?: string
+          id?: string
+          live_listings?: number
+          managed_properties?: number
+          period_month?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "usage_snapshots_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -4381,6 +4625,14 @@ export type Database = {
         Returns: Database["public"]["Enums"]["app_role"]
       }
       get_agency_entitlements: { Args: { _agency_id: string }; Returns: Json }
+      get_agency_usage: {
+        Args: { _agency_id: string }
+        Returns: {
+          active_tenancies: number
+          live_listings: number
+          managed_properties: number
+        }[]
+      }
       has_capability: {
         Args: { _agency: string; _capability: string; _user: string }
         Returns: boolean
@@ -4551,6 +4803,13 @@ export type Database = {
         | "rejected"
         | "withdrawn"
         | "countered"
+      portal_id:
+        | "rightmove"
+        | "zoopla"
+        | "onthemarket"
+        | "primelocation"
+        | "gabley_site"
+      portal_listing_status: "queued" | "sent" | "live" | "removed" | "error"
       price_qualifier:
         | "asking"
         | "offers_over"
@@ -4563,6 +4822,7 @@ export type Database = {
         | "residential_let"
         | "hmo"
         | "commercial"
+      provider_kind: "referencing" | "esign"
       rent_frequency: "weekly" | "monthly"
       rent_status: "due" | "paid" | "overdue" | "waived"
       tenancy_event_kind:
@@ -4878,6 +5138,14 @@ export const Constants = {
         "withdrawn",
         "countered",
       ],
+      portal_id: [
+        "rightmove",
+        "zoopla",
+        "onthemarket",
+        "primelocation",
+        "gabley_site",
+      ],
+      portal_listing_status: ["queued", "sent", "live", "removed", "error"],
       price_qualifier: [
         "asking",
         "offers_over",
@@ -4892,6 +5160,7 @@ export const Constants = {
         "hmo",
         "commercial",
       ],
+      provider_kind: ["referencing", "esign"],
       rent_frequency: ["weekly", "monthly"],
       rent_status: ["due", "paid", "overdue", "waived"],
       tenancy_event_kind: [
