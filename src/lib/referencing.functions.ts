@@ -291,7 +291,7 @@ export const requestReferencingCheck = createServerFn({ method: "POST" })
         .update({
           external_ref: submission.external_ref,
           status: submission.status,
-          result: submission.raw,
+          result: submission.raw as any,
           ...(submission.status !== "in_progress" ? { completed_at: new Date().toISOString() } : {}),
         })
         .eq("id", created!.id);
