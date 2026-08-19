@@ -36,6 +36,11 @@ const OPEN_PREFIXES = [
 
 const OPEN_EXACT = new Set([
   "/",
+  // Legal pages must stay publicly reachable even while the promo gate is on.
+  "/terms",
+  "/privacy",
+  "/cookies",
+  "/complaints",
   "/robots.txt",
   "/sitemap.xml",
   "/favicon.png",
