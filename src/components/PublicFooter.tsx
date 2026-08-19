@@ -15,7 +15,7 @@ export function PublicFooter() {
     <footer className="border-t bg-muted/40 mt-16">
       <div className="container mx-auto px-4 py-12 grid gap-8 md:grid-cols-5 text-sm">
         <div className="md:col-span-2">
-          <img src={gableyLogo.url} alt="Gabley" className="h-8 w-auto mb-3" />
+          <img src={gableyLogo.url} alt="Gabley" className="h-16 w-auto mb-3" />
           <p className="text-muted-foreground max-w-sm">Where property comes together. Sales, lettings, HMO and commercial in one workspace.</p>
           <div className="mt-4 flex items-center gap-2">
             {SOCIALS.map(({ href, label, Icon }) => (
