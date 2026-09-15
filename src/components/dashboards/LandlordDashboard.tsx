@@ -1,3 +1,4 @@
+import { PortfolioServices } from "@/components/PortfolioServices";
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -384,6 +385,7 @@ export function LandlordDashboard({
           </div>
         </TabsContent>
       </Tabs>
+      <PortfolioServices source="gabley" placement="assets" country="GB" locale="en" />
     </div>
   );
 }
