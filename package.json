@@ -13,7 +13,8 @@
     "smoke:production": "node --experimental-strip-types scripts/smoke-production.ts",
     "migrations:verify": "node --experimental-strip-types scripts/verify-migrations.ts",
     "migrations:manifest": "node --experimental-strip-types scripts/verify-migrations.ts --write",
-    "launch:preflight": "node --experimental-strip-types scripts/preflight.ts"
+    "launch:preflight": "node --experimental-strip-types scripts/preflight.ts",
+    "check": "npm run migrations:verify && npm run build"
   },
   "dependencies": {
     "@capacitor/app": "^8.1.1",
