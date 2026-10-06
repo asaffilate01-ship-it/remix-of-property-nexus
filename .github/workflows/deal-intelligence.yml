@@ -5,6 +5,7 @@ on:
       - "src/lib/deal-intelligence.functions.ts"
       - "src/lib/domureva-bridge.server.ts"
       - "src/routes/_authenticated/deal-intelligence.tsx"
+      - "src/routes/_authenticated/deal-investors.tsx"
       - "src/routes/api.integrations.domureva.ts"
       - "src/lib/navigation.ts"
       - "supabase/migrations/**"
