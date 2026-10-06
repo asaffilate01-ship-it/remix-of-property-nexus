@@ -100,6 +100,7 @@ const FULL: NavigationSection[] = [
       { to: "/pipeline", label: "Lettings pipeline", icon: Kanban },
       { to: "/sales", label: "Sales pipeline", icon: Handshake },
       { to: "/offers", label: "Offers & chains", icon: Gavel },
+      { to: "/deal-intelligence", label: "Deal intelligence", icon: Sparkles },
     ],
   },
   {
@@ -231,6 +232,7 @@ const AGENT: NavigationSection[] = [
       { to: "/pipeline", label: "Lettings pipeline", icon: Kanban },
       { to: "/sales", label: "Sales pipeline", icon: Handshake },
       { to: "/offers", label: "Offers & chains", icon: Gavel },
+      { to: "/deal-intelligence", label: "Deal intelligence", icon: Sparkles },
     ],
   },
   {
