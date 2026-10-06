@@ -38,7 +38,7 @@ CREATE INDEX IF NOT EXISTS deal_opportunities_agency_status_idx
 CREATE TABLE IF NOT EXISTS public.investor_profiles (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   agency_id uuid NOT NULL REFERENCES public.agencies(id) ON DELETE CASCADE,
-  buyer_id uuid REFERENCES public.buyers(id) ON DELETE CASCADE,
+  buyer_id uuid REFERENCES public.buyer_profiles(id) ON DELETE CASCADE,
   investor_ref text NOT NULL,
   min_budget numeric(14,2) NOT NULL DEFAULT 0 CHECK (min_budget >= 0),
   max_budget numeric(14,2) NOT NULL CHECK (max_budget >= min_budget),
