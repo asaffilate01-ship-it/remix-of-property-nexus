@@ -101,6 +101,7 @@ const FULL: NavigationSection[] = [
       { to: "/sales", label: "Sales pipeline", icon: Handshake },
       { to: "/offers", label: "Offers & chains", icon: Gavel },
       { to: "/deal-intelligence", label: "Deal intelligence", icon: Sparkles },
+      { to: "/deal-investors", label: "Investor matching", icon: UserCheck },
     ],
   },
   {
@@ -233,6 +234,7 @@ const AGENT: NavigationSection[] = [
       { to: "/sales", label: "Sales pipeline", icon: Handshake },
       { to: "/offers", label: "Offers & chains", icon: Gavel },
       { to: "/deal-intelligence", label: "Deal intelligence", icon: Sparkles },
+      { to: "/deal-investors", label: "Investor matching", icon: UserCheck },
     ],
   },
   {
