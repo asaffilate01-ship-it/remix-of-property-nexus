@@ -273,6 +273,10 @@
     {
       "file": "20260819184620_f97810b7-9189-4e0a-9fde-f03316488085.sql",
       "sha256": "a08a33094e6c8735991913d70ad0aa8433cfc1fac43c12774bb8b79a9b0774f1"
+    },
+    {
+      "file": "20261006123000_deal_intelligence_addon.sql",
+      "sha256": "abbaa0ba8df9b27959dbdd17ecbf4a2b2905f8a245554cdefc2220ed300ddeb4"
     }
   ]
 }
