@@ -281,6 +281,10 @@
     {
       "file": "20261006123000_deal_intelligence_addon.sql",
       "sha256": "abbaa0ba8df9b27959dbdd17ecbf4a2b2905f8a245554cdefc2220ed300ddeb4"
+    },
+    {
+      "file": "20261006124500_deal_introduction_gates.sql",
+      "sha256": "926e5e5ee338d35a973fab548ed93862933b2ced1ed543664be1f7d1fb05b3fb"
     }
   ]
 }
