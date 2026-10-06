@@ -273,6 +273,18 @@
     {
       "file": "20260819184620_f97810b7-9189-4e0a-9fde-f03316488085.sql",
       "sha256": "a08a33094e6c8735991913d70ad0aa8433cfc1fac43c12774bb8b79a9b0774f1"
+    },
+    {
+      "file": "20260819192354_f59507f9-7498-4559-a632-a98f63be63c4.sql",
+      "sha256": "959565f98fe91603d2dcbda2076efe4278095892e6e672b411f0294f0e40ab7f"
+    },
+    {
+      "file": "20261006123000_deal_intelligence_addon.sql",
+      "sha256": "311e334e90a6cc33457ca8ac59e088841ba9e8906878f4217e6c50c85970c401"
+    },
+    {
+      "file": "20261006124500_deal_introduction_gates.sql",
+      "sha256": "2c2f881772dc1905b389803a3026a345c4dd85c05d3ec6b00e3ba1892f4a9706"
     }
   ]
 }
