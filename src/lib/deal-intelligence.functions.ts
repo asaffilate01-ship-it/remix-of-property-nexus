@@ -117,7 +117,7 @@ export const startDealIntelligence=createServerFn({method:"POST"})
     otherCosts:row.other_costs,investorProfitTarget:row.investor_profit_target,proposedFee:row.proposed_fee,
     feeDisclosed:row.fee_disclosed,economics,domurevaCaseRef:row.domureva_case_ref,
    },
-   sourceRefs:Array.isArray(row.source_refs)?row.source_refs:[],
+   sourceRefs:Array.isArray(row.source_refs)?row.source_refs.filter((value:unknown):value is string=>typeof value==="string").slice(0,200):[],
   }),
  });
  const body=await response.json().catch(()=>({}));
