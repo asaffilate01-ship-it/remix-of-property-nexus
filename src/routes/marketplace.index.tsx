@@ -295,6 +295,7 @@ function MarketplacePage() {
             <p className="text-white/85 mb-5 md:mb-6 text-sm sm:text-base md:text-lg max-w-2xl">
               Direct from verified UK agents and landlords. Zero spam, zero phantom listings.
             </p>
+            <Link to="/property-matches" className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/60 bg-white px-4 py-2 text-sm font-semibold text-primary shadow hover:bg-white/90"><Sparkles className="h-4 w-4"/> Match properties to my requirements</Link>
 
             {/* Bayut-style purpose pills */}
             <div className="inline-flex rounded-full bg-white/15 backdrop-blur p-1 mb-3 ring-1 ring-white/20">
