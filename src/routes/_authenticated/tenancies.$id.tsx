@@ -28,7 +28,7 @@ export const Route = createFileRoute("/_authenticated/tenancies/$id")({
     context.queryClient.ensureQueryData(lifecycleQueryOptions(params.id)),
   component: TenancyDetail,
   errorComponent: ({ error }) => (
-    <div className="p-6 text-sm text-destructive">Failed to load tenancy: {error.message}</div>
+    <div className="p-6 text-sm text-destructive">Failed to load tenancy: {error instanceof Error ? error.message : 'Unable to load this page'}</div>
   ),
   notFoundComponent: () => <div className="p-6">Tenancy not found.</div>,
 });

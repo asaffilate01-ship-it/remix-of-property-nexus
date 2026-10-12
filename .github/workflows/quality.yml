@@ -22,6 +22,8 @@ jobs:
         with:
           node-version: 22
           cache: npm
+      - name: Verify deterministic property matching (no external dependencies)
+        run: node --experimental-strip-types --test tests/property-matching.test.ts
       - run: npm ci
       - run: npm run check
       - run: npm audit --omit=dev --audit-level=high

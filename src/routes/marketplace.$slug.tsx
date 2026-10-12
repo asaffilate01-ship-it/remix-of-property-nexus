@@ -27,7 +27,7 @@ import { SaveListingButton } from "@/components/marketplace/SaveListingButton";
 import { OfferDialog } from "@/components/marketplace/OfferDialog";
 import { siteUrl } from "@/lib/site-url";
 
-function ListingError({ error, reset }: { error: Error; reset: () => void }) {
+function ListingError({ reset }: { error: unknown; reset: () => void }) {
   const router = useRouter();
   return (
     <Shell>
