@@ -39,8 +39,8 @@ export type MatchedListing<T extends MatchListing>={
  listing:T;score:number;reasons:string[];
 };
 const normal=(value:string|undefined|null)=>String(value??"").normalize("NFKC").toLocaleLowerCase("en-GB").trim();
-const validAmount=(n:unknown)=>typeof n==="number"&&Number.isFinite(n)&&n>0&&n<=100_000_000;
-const validCount=(n:unknown)=>typeof n==="number"&&Number.isInteger(n)&&n>=0&&n<=100;
+const validAmount=(n:unknown):n is number=>typeof n==="number"&&Number.isFinite(n)&&n>0&&n<=100_000_000;
+const validCount=(n:unknown):n is number=>typeof n==="number"&&Number.isInteger(n)&&n>=0&&n<=100;
 const allowedIntents=new Set<PropertyIntent>(["sale","rent","hmo","commercial"]);
 const typeSet=new Set<PropertyType>(["house","flat","bungalow","studio","room","commercial","land"]);
 const featuresOf=(list:unknown):string[]=>Array.isArray(list)?
