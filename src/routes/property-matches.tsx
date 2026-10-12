@@ -126,7 +126,7 @@ function PropertyMatchesPage(){
      {matched.length===0?<Card><CardContent className="p-6 text-sm">No published properties matched all mandatory filters in the retrieved results. Try a nearby town, wider budget or fewer requirements.</CardContent></Card>:
      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">{matched.map(({listing,score,reasons})=>
       <div key={listing.id} className="space-y-2">
-       <ListingCard l={listing}/>
+       <ListingCard l={{...listing,is_hmo:listing.is_hmo??undefined}}/>
        <div className="rounded-lg border p-3"><div className="flex items-center justify-between gap-2"><strong className="text-sm">Match score {score}/100</strong><Badge variant="outline">Criteria fit</Badge></div>
         <ul className="mt-2 list-inside list-disc space-y-1 text-xs text-muted-foreground">{reasons.slice(0,6).map(reason=><li key={reason}>{reason}</li>)}</ul>
        </div>
