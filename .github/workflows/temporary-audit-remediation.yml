@@ -16,8 +16,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Apply only compatible non-major audit fixes to lockfile
-        run: npm audit fix --package-lock-only --ignore-scripts --no-audit --no-fund
+      - name: Apply compatible patches (remaining dev-only moderate issues may still return nonzero)
+        run: npm audit fix --package-lock-only --ignore-scripts --no-audit --no-fund || true
       - name: Clean install from repaired lockfile
         run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Require zero high/critical production dependency advisories
