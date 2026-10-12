@@ -15,7 +15,7 @@ import { PhoneReveal } from "@/components/PhoneReveal";
 import { fetchAgency } from "@/lib/public.functions";
 import { siteUrl } from "@/lib/site-url";
 
-function AgencyError({ error, reset }: { error: Error; reset: () => void }) {
+function AgencyError({ reset }: { error: unknown; reset: () => void }) {
   const router = useRouter();
   return (
     <Shell>
