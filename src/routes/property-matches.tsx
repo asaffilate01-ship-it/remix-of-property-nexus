@@ -17,7 +17,7 @@ const types:[PropertyType,string][]=[["house","House"],["flat","Flat"],["bungalo
 const preferences=["Garden","Parking","Balcony","Lift","Garage","EV charging","Wheelchair access","Pets allowed","New build"];
 type DisplayListing=MatchListing &{
  id:string;slug:string;title:string;listing_type:"sale"|"rent"|"room";price:number;currency:string;
- bedrooms:number|null;cover_image:string|null;
+ bedrooms:number|null;cover_image:string|null;city:string|null;
 };
 
 export const Route=createFileRoute("/property-matches")({
