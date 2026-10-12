@@ -17,6 +17,7 @@ if(lock.lockfileVersion!==3||typeof lock.packages!=="object"||!lock.packages||ty
 }
 const root=lock.packages[""];
 if(root.name!==manifest.name)throw new Error("package name differs from lockfile root");
+if(!manifest.version||root.version!==manifest.version||lock.version!==manifest.version)throw new Error("Root package version differs from lockfile");
 for(const key of ["dependencies","devDependencies","optionalDependencies"] as const){
  const expected=manifest[key]??{},actual=root[key]??{};
  const keys=new Set([...Object.keys(expected),...Object.keys(actual)]);
