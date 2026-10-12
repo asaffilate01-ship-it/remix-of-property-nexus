@@ -31,7 +31,7 @@ test("commercial listings can have a sales purpose",()=>{
 test("unknown listing states, currencies and POA never get imaginary scores",()=>{
  const a=matchPublishedProperties({intent:"sale"},[{id:"x",slug:"x",title:"POA",status:"published",purpose:"sale",price:null,currency:"GBP"}]);
  assert.equal(a.length,0);
- assert.equal(matchPublishedProperties({intent:"sale"},records).length,1);
+ assert.equal(matchPublishedProperties({intent:"sale"},records).length,2); // both published GBP sale listings, without a budget filter
 });
 test("invalid, contradictory and overlarge input fails closed",()=>{
  assert.throws(()=>matchPublishedProperties({intent:"sale",maxPriceGBP:-20},records));
