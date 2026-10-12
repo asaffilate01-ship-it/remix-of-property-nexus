@@ -28,7 +28,7 @@ export const Route = createFileRoute("/area-guides/$slug")({
     };
   },
   component: AreaGuideDetail,
-  errorComponent: ({ error }) => <div className="p-8 text-destructive">Failed: {error.message}</div>,
+  errorComponent: ({ error }) => <div className="p-8 text-destructive">Failed: {error instanceof Error ? error.message : 'Unable to load this page'}</div>,
   notFoundComponent: () => (
     <div className="container max-w-2xl py-20 text-center">
       <h1 className="text-2xl font-bold">Area not found</h1>
