@@ -13,7 +13,7 @@ const Body = z.object({
   external_ref: z.string().min(1).max(256),
   status: z.enum(["passed", "failed", "review", "expired", "in_progress"]),
   score: z.number().int().min(0).max(1000).optional(),
-  result: z.record(z.any()).optional(),
+  result: z.record(z.string(), z.any()).optional(),
   provider: z.string().min(1).max(64).optional(),
 });
 

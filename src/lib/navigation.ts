@@ -269,48 +269,38 @@ const AGENT: NavigationSection[] = [
 ];
 
 const LANDLORD: NavigationSection[] = [
-  {
-    label: "Portfolio",
-    defaultOpen: true,
-    items: [
-      { to: "/portal/landlord", label: "Overview", icon: LayoutDashboard },
-      { to: "/inbox", label: "Messages", icon: Inbox },
-      { to: "/properties", label: "Properties", icon: Building2 },
-      { to: "/hmo", label: "HMO & rooms", icon: BedDouble },
-      { to: "/listings", label: "Listings", icon: Tag },
-    ],
-  },
-  {
-    label: "Tenancy ops",
-    defaultOpen: true,
-    items: [
-      { to: "/tenancies", label: "Tenancies", icon: Home },
-      { to: "/tenants", label: "Tenants", icon: Users },
-      { to: "/leads", label: "Enquiries", icon: Inbox },
-      { to: "/work-orders", label: "Work orders", icon: Wrench },
-      { to: "/contractor-marketplace", label: "Find a contractor", icon: Hammer },
-      { to: "/inspections", label: "Inspections", icon: ClipboardList },
-      { to: "/renewals", label: "Renewals", icon: RefreshCcw },
-      { to: "/arrears", label: "Arrears", icon: Banknote },
-    ],
-  },
-  {
-    label: "Compliance & money",
-    items: [
-      { to: "/compliance", label: "Compliance", icon: ShieldCheck },
-      { to: "/deposits", label: "Deposits", icon: Vault },
-      { to: "/statements", label: "Statements", icon: Receipt },
-      { to: "/banking", label: "Bank reconciliation", icon: Landmark },
-      { to: "/documents", label: "Documents", icon: FolderLock },
-    ],
-  },
-  {
-    label: "Workspace",
-    items: [
-      { to: "/contacts", label: "Contacts", icon: Contact },
-      { to: "/settings", label: "Settings", icon: Settings },
-    ],
-  },
+  { label: "Overview", defaultOpen: true, items: [
+    { to: "/dashboard", label: "Today", icon: LayoutDashboard },
+    { to: "/portal/landlord", label: "Owner portal", icon: Home },
+    { to: "/inbox", label: "Messages", icon: Inbox },
+  ] },
+  { label: "Properties", items: [
+    { to: "/properties", label: "Properties", icon: Building2 },
+    { to: "/tenancies", label: "Tenancies", icon: Home },
+    { to: "/tenants", label: "Tenants", icon: Users },
+    { to: "/listings", label: "Listings", icon: Tag },
+    { to: "/leads", label: "Enquiries", icon: Inbox },
+    { to: "/renewals", label: "Renewals", icon: RefreshCcw },
+  ] },
+  { label: "Money", items: [
+    { to: "/banking", label: "Statements & reconciliation", icon: Landmark },
+    { to: "/arrears", label: "Overdue rent", icon: Banknote },
+    { to: "/deposits", label: "Deposits", icon: Vault },
+    { to: "/statements", label: "Owner statements", icon: Receipt },
+  ] },
+  { label: "Repairs", items: [
+    { to: "/work-orders", label: "Work orders", icon: Wrench },
+    { to: "/contractor-marketplace", label: "Find a contractor", icon: Hammer },
+    { to: "/inspections", label: "Inspections", icon: ClipboardList },
+  ] },
+  { label: "Documents", items: [
+    { to: "/documents", label: "Document vault", icon: FolderLock },
+    { to: "/compliance", label: "Certificates & deadlines", icon: ShieldCheck },
+  ] },
+  { label: "Workspace", items: [
+    { to: "/contacts", label: "Contacts", icon: Contact },
+    { to: "/settings", label: "Settings", icon: Settings },
+  ] },
 ];
 
 const ADMIN_PRIMARY: NavigationSection = {

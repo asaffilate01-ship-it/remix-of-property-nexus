@@ -15,7 +15,7 @@ export const Route = createFileRoute("/_authenticated/leads/$id")({
   component: LeadDetail,
   errorComponent: ({ error, reset }) => (
     <div className="p-6 space-y-3">
-      <p className="text-sm text-destructive">Failed to load lead: {error.message}</p>
+      <p className="text-sm text-destructive">Failed to load lead: {error instanceof Error ? error.message : "Unable to load this page"}</p>
       <Button size="sm" onClick={reset}>Retry</Button>
     </div>
   ),

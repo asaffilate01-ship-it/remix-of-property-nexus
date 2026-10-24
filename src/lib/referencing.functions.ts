@@ -15,9 +15,9 @@ export const createReferencingCase = createServerFn({ method: "POST" })
     z.object({
       agency_id: z.string().uuid().optional(),
       property_id: z.string().uuid().optional(),
-      applicant: z.record(z.any()),
-      employment: z.record(z.any()),
-      previous_landlord: z.record(z.any()),
+      applicant: z.record(z.string(), z.any()),
+      employment: z.record(z.string(), z.any()),
+      previous_landlord: z.record(z.string(), z.any()),
       income_monthly: z.number().optional(),
       credit_consent: z.boolean().default(false),
     }).parse(d)

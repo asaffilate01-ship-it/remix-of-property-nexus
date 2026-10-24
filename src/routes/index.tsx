@@ -1,3 +1,4 @@
+import { PortfolioDemo } from "@/components/PortfolioDemo";
 import { useCallback, useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
@@ -550,23 +551,21 @@ function PromoHome() {
             <div>
               <h1 className="mb-4 text-[1.9rem] font-bold leading-[1.1] tracking-tight sm:text-4xl md:mb-6 md:text-6xl">
 
-                Where property comes together.
+                Rent, repairs and paperwork. In hand.
               </h1>
 
               <p className="mb-7 max-w-xl text-base text-muted-foreground sm:text-lg md:mb-8 md:text-xl">
-                Gabley brings the marketplace, agency CRM, compliance, tenancies, payments and
-                every portal — agents, owners, renters, buyers, sellers and contractors — into a
-                single premium workspace.
+                See what’s been paid, what needs fixing and which documents need attention. Start with your portfolio, with agency and marketplace tools ready when you need them.
               </p>
               <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                 <Button asChild size="lg" className="btn-prestige group w-full sm:w-auto">
-                  <Link to="/unlock">
-                    Enter with preview password{" "}
+                  <a href="#portfolio-demo">
+                    Explore a sample portfolio{" "}
                     <ArrowRight
                       className="ml-1.5 h-4 w-4 transition-transform group-hover:translate-x-0.5"
                       aria-hidden="true"
                     />
-                  </Link>
+                  </a>
                 </Button>
 
                 <Button asChild size="lg" variant="outline" className="w-full sm:w-auto">
@@ -576,7 +575,7 @@ function PromoHome() {
                 </Button>
               </div>
               <p className="mt-5 text-xs text-muted-foreground md:mt-6">
-                The full product is password protected during the promo period.
+                Try the sample without signing in. Account access remains available for invited users.
               </p>
             </div>
             <div className="relative">
@@ -592,6 +591,7 @@ function PromoHome() {
             </div>
           </div>
         </section>
+        <PortfolioDemo />
 
         <section className="border-b bg-muted/30">
           <div className="container mx-auto grid grid-cols-2 gap-y-6 overflow-hidden px-4 py-10 sm:gap-px sm:py-12 lg:grid-cols-4">

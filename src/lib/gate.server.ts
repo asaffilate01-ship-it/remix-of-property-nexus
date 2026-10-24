@@ -1,4 +1,4 @@
-import { useSession } from "@tanstack/react-start/server";
+import { previewSession } from "./preview-session.server";
 import { createHash, timingSafeEqual } from "node:crypto";
 
 export type GateSession = { unlocked?: boolean };
@@ -13,7 +13,7 @@ export function gateSessionConfig() {
 }
 
 export function getGateSession() {
-  return useSession<GateSession>(gateSessionConfig());
+  return previewSession();
 }
 
 export function passwordMatches(input: string, expected: string): boolean {

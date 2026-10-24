@@ -22,7 +22,7 @@ export const Route = createFileRoute("/_authenticated/tenancies")({
     context.queryClient.ensureQueryData(tenanciesQueryOptions()),
   component: TenanciesPage,
   errorComponent: ({ error }) => (
-    <div className="p-6 text-sm text-destructive">Failed to load tenancies: {error.message}</div>
+    <div className="p-6 text-sm text-destructive">Failed to load tenancies: {error instanceof Error ? error.message : "Unable to load this page"}</div>
   ),
 });
 
