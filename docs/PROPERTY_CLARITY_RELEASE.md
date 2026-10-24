@@ -24,3 +24,6 @@ Preview sessions now use a new v2 cookie name; users must re-enter the preview p
 PDF support is intentionally conservative: text PDFs with full dates and explicitly signed amounts; scanned statements, unsigned multi-column layouts and ambiguous lines require CSV or manual review. No OCR or AI classification is claimed.
 
 This release does not implement a new landlord subscription price, ledger-level split allocations/reversal audit workflow, or comprehensive guided SEPA/handover/document-redesign flows. Those require separate accounting and billing changes; existing workflows remain available.
+
+## Dependency verification follow-up
+Production dependency audit reports zero vulnerabilities after compatible dependency updates and migration to Zod 4.6.7 (record-key and consent-error API updates included). Gabley's security workflow also referenced a missing verify-lockfile.ts; it is now supplied and checks manifest/lockfile agreement. GitHub Dependency Review remains blocked by the repository's disabled/unsupported Dependency Graph setting; the check has not been disabled or bypassed.
