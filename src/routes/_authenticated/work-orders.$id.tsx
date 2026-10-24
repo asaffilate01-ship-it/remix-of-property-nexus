@@ -15,7 +15,7 @@ export const Route = createFileRoute("/_authenticated/work-orders/$id")({
   component: WorkOrderDetail,
   errorComponent: ({ error, reset }) => (
     <div className="p-6 space-y-3">
-      <p className="text-sm text-destructive">Failed to load work order: {error.message}</p>
+      <p className="text-sm text-destructive">Failed to load work order: {error instanceof Error ? error.message : "Unable to load this page"}</p>
       <Button size="sm" onClick={reset}>Retry</Button>
     </div>
   ),

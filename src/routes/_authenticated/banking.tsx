@@ -1,3 +1,4 @@
+import { StatementImport } from "@/components/StatementImport";
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
@@ -10,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
+  importStatement,
   listBankTransactions,
   manualMatch,
   reconcileTransactions,
@@ -27,6 +29,7 @@ function pounds(value: number) {
 
 function BankingPage() {
   const list = useServerFn(listBankTransactions);
+  const importRows = useServerFn(importStatement);
   const reconcile = useServerFn(reconcileTransactions);
   const match = useServerFn(manualMatch);
   const seed = useServerFn(seedMockBankFeed);
@@ -39,7 +42,7 @@ function BankingPage() {
   const rentSchedule = data?.rentSchedule ?? [];
   const unmatched = transactions.filter((transaction) => !transaction.matched_rent_schedule_id);
   const matched = transactions.length - unmatched.length;
-  const openRent = rentSchedule.filter((rent) => rent.status !== "paid");
+  const openRent = rentSchedule.filter((rent) => rent.status !== "paid" && rent.status !== "waived");
 
   const perform = async (key: string, action: () => Promise<unknown>, success: string) => {
     setBusy(key);
@@ -57,6 +60,8 @@ function BankingPage() {
   if (query.isLoading) {
     return <Card className="animate-pulse"><CardContent className="h-48" /></Card>;
   }
+
+  if (query.isError) return <div role="alert" className="rounded-xl border p-6"><p>Unable to load transactions. Please retry.</p><Button onClick={() => query.refetch()}>Try again</Button></div>;
 
   if (!data?.agencyId) {
     return (
@@ -86,8 +91,9 @@ function BankingPage() {
         }
       />
 
+      <StatementImport onConfirm={async (rows) => { const result = await importRows({ data: { rows } }); await query.refetch(); return result; }} />
       <div className="grid gap-3 sm:grid-cols-3">
-        <Metric icon={Landmark} label="Imported credits" value={transactions.length} />
+        <Metric icon={Landmark} label="Recent transactions" value={transactions.length} />
         <Metric icon={CheckCircle2} label="Matched" value={matched} tone="text-emerald-600" />
         <Metric icon={Banknote} label="Needs review" value={unmatched.length} tone={unmatched.length ? "text-amber-600" : "text-emerald-600"} />
       </div>
@@ -96,7 +102,7 @@ function BankingPage() {
         <CardHeader><CardTitle>Transactions</CardTitle></CardHeader>
         <CardContent className="p-0">
           {transactions.length === 0 ? (
-            <div className="px-6 pb-8 text-sm text-muted-foreground">No bank credits have been imported yet. Configure your open-banking provider before launch.</div>
+            <div className="px-6 pb-8 text-sm text-muted-foreground">Import a statement above, review the entries, then match incoming rent payments.</div>
           ) : (
             <div className="divide-y">
               {transactions.map((transaction) => {

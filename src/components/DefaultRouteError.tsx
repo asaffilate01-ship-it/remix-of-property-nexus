@@ -1,11 +1,11 @@
-export function DefaultRouteError({ error }: { error: Error }) {
+export function DefaultRouteError({ error }: { error: unknown }) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-xl font-semibold tracking-tight text-foreground">
           Something went wrong
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground">{error.message}</p>
+        <p className="mt-2 text-sm text-muted-foreground">{error instanceof Error ? error.message : "Unable to load this page"}</p>
         <div className="mt-6">
           <button
             onClick={() => window.location.reload()}

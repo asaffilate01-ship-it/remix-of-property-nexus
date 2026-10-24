@@ -1,3 +1,4 @@
+import { statementBatch, statementId } from "@/lib/statement-batch";
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
@@ -99,10 +100,11 @@ export const reconcileTransactions = createServerFn({ method: "POST" })
     const { data: pendingRent } = await context.supabase
       .from("rent_schedule")
       .select("id, amount, due_date, status, tenancy_id, tenancies!inner(tenant_name, agency_id)")
-      .neq("status", "paid");
+      .not("status", "in", "(paid,waived)");
     const eligibleRent = (pendingRent ?? []).filter((row: any) => row.tenancies?.agency_id === agencyId);
     let matched = 0;
     for (const t of unmatched ?? []) {
+      if (Number(t.amount) <= 0) continue;
       const amountCandidates = eligibleRent.filter((r) => Number(r.amount) === Number(t.amount));
       if (amountCandidates.length !== 1) continue;
       const candidate = amountCandidates[0] as any;
@@ -139,4 +141,28 @@ export const manualMatch = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     if (!matched) throw new Error("This payment or rent item is no longer available to match.");
     return { ok: true };
+  });
+
+// Import only; reconciliation remains a separate, explicit operation.
+export const importStatement = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((value: unknown) => statementBatch.parse(value))
+  .handler(async ({ context, data }) => {
+    const access = await context.supabase.from("user_roles").select("role").eq("user_id", context.userId);
+    if (access.error) throw new Error(access.error.message);
+    if (!access.data?.some(row => ["admin", "landlord", "agent"].includes(row.role))) throw new Error("Only property finance staff can import statements.");
+    const agencyId = await resolveAgencyId(context.supabase, context.userId);
+    if (!agencyId) throw new Error("Create or join an agency before importing a statement.");
+    const rows = await Promise.all(data.rows.map(async row => ({
+      id: await statementId(agencyId, row), agency_id: agencyId,
+      posted_at: `${row.booking_date}T12:00:00Z`, amount: row.amount, currency: "GBP",
+      counterparty: row.counterparty, reference: row.reference || row.purpose,
+      source: "manual", raw: { import_version: 1, statement: row, imported_by: context.userId },
+    })));
+    const unique = [...new Map(rows.map(row => [row.id, row])).values()];
+    const result = await context.supabase.from("bank_transactions")
+      .upsert(unique, { onConflict: "id", ignoreDuplicates: true }).select("id");
+    if (result.error) throw new Error(result.error.message);
+    const inserted = result.data?.length ?? 0;
+    return { inserted, duplicates: rows.length - inserted };
   });

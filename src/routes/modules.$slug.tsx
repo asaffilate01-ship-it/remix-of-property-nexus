@@ -91,7 +91,7 @@ export const Route = createFileRoute("/modules/$slug")({
   },
   component: ModulePage,
   notFoundComponent: () => <div className="p-10 text-center">Module not found.</div>,
-  errorComponent: ({ error }) => <div className="p-10 text-center text-destructive">{error.message}</div>,
+  errorComponent: ({ error }) => <div className="p-10 text-center text-destructive">{error instanceof Error ? error.message : "Unable to load this page"}</div>,
 });
 
 function ModulePage() {

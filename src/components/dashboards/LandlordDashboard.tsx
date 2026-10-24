@@ -24,6 +24,7 @@ import {
   Hammer,
   Activity,
 } from "lucide-react";
+import { collectPages, summarizeRent } from "@/lib/portfolio-summary";
 import { ExpiryWidget } from "@/components/dashboards/ExpiryWidget";
 
 type Stats = {
@@ -36,6 +37,8 @@ type Stats = {
   workOrdersOpen: number;
   rentOverdue: number;
   rentCollected: number;
+  rentOutstanding: number;
+  rentExpected: number;
 };
 
 export function LandlordDashboard({
@@ -55,11 +58,21 @@ export function LandlordDashboard({
     workOrdersOpen: 0,
     rentOverdue: 0,
     rentCollected: 0,
+    rentOutstanding: 0,
+    rentExpected: 0,
   });
   const [recent, setRecent] = useState<{ id: string; title: string; created_at: string }[]>([]);
 
+  const [month, setMonth] = useState(() => new Date().toLocaleDateString("en-CA", { timeZone: "Europe/London", year: "numeric", month: "2-digit" }).slice(0, 7));
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [reload, setReload] = useState(0);
   useEffect(() => {
+    let active = true;
+    setLoading(true);
+    setError(null);
     (async () => {
+      try {
       const [p, l, ld, c, rm, tn, wo, rentRows, recentLeads] = await Promise.all([
         supabase.from("properties").select("id", { count: "exact", head: true }),
         supabase.from("listings").select("id", { count: "exact", head: true }),
@@ -77,21 +90,19 @@ export function LandlordDashboard({
           .from("work_orders")
           .select("id", { count: "exact", head: true })
           .neq("status", "completed"),
-        supabase.from("rent_schedule").select("status,paid_amount,due_date").limit(500),
+        collectPages((from, to) => supabase.from("rent_schedule").select("id,status,amount,paid_amount,due_date").order("id").range(from, to)),
         supabase
           .from("leads")
           .select("id,name,created_at")
           .order("created_at", { ascending: false })
           .limit(5),
       ]);
-      const now = new Date();
-      const rent = rentRows.data ?? [];
-      const rentCollected = rent
-        .filter((r) => r.status === "paid")
-        .reduce((s, r) => s + Number(r.paid_amount ?? 0), 0);
-      const rentOverdue = rent.filter(
-        (r) => r.status !== "paid" && new Date(r.due_date) < now,
-      ).length;
+      for (const response of [p, l, ld, c, rm, tn, wo, recentLeads]) {
+        if (response.error) throw new Error(response.error.message);
+      }
+      if (!active) return;
+      const today = new Date().toLocaleDateString("en-CA", { timeZone: "Europe/London" });
+      const summary = summarizeRent(rentRows, month, today);
       setStats({
         properties: p.count ?? 0,
         listings: l.count ?? 0,
@@ -100,8 +111,10 @@ export function LandlordDashboard({
         rooms: rm.count ?? 0,
         tenancies: tn.count ?? 0,
         workOrdersOpen: wo.count ?? 0,
-        rentOverdue,
-        rentCollected,
+        rentOverdue: summary.overdueCount,
+        rentCollected: summary.received,
+        rentOutstanding: summary.overdue,
+        rentExpected: summary.expected,
       });
       setRecent(
         (recentLeads.data ?? []).map((r) => ({
@@ -110,8 +123,17 @@ export function LandlordDashboard({
           created_at: r.created_at,
         })),
       );
+      } catch (cause) {
+        if (active) setError(cause instanceof Error ? cause.message : "Unable to load portfolio");
+      } finally { if (active) setLoading(false); }
     })();
-  }, []);
+    return () => { active = false; };
+  }, [month, reload]);
+
+  if (loading) return <div role="status" className="rounded-xl border p-8">Loading your portfolio…</div>;
+  if (error) return <div role="alert" className="space-y-3 rounded-xl border p-8"><p>We couldn't load your portfolio. No balances are shown until the data is available.</p><Button onClick={() => setReload((n) => n + 1)}>Try again</Button></div>;
+  const money = (value: number) => new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" }).format(value);
+
 
   const portfolioTiles = [
     {
@@ -196,6 +218,11 @@ export function LandlordDashboard({
           </div>
         </div>
 
+        <div className="relative mt-5 flex flex-wrap items-center gap-3">
+          <label htmlFor="rent-month" className="text-sm">Charges due in</label>
+          <input id="rent-month" type="month" value={month} onChange={(e) => { if (/^\d{4}-\d{2}$/.test(e.target.value)) setMonth(e.target.value); }} className="rounded-md border bg-background px-3 py-2" />
+          <span className="text-sm text-muted-foreground">Expected: {money(stats.rentExpected)}. Receipts include partial payments allocated to these charges, regardless of receipt date.</span>
+        </div>
         {/* Financial summary bar */}
         <div className="relative mt-6 grid sm:grid-cols-3 gap-3">
           <div className="rounded-xl bg-card/80 backdrop-blur border p-4 flex items-center gap-3">
@@ -203,8 +230,8 @@ export function LandlordDashboard({
               <TrendingUp className="h-5 w-5 text-success" />
             </div>
             <div>
-              <div className="text-xs text-muted-foreground">Rent collected</div>
-              <div className="text-2xl font-bold">£{stats.rentCollected.toLocaleString()}</div>
+              <div className="text-xs text-muted-foreground">Received against selected month’s charges</div>
+              <div className="text-2xl font-bold">{money(stats.rentCollected)}</div>
             </div>
           </div>
           <div className="rounded-xl bg-card/80 backdrop-blur border p-4 flex items-center gap-3">
@@ -226,12 +253,21 @@ export function LandlordDashboard({
             </div>
             <div>
               <div className="text-xs text-muted-foreground">Rent overdue</div>
-              <div className="text-2xl font-bold">{stats.rentOverdue}</div>
+              <div className="text-2xl font-bold">{money(stats.rentOutstanding)}</div><p className="text-xs text-muted-foreground">{stats.rentOverdue} overdue charges · all months</p>
             </div>
           </div>
         </div>
       </div>
 
+      <section aria-labelledby="attention-title" className="rounded-2xl border bg-card p-5">
+        <h2 id="attention-title" className="text-xl font-semibold">Needs your attention today</h2>
+        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          <Link to="/banking" className="rounded-xl border p-4 hover:bg-muted"><strong>{money(stats.rentOutstanding)} overdue</strong><p className="text-sm text-muted-foreground">Review payments and reconcile rent →</p></Link>
+          <Link to="/work-orders" className="rounded-xl border p-4 hover:bg-muted"><strong>{stats.workOrdersOpen} open work orders</strong><p className="text-sm text-muted-foreground">Review repairs and contractor visits →</p></Link>
+          <Link to="/compliance" className="rounded-xl border p-4 hover:bg-muted"><strong>{stats.compliance} compliance alerts</strong><p className="text-sm text-muted-foreground">Review certificates and deadlines →</p></Link>
+        </div>
+        <div className="mt-4"><ExpiryWidget /></div>
+      </section>
       {/* Feature-set tabs */}
       <Tabs defaultValue="portfolio" className="space-y-4">
         <TabsList className="bg-muted/50">
@@ -273,7 +309,7 @@ export function LandlordDashboard({
               </Link>
             ))}
           </div>
-          <Card className="border-0 shadow-card bg-gradient-to-br from-primary/5 to-accent/5">
+          {stats.properties === 0 && <Card className="border-0 shadow-card bg-gradient-to-br from-primary/5 to-accent/5">
             <CardContent className="p-6">
               <h2 className="font-semibold mb-3 flex items-center gap-2">
                 <LayoutDashboard className="h-4 w-4 text-accent" /> Portfolio snapshot
@@ -299,7 +335,7 @@ export function LandlordDashboard({
                 <Link to="/properties">Add your first property</Link>
               </Button>
             </CardContent>
-          </Card>
+          </Card>}
         </TabsContent>
 
         {/* Lettings & Ops tab */}
@@ -352,7 +388,7 @@ export function LandlordDashboard({
         {/* Activity tab */}
         <TabsContent value="activity" className="space-y-4">
           <div className="grid lg:grid-cols-2 gap-4">
-            <ExpiryWidget />
+
             <Card className="border-0 shadow-card">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
