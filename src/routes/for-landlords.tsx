@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PublicHeader } from "@/components/PublicHeader";
 import { PublicFooter } from "@/components/PublicFooter";
+import { StatementWalkthrough } from "@/components/StatementWalkthrough";
 import { Button } from "@/components/ui/button";
 import { ShieldCheck, Building2, Tag, AlertTriangle, ArrowRight, Check } from "lucide-react";
 import heroLandlords from "@/assets/hero-landlords.jpg";
@@ -56,6 +57,7 @@ function ForLandlords() {
             </div>
           ))}
         </section>
+        <StatementWalkthrough />
       </main>
       <PublicFooter />
     </div>

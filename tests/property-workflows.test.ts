@@ -1,3 +1,4 @@
+import { DEMO_STATEMENT_ROWS, optionsForDemoRow, summarizeDemoReview, summarizeDemoStatement } from "../src/lib/demo-statement.ts";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { parseStatementCsv, parseStatementLines, statementAmount, statementDate } from "../src/lib/statement-import.ts";
@@ -60,4 +61,21 @@ test("pagination reads beyond 500 and tolerates lower server row caps", async ()
 test("currency columns reject foreign-currency statements", () => {
  assert.throws(() => parseStatementCsv('date,amount,currency\n2026-10-24,10,USD', 'EUR'));
  assert.equal(parseStatementCsv('date,amount,currency\n2026-10-24,10,EUR', 'EUR').rows[0].amount,10);
+});
+
+test("statement demo totals are arithmetically correct and do not book rent", () => {
+  const totals = summarizeDemoStatement(DEMO_STATEMENT_ROWS);
+  assert.deepEqual(totals, { incomeMinor: 135000, expensesMinor: 21850, netMinor: 113150 });
+  assert.equal(summarizeDemoReview(DEMO_STATEMENT_ROWS, {}).ready, false);
+  assert.deepEqual(summarizeDemoReview([], {}), { reviewed: 0, total: 0, ready: false });
+});
+
+test("statement demo requires explicit review of each line", () => {
+  const choices = { a1: "rent", a2: "maintenance", a3: "other_expense", a4: "rent", a5: "utilities" } as const;
+  assert.deepEqual(summarizeDemoReview(DEMO_STATEMENT_ROWS, choices), { reviewed: 5, total: 5, ready: true });
+  assert.deepEqual(summarizeDemoReview(DEMO_STATEMENT_ROWS, { ...choices, a5: "unassigned" }), { reviewed: 4, total: 5, ready: false });
+  assert.deepEqual(optionsForDemoRow(DEMO_STATEMENT_ROWS[0]).slice(1), ["rent", "other_income"]);
+  assert.throws(() => summarizeDemoReview(DEMO_STATEMENT_ROWS, { ...choices, a2: "rent" }), /category/i);
+  assert.throws(() => summarizeDemoReview([...DEMO_STATEMENT_ROWS, DEMO_STATEMENT_ROWS[0]], {}), /duplicate/i);
+  assert.throws(() => summarizeDemoStatement([{...DEMO_STATEMENT_ROWS[0], amountMinor: Number.NaN}]), /amount/i);
 });
