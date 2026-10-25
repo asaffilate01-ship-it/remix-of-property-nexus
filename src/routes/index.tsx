@@ -1,4 +1,5 @@
 import { PortfolioDemo } from "@/components/PortfolioDemo";
+import { StatementWalkthrough } from "@/components/StatementWalkthrough";
 import { useCallback, useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
@@ -592,6 +593,7 @@ function PromoHome() {
           </div>
         </section>
         <PortfolioDemo />
+        <StatementWalkthrough />
 
         <section className="border-b bg-muted/30">
           <div className="container mx-auto grid grid-cols-2 gap-y-6 overflow-hidden px-4 py-10 sm:gap-px sm:py-12 lg:grid-cols-4">
