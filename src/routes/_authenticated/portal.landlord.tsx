@@ -20,7 +20,7 @@ type OwnedTenancy = {
   id: string; property_id: string; tenant_name: string; rent_amount: number;
   rent_frequency: string; status: string; properties: { title: string } | null;
 };
-type ComplianceRow = { id: string; cert_type: string; expires_at: string | null; status: string };
+type ComplianceRow = { id: string; type: string; expires_on: string | null; status: string };
 type Portfolio = {
   properties: OwnedProperty[];
   tenancies: OwnedTenancy[];
@@ -82,7 +82,7 @@ function LandlordPortal() {
           }),
           collectByIds<ComplianceRow>(propertyIds, async (ids, from, to) => {
             const response = await supabase.from("compliance_records")
-              .select("id,cert_type,expires_at,status")
+              .select("id,type,expires_on,status")
               .in("property_id", ids)
               .order("id")
               .range(from, to);
@@ -124,7 +124,7 @@ function LandlordPortal() {
 
   const today = currentLondonDate();
   const within30Days = new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10);
-  const expiring = portfolio.compliance.filter((item) => item.expires_at && item.expires_at <= within30Days);
+  const expiring = portfolio.compliance.filter((item) => item.expires_on && item.expires_on <= within30Days);
   const activeTenancies = portfolio.tenancies.filter((item) => item.status === "active").length;
 
   return (
@@ -173,8 +173,8 @@ function LandlordPortal() {
           {expiring.length === 0 && <p className="text-sm text-muted-foreground">No dated compliance records require attention within the next 30 days. Check that required evidence is complete.</p>}
           {expiring.slice(0, 20).map((item) => (
             <div key={item.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border p-3 text-sm">
-              <span>{item.cert_type}</span>
-              <Badge variant={item.expires_at && item.expires_at < today ? "destructive" : "outline"}>{item.expires_at}</Badge>
+              <span>{item.type.replaceAll("_", " ")}</span>
+              <Badge variant={item.expires_on && item.expires_on < today ? "destructive" : "outline"}>{item.expires_on}</Badge>
             </div>
           ))}
           {expiring.length > 20 && <p className="text-xs text-muted-foreground">Showing 20 of {expiring.length} dated compliance records requiring attention.</p>}
