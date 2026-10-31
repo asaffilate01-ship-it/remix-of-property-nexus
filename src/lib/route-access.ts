@@ -103,7 +103,6 @@ const TENANT_ROUTES = new Set<AuthenticatedRouteBase>([
   "/portal/tenant",
   "/right-to-rent",
   "/settings",
-  "/statements",
   "/survey",
   "/work-orders",
 ]);
