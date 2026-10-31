@@ -3,6 +3,7 @@ import { z } from "zod";
 import type Stripe from "stripe";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { type StripeEnv, createStripeClient, getStripeErrorMessage } from "@/lib/stripe.server";
+import { rentCheckoutBlockReason } from "@/lib/tenant-rent";
 
 type CheckoutResult = { clientSecret: string } | { error: string };
 type RentTenancy = {
@@ -47,14 +48,18 @@ export const createRentCheckoutSession = createServerFn({ method: "POST" })
       const { data: rent, error } = await supabase
         .from("rent_schedule")
         .select(
-          "id, amount, tenancy_id, status, due_date, tenancies(id, tenant_user_id, agency_id, properties(title))",
+          "id, amount, paid_amount, tenancy_id, status, due_date, tenancies(id, tenant_user_id, agency_id, properties(title))",
         )
         .eq("id", data.rentScheduleId)
         .single();
       if (error || !rent) return { error: "Rent line not found" };
       const tenancy = rent.tenancies as unknown as RentTenancy;
       if (tenancy.tenant_user_id !== userId) return { error: "Not your tenancy" };
-      if (rent.status === "paid") return { error: "Already paid" };
+      // Stripe settlement currently overwrites paid_amount with the original invoice
+      // amount; opening checkout for a part-paid charge would overcharge it.
+      // Check this on the server regardless of disabled UI buttons.
+      const blockReason = rentCheckoutBlockReason(rent);
+      if (blockReason) return { error: blockReason };
 
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
       const stripe = createStripeClient(env);
