@@ -53,6 +53,9 @@ describe("authenticated route access", () => {
     assert.equal(roleCanAccessPath("landlord", "/team"), false);
     assert.equal(roleCanAccessPath("buyer", "/properties"), false);
     assert.equal(roleCanAccessPath("contractor", "/banking"), false);
+    assert.equal(roleCanAccessPath("tenant", "/statements"), false);
+    assert.equal(roleCanAccessPath("landlord", "/statements"), true);
+    assert.equal(roleCanAccessPath("agent", "/statements"), true);
     assert.equal(roleCanAccessPath("conveyancer", "/arrears"), false);
     assert.equal(roleCanAccessPath("agent", "/portal/tenant"), false);
   });

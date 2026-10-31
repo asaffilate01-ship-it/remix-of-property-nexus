@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { collectPages } from "@/lib/portfolio-summary";
-import { summarizeTenantRent, type TenantRentSummary } from "@/lib/tenant-rent";
+import { summarizeTenantRent, currentLondonDate, type TenantRentSummary } from "@/lib/tenant-rent";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -55,9 +55,7 @@ export function TenantDashboard({ name, userId }: { name: string; userId: string
               .neq("status", "completed"),
           ]);
           if (requests.error) throw requests.error;
-          const today = new Date().toLocaleDateString("en-CA", {
-            timeZone: "Europe/London", year: "numeric", month: "2-digit", day: "2-digit",
-          });
+          const today = currentLondonDate();
           rentSummary = summarizeTenantRent(rentRows, today);
           requestCount = requests.count ?? 0;
         }

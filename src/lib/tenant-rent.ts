@@ -1,6 +1,6 @@
 /**
- * A tenant-facing view of rent charges, not a bank-receipt or settlement ledger.
- * Inputs are the rows visible under Supabase RLS for the signed-in tenant.
+ * Tenant rent amounts are charge balances, not a bank settlement/cash ledger.
+ * Use pence for arithmetic and treat inconsistent payment states as errors.
  */
 export type TenantRentCharge = {
   due_date: string;
@@ -9,11 +9,48 @@ export type TenantRentCharge = {
   status: string;
 };
 
+export type RentChargeBalance = Pick<TenantRentCharge, "amount" | "paid_amount" | "status">;
+
 export type TenantRentSummary = {
   nextDue: { due_date: string; amount_due: number } | null;
   overdueCount: number;
   overdueAmount: number;
 };
+
+export function rentChargeOutstandingMinor(row: RentChargeBalance): number {
+  const amountMinor = Math.round(Number(row.amount) * 100);
+  const paidMinor = Math.round(Number(row.paid_amount ?? 0) * 100);
+  if (
+    typeof row.amount !== "number" || (row.paid_amount !== null && typeof row.paid_amount !== "number") ||
+    !Number.isSafeInteger(amountMinor) || !Number.isSafeInteger(paidMinor) ||
+    amountMinor < 0 || paidMinor < 0 || paidMinor > amountMinor
+  ) {
+    throw new Error("Invalid rent amount or recorded allocation");
+  }
+  return row.status === "waived" ? 0 : amountMinor - paidMinor;
+}
+
+/** Checkout is currently safe only when the entire original charge remains unpaid. */
+export function rentCheckoutBlockReason(row: RentChargeBalance): string | null {
+  const remaining = rentChargeOutstandingMinor(row);
+  if (row.status === "waived") return "This charge has been waived.";
+  if (row.status === "paid") return "This charge is marked paid. Contact your letting agent if this is incorrect.";
+  if (remaining === 0) return "No outstanding amount remains.";
+  if (Math.round(Number(row.paid_amount ?? 0) * 100) > 0) {
+    return "Part-paid rent cannot be checked out online yet. Contact your letting agent to pay the remaining amount.";
+  }
+  return null;
+}
+
+/** Calendar day in the property jurisdiction, independent of browser time zone. */
+export function currentLondonDate(date: Date = new Date()): string {
+  if (!Number.isFinite(date.getTime())) throw new Error("Invalid date");
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/London", year: "numeric", month: "2-digit", day: "2-digit",
+  }).formatToParts(date);
+  const part = (kind: string) => parts.find((entry) => entry.type === kind)?.value;
+  return `${part("year")}-${part("month")}-${part("day")}`;
+}
 
 export function summarizeTenantRent(rows: TenantRentCharge[], today: string): TenantRentSummary {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(today)) throw new Error("Invalid summary date");
@@ -23,14 +60,8 @@ export function summarizeTenantRent(rows: TenantRentCharge[], today: string): Te
   let overdueMinor = 0;
 
   for (const row of rows) {
-    if (row.status === "waived") continue;
     if (!/^\d{4}-\d{2}-\d{2}$/.test(row.due_date)) throw new Error("Invalid rent due date");
-    const amountMinor = Math.round(Number(row.amount) * 100);
-    const paidMinor = Math.round(Number(row.paid_amount ?? 0) * 100);
-    if (!Number.isFinite(amountMinor) || !Number.isFinite(paidMinor) || amountMinor < 0 || paidMinor < 0) {
-      throw new Error("Invalid rent amount");
-    }
-    const outstanding = Math.max(0, amountMinor - paidMinor);
+    const outstanding = rentChargeOutstandingMinor(row);
     if (outstanding === 0) continue;
     if (row.due_date < today) {
       overdueCount++;

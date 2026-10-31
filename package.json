@@ -16,8 +16,10 @@
     "launch:preflight": "node --experimental-strip-types scripts/preflight.ts",
     "test:property": "node --experimental-strip-types --test tests/property-workflows.test.ts",
     "test:tenant": "node --experimental-strip-types --test tests/tenant-rent.test.ts",
+    "test:owner": "node --experimental-strip-types --test tests/owner-statement.test.ts",
+    "test:access": "node --experimental-strip-types --test tests/route-access.test.ts",
     "typecheck": "tsc --noEmit",
-    "check": "npm run test:property && npm run test:tenant && npm run typecheck && npm run build"
+    "check": "npm run test:property && npm run test:tenant && npm run test:owner && npm run test:access && npm run typecheck && npm run build"
   },
   "dependencies": {
     "@capacitor/app": "^8.1.1",
