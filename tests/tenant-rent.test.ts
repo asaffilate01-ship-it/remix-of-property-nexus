@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { summarizeTenantRent, rentChargeOutstandingMinor, rentCheckoutBlockReason } from "../src/lib/tenant-rent.ts";
+import { summarizeTenantRent, rentChargeOutstandingMinor, rentCheckoutBlockReason, currentLondonDate } from "../src/lib/tenant-rent.ts";
 
 test("tenant rent counts only outstanding charges, including partial payments", () => {
   const result = summarizeTenantRent([
@@ -55,4 +55,9 @@ test("inconsistent allocations cannot silently reduce rent to zero", () => {
   assert.throws(() => rentChargeOutstandingMinor({ amount: 500, paid_amount: 650, status: "due" }), /Invalid/);
   assert.throws(() => rentChargeOutstandingMinor({ amount: 500, paid_amount: Number.POSITIVE_INFINITY, status: "due" }), /Invalid/);
   assert.throws(() => summarizeTenantRent([{ amount: 500, paid_amount: 650, status: "due", due_date: "2026-10-01" }], "2026-10-31"), /Invalid/);
+});
+
+test("rent due dates use the London calendar day across daylight saving", () => {
+  assert.equal(currentLondonDate(new Date("2026-09-30T23:30:00Z")), "2026-10-01");
+  assert.equal(currentLondonDate(new Date("2026-10-31T23:30:00Z")), "2026-10-31");
 });
