@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Heart } from "lucide-react";
 import { toast } from "sonner";
 
-type Props = { listingId: string; variant?: "default" | "outline" | "ghost"; size?: "sm" | "default" | "icon" };
+type Props = { listingId: string; listingTitle?: string; variant?: "default" | "outline" | "ghost"; size?: "sm" | "default" | "icon" };
 
-export function SaveListingButton({ listingId, variant = "outline", size = "default" }: Props) {
+export function SaveListingButton({ listingId, listingTitle, variant = "outline", size = "default" }: Props) {
   const navigate = useNavigate();
   const location = useLocation();
   const [saved, setSaved] = useState(false);
@@ -60,8 +60,17 @@ export function SaveListingButton({ listingId, variant = "outline", size = "defa
   };
 
   return (
-    <Button type="button" variant={variant} size={size} onClick={toggle} disabled={busy}>
-      <Heart className={`h-4 w-4 ${size !== "icon" ? "mr-1.5" : ""}`} fill={saved ? "currentColor" : "none"} />
+    <Button
+      type="button"
+      variant={variant}
+      size={size}
+      onClick={toggle}
+      disabled={busy}
+      aria-pressed={saved}
+      aria-label={size === "icon" ? `${saved ? "Remove" : "Save"} ${listingTitle ?? "property"} ${saved ? "from" : "to"} saved listings` : undefined}
+      className={size === "icon" ? "h-11 w-11 rounded-full" : undefined}
+    >
+      <Heart aria-hidden="true" className={`h-4 w-4 ${size !== "icon" ? "mr-1.5" : ""}`} fill={saved ? "currentColor" : "none"} />
       {size !== "icon" && (saved ? "Saved" : "Save")}
     </Button>
   );

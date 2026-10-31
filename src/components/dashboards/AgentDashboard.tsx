@@ -21,13 +21,18 @@ type Stats = {
 };
 
 export function AgentDashboard({ name }: { name: string }) {
-  const [stats, setStats] = useState<Stats>({
-    leads: 0, viewingsThisWeek: 0, liveListings: 0, pipelineOpen: 0, offers: 0, inspectionsDue: 0,
-  });
+  const [stats, setStats] = useState<Stats | null>(null);
   const [recent, setRecent] = useState<{ id: string; name: string; created_at: string }[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [reload, setReload] = useState(0);
 
   useEffect(() => {
-    (async () => {
+    let active = true;
+    setLoading(true);
+    setError(null);
+    void (async () => {
+      try {
       const weekStart = new Date();
       weekStart.setHours(0, 0, 0, 0);
       weekStart.setDate(weekStart.getDate() - ((weekStart.getDay() + 6) % 7));
@@ -42,18 +47,44 @@ export function AgentDashboard({ name }: { name: string }) {
         supabase.from("work_orders").select("id", { count: "exact", head: true }).ilike("category", "%inspection%").neq("status", "completed"),
         supabase.from("leads").select("id,name,created_at").order("created_at", { ascending: false }).limit(6),
       ]);
-      setStats((s) => ({
-        ...s,
+      for (const result of [ld, lst, dl, vw, of, insp, recentLeads]) {
+        if (result.error) throw new Error(result.error.message);
+      }
+      if (!active) return;
+      setStats({
         leads: ld.count ?? 0,
         liveListings: lst.count ?? 0,
         pipelineOpen: dl.count ?? 0,
         viewingsThisWeek: vw.count ?? 0,
         offers: of.count ?? 0,
         inspectionsDue: insp.count ?? 0,
-      }));
+      });
       setRecent(recentLeads.data ?? []);
+      } catch {
+        if (active) {
+          setStats(null);
+          setRecent([]);
+          setError("The agency dashboard could not load its latest figures.");
+        }
+      } finally {
+        if (active) setLoading(false);
+      }
     })();
-  }, []);
+    return () => { active = false; };
+  }, [reload]);
+
+  if (loading) {
+    return <div role="status" aria-live="polite" className="rounded-xl border bg-card p-8 text-sm text-muted-foreground">Loading your agency workspace…</div>;
+  }
+  if (error || !stats) {
+    return (
+      <div role="alert" className="space-y-3 rounded-xl border bg-card p-8">
+        <h2 className="text-lg font-semibold">Agency figures are unavailable</h2>
+        <p className="text-sm text-muted-foreground">We couldn't verify the latest numbers, so no zero balances or counts are shown.</p>
+        <Button type="button" onClick={() => setReload((value) => value + 1)}>Try again</Button>
+      </div>
+    );
+  }
 
   const pipelineTiles = [
     { icon: Inbox, label: "New leads", value: stats.leads, to: "/leads", tone: "from-primary/15 to-primary/5" },

@@ -39,7 +39,12 @@ export function ListingCard({ l }: { l: ListingCardData }) {
 
   return (
     <div className="group relative">
-      <Link to="/marketplace/$slug" params={{ slug: l.slug }} className="block">
+      <Link
+        to="/marketplace/$slug"
+        params={{ slug: l.slug }}
+        aria-label={`View ${l.title}${l.city ? ` in ${l.city}` : ""}, ${price}${suffix}`}
+        className="block rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+      >
       <Card className="overflow-hidden border-0 shadow-card hover:shadow-xl hover:-translate-y-0.5 transition-all">
         <div className="aspect-[4/3] bg-muted relative overflow-hidden">
           {l.cover_image ? (
@@ -52,10 +57,7 @@ export function ListingCard({ l }: { l: ListingCardData }) {
               <Badge className="bg-card/95 text-foreground backdrop-blur border-0">{typeLabel[l.listing_type]}</Badge>
               {l.is_hmo && <Badge className="bg-accent text-accent-foreground border-0">HMO</Badge>}
             </div>
-            <div className="flex flex-col items-end gap-1">
-              <div onClick={(e) => e.stopPropagation()} className="rounded-full bg-card/95 backdrop-blur shadow-sm">
-                <SaveListingButton listingId={l.id} variant="ghost" size="icon" />
-              </div>
+            <div className="flex flex-col items-end gap-1 pt-12">
               {isNew(l.created_at) && <Badge className="bg-success text-success-foreground border-0">New</Badge>}
               {l.verified && <VerifiedBadge kind="verified" />}
               {l.photos_verified && <VerifiedBadge kind="photos" />}
@@ -76,6 +78,9 @@ export function ListingCard({ l }: { l: ListingCardData }) {
         </CardContent>
       </Card>
       </Link>
+      <div className="absolute right-3 top-3 z-20 rounded-full bg-card/95 shadow-sm backdrop-blur">
+        <SaveListingButton listingId={l.id} listingTitle={l.title} variant="ghost" size="icon" />
+      </div>
     </div>
   );
 }
