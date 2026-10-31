@@ -131,7 +131,7 @@ const FULL: NavigationSection[] = [
       { to: "/e-sign", label: "E-signatures", icon: FilePenLine },
       { to: "/documents", label: "Document vault", icon: FolderLock },
       { to: "/evidence", label: "Evidence capture", icon: Camera },
-      { to: "/statements", label: "Owner statements", icon: Receipt },
+      { to: "/statements", label: "Owner charge review", icon: Receipt },
     ],
   },
   {
@@ -286,7 +286,7 @@ const LANDLORD: NavigationSection[] = [
     { to: "/banking", label: "Statements & reconciliation", icon: Landmark },
     { to: "/arrears", label: "Overdue rent", icon: Banknote },
     { to: "/deposits", label: "Deposits", icon: Vault },
-    { to: "/statements", label: "Owner statements", icon: Receipt },
+    { to: "/statements", label: "Owner charge review", icon: Receipt },
   ] },
   { label: "Repairs", items: [
     { to: "/work-orders", label: "Work orders", icon: Wrench },
