@@ -1,6 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { collectPages } from "@/lib/portfolio-summary";
+import { summarizeTenantRent, type TenantRentSummary } from "@/lib/tenant-rent";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -15,34 +17,91 @@ type Tenancy = {
 
 export function TenantDashboard({ name, userId }: { name: string; userId: string | null }) {
   const [tenancies, setTenancies] = useState<Tenancy[]>([]);
-  const [nextDue, setNextDue] = useState<{ due_date: string; amount_due: number } | null>(null);
-  const [overdueCount, setOverdueCount] = useState(0);
+  const [summary, setSummary] = useState<TenantRentSummary>({
+    nextDue: null, overdueCount: 0, overdueAmount: 0,
+  });
   const [openRequests, setOpenRequests] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [reload, setReload] = useState(0);
 
   useEffect(() => {
-    if (!userId) return;
-    (async () => {
-      const { data: tn } = await supabase
-        .from("tenancies")
-        .select("id,tenant_name,rent_amount,rent_frequency,start_date,end_date,status,property:properties(address_line1,city,postcode)")
-        .eq("tenant_user_id", userId);
-      setTenancies((tn as unknown as Tenancy[]) ?? []);
-      const ids = (tn ?? []).map((t) => t.id);
-      if (ids.length) {
-        const [{ data: rs }, { count: requests }] = await Promise.all([
-          supabase.from("rent_schedule").select("due_date,amount,status").in("tenancy_id", ids).order("due_date", { ascending: true }),
-          supabase.from("work_orders").select("id", { count: "exact", head: true }).in("tenancy_id", ids).neq("status", "completed"),
-        ]);
-        const now = new Date();
-        const upcoming = (rs ?? []).find((r) => r.status !== "paid" && new Date(r.due_date) >= now);
-        setNextDue(upcoming ? { due_date: upcoming.due_date, amount_due: Number(upcoming.amount) } : null);
-        setOverdueCount((rs ?? []).filter((r) => r.status !== "paid" && new Date(r.due_date) < now).length);
-        setOpenRequests(requests ?? 0);
+    let active = true;
+    setLoading(true);
+    setError(false);
+    void (async () => {
+      try {
+        if (!userId) throw new Error("User unavailable");
+        const { data: tn, error: tenancyError } = await supabase
+          .from("tenancies")
+          .select("id,tenant_name,rent_amount,rent_frequency,start_date,end_date,status,property:properties(address_line1,city,postcode)")
+          .eq("tenant_user_id", userId);
+        if (tenancyError) throw tenancyError;
+        const ids = (tn ?? []).map((row) => row.id);
+        let rentSummary: TenantRentSummary = { nextDue: null, overdueCount: 0, overdueAmount: 0 };
+        let requestCount = 0;
+        if (ids.length > 0) {
+          const [rentRows, requests] = await Promise.all([
+            collectPages((from, to) => supabase
+              .from("rent_schedule")
+              .select("id,due_date,amount,paid_amount,status")
+              .in("tenancy_id", ids)
+              .order("due_date")
+              .order("id")
+              .range(from, to)),
+            supabase.from("work_orders")
+              .select("id", { count: "exact", head: true })
+              .in("tenancy_id", ids)
+              .neq("status", "completed"),
+          ]);
+          if (requests.error) throw requests.error;
+          const today = new Date().toLocaleDateString("en-CA", {
+            timeZone: "Europe/London", year: "numeric", month: "2-digit", day: "2-digit",
+          });
+          rentSummary = summarizeTenantRent(rentRows, today);
+          requestCount = requests.count ?? 0;
+        }
+        if (!active) return;
+        setTenancies((tn as unknown as Tenancy[]) ?? []);
+        setSummary(rentSummary);
+        setOpenRequests(requestCount);
+      } catch {
+        if (active) {
+          setError(true);
+          setTenancies([]);
+          setSummary({ nextDue: null, overdueCount: 0, overdueAmount: 0 });
+        }
+      } finally {
+        if (active) setLoading(false);
       }
     })();
-  }, [userId]);
+    return () => { active = false; };
+  }, [userId, reload]);
 
-  const active = tenancies[0];
+  if (loading) {
+    return <div role="status" aria-live="polite" className="rounded-xl border bg-card p-8 text-sm text-muted-foreground">Loading your tenancy and rent schedule…</div>;
+  }
+  if (error) {
+    return (
+      <div role="alert" className="space-y-3 rounded-xl border bg-card p-8">
+        <h2 className="text-lg font-semibold">Tenancy details are unavailable</h2>
+        <p className="text-sm text-muted-foreground">We couldn't confirm the latest rent and repair information. No figures are shown until it loads.</p>
+        <Button type="button" onClick={() => setReload((value) => value + 1)}>Try again</Button>
+      </div>
+    );
+  }
+
+  const active = tenancies.find((tenancy) => tenancy.status === "active") ?? tenancies[0];
+  if (!active) {
+    return (
+      <div className="rounded-2xl border bg-card p-8 sm:p-12">
+        <Home className="mb-4 h-8 w-8 text-primary" aria-hidden="true" />
+        <h1 className="text-2xl font-semibold">Your tenancy will appear here</h1>
+        <p className="mt-2 max-w-prose text-sm text-muted-foreground">No tenancy is linked to your account yet. Ask your letting agent to confirm your invitation and account email.</p>
+        <Button asChild className="mt-5"><Link to="/inbox">Open messages</Link></Button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -85,15 +144,15 @@ export function TenantDashboard({ name, userId }: { name: string; userId: string
             <Card className="border-0 shadow-card">
               <CardContent className="p-5">
                 <PoundSterling className="h-5 w-5 mb-2 text-accent" />
-                <div className="text-2xl font-bold">{nextDue ? `£${nextDue.amount_due.toLocaleString()}` : "—"}</div>
-                <div className="text-xs text-muted-foreground">{nextDue ? `Next rent due ${new Date(nextDue.due_date).toLocaleDateString("en-GB")}` : "No upcoming rent"}</div>
+                <div className="text-2xl font-bold">{summary.nextDue ? `£${summary.nextDue.amount_due.toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "—"}</div>
+                <div className="text-xs text-muted-foreground">{summary.nextDue ? `Outstanding on ${new Date(summary.nextDue.due_date).toLocaleDateString("en-GB")}` : "No upcoming outstanding charges"}</div>
               </CardContent>
             </Card>
             <Card className="border-0 shadow-card">
               <CardContent className="p-5">
-                <PoundSterling className={`h-5 w-5 mb-2 ${overdueCount ? "text-destructive" : "text-muted-foreground"}`} />
-                <div className="text-2xl font-bold">{overdueCount}</div>
-                <div className="text-xs text-muted-foreground">Overdue payments</div>
+                <PoundSterling className={`h-5 w-5 mb-2 ${summary.overdueCount ? "text-destructive" : "text-muted-foreground"}`} />
+                <div className="text-2xl font-bold">{summary.overdueCount}</div>
+                <div className="text-xs text-muted-foreground">Overdue charges · £{summary.overdueAmount.toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} remaining</div>
               </CardContent>
             </Card>
             <Card className="border-0 shadow-card">
@@ -106,9 +165,9 @@ export function TenantDashboard({ name, userId }: { name: string; userId: string
           </div>
           <Card className="border-0 shadow-card bg-gradient-to-br from-primary/5 to-accent/5">
             <CardContent className="p-6">
-              <h3 className="font-semibold mb-2">Payment history</h3>
-              <p className="text-sm text-muted-foreground">View past rent payments and download statements.</p>
-              <Button asChild variant="outline" size="sm" className="mt-3"><Link to="/statements">View statements <ArrowRight className="ml-1 h-3 w-3" /></Link></Button>
+              <h3 className="font-semibold mb-2">Rent schedule and payments</h3>
+              <p className="text-sm text-muted-foreground">Review recorded rent charges, payments and available payment actions in your tenant portal.</p>
+              <Button asChild variant="outline" size="sm" className="mt-3"><Link to="/portal/tenant">Open rent schedule <ArrowRight className="ml-1 h-3 w-3" /></Link></Button>
             </CardContent>
           </Card>
         </TabsContent>
