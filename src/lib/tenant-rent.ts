@@ -42,6 +42,16 @@ export function rentCheckoutBlockReason(row: RentChargeBalance): string | null {
   return null;
 }
 
+/** Calendar day in the property jurisdiction, independent of browser time zone. */
+export function currentLondonDate(date: Date = new Date()): string {
+  if (!Number.isFinite(date.getTime())) throw new Error("Invalid date");
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/London", year: "numeric", month: "2-digit", day: "2-digit",
+  }).formatToParts(date);
+  const part = (kind: string) => parts.find((entry) => entry.type === kind)?.value;
+  return `${part("year")}-${part("month")}-${part("day")}`;
+}
+
 export function summarizeTenantRent(rows: TenantRentCharge[], today: string): TenantRentSummary {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(today)) throw new Error("Invalid summary date");
   let nextDueDate: string | null = null;
