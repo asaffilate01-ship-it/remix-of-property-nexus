@@ -38,8 +38,9 @@ test("only the selected London calendar month includes completed repair costs", 
     { property_id: "property-b", actual_cost: 30, completed_at: "2026-10-31T23:30:00Z", status: "completed" },
     { property_id: "property-a", actual_cost: 12, completed_at: "2026-11-01T00:30:00Z", status: "completed" },
   ], "2026-10");
-  assert.equal(result.rows.length, 1);
+  assert.equal(result.rows.length, 2);
   assert.equal(result.rows[0].expenses, 90);
+  assert.equal(result.rows[1].expenses, 30);
   assert.equal(result.rows[0].property, "1 Station Road, Luton");
 });
 
