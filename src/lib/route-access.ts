@@ -21,6 +21,7 @@ export const AUTHENTICATED_ROUTE_BASES = [
   "/deal-scout",
   "/deal-intelligence",
   "/deal-investors",
+  "/deal-commissions",
   "/deposits",
   "/documents",
   "/e-sign",
