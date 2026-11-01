@@ -20,8 +20,10 @@
     "test:access": "node --experimental-strip-types --test tests/route-access.test.ts",
     "test:deal": "node --experimental-strip-types --test tests/deal-screening.test.ts tests/property-matching.test.ts tests/price-paid-csv.test.ts",
     "test:migrations": "node --experimental-strip-types scripts/verify-migrations.ts",
+    "test:sources": "node --experimental-strip-types --test tests/deal-market-sources.test.ts",
+    "hmlr:import": "node --experimental-strip-types scripts/import-hmlr-price-paid.ts",
     "typecheck": "tsc --noEmit",
-    "check": "npm run test:property && npm run test:tenant && npm run test:owner && npm run test:deal && npm run test:migrations && npm run build && npm run typecheck && npm run test:access"
+    "check": "npm run test:property && npm run test:tenant && npm run test:owner && npm run test:deal && npm run test:sources && npm run test:migrations && npm run build && npm run typecheck && npm run test:access"
   },
   "dependencies": {
     "@capacitor/app": "^8.1.1",
