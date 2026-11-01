@@ -210,7 +210,7 @@ function DealScoutPage() {
 
       <div className="flex gap-3 rounded-xl border border-warning/30 bg-muted/50 p-4 text-sm">
         <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0 text-warning" aria-hidden="true" />
-        <p>**Research only.** A low asking price is not proof that a property is undervalued. Sold comparables are entered by staff and must be independently checked. Gabley does not buy the property or automatically contact buyers/sellers. Estate-agency supervision, redress, seller authority and fee disclosures must be cleared before introduction.</p>
+        <p><strong>Research only.</strong> A low asking price is not proof that a property is undervalued. Sold comparables are entered by staff and must be independently checked. Gabley does not buy the property or automatically contact buyers/sellers. Estate-agency supervision, redress, seller authority and fee disclosures must be cleared before introduction.</p>
       </div>
 
       <Tabs value={tab} onValueChange={setTab} className="space-y-5">
