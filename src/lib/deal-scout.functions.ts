@@ -143,6 +143,11 @@ export const screenDealWithSoldComparables = createServerFn({ method: "POST" })
     if (row.status !== "research" && row.status !== "seller_contact") {
       throw new Error("Only research-stage deals can be rescreened; request a new analysis review");
     }
+    if (row.analysis?.externalProvider === "propertydata" &&
+        (!row.analysis.externalDataExpiresAt ||
+         Date.parse(row.analysis.externalDataExpiresAt) <= Date.now())) {
+      throw new Error("This licensed market-price record has expired. Refresh it with the approved source before further screening.");
+    }
     if (!row.asking_price || !row.postcode) {
       throw new Error("This deal needs a recorded asking price and postcode before comparable valuation");
     }
