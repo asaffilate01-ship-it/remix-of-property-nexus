@@ -18,7 +18,7 @@
     "test:tenant": "node --experimental-strip-types --test tests/tenant-rent.test.ts",
     "test:owner": "node --experimental-strip-types --test tests/owner-statement.test.ts",
     "test:access": "node --experimental-strip-types --test tests/route-access.test.ts",
-    "test:deal": "node --experimental-strip-types --test tests/deal-screening.test.ts tests/property-matching.test.ts",
+    "test:deal": "node --experimental-strip-types --test tests/deal-screening.test.ts tests/property-matching.test.ts tests/price-paid-csv.test.ts",
     "test:migrations": "node --experimental-strip-types scripts/verify-migrations.ts",
     "typecheck": "tsc --noEmit",
     "check": "npm run test:property && npm run test:tenant && npm run test:owner && npm run test:deal && npm run test:migrations && npm run build && npm run typecheck && npm run test:access"
