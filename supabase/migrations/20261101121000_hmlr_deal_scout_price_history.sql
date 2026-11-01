@@ -166,4 +166,56 @@ REVOKE ALL ON FUNCTION public.apply_deal_hmlr_changes(date, jsonb)
 GRANT EXECUTE ON FUNCTION public.apply_deal_hmlr_changes(date, jsonb)
  TO service_role;
 
+-- On-demand third-party data calls are capped atomically per agency/day.
+-- A failed quota DB request must block external billable calls.
+CREATE TABLE public.deal_provider_usage (
+  agency_id uuid NOT NULL REFERENCES public.agencies(id) ON DELETE CASCADE,
+  provider text NOT NULL CHECK (provider IN ('propertydata')),
+  usage_day date NOT NULL,
+  calls integer NOT NULL CHECK (calls BETWEEN 1 AND 100000),
+  PRIMARY KEY (agency_id,provider,usage_day)
+);
+ALTER TABLE public.deal_provider_usage ENABLE ROW LEVEL SECURITY;
+GRANT ALL ON public.deal_provider_usage TO service_role;
+
+CREATE OR REPLACE FUNCTION public.reserve_deal_provider_call(
+  _agency_id uuid,
+  _provider text,
+  _max_daily integer
+)
+RETURNS boolean
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, pg_temp
+AS $quota$
+DECLARE reserved boolean := false;
+BEGIN
+  IF _agency_id IS NULL OR _provider <> 'propertydata'
+     OR _max_daily NOT BETWEEN 1 AND 100 THEN
+    RAISE EXCEPTION 'Invalid deal provider quota request';
+  END IF;
+  INSERT INTO public.deal_provider_usage(agency_id,provider,usage_day,calls)
+  VALUES (_agency_id,_provider,current_date,1)
+  ON CONFLICT (agency_id,provider,usage_day)
+  DO UPDATE SET calls = deal_provider_usage.calls + 1
+    WHERE deal_provider_usage.calls < _max_daily
+  RETURNING true INTO reserved;
+  RETURN COALESCE(reserved,false);
+END;
+$quota$;
+REVOKE ALL ON FUNCTION public.reserve_deal_provider_call(uuid,text,integer)
+  FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.reserve_deal_provider_call(uuid,text,integer)
+  TO service_role;
+
+-- Only a specific, value-added research case may reference a licensed result.
+-- Never build a general searchable replica of third-party listings.
+CREATE UNIQUE INDEX deal_opportunities_external_source_reference_uq
+ ON public.deal_opportunities (
+   agency_id,
+   (analysis->>'externalProvider'),
+   (analysis->>'externalListingId')
+ )
+ WHERE analysis ? 'externalProvider' AND analysis ? 'externalListingId';
+
 COMMIT;
