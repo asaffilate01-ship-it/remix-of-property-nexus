@@ -165,3 +165,56 @@ export const savePropertyDataResearchCase = createServerFn({ method: "POST" })
     if (created.error) throw new Error(created.error.message);
     return { opportunityId: created.data.id as string, created: true };
   });
+
+export const refreshPropertyDataResearchCase = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((value: unknown) => z.object({ opportunityId: z.string().uuid() }).strict().parse(value))
+  .handler(async ({ context, data }) => {
+    const agency = await agencyAccess(context.supabase, context.userId);
+    const db = context.supabase as any;
+    const read = await db.from("deal_opportunities")
+      .select("id,status,analysis,updated_at,fee_disclosed")
+      .eq("id", data.opportunityId).eq("agency_id", agency.id).maybeSingle();
+    if (read.error || !read.data) throw new Error("Research case not found");
+    const row = read.data;
+    const sourceId = row.analysis?.externalListingId;
+    if (row.analysis?.externalProvider !== "propertydata" ||
+      typeof sourceId !== "string" || !/^[A-Za-z][A-Za-z0-9-]{3,31}$/.test(sourceId)) {
+      throw new Error("This opportunity does not have a refreshable PropertyData source");
+    }
+    if (row.fee_disclosed || row.status !== "research") {
+      throw new Error("Only undisclosed research cases can refresh their asking price automatically");
+    }
+    const payload = await propertyDataGet("sourced-property", { property_id: sourceId }, agency.id);
+    const root = payload && typeof payload === "object" ? payload as Record<string, unknown> : null;
+    const fresh = root?.status === "success" ? normalisePropertyDataRecord(root.property, new Date()) : null;
+    if (!fresh || fresh.sstc || fresh.providerListingId !== sourceId) {
+      throw new Error("The listing is unavailable or under offer. Confirm availability manually.");
+    }
+    const updated = await db.from("deal_opportunities").update({
+      asking_price: fresh.askingPrice,
+      purchase_price: fresh.askingPrice,
+      postcode: fresh.postcode,
+      analysis: {
+        ...row.analysis,
+        sourcedAt: fresh.retrievedAt,
+        externalDataExpiresAt: fresh.expiresAt,
+        sourcePortal: fresh.sourcePortal,
+        sourceUrl: fresh.sourceUrl,
+        priceReductionPercent: fresh.priceReductionPercent,
+        sourceList: fresh.sourcingLists,
+        propertyType: fresh.broadPropertyType,
+        detailedPropertyType: fresh.detailedPropertyType,
+        bedrooms: fresh.bedrooms,
+        subjectFloorAreaSqft: fresh.floorAreaSqft,
+        valuationStatus: "unverified",
+        comparables: [],
+        screening: null,
+        sellerAuthority: "not_confirmed",
+      },
+    }).eq("id", row.id).eq("agency_id", agency.id)
+      .eq("updated_at", row.updated_at).select("id").maybeSingle();
+    if (updated.error) throw new Error(updated.error.message);
+    if (!updated.data) throw new Error("The research case changed; refresh the page and retry");
+    return { opportunityId: row.id, askingPrice: fresh.askingPrice, sourceExpiresAt: fresh.expiresAt };
+  });
