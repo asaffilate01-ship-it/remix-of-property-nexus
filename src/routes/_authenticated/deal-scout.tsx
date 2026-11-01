@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { scanPublishedSaleListings, saveScoutCandidate, screenDealWithSoldComparables } from "@/lib/deal-scout.functions";
-import { listDealOpportunities } from "@/lib/deal-intelligence.functions";
+import { listDealOpportunities, refreshOpportunityMatches } from "@/lib/deal-intelligence.functions";
 import { screenPropertyDeal, type DealScreenInput, type DealScreenResult, type SoldComparable } from "@/lib/deal-screening";
 
 export const Route = createFileRoute("/_authenticated/deal-scout")({
@@ -56,6 +56,7 @@ function DealScoutPage() {
   const shortlist = useServerFn(saveScoutCandidate);
   const analyse = useServerFn(screenDealWithSoldComparables);
   const fetchDeals = useServerFn(listDealOpportunities);
+  const findMatches = useServerFn(refreshOpportunityMatches);
   const [city, setCity] = useState("");
   const [postcode, setPostcode] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
@@ -70,6 +71,8 @@ function DealScoutPage() {
   const [params, setParams] = useState(defaults);
   const [comps, setComps] = useState<CompDraft[]>([newComp(), newComp(), newComp()]);
   const [result, setResult] = useState<DealScreenResult | null>(null);
+  const [investorMatches, setInvestorMatches] = useState<Array<{ investorProfileId: string; investorRef: string; score: number; reasons: string[]; fundingStatus: string }>>([]);
+  const [matching, setMatching] = useState(false);
   const [tab, setTab] = useState("scout");
 
   const reloadDeals = async () => {
@@ -100,6 +103,7 @@ function DealScoutPage() {
       evidenceRef: c.evidenceRef, source: c.source,
     })) : [newComp(saved?.propertyType, selected.postcode ?? ""), newComp(saved?.propertyType, selected.postcode ?? ""), newComp(saved?.propertyType, selected.postcode ?? "")]);
     setResult(saved?.screening ?? null);
+    setInvestorMatches([]);
   }, [selectedId]);
 
   const searchListings = async () => {
@@ -173,11 +177,33 @@ function DealScoutPage() {
         comps: input.comps,
       } });
       setResult(saved.screening ?? preview);
+      setInvestorMatches([]);
       await reloadDeals();
+      if (saved.screening?.verdict === "potential_candidate") {
+        try {
+          const matches = await findMatches({ data: { opportunityId: selected.id } });
+          setInvestorMatches(matches.matches ?? []);
+        } catch {
+          toast.info("Screening saved; you can retry buyer matching separately.");
+        }
+      }
       toast.success("Evidence and screening assumptions saved for review");
     } catch (cause) {
       toast.error(cause instanceof Error ? cause.message : "Could not evaluate this opportunity.");
     } finally { setScreening(false); }
+  };
+  const matchBuyers = async () => {
+    if (!selected || !result || result.verdict === "insufficient_evidence") return;
+    setMatching(true);
+    try {
+      const matches = await findMatches({ data: { opportunityId: selected.id } });
+      setInvestorMatches(matches.matches ?? []);
+      toast.success(matches.matches?.length
+        ? `${matches.matches.length} suitable buyer mandate(s) identified for staff review`
+        : "No active buyer mandates meet the current deal criteria");
+    } catch (cause) {
+      toast.error(cause instanceof Error ? cause.message : "Unable to match buyers");
+    } finally { setMatching(false); }
   };
   const formFields: { key: keyof typeof defaults; label: string }[] = [
     { key: "proposedPurchasePrice", label: "Proposed purchase / offer price (£)" },
@@ -337,7 +363,25 @@ function DealScoutPage() {
               </div>
               <p className="text-xs text-muted-foreground">Evidence confidence: <strong>{result.confidence}</strong>. Methods: {result.valuationMethod.replaceAll("_"," ")}. These are not independent RICS valuations or guarantees of profit.</p>
               <div className="space-y-1">{result.notes.map(n=><p key={n} className="flex gap-2 text-xs text-muted-foreground"><CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true" /> {n}</p>)}</div>
-              {result.verdict==="potential_candidate" && <Button variant="outline" asChild><Link to="/deal-intelligence">Review fee and buyer introduction gates <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" /></Link></Button>}
+              <div className="space-y-3 border-t pt-4">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <h4 className="font-medium">Find a buyer — mandate matching</h4>
+                    <p className="max-w-xl text-xs text-muted-foreground">Search only the agency's existing investor mandates. No contact details, introductions or messages are sent automatically.</p>
+                  </div>
+                  <Button variant="outline" size="sm" disabled={matching || result.verdict==="insufficient_evidence"} onClick={() => void matchBuyers()}>
+                    {matching ? "Checking…" : "Find matching buyers"}
+                  </Button>
+                </div>
+                {investorMatches.length > 0 && <div className="grid gap-2 md:grid-cols-2">
+                  {investorMatches.slice(0, 20).map(buyer => <div key={buyer.investorProfileId} className="rounded-lg border bg-muted/20 p-3">
+                    <div className="flex items-center justify-between gap-2"><strong className="truncate text-sm">{buyer.investorRef}</strong><Badge variant="outline">{buyer.score}/100 fit</Badge></div>
+                    <p className="mt-1 text-xs text-muted-foreground">Funding: {buyer.fundingStatus.replaceAll("_"," ")}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{buyer.reasons.map(reason=>reason.replaceAll("_"," ")).join(" · ")}</p>
+                  </div>)}
+                </div>}
+                <Button variant="outline" asChild><Link to="/deal-intelligence">Review seller authority, fee terms and introductions <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" /></Link></Button>
+              </div>
             </CardContent></Card>}
           </div>}
         </TabsContent>
