@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { screenPropertyDeal, type DealScreenInput, type SoldComparable } from "@/lib/deal-screening";
+import { agencyAccess } from "@/lib/deal-intelligence.functions";
 
 /**
  * Sale discovery reads only publicly published Gabley listings.
@@ -44,17 +45,8 @@ const screenSchema = z.object({
 }).strict();
 
 async function dealAgency(context: { supabase: any; userId: string }) {
-  const roles = await context.supabase.from("user_roles").select("role").eq("user_id", context.userId);
-  if (roles.error) throw new Error("Unable to verify property sourcing permissions");
-  if (!roles.data?.some((role: { role: string }) => ["agent", "admin"].includes(role.role))) {
-    throw new Error("Deal sourcing requires an authorised estate agency role");
-  }
-  const owned = await context.supabase.from("agencies").select("id").eq("owner_id", context.userId).limit(1).maybeSingle();
-  if (owned.error) throw new Error(owned.error.message);
-  if (owned.data) return owned.data.id as string;
-  const membership = await context.supabase.from("agency_members").select("agency_id").eq("user_id", context.userId).limit(1).maybeSingle();
-  if (membership.error || !membership.data?.agency_id) throw new Error("An agency workspace is required");
-  return membership.data.agency_id as string;
+  const agency = await agencyAccess(context.supabase, context.userId);
+  return agency.id;
 }
 
 export const scanPublishedSaleListings = createServerFn({ method: "POST" })
