@@ -289,6 +289,10 @@
     {
       "file": "20261101112000_deal_compliance_commissions.sql",
       "sha256": "6922eb037091b185ae2a440f1885b8839693090c977221119316df82f351e9df"
+    },
+    {
+      "file": "20261101121000_hmlr_deal_scout_price_history.sql",
+      "sha256": "c3f9a054b4882cd2ae145801dbe0789d43679a858223b2cce70bdabe76da4f50"
     }
   ]
 }
