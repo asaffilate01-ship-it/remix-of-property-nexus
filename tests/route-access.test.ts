@@ -56,6 +56,9 @@ describe("authenticated route access", () => {
     assert.equal(roleCanAccessPath("agent", "/deal-scout"), true);
     assert.equal(roleCanAccessPath("agent", "/deal-intelligence"), true);
     assert.equal(roleCanAccessPath("agent", "/deal-investors"), true);
+    assert.equal(roleCanAccessPath("agent", "/deal-commissions"), true);
+    assert.equal(roleCanAccessPath("tenant", "/deal-commissions"), false);
+    assert.equal(roleCanAccessPath("buyer", "/deal-commissions"), false);
     for (const role of ["tenant", "buyer", "landlord", "contractor", "conveyancer"] as const) {
       assert.equal(roleCanAccessPath(role, "/deal-scout"), false);
       assert.equal(roleCanAccessPath(role, "/deal-intelligence"), false);
