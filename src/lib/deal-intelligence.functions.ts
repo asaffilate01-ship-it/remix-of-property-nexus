@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { scoreInvestorForDeal } from "@/lib/deal-screening";
 
 const uuid = z.string().uuid();
 const money = z.coerce.number().min(0).max(100_000_000);
@@ -85,6 +86,18 @@ export function dealEconomics(input: {
 const round = (value: number) => Math.round(value * 100) / 100;
 
 async function agencyAccess(supabase: any, userId: string) {
+  const { data: roles, error: roleError } = await supabase.from("user_roles")
+    .select("role").eq("user_id", userId);
+  if (roleError) throw new Error("Unable to check property sourcing role");
+  if (!(roles ?? []).some((record: { role: string }) => ["agent", "admin"].includes(record.role))) {
+    throw new Error("Deal sourcing requires an authorised agency role");
+  }
+  if ((roles ?? []).some((record: { role: string }) => record.role === "admin")) {
+    const verified = await supabase.rpc("current_platform_admin_security_status").maybeSingle();
+    if (verified.error || !verified.data?.is_aal2 || !verified.data?.is_authorized) {
+      throw new Error("Platform administrator must have verified MFA and authorisation");
+    }
+  }
   const owned = await supabase
     .from("agencies")
     .select("id,omniqora_tenant_id")
@@ -142,81 +155,29 @@ async function fetchOpportunity(db: any, agencyId: string, opportunityId: string
 }
 
 function scoreInvestor(
-  opportunity: any,
-  profile: any,
+  opportunity: any, profile: any,
 ): { score: number; reasons: string[] } {
-  const reasons: string[] = [];
-  let score = 0;
-  const acquisitionSubtotal =
-    Number(opportunity.purchase_price ?? 0) + Number(opportunity.proposed_fee ?? 0);
-  const minBudget = Number(profile.min_budget ?? 0);
-  const maxBudget = Number(profile.max_budget ?? 0);
-
-  if (acquisitionSubtotal >= minBudget && acquisitionSubtotal <= maxBudget) {
-    score += 40;
-    reasons.push("budget_fit");
-  } else if (Number(opportunity.purchase_price ?? 0) <= maxBudget) {
-    score += 20;
-    reasons.push("property_price_within_budget");
-  }
-
-  const outcode = String(opportunity.postcode ?? "")
-    .trim()
-    .toUpperCase()
-    .split(/\s+/)[0];
-  const areas = Array.isArray(profile.areas)
-    ? profile.areas.map((value: unknown) => String(value).trim().toUpperCase()).filter(Boolean)
-    : [];
-  if (!areas.length) {
-    score += 8;
-    reasons.push("area_open");
-  } else if (outcode && areas.some((area: string) => outcode.startsWith(area))) {
-    score += 25;
-    reasons.push("area_fit");
-  }
-
-  const strategy =
-    typeof opportunity.analysis?.strategy === "string"
-      ? opportunity.analysis.strategy
-      : typeof opportunity.analysis?.investmentStrategy === "string"
-        ? opportunity.analysis.investmentStrategy
-        : null;
-  const strategies = Array.isArray(profile.strategies)
-    ? profile.strategies.map((value: unknown) => String(value))
-    : [];
-  if (!strategy) {
-    score += 8;
-    reasons.push("strategy_not_restricted");
-  } else if (strategies.includes(strategy)) {
-    score += 17;
-    reasons.push("strategy_fit");
-  }
-
-  if (["cash_verified", "aip", "bridging_ready"].includes(profile.funding_status)) {
-    score += 12;
-    reasons.push("funding_ready");
-  } else if (profile.funding_status === "mortgage") {
-    score += 4;
-    reasons.push("mortgage_dependent");
-  }
-
-  if (Number(opportunity.works_cost ?? 0) <= 0 || profile.accepts_refurbishment) {
-    score += 5;
-    reasons.push("refurbishment_fit");
-  }
-
-  if (!opportunity.domureva_case_ref || profile.accepts_council_scheme) {
-    score += 5;
-    reasons.push(opportunity.domureva_case_ref ? "council_scheme_fit" : "no_council_constraint");
-  }
-
-  const targetDays = Number(opportunity.analysis?.completionDays ?? 0);
-  if (targetDays > 0 && profile.completion_days && Number(profile.completion_days) <= targetDays) {
-    score += 5;
-    reasons.push("timescale_fit");
-  }
-
-  return { score: Math.min(100, score), reasons };
+  const result = scoreInvestorForDeal({
+    purchasePrice: Number(opportunity.purchase_price),
+    fee: Number(opportunity.proposed_fee ?? 0),
+    postcode: String(opportunity.postcode ?? ""),
+    strategy: String(opportunity.analysis?.strategy ?? "flip"),
+    projectedProfit: opportunity.analysis?.screening?.projectedProfitAfterFee ?? null,
+    // Conservative affordability includes declared works and ancillary costs.
+    worksCost: Number(opportunity.works_cost ?? 0) + Number(opportunity.other_costs ?? 0),
+  }, {
+    id: String(profile.id),
+    investorRef: String(profile.investor_ref),
+    minBudget: Number(profile.min_budget ?? 0),
+    maxBudget: Number(profile.max_budget ?? 0),
+    areas: Array.isArray(profile.areas) ? profile.areas : [],
+    strategies: Array.isArray(profile.strategies) ? profile.strategies : [],
+    fundingStatus: String(profile.funding_status ?? "unknown"),
+    minProfitTarget: profile.min_profit_target,
+    acceptsRefurbishment: Boolean(profile.accepts_refurbishment),
+    active: Boolean(profile.active),
+  });
+  return result ?? { score: 0, reasons: [] };
 }
 
 export const listDealOpportunities = createServerFn({ method: "GET" })
@@ -331,6 +292,12 @@ export const saveInvestorProfile = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const agency = await agencyAccess(context.supabase, context.userId);
     if (data.maxBudget < data.minBudget) throw new Error("Maximum budget must be at least minimum budget");
+
+    if (data.buyerId) {
+      const linked = await context.supabase.from("buyer_profiles")
+        .select("id").eq("id", data.buyerId).eq("agency_id", agency.id).maybeSingle();
+      if (linked.error || !linked.data) throw new Error("The selected buyer is not in this agency");
+    }
 
     const payload = {
       agency_id: agency.id,
@@ -455,8 +422,31 @@ export const introduceMatch = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const agency = await agencyAccess(context.supabase, context.userId);
+    const db = context.supabase as any;
+    const match = await db.from("deal_matches")
+      .select("opportunity_id, investor_profiles(*)")
+      .eq("id", data.matchId).eq("agency_id", agency.id).maybeSingle();
+    if (match.error || !match.data) throw new Error("Buyer match not found");
+    const opportunity = await fetchOpportunity(db, agency.id, match.data.opportunity_id);
+    if (!opportunity.analysis?.screening ||
+        opportunity.analysis.screening.verdict === "insufficient_evidence") {
+      throw new Error("A documented comparable-based valuation is required before an introduction");
+    }
+    const profile = match.data.investor_profiles;
+    if (!profile || !scoreInvestor(opportunity, profile).score) {
+      throw new Error("Buyer mandate no longer matches this opportunity");
+    }
+    if (!["cash_verified", "aip", "bridging_ready"].includes(profile.funding_status)) {
+      throw new Error("Verify the buyer's funding evidence before an introduction");
+    }
+    const compliance = await db.from("deal_agency_compliance")
+      .select("approved_at").eq("agency_id", agency.id).maybeSingle();
+    const approved = compliance.data?.approved_at ? Date.parse(compliance.data.approved_at) : 0;
+    if (compliance.error || !approved || Date.now() - approved > 366 * 86400000) {
+      throw new Error("Agency AML and redress compliance has not been approved");
+    }
     const now = new Date().toISOString();
-    const { data: row, error } = await (context.supabase as any)
+    const { data: row, error } = await db
       .from("deal_matches")
       .update({
         buyer_terms_accepted: true,
@@ -503,7 +493,7 @@ export const startDealIntelligence = createServerFn({ method: "POST" })
     if (data.serviceKey === "omniqora.property-match") {
       const matches = await db
         .from("deal_matches")
-        .select("score,reasons,investor_profiles(investor_ref,min_budget,max_budget,areas,strategies,funding_status,completion_days,accepts_refurbishment,accepts_council_scheme)")
+        .select("score,reasons,investor_profiles(id,min_budget,max_budget,areas,strategies,funding_status,completion_days,accepts_refurbishment,accepts_council_scheme)")
         .eq("agency_id", agency.id)
         .eq("opportunity_id", row.id)
         .order("score", { ascending: false })
