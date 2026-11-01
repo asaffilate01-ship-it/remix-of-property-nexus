@@ -64,12 +64,13 @@ BEGIN
     )
   WHERE d.analysis->>'externalProvider' = 'propertydata'
     AND (
-      NOT (d.analysis ? 'externalDataExpiresAt')
-      OR NULLIF(d.analysis->>'externalDataExpiresAt','') IS NULL
-      OR (
-        d.analysis->>'externalDataExpiresAt' ~ '^20[0-9]{2}-'
-        AND (d.analysis->>'externalDataExpiresAt')::timestamptz <= now() + interval '2 days'
-      )
+      CASE
+        WHEN NULLIF(d.analysis->>'externalDataExpiresAt','') IS NULL THEN true
+        WHEN d.analysis->>'externalDataExpiresAt' ~ '^20[0-9]{2}-[0-9]{2}-[0-9]{2}T'
+          THEN (d.analysis->>'externalDataExpiresAt')::timestamptz <= now() + interval '2 days'
+        -- Invalid/suspect provider timestamps are treated as expired.
+        ELSE true
+      END
     );
   GET DIAGNOSTICS affected = ROW_COUNT;
   RETURN affected;
