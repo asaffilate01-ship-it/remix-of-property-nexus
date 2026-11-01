@@ -4,6 +4,20 @@
 -- The cron purges raw API-derived evidence two days before its expiry.
 BEGIN;
 
+-- Unknown or invalid provider timestamps fail closed as already expired.
+CREATE OR REPLACE FUNCTION public.try_deal_source_expiry(_date text)
+RETURNS timestamptz
+LANGUAGE plpgsql STABLE
+SET search_path = public, pg_temp
+AS $parse$
+BEGIN
+  IF NULLIF(trim(coalesce(_date,'')), '') IS NULL THEN RETURN NULL; END IF;
+  RETURN _date::timestamptz;
+EXCEPTION WHEN invalid_datetime_format OR datetime_field_overflow THEN
+  RETURN NULL;
+END
+$parse$;
+
 CREATE OR REPLACE FUNCTION public.expire_deal_licensed_market_evidence()
 RETURNS integer
 LANGUAGE plpgsql
@@ -63,15 +77,10 @@ BEGIN
       'requiresRescout', true
     )
   WHERE d.analysis->>'externalProvider' = 'propertydata'
-    AND (
-      CASE
-        WHEN NULLIF(d.analysis->>'externalDataExpiresAt','') IS NULL THEN true
-        WHEN d.analysis->>'externalDataExpiresAt' ~ '^20[0-9]{2}-[0-9]{2}-[0-9]{2}T'
-          THEN (d.analysis->>'externalDataExpiresAt')::timestamptz <= now() + interval '2 days'
-        -- Invalid/suspect provider timestamps are treated as expired.
-        ELSE true
-      END
-    );
+    AND coalesce(
+      public.try_deal_source_expiry(d.analysis->>'externalDataExpiresAt'),
+      '-infinity'::timestamptz
+    ) <= now() + interval '2 days';
   GET DIAGNOSTICS affected = ROW_COUNT;
   RETURN affected;
 END
@@ -94,11 +103,10 @@ SELECT
   coalesce(_analysis->>'licensedEvidenceExpired','false') = 'true'
   OR (
     _analysis->>'externalProvider' = 'propertydata'
-    AND CASE
-      WHEN _analysis->>'externalDataExpiresAt' ~ '^20[0-9]{2}-[0-9]{2}-[0-9]{2}T'
-      THEN (_analysis->>'externalDataExpiresAt')::timestamptz <= now()
-      ELSE true
-    END
+    AND coalesce(
+      public.try_deal_source_expiry(_analysis->>'externalDataExpiresAt'),
+      '-infinity'::timestamptz
+    ) <= now()
   )
 $fn$;
 
@@ -150,20 +158,37 @@ LANGUAGE plpgsql
 SET search_path = public, pg_temp
 AS $trigger$
 BEGIN
+  IF TG_OP = 'INSERT' THEN
+    IF NEW.analysis->>'externalProvider' = 'propertydata'
+       AND current_user <> 'service_role' THEN
+      RAISE EXCEPTION 'Licensed property sources must be captured through the authorised server adapter';
+    END IF;
+    RETURN NEW;
+  END IF;
+  -- A source expiry marker is irreversible via ordinary app clients.
   IF coalesce(OLD.analysis->>'licensedEvidenceExpired','false') = 'true'
      AND coalesce(NEW.analysis->>'licensedEvidenceExpired','false') <> 'true' THEN
     RAISE EXCEPTION 'Expired licensed source evidence cannot be reactivated by editing its provenance';
   END IF;
-  IF OLD.analysis->>'externalProvider' = 'propertydata'
-     AND NEW.analysis->>'externalProvider' IS DISTINCT FROM 'propertydata'
-     AND coalesce(NEW.analysis->>'licensedEvidenceExpired','false') <> 'true' THEN
-    RAISE EXCEPTION 'Licensed external provenance may only be removed by the retention workflow';
+  -- Never allow ordinary agency JWT clients to extend an API licence TTL,
+  -- reassign the provider record, or strip the source label.
+  IF current_user <> 'service_role'
+     AND OLD.analysis->>'externalProvider' = 'propertydata'
+     AND (
+       OLD.analysis->>'externalProvider' IS DISTINCT FROM NEW.analysis->>'externalProvider'
+       OR OLD.analysis->>'externalListingId' IS DISTINCT FROM NEW.analysis->>'externalListingId'
+       OR OLD.analysis->>'externalDataExpiresAt' IS DISTINCT FROM NEW.analysis->>'externalDataExpiresAt'
+       OR OLD.analysis->>'sourcedAt' IS DISTINCT FROM NEW.analysis->>'sourcedAt'
+       OR OLD.analysis->>'sourcePortal' IS DISTINCT FROM NEW.analysis->>'sourcePortal'
+       OR OLD.analysis->>'sourceUrl' IS DISTINCT FROM NEW.analysis->>'sourceUrl'
+     ) THEN
+    RAISE EXCEPTION 'Licensed provider provenance can only be refreshed by the approved server adapter';
   END IF;
   RETURN NEW;
 END
 $trigger$;
 CREATE TRIGGER deal_licensed_provenance_guard
-BEFORE UPDATE OF analysis ON public.deal_opportunities
+BEFORE INSERT OR UPDATE OF analysis ON public.deal_opportunities
 FOR EACH ROW EXECUTE FUNCTION public.protect_licensed_market_provenance();
 
 COMMIT;
