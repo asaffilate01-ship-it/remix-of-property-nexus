@@ -14,6 +14,9 @@ import { scanPublishedSaleListings, saveScoutCandidate, screenDealWithSoldCompar
 import { listDealOpportunities, refreshOpportunityMatches } from "@/lib/deal-intelligence.functions";
 import { screenPropertyDeal, type DealScreenInput, type DealScreenResult, type SoldComparable } from "@/lib/deal-screening";
 import { parsePricePaidCsv, suggestPricePaidComparables } from "@/lib/price-paid-csv";
+import { getStoredLandRegistryComparables } from "@/lib/hmlr-comparables.functions";
+import { dealScoutSourceStatus, searchPropertyDataInvestments, savePropertyDataResearchCase, refreshPropertyDataResearchCase } from "@/lib/propertydata-sourcing.functions";
+import { PROPERTYDATA_LISTS, type PropertyDataSourcingList, type LicensedSourcingCandidate } from "@/lib/propertydata-sourcing";
 
 export const Route = createFileRoute("/_authenticated/deal-scout")({
   head: () => ({ meta: [{ title: "Deal Scout — Gabley", name: "description", content: "Evidence-led UK sales discovery, conservative property valuation and investor sourcing workflow." }] }),
@@ -32,6 +35,7 @@ type Opportunity = {
   analysis: {
     propertyType?: string; bedrooms?: number | null; subjectFloorAreaSqft?: number | null;
     screening?: DealScreenResult; comparables?: SoldComparable[]; slug?: string;
+    externalProvider?: string; externalDataExpiresAt?: string; sourcePortal?: string;
   } | null;
 };
 type CompDraft = { price: string; soldAt: string; postcode: string; propertyType: string; bedrooms: string; evidenceRef: string; source: "hm_land_registry" | "agent_verified"; floorAreaSqft: string };
@@ -58,6 +62,11 @@ function DealScoutPage() {
   const analyse = useServerFn(screenDealWithSoldComparables);
   const fetchDeals = useServerFn(listDealOpportunities);
   const findMatches = useServerFn(refreshOpportunityMatches);
+  const storedSold = useServerFn(getStoredLandRegistryComparables);
+  const sourceStatus = useServerFn(dealScoutSourceStatus);
+  const licensedSearch = useServerFn(searchPropertyDataInvestments);
+  const licensedSave = useServerFn(savePropertyDataResearchCase);
+  const licensedRefresh = useServerFn(refreshPropertyDataResearchCase);
   const [city, setCity] = useState("");
   const [postcode, setPostcode] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
@@ -76,6 +85,16 @@ function DealScoutPage() {
   const [matching, setMatching] = useState(false);
   const [importingSold, setImportingSold] = useState(false);
   const [soldImportNote, setSoldImportNote] = useState<string | null>(null);
+  const [soldLookupBusy, setSoldLookupBusy] = useState(false);
+  const [licensedAvailable, setLicensedAvailable] = useState(false);
+  const [licensedPostcode, setLicensedPostcode] = useState("");
+  const [licensedRadius, setLicensedRadius] = useState("10");
+  const [licensedList, setLicensedList] = useState<PropertyDataSourcingList>("reduced-properties");
+  const [licensedListings, setLicensedListings] = useState<LicensedSourcingCandidate[] | null>(null);
+  const [licensedBusy, setLicensedBusy] = useState(false);
+  const [licensedError, setLicensedError] = useState<string | null>(null);
+  const [licensedSavingId, setLicensedSavingId] = useState<string | null>(null);
+  const [refreshingSource, setRefreshingSource] = useState(false);
   const [tab, setTab] = useState("scout");
 
   const reloadDeals = async () => {
@@ -87,7 +106,11 @@ function DealScoutPage() {
       setDealsError(cause instanceof Error ? cause.message : "Deal opportunities are unavailable.");
     }
   };
-  useEffect(() => { void reloadDeals(); }, []);
+  useEffect(() => {
+    void reloadDeals();
+    void sourceStatus().then(state => setLicensedAvailable(state.propertydata === "configured"))
+      .catch(() => setLicensedAvailable(false));
+  }, []);
   const selected = deals.find((row) => row.id === selectedId) ?? null;
   useEffect(() => {
     if (!selected) return;
@@ -137,6 +160,74 @@ function DealScoutPage() {
     } finally { setSavingId(null); }
   };
 
+  const searchLicensedPortals = async () => {
+    setLicensedBusy(true); setLicensedError(null); setLicensedListings(null);
+    try {
+      if (!licensedAvailable) throw new Error("A PropertyData commercial subscription must be connected first.");
+      const response = await licensedSearch({ data: {
+        postcode: licensedPostcode.trim().toUpperCase(),
+        list: licensedList,
+        radiusMiles: Number(licensedRadius),
+        ...(maxPrice.trim() ? { maxPrice: Number(maxPrice) } : {}),
+      } });
+      setLicensedListings(response.items as LicensedSourcingCandidate[]);
+    } catch (cause) {
+      setLicensedError(cause instanceof Error ? cause.message : "The licensed source is unavailable.");
+    } finally { setLicensedBusy(false); }
+  };
+  const shortlistLicensed = async (item: LicensedSourcingCandidate) => {
+    setLicensedSavingId(item.providerListingId);
+    try {
+      const saved = await licensedSave({ data: { providerListingId: item.providerListingId } });
+      toast.success(saved.created ? "Licensed listing added as a research case" : "Research case already exists");
+      await reloadDeals();
+      setSelectedId(saved.opportunityId);
+      setTab("evaluate");
+    } catch (cause) {
+      toast.error(cause instanceof Error ? cause.message : "Unable to save this licensed research case");
+    } finally { setLicensedSavingId(null); }
+  };
+  const updateLicensedCase = async () => {
+    if (!selectedId) return;
+    setRefreshingSource(true);
+    try {
+      await licensedRefresh({ data: { opportunityId: selectedId } });
+      const id=selectedId;
+      setSelectedId(null);
+      await reloadDeals();
+      setSelectedId(id);
+      toast.success("Revalidated the current asking price; previous valuation must be reviewed again");
+    } catch (cause) {
+      toast.error(cause instanceof Error ? cause.message : "Unable to refresh external listing");
+    } finally { setRefreshingSource(false); }
+  };
+  const loadStoredSales = async () => {
+    if (!selected?.postcode) return;
+    if (params.propertyType !== "house" && params.propertyType !== "flat") {
+      setSoldImportNote("Official Price Paid data cannot determine this exact property subtype; use appropriately verified manual comparables.");
+      return;
+    }
+    setSoldLookupBusy(true); setSoldImportNote(null);
+    try {
+      const result = await storedSold({ data: {
+        postcode: selected.postcode, propertyType: params.propertyType, limit: 15,
+      } });
+      if (result.comparables.length < 3) {
+        setSoldImportNote("Fewer than three qualifying completed sales were found. The historical Land Registry feed may not yet be imported for this area.");
+        return;
+      }
+      setComps(result.comparables.map(c => ({
+        price: String(c.price), soldAt: c.soldAt, postcode: c.postcode,
+        propertyType: c.propertyType, bedrooms: "", floorAreaSqft: "",
+        evidenceRef: c.evidenceRef, source: c.source,
+      })));
+      setResult(null); setInvestorMatches([]);
+      setSoldImportNote(`Loaded ${result.comparables.length} registered-sale suggestions from ${result.recordsSampled} sampled transactions. Review actual subtype, condition and transaction dates before valuing; registered data can lag.`);
+    } catch (cause) {
+      setSoldImportNote(cause instanceof Error ? cause.message : "Land Registry history could not be loaded.");
+    } finally { setSoldLookupBusy(false); }
+  };
+
   const updateComp = (index: number, key: keyof CompDraft, value: string) =>
     setComps(current => current.map((comp, i) => i === index ? { ...comp, [key]: value } : comp));
   const importSoldCsv = async (file?: File) => {
@@ -171,6 +262,11 @@ function DealScoutPage() {
   };
   const buildInput = (): DealScreenInput => {
     if (!selected?.postcode || !selected.asking_price) throw new Error("The deal needs an asking price and postcode before valuation.");
+    if (selected.analysis?.externalProvider === "propertydata" &&
+        (!selected.analysis.externalDataExpiresAt ||
+          Date.parse(selected.analysis.externalDataExpiresAt) <= Date.now())) {
+      throw new Error("Licensed asking-price evidence is more than 60 days old. Refresh its source before screening.");
+    }
     const comparableSales: SoldComparable[] = comps.filter(c => c.price || c.evidenceRef || c.soldAt).map(c => ({
       price: number(c.price), soldAt: c.soldAt, postcode: c.postcode,
       propertyType: c.propertyType,
@@ -289,6 +385,63 @@ function DealScoutPage() {
             <Button disabled={searching} onClick={() => void searchListings()}><Filter className="mr-2 h-4 w-4" aria-hidden="true" />{searching ? "Searching…" : "Find lower asking prices"}</Button>
             <p className="text-xs text-muted-foreground">Only published, marketplace-enabled sale listings in GBP. At most 150 scanned, ordered by asking price. No unauthorised portal scraping or assumed resale value.</p>
           </CardContent></Card>
+
+          <Card className="shadow-card"><CardContent className="space-y-4 p-5">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <h2 className="font-semibold">Find deals advertised on major property portals</h2>
+                <p className="text-xs text-muted-foreground">Approved PropertyData sourcing API — investment-specific listings drawn from major portals, without unauthorised scraping. Individual calls use API credits.</p>
+              </div>
+              <Badge variant={licensedAvailable ? "secondary" : "outline"}>{licensedAvailable ? "Licensed API configured" : "Needs commercial API access"}</Badge>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="space-y-1"><Label htmlFor="licensed-postcode">Full postcode</Label>
+                <Input id="licensed-postcode" value={licensedPostcode} onChange={e=>setLicensedPostcode(e.target.value)} placeholder="LU1 2AA" maxLength={12} />
+              </div>
+              <div className="space-y-1"><Label htmlFor="licensed-source-list">Sourcing strategy</Label>
+                <select id="licensed-source-list" className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                  value={licensedList} onChange={e=>setLicensedList(e.target.value as PropertyDataSourcingList)}>
+                  {PROPERTYDATA_LISTS.map(name=><option value={name} key={name}>{name.replaceAll("-"," ")}</option>)}
+                </select>
+              </div>
+              <div className="space-y-1"><Label htmlFor="licensed-radius">Search radius (miles)</Label>
+                <Input id="licensed-radius" type="number" min="1" max="80" value={licensedRadius} onChange={e=>setLicensedRadius(e.target.value)} />
+              </div>
+            </div>
+            <Button type="button" disabled={!licensedAvailable || licensedBusy || !licensedPostcode.trim()} onClick={() => void searchLicensedPortals()}>
+              <Search className="mr-2 h-4 w-4" aria-hidden="true" />
+              {licensedBusy ? "Querying licensed feed…" : "Search licensed property opportunities"}
+            </Button>
+            <p className="text-xs text-muted-foreground">Results are on-demand, limited to ten per call and not cached as a copy of the portals. Third-party photos are excluded. PropertyData's 60-day evidence refresh rule applies.</p>
+            {!licensedAvailable && <p className="text-xs text-muted-foreground">Enable this with a commercial PropertyData API subscription, a server-only API key and a confirmed licence setting. <a className="underline underline-offset-2" href="https://propertydata.co.uk/api/documentation/licensing" target="_blank" rel="noreferrer">Provider usage rights</a>.</p>}
+            {licensedError && <p role="alert" className="text-sm text-destructive">{licensedError}</p>}
+          </CardContent></Card>
+          {licensedListings && <section aria-label="Licensed sourcing results" className="space-y-3">
+            <h3 className="font-semibold">{licensedListings.length} licensed sourcing result(s)</h3>
+            {licensedListings.length===0 && <p className="text-sm text-muted-foreground">No available listings returned for this strategy, postcode and budget.</p>}
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+              {licensedListings.map(item=><Card key={item.providerListingId} className="shadow-card">
+                <CardContent className="space-y-3 p-5">
+                  <div className="flex flex-wrap gap-2">
+                    <Badge variant="outline">{item.detailedPropertyType}</Badge>
+                    {item.priceReductionPercent!=null && <Badge>Reduced {item.priceReductionPercent}%</Badge>}
+                  </div>
+                  <h4 className="font-semibold">{item.title}</h4>
+                  <p className="text-2xl font-semibold tabular">{money.format(item.askingPrice)}</p>
+                  <p className="text-xs text-muted-foreground">{item.postcode} · {item.bedrooms ?? "—"} beds · {item.daysOnMarket ?? "—"} days listed</p>
+                  <p className="text-xs text-muted-foreground">Source: PropertyData{item.sourcePortal ? ` / ${item.sourcePortal}` : ""} · Listing expiry: {new Date(item.expiresAt).toLocaleDateString("en-GB")}. Asking price only; not a valuation.</p>
+                  <div className="flex flex-wrap gap-2">
+                    <Button type="button" size="sm" disabled={licensedSavingId===item.providerListingId} onClick={() => void shortlistLicensed(item)}>
+                      <Plus className="mr-1 h-4 w-4" aria-hidden="true" />
+                      {licensedSavingId===item.providerListingId ? "Rechecking…" : "Research this opportunity"}
+                    </Button>
+                    {item.sourceUrl && <Button asChild size="sm" variant="outline"><a href={item.sourceUrl} target="_blank" rel="noopener noreferrer">Provider listing</a></Button>}
+                  </div>
+                </CardContent>
+              </Card>)}
+            </div>
+          </section>}
+
           {error && <div role="alert" className="rounded-lg border border-destructive/30 p-4 text-sm text-destructive">{error}</div>}
           {listings && <div className="space-y-3">
             <div className="flex items-center justify-between"><h2 className="font-semibold">{listings.length} sale listings from this scan</h2><Badge variant="secondary">Asking prices only</Badge></div>
@@ -328,6 +481,11 @@ function DealScoutPage() {
           {selected && <div className="space-y-5">
             <div className="space-y-1">
               <h2 className="font-display text-xl font-semibold">Underwrite: {selected.title}</h2>
+              {selected.analysis?.externalProvider === "propertydata" && <div className="mt-2 flex flex-wrap items-center gap-2">
+                <Badge variant="outline">PropertyData case</Badge>
+                <span className="text-xs text-muted-foreground">Current-source evidence expires {selected.analysis.externalDataExpiresAt ? new Date(selected.analysis.externalDataExpiresAt).toLocaleDateString("en-GB") : "unknown"}</span>
+                <Button type="button" variant="outline" size="sm" disabled={refreshingSource} onClick={() => void updateLicensedCase()}>{refreshingSource ? "Checking…" : "Refresh source asking price"}</Button>
+              </div>}
               <p className="text-sm text-muted-foreground">Based on actual completed sold-price evidence, not advertised asking prices. Nothing is sent to a buyer or seller.</p>
             </div>
             <Card className="shadow-card"><CardContent className="space-y-4 p-5">
@@ -354,6 +512,15 @@ function DealScoutPage() {
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div><h3 className="font-semibold">Comparable completed sales</h3><p className="text-xs text-muted-foreground">Add at least three recent sales of similar properties in the same postcode area. Keep the Land Registry or verified-agent reference.</p></div>
                 <Button variant="outline" size="sm" disabled={comps.length >= 60} onClick={()=>setComps([...comps,newComp(params.propertyType,selected.postcode??"")])}><Plus className="mr-1 h-4 w-4" aria-hidden="true" /> Comparable</Button>
+              </div>
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-muted/30 p-4">
+                <div>
+                  <h4 className="text-sm font-semibold">Load from registered sale history</h4>
+                  <p className="text-xs text-muted-foreground">Search the HMLR database once its official Price Paid CSVs have been imported. No provider keys or local CSV required.</p>
+                </div>
+                <Button type="button" variant="outline" disabled={soldLookupBusy} onClick={() => void loadStoredSales()}>
+                  <Search className="mr-2 h-4 w-4" aria-hidden="true" /> {soldLookupBusy ? "Finding sales…" : "Suggest Land Registry comparables"}
+                </Button>
               </div>
               <div className="space-y-2 rounded-xl border bg-muted/40 p-4">
                 <h4 className="font-medium text-sm">Suggest comparables from HM Land Registry Price Paid Data</h4>
