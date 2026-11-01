@@ -352,8 +352,8 @@ export const refreshOpportunityMatches = createServerFn({ method: "POST" })
       .eq("opportunity_id", data.opportunityId);
     if (existing.error) throw new Error(existing.error.message);
 
-    const previous = new Map(
-      (existing.data ?? []).map((row: any) => [row.investor_profile_id, row]),
+    const previous = new Map<string, { status: string }>(
+      (existing.data ?? []).map((row: any): [string, { status: string }] => [String(row.investor_profile_id), { status: String(row.status) }]),
     );
     const ranked = (profiles.data ?? [])
       .map((profile: any) => ({
