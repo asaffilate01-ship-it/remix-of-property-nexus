@@ -1,0 +1,71 @@
+name: HM Land Registry Price Paid monthly refresh
+
+on:
+  schedule:
+    # The HMLR update normally appears on the 20th working day.
+    # Weekly checks make no assumptions about holidays/publication dates.
+    - cron: "33 8 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gabley-hmlr-ppd-import
+  cancel-in-progress: false
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      SUPABASE_URL: ${{ secrets.GABLEY_SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.GABLEY_SUPABASE_SERVICE_ROLE_KEY }}
+    steps:
+      - uses: actions/checkout@v6
+      - name: Check Gabley-only import configuration
+        id: config
+        shell: bash
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "Gabley Supabase import secrets not connected; scheduled job safely skipped."
+          else
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/setup-node@v6
+        if: steps.config.outputs.enabled == 'true'
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install pinned dependencies
+        if: steps.config.outputs.enabled == 'true'
+        run: npm ci
+      - name: Download official HMLR change-only CSV
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Fixed official host/path. Do not make this a user-editable URL.
+          curl --proto '=https' --tlsv1.2 --fail --show-error --silent \
+            --location --retry 2 --max-filesize 100000000 \
+            --dump-header /tmp/hmlr-headers.txt \
+            --output /tmp/hmlr-monthly.csv \
+            https://price-paid-data.publicdata.landregistry.gov.uk/pp-monthly-update-new-version.csv
+          test -s /tmp/hmlr-monthly.csv
+          # Preserve official server's modification date as the import release
+          # order. If metadata is unavailable, stop instead of inventing a date.
+          modified="$(grep -i '^last-modified:' /tmp/hmlr-headers.txt | tail -1 | cut -d: -f2- | tr -d '\r' || true)"
+          test -n "$modified" || { echo "Official Last-Modified absent; release date needs review"; exit 1; }
+          release="$(date -u -d "$modified" +%F)"
+          test -n "$release" && echo "HMLR_RELEASE_ON=$release" >> "$GITHUB_ENV"
+      - name: Validate and apply official monthly corrections
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run hmlr:import -- --file /tmp/hmlr-monthly.csv \
+            --release "$HMLR_RELEASE_ON" --confirm
+      - name: Clean temporary official source file
+        if: always()
+        run: rm -f /tmp/hmlr-monthly.csv /tmp/hmlr-headers.txt
