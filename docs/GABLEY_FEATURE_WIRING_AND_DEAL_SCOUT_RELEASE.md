@@ -39,7 +39,7 @@ An output of `potential_candidate` is a **screening result** only, requiring: at
 ### Actual automatic source coverage
 
 - **Connected for research:** existing Gabley published marketplace sale listings; no scrape of Rightmove, Zoopla, Bayut, Land Registry private addresses or unlicensed portals.
-- **Sold-price inputs:** staff-entered comparable sales with evidence references; amounts/dates/type/outcode assessed deterministically. Claimed sources are **not independently API-verified** by this release.
+- **Sold-price inputs:** staff-entered evidence **or browser-local import of an official HM Land Registry Price Paid CSV extract** (15 MB limit, 100k-row parser limit). The importer suggests only recent standard sales with matching broad type/outcode and unique addresses; staff must review actual subtype, condition and source evidence. Uploaded files are never persisted as bulk source datasets or automatically verified against the live HMLR feed. It cannot derive bedrooms, exact area or RICS market value from PPD alone.
 - **Next data integration:** monthly, attributed HM Land Registry Price Paid Data CSV under OGL v3, with lawful ingestion, correct transaction date, update/delete handling, UPRN when appropriately licensed, geocoding and outlier QA. HM Land Registry does **not** provide a free ready-made real-time per-address Price Paid API. A licensed AVM is an additional potential provider, not wired.
 - **Off-market/auction and seller introductions:** require lawful, contracted feeds and authority from the seller/agent. Do not infer seller motivation from personal data.
 
@@ -80,7 +80,7 @@ Data:
 
 ## Next development releases
 
-- Bulk Price Paid Data ingestion with provenance, data refresh and outlier correction; AVM adapter where licensed, never unlicensed scraping.
+- Automate vetted Price Paid Data bulk ingestion, versioned add/change/delete corrections, provenance, region refresh and outlier correction. The current CSV feature is **local preview only**, not scheduled ingestion. Integrate licensed AVM providers where permitted, never unlicensed scraping.
 - Document vault integration for seller/buyer authority, AML evidence and valuation/source files (encrypted storage and signed URLs).
 - Human-approval deal room with buyer/seller messaging, viewing and conveyancing stages; separate consent for investor campaigns.
 - Automated workflow reminders, deal status transitions, commission invoices and independent bank reconciliation with idempotent evidence.
