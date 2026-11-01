@@ -85,7 +85,7 @@ export function dealEconomics(input: {
 
 const round = (value: number) => Math.round(value * 100) / 100;
 
-async function agencyAccess(supabase: any, userId: string) {
+export async function agencyAccess(supabase: any, userId: string) {
   const { data: roles, error: roleError } = await supabase.from("user_roles")
     .select("role").eq("user_id", userId);
   if (roleError) throw new Error("Unable to check property sourcing role");
