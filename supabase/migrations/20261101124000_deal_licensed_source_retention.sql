@@ -138,7 +138,32 @@ BEGIN
 END
 $trigger$;
 CREATE TRIGGER deal_source_freshness_opportunity_gate
-BEFORE INSERT OR UPDATE OF status,analysis ON public.deal_opportunities
+BEFORE INSERT OR UPDATE OF status ON public.deal_opportunities
 FOR EACH ROW EXECUTE FUNCTION public.block_expired_licensed_deal_progression();
+
+-- A signed-in agency user cannot manufacture "fresh" evidence by deleting
+-- or editing the provider marker in the JSON column. The service-role expiry
+-- job sets the sticky "expired" marker while removing raw API content.
+CREATE OR REPLACE FUNCTION public.protect_licensed_market_provenance()
+RETURNS trigger
+LANGUAGE plpgsql
+SET search_path = public, pg_temp
+AS $trigger$
+BEGIN
+  IF coalesce(OLD.analysis->>'licensedEvidenceExpired','false') = 'true'
+     AND coalesce(NEW.analysis->>'licensedEvidenceExpired','false') <> 'true' THEN
+    RAISE EXCEPTION 'Expired licensed source evidence cannot be reactivated by editing its provenance';
+  END IF;
+  IF OLD.analysis->>'externalProvider' = 'propertydata'
+     AND NEW.analysis->>'externalProvider' IS DISTINCT FROM 'propertydata'
+     AND coalesce(NEW.analysis->>'licensedEvidenceExpired','false') <> 'true' THEN
+    RAISE EXCEPTION 'Licensed external provenance may only be removed by the retention workflow';
+  END IF;
+  RETURN NEW;
+END
+$trigger$;
+CREATE TRIGGER deal_licensed_provenance_guard
+BEFORE UPDATE OF analysis ON public.deal_opportunities
+FOR EACH ROW EXECUTE FUNCTION public.protect_licensed_market_provenance();
 
 COMMIT;
