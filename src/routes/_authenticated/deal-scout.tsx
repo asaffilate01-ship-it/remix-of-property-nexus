@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { scanPublishedSaleListings, saveScoutCandidate, screenDealWithSoldComparables } from "@/lib/deal-scout.functions";
 import { listDealOpportunities, refreshOpportunityMatches } from "@/lib/deal-intelligence.functions";
 import { screenPropertyDeal, type DealScreenInput, type DealScreenResult, type SoldComparable } from "@/lib/deal-screening";
+import { parsePricePaidCsv, suggestPricePaidComparables } from "@/lib/price-paid-csv";
 
 export const Route = createFileRoute("/_authenticated/deal-scout")({
   head: () => ({ meta: [{ title: "Deal Scout — Gabley", name: "description", content: "Evidence-led UK sales discovery, conservative property valuation and investor sourcing workflow." }] }),
@@ -73,6 +74,8 @@ function DealScoutPage() {
   const [result, setResult] = useState<DealScreenResult | null>(null);
   const [investorMatches, setInvestorMatches] = useState<Array<{ investorProfileId: string; investorRef: string; score: number; reasons: string[]; fundingStatus: string }>>([]);
   const [matching, setMatching] = useState(false);
+  const [importingSold, setImportingSold] = useState(false);
+  const [soldImportNote, setSoldImportNote] = useState<string | null>(null);
   const [tab, setTab] = useState("scout");
 
   const reloadDeals = async () => {
@@ -104,6 +107,7 @@ function DealScoutPage() {
     })) : [newComp(saved?.propertyType, selected.postcode ?? ""), newComp(saved?.propertyType, selected.postcode ?? ""), newComp(saved?.propertyType, selected.postcode ?? "")]);
     setResult(saved?.screening ?? null);
     setInvestorMatches([]);
+    setSoldImportNote(null);
   }, [selectedId]);
 
   const searchListings = async () => {
@@ -135,6 +139,36 @@ function DealScoutPage() {
 
   const updateComp = (index: number, key: keyof CompDraft, value: string) =>
     setComps(current => current.map((comp, i) => i === index ? { ...comp, [key]: value } : comp));
+  const importSoldCsv = async (file?: File) => {
+    if (!selected || !file) return;
+    setImportingSold(true);
+    setSoldImportNote(null);
+    try {
+      if (file.size > 15_000_000) throw new Error("Use a local Land Registry CSV extract under 15 MB. Filter to the town or recent year first.");
+      const data = parsePricePaidCsv(await file.text());
+      if (!selected.postcode) throw new Error("This deal must have a postcode to select sold comparables.");
+      const matches = suggestPricePaidComparables(data.rows, {
+        postcode: selected.postcode, propertyType: params.propertyType,
+        assessedAt: new Date().toISOString().slice(0,10),
+      });
+      if (matches.length < 3) {
+        setSoldImportNote(`Parsed ${data.read} Price Paid rows; only ${matches.length} comparable sale(s) matched this area and property type. Broaden your official extract or check the subject type. No valuation was created.`);
+        return;
+      }
+      setComps(matches.map(comp => ({
+        price: String(comp.price), soldAt: comp.soldAt, postcode: comp.postcode,
+        propertyType: comp.propertyType, bedrooms: "", floorAreaSqft: "",
+        evidenceRef: comp.evidenceRef, source: comp.source,
+      })));
+      setResult(null); setInvestorMatches([]);
+      setSoldImportNote(`Imported ${matches.length} suggestions from ${data.read} rows (${data.skipped} excluded, ${data.deletions} deleted). Review source evidence, property subtype and similarity before calculating. This does not verify the CSV's provenance.`);
+      toast.success(`${matches.length} comparable sales suggested from your local dataset`);
+    } catch (cause) {
+      toast.error(cause instanceof Error ? cause.message : "Unable to parse the local price-paid file.");
+    } finally {
+      setImportingSold(false);
+    }
+  };
   const buildInput = (): DealScreenInput => {
     if (!selected?.postcode || !selected.asking_price) throw new Error("The deal needs an asking price and postcode before valuation.");
     const comparableSales: SoldComparable[] = comps.filter(c => c.price || c.evidenceRef || c.soldAt).map(c => ({
@@ -320,6 +354,17 @@ function DealScoutPage() {
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div><h3 className="font-semibold">Comparable completed sales</h3><p className="text-xs text-muted-foreground">Add at least three recent sales of similar properties in the same postcode area. Keep the Land Registry or verified-agent reference.</p></div>
                 <Button variant="outline" size="sm" disabled={comps.length >= 60} onClick={()=>setComps([...comps,newComp(params.propertyType,selected.postcode??"")])}><Plus className="mr-1 h-4 w-4" aria-hidden="true" /> Comparable</Button>
+              </div>
+              <div className="space-y-2 rounded-xl border bg-muted/40 p-4">
+                <h4 className="font-medium text-sm">Suggest comparables from HM Land Registry Price Paid Data</h4>
+                <p className="text-xs text-muted-foreground">Upload a local official CSV extract (up to 15 MB). It is parsed in your browser, not uploaded to the server. Gabley selects recent standard completed sales of the broad property type within the same postcode district. The data does not contain bedrooms or floor area; confirm these independently. Monthly change-only files are incomplete without earlier data.</p>
+                <Label htmlFor="price-paid-csv">Official Price Paid CSV extract</Label>
+                <Input id="price-paid-csv" type="file" accept=".csv,text/csv" disabled={importingSold}
+                  onChange={event => { const file=event.target.files?.[0]; void importSoldCsv(file); event.target.value=""; }}
+                  aria-describedby="price-paid-source-note" />
+                <p id="price-paid-source-note" className="text-xs text-muted-foreground">Contains HM Land Registry data © Crown copyright and database right 2021. Licensed under the Open Government Licence v3.0. <a className="underline underline-offset-2" href="https://www.gov.uk/government/statistical-data-sets/price-paid-data-downloads" target="_blank" rel="noreferrer">Download the official data</a>.</p>
+                {importingSold && <p role="status" className="text-xs">Reading your local dataset…</p>}
+                {soldImportNote && <p role="status" className="text-xs text-foreground">{soldImportNote}</p>}
               </div>
               {comps.map((c,i)=><div key={i} className="space-y-3 rounded-lg border p-4">
                 <div className="flex items-center justify-between"><span className="font-medium text-sm">Sold comparable {i+1}</span>
