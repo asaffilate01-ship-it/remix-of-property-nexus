@@ -428,6 +428,11 @@ export const introduceMatch = createServerFn({ method: "POST" })
       .eq("id", data.matchId).eq("agency_id", agency.id).maybeSingle();
     if (match.error || !match.data) throw new Error("Buyer match not found");
     const opportunity = await fetchOpportunity(db, agency.id, match.data.opportunity_id);
+    if (opportunity.analysis?.externalProvider === "propertydata" &&
+      (!opportunity.analysis.externalDataExpiresAt ||
+        Date.parse(opportunity.analysis.externalDataExpiresAt) <= Date.now())) {
+      throw new Error("Licensed listing data is stale. Obtain and review current evidence before buyer introduction.");
+    }
     if (!opportunity.analysis?.screening ||
         opportunity.analysis.screening.verdict === "insufficient_evidence") {
       throw new Error("A documented comparable-based valuation is required before an introduction");
