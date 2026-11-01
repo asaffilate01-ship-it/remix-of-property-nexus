@@ -100,6 +100,9 @@ const FULL: NavigationSection[] = [
       { to: "/pipeline", label: "Lettings pipeline", icon: Kanban },
       { to: "/sales", label: "Sales pipeline", icon: Handshake },
       { to: "/offers", label: "Offers & chains", icon: Gavel },
+      { to: "/deal-scout", label: "Deal Scout (sales)", icon: Search },
+      { to: "/deal-intelligence", label: "Deal intelligence", icon: Sparkles },
+      { to: "/deal-investors", label: "Investor mandates", icon: UserCheck },
     ],
   },
   {
@@ -231,6 +234,9 @@ const AGENT: NavigationSection[] = [
       { to: "/pipeline", label: "Lettings pipeline", icon: Kanban },
       { to: "/sales", label: "Sales pipeline", icon: Handshake },
       { to: "/offers", label: "Offers & chains", icon: Gavel },
+      { to: "/deal-scout", label: "Deal Scout (sales)", icon: Search },
+      { to: "/deal-intelligence", label: "Deal intelligence", icon: Sparkles },
+      { to: "/deal-investors", label: "Investor mandates", icon: UserCheck },
     ],
   },
   {
