@@ -16,7 +16,7 @@ const assessmentSchema=z.object({
    fundingType:z.enum(["grant","loan","guarantee","energy_support","other"]),
    maximumAmount:z.number().min(0).nullable(),
    conditions:z.array(z.string().max(500)).max(50).default([]),
-   sourceUrl:z.string().url().max(1200),
+   sourceUrl:z.string().url().max(1200).refine(value => new URL(value).protocol === "https:", "HTTPS source required"),
    sourceCheckedAt:z.string().datetime({offset:true}),
   })).max(50),
   fundingSummary:z.object({totalWorks:z.number().min(0),funded:z.number().min(0),ownerContribution:z.number().min(0)}).optional(),
@@ -37,21 +37,42 @@ const reply=(body:unknown,status=200)=>Response.json(body,{status,headers:{"cach
 export async function serveDomurevaBridge(request:Request){
  try{
   if(!authorised(request))return reply({error:"Invalid DOMUREVA credential"},401);
-  const raw=await request.text();if(raw.length>131072)return reply({error:"Payload too large"},413);
+  const declaredLength=Number(request.headers.get("content-length")??0);
+  if(declaredLength>131072)return reply({error:"Payload too large"},413);
+  const reader=request.body?.getReader();
+  if(!reader)return reply({error:"Missing body"},400);
+  const decoder=new TextDecoder("utf-8",{fatal:true});
+  let raw="",bytes=0;
+  try{
+   while(true){
+    const {done,value}=await reader.read();if(done)break;
+    bytes+=value.byteLength;
+    if(bytes>131072){await reader.cancel();return reply({error:"Payload too large"},413);}
+    raw+=decoder.decode(value,{stream:true});
+   }
+   raw+=decoder.decode();
+  }catch{return reply({error:"Invalid request body"},400);}
+  finally{reader.releaseLock();}
   const input=assessmentSchema.parse(JSON.parse(raw));
+  const checkedAt=Date.parse(input.checkedAt);
+  if(checkedAt>Date.now()+300000||input.assessment.schemes.some(s=>Date.parse(s.sourceCheckedAt)>checkedAt+300000))return reply({error:"Invalid assessment timestamps"},422);
   const {supabaseAdmin}=await import("@/integrations/supabase/client.server");
   const db=supabaseAdmin as any;
-  const current=await db.from("deal_opportunities").select("id,agency_id,analysis")
+  const current=await db.from("deal_opportunities").select("id,agency_id,analysis,updated_at")
    .eq("id",input.opportunityId).eq("agency_id",input.agencyId).maybeSingle();
-  if(current.error||!current.data)return reply({error:"Opportunity not found"},404);
+  if(current.error)return reply({error:"Unable to verify opportunity"},503);
+  if(!current.data)return reply({error:"Opportunity not found"},404);
+  const previous=current.data.analysis?.domureva;
+  if(previous?.checkedAt&&Date.parse(previous.checkedAt)>=checkedAt)return reply({error:"Assessment is not newer than current evidence"},409);
   const analysis={
    ...(current.data.analysis??{}),
    domureva:{caseRef:input.domurevaCaseRef,checkedAt:input.checkedAt,reviewStatus:input.reviewStatus,...input.assessment},
   };
   const updated=await db.from("deal_opportunities").update({
    domureva_case_ref:input.domurevaCaseRef,analysis,updated_at:new Date().toISOString(),
-  }).eq("id",input.opportunityId).eq("agency_id",input.agencyId);
-  if(updated.error)throw new Error(updated.error.message);
+  }).eq("id",input.opportunityId).eq("agency_id",input.agencyId).eq("updated_at",current.data.updated_at).select("id").maybeSingle();
+  if(updated.error)throw new Error("Unable to save assessment");
+  if(!updated.data)return reply({error:"Opportunity changed; retry with fresh evidence"},409);
   return reply({ok:true,opportunityId:input.opportunityId,domurevaCaseRef:input.domurevaCaseRef});
  }catch(error){
   if(error instanceof z.ZodError)return reply({error:"Invalid DOMUREVA funding assessment"},422);
