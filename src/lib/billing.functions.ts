@@ -65,20 +65,22 @@ async function resolveAgencyAccess(
   supabase: SupabaseClient<Database>,
   userId: string,
 ): Promise<AgencyAccess | null> {
-  const { data: owned } = await supabase
+  const { data: owned, error: ownerError } = await supabase
     .from("agencies")
     .select("id")
     .eq("owner_id", userId)
     .limit(1)
     .maybeSingle();
+  if (ownerError) throw new Error("Unable to verify agency ownership");
   if (owned?.id) return { agencyId: owned.id, isOwner: true };
 
-  const { data: membership } = await supabase
+  const { data: membership, error: membershipError } = await supabase
     .from("agency_members")
     .select("agency_id")
     .eq("user_id", userId)
     .limit(1)
     .maybeSingle();
+  if (membershipError) throw new Error("Unable to verify agency membership");
   return membership?.agency_id ? { agencyId: membership.agency_id, isOwner: false } : null;
 }
 
@@ -206,6 +208,9 @@ export const getWorkspaceAccess = createServerFn({ method: "GET" })
           .select("id", { count: "exact", head: true })
           .eq("agency_id", access.agencyId),
       ]);
+    if ([subscriptionResult, agencyResult, branchesResult, listingsResult, membersResult].some((result) => result.error)) {
+      throw new Error("Unable to verify workspace access");
+    }
     const subscription = subscriptionResult.data as {
       plan_code: PlanCode;
       status: SubscriptionStatus;
