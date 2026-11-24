@@ -114,7 +114,7 @@ export function screenPropertyDeal(input: DealScreenInput): DealScreenResult {
     if (seen.has(key)) continue;
     seen.add(key);
     if (sold > assessed || assessed - sold > 1000 * 60 * 60 * 24 * 1096) continue;
-    if (!c.postcode || !normal(c.postcode).startsWith(outcode)) continue;
+    if (!c.postcode || normal(c.postcode).replace(/[0-9][A-Z]{2}$/, "") !== outcode) continue;
     if (normal(c.propertyType) !== normal(input.propertyType)) continue;
     if (input.bedrooms != null && c.bedrooms != null && Math.abs(c.bedrooms - input.bedrooms) > 1) continue;
     eligible.push(c);
@@ -135,8 +135,9 @@ export function screenPropertyDeal(input: DealScreenInput): DealScreenResult {
   const observations = selected.map(c => usePpsf ? c.price / c.floorAreaSqft! * sqft! : c.price);
   // A median-based trim limits one erroneous/atypical sale's influence without hiding data.
   const initialMedian = median(observations);
+  const retained = selected.filter((_, index) => observations[index] >= initialMedian * .65 && observations[index] <= initialMedian * 1.35);
   const kept = observations.filter(v => v >= initialMedian * .65 && v <= initialMedian * 1.35);
-  if (kept.length < 3) return { ...empty, comparablesUsed: kept.length, notes: [...notes, "Comparable values diverge too widely for a supportable estimate."] };
+  if (kept.length < 3) return { ...empty, comparablesUsed: kept.length, comparableReferences: retained.map(c => c.evidenceRef), notes: [...notes, "Comparable values diverge too widely for a supportable estimate."] };
   const mid = median(kept);
   // Conservative lower-quartile less an additional 5% buffer for unobserved factors.
   const low = round(quantile(kept, .25) * .95);
@@ -153,7 +154,7 @@ export function screenPropertyDeal(input: DealScreenInput): DealScreenResult {
       ? "below_threshold"
       : "review_required";
   return {
-    verdict, comparablesUsed: kept.length, comparableReferences: selected.map(c => c.evidenceRef),
+    verdict, comparablesUsed: kept.length, comparableReferences: retained.map(c => c.evidenceRef),
     valuationMethod: usePpsf ? "price_per_sqft" : "whole_property",
     medianComparableValue: round(mid), conservativeExitValue: low, discountPercent: discount,
     totalAcquisitionAndExitCosts: round(totalCosts), projectedProfitAfterFee: profit,

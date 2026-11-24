@@ -15,13 +15,13 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 });
 
 function Dashboard() {
-  const { role, name, userId, loading } = useUserRole();
+  const { role, name, userId, loading, error } = useUserRole();
 
   if (loading) {
     return (
-      <div className="space-y-6 animate-pulse">
+      <div role="status" aria-label="Loading dashboard" className="space-y-6 motion-safe:animate-pulse">
         <div className="h-40 rounded-2xl bg-muted" />
-        <div className="grid sm:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => <div key={i} className="h-28 rounded-xl bg-muted" />)}
         </div>
       </div>
@@ -38,9 +38,15 @@ function Dashboard() {
     case "inventory_clerk":
     case "utility_provider":
       return <SimpleRoleDashboard role={role} name={name} />;
-    case "landlord":
+    case "landlord": return <LandlordDashboard name={name} />;
     default:
-      return <LandlordDashboard name={name} />;
+      return (
+        <section role="alert" className="rounded-xl border bg-card p-6 sm:p-8">
+          <h1 className="text-xl font-semibold">Workspace unavailable</h1>
+          <p className="mt-2 text-sm text-muted-foreground">{error ?? "No authorised dashboard is assigned to this account."}</p>
+          <button type="button" onClick={() => window.location.reload()} className="mt-4 min-h-11 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground">Retry</button>
+        </section>
+      );
   }
 }
 

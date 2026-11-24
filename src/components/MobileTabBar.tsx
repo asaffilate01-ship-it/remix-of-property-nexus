@@ -22,7 +22,7 @@ export function MobileTabBar() {
       className="fixed inset-x-0 bottom-0 z-30 border-t border-border/60 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80 md:hidden"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
-      <ul className="grid h-16 grid-cols-5">
+      <ul className="grid h-16" style={{ gridTemplateColumns: `repeat(${tabs.length + 1}, minmax(0, 1fr))` }}>
         {tabs.map((tab) => {
           const active = isActive(tab.to);
           return (
@@ -30,7 +30,7 @@ export function MobileTabBar() {
               <Link
                 to={tab.to as never}
                 aria-current={active ? "page" : undefined}
-                className={`relative flex min-h-11 flex-col items-center justify-center gap-1 text-[10px] font-medium transition-colors focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary ${
+                className={`relative flex min-h-11 flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary ${
                   active ? "text-primary" : "text-muted-foreground hover:text-foreground"
                 }`}
               >
@@ -41,7 +41,7 @@ export function MobileTabBar() {
                   />
                 )}
                 <tab.icon className="h-5 w-5" aria-hidden="true" />
-                <span className="max-w-full truncate px-1 leading-none">
+                <span className="max-w-full truncate px-1 leading-tight">
                   {translateUi(locale, tab.label)}
                 </span>
               </Link>
@@ -52,7 +52,7 @@ export function MobileTabBar() {
           <button
             type="button"
             onClick={() => setOpenMobile(true)}
-            className="flex min-h-11 flex-col items-center justify-center gap-1 text-[10px] font-medium text-muted-foreground hover:text-foreground focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary"
+            className="flex min-h-11 flex-col items-center justify-center gap-1 text-[11px] font-medium text-muted-foreground hover:text-foreground focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary"
             aria-label="Open full navigation menu"
             aria-haspopup="dialog"
           >
