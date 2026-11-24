@@ -39,3 +39,14 @@ test("invalid, contradictory and overlarge input fails closed",()=>{
  assert.throws(()=>matchPublishedProperties({intent:"sale",preferredFeatures:Array(20).fill("Parking")},records));
  assert.throws(()=>matchPublishedProperties({intent:"sale"},records,200));
 });
+
+test("negative feature descriptions do not count as confirmed amenities",()=>{
+ const p={...records[0],features:["No parking","Garden"]};
+ const [m]=matchPublishedProperties({intent:"sale",preferredFeatures:["Parking","Garden"]},[p]);
+ assert.ok(m.reasons.includes("Preferred features: garden"));
+ assert.ok(m.reasons.includes("Not confirmed: parking"));
+});
+test("room listings match HMO searches",()=>{
+ const p:MatchListing={...records[3],purpose:null,listing_type:"room",is_hmo:false};
+ assert.equal(matchPublishedProperties({intent:"hmo"},[p]).length,1);
+});
