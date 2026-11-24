@@ -83,3 +83,13 @@ test("outlier references are excluded from the reported evidence", () => {
   assert.equal(result.comparableReferences.length, 5);
   assert.ok(!result.comparableReferences.includes(outlier.evidenceRef));
 });
+
+test("investor mandate rejects invalid costs and ambiguous postcode districts", () => {
+  const investor = { id: "b", investorRef: "Buyer", minBudget: 0, maxBudget: 250000, areas: ["LU1"], strategies: ["flip"], fundingStatus: "unknown", acceptsRefurbishment: true, active: true };
+  const deal = { purchasePrice: 185000, fee: 3500, postcode: "LU1 2AA", strategy: "flip", projectedProfit: 25000, worksCost: 18000 };
+  assert.ok(scoreInvestorForDeal(deal, investor));
+  assert.equal(scoreInvestorForDeal({ ...deal, postcode: "LU10 2AA" }, investor), null);
+  assert.equal(scoreInvestorForDeal(deal, { ...investor, areas: [""] }), null);
+  assert.throws(() => scoreInvestorForDeal({ ...deal, worksCost: -1 }, investor));
+  assert.throws(() => scoreInvestorForDeal({ ...deal, projectedProfit: NaN }, investor));
+});
