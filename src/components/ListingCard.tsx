@@ -29,12 +29,13 @@ const typeLabel: Record<string, string> = { sale: "For sale", rent: "To let", ro
 
 function isNew(created_at?: string | null) {
   if (!created_at) return false;
-  return Date.now() - new Date(created_at).getTime() < 3 * 86400000;
+  const age = Date.now() - new Date(created_at).getTime();
+  return Number.isFinite(age) && age >= 0 && age < 3 * 86400000;
 }
 
 export function ListingCard({ l }: { l: ListingCardData }) {
   const price = l.price ? new Intl.NumberFormat("en-GB", { style: "currency", currency: l.currency || "GBP", maximumFractionDigits: 0 }).format(Number(l.price)) : "POA";
-  const suffix = l.listing_type === "sale" ? "" : " pcm";
+  const suffix = l.listing_type === "sale" || price === "POA" ? "" : " pcm";
   const qualifier = l.price_qualifier && l.price_qualifier !== "none" ? l.price_qualifier.replace(/_/g, " ") : null;
 
   return (
@@ -45,10 +46,10 @@ export function ListingCard({ l }: { l: ListingCardData }) {
         aria-label={`View ${l.title}${l.city ? ` in ${l.city}` : ""}, ${price}${suffix}`}
         className="block rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
       >
-      <Card className="overflow-hidden border-0 shadow-card hover:shadow-xl hover:-translate-y-0.5 transition-all">
+      <Card className="overflow-hidden border-0 shadow-card hover:shadow-xl motion-safe:hover:-translate-y-0.5 motion-safe:transition-all">
         <div className="aspect-[4/3] bg-muted relative overflow-hidden">
           {l.cover_image ? (
-            <ListingImage src={l.cover_image} alt={l.title} className="h-full w-full object-cover group-hover:scale-105 transition duration-500" />
+            <ListingImage src={l.cover_image} alt={l.title} className="h-full w-full object-cover motion-safe:group-hover:scale-105 motion-safe:transition duration-500" />
           ) : (
             <div className="brand-gradient h-full w-full opacity-30" />
           )}
@@ -65,15 +66,15 @@ export function ListingCard({ l }: { l: ListingCardData }) {
           </div>
         </div>
         <CardContent className="p-4 space-y-1.5">
-          <div className="flex items-baseline gap-2">
+          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
             <div className="text-lg font-bold">{price}<span className="text-sm font-normal text-muted-foreground">{suffix}</span></div>
             {qualifier && <span className="text-xs text-muted-foreground capitalize">{qualifier}</span>}
           </div>
-          <div className="font-medium line-clamp-1">{l.title}</div>
-          <div className="flex items-center gap-3 text-xs text-muted-foreground">
-            {l.city && <span className="inline-flex items-center gap-1"><MapPin className="h-3 w-3" />{l.city}</span>}
-            {l.bedrooms != null && <span className="inline-flex items-center gap-1"><Bed className="h-3 w-3" />{l.bedrooms}</span>}
-            {l.bathrooms != null && <span className="inline-flex items-center gap-1"><Bath className="h-3 w-3" />{l.bathrooms}</span>}
+          <div className="font-medium line-clamp-2 break-words">{l.title}</div>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+            {l.city && <span className="inline-flex items-center gap-1"><MapPin aria-hidden="true" className="h-3 w-3 shrink-0" />{l.city}</span>}
+            {l.bedrooms != null && <span className="inline-flex items-center gap-1"><Bed aria-hidden="true" className="h-3 w-3" />{l.bedrooms}<span className="sr-only"> bedrooms</span></span>}
+            {l.bathrooms != null && <span className="inline-flex items-center gap-1"><Bath aria-hidden="true" className="h-3 w-3" />{l.bathrooms}<span className="sr-only"> bathrooms</span></span>}
           </div>
         </CardContent>
       </Card>
