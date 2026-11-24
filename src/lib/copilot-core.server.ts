@@ -20,6 +20,7 @@ const money = (n: number) => `£${(n ?? 0).toLocaleString("en-GB")}`;
 
 export async function buildCopilotContext(supabase: any, userId: string): Promise<CopilotContext> {
   const owned = await supabase.from("agencies").select("id, name").eq("owner_id", userId).limit(1).maybeSingle();
+  if (owned.error) throw new Error("Unable to verify portfolio ownership.");
   let agencyId: string | null = owned.data?.id ?? null;
   let agencyName: string | null = owned.data?.name ?? null;
   if (!agencyId) {
@@ -29,6 +30,7 @@ export async function buildCopilotContext(supabase: any, userId: string): Promis
       .eq("user_id", userId)
       .limit(1)
       .maybeSingle();
+    if (mem.error) throw new Error("Unable to verify portfolio membership.");
     agencyId = mem.data?.agency_id ?? null;
     agencyName = mem.data?.agencies?.name ?? null;
   }
@@ -39,12 +41,9 @@ export async function buildCopilotContext(supabase: any, userId: string): Promis
   const today = now.toISOString().slice(0, 10);
 
   const count = async (table: string, build: (q: any) => any) => {
-    try {
-      const { count: c } = await build(supabase.from(table).select("id", { count: "exact", head: true }));
-      return c ?? 0;
-    } catch {
-      return 0;
-    }
+    const { count: c, error } = await build(supabase.from(table).select("id", { count: "exact", head: true }));
+    if (error || c == null) throw new Error("Unable to verify portfolio metrics.");
+    return c;
   };
 
   const [properties, activeTenancies, published, drafts, leads, workOrders, viewings] = await Promise.all([
@@ -60,12 +59,13 @@ export async function buildCopilotContext(supabase: any, userId: string): Promis
   let arrearsCount = 0;
   let arrearsTotal = 0;
   try {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("rent_invoices")
       .select("amount, status, paid_at")
       .neq("status", "paid")
       .is("paid_at", null)
       .limit(500);
+    if (error || !data || data.length === 500) throw new Error("Incomplete rent snapshot.");
     for (const r of data ?? []) {
       const outstanding = Number(r.amount ?? 0);
       if (outstanding > 0) {
@@ -74,25 +74,26 @@ export async function buildCopilotContext(supabase: any, userId: string): Promis
       }
     }
   } catch {
-    /* table shape differs — leave at zero */
+    throw new Error("Unable to verify rent snapshot.");
   }
 
   let expiring: CopilotContext["compliance_expiring_30d"] = [];
   try {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("compliance_records")
       .select("type, expires_on, properties(address)")
       .gte("expires_on", today)
       .lte("expires_on", in30)
       .order("expires_on")
       .limit(15);
+    if (error || !data) throw new Error("Incomplete compliance snapshot.");
     expiring = (data ?? []).map((r: any) => ({
       type: String(r.type ?? "certificate"),
       property: r.properties?.address ?? null,
       expires_on: String(r.expires_on),
     }));
   } catch {
-    /* ignore */
+    throw new Error("Unable to verify compliance snapshot.");
   }
 
   return {
@@ -135,14 +136,14 @@ export async function callCopilotModel(
   if (!apiKey) throw new Error("LOVABLE_API_KEY is not configured.");
   const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
     method: "POST",
+    signal: AbortSignal.timeout(30_000),
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
     body: JSON.stringify({ model: "google/gemini-3-flash-preview", messages, temperature: 0.3 }),
   });
   if (!res.ok) {
-    const txt = await res.text();
     if (res.status === 429) throw new Error("AI rate limit reached. Try again shortly.");
     if (res.status === 402) throw new Error("AI credits exhausted. Top up in Settings → Workspace → Usage.");
-    console.error("[copilot] provider request failed", res.status, txt.slice(0, 300));
+    console.error("[copilot] provider request failed", res.status);
     throw new Error(`AI request failed (${res.status}).`);
   }
   const json = await res.json();
