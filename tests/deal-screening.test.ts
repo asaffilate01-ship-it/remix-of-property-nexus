@@ -71,3 +71,15 @@ test("unknown funding is explained and never presented as verified", () => {
   assert.equal(match?.fundingVerified, false);
   assert.ok(match?.reasons.includes("Funding not verified"));
 });
+
+test("similar postcode districts do not contaminate comparable valuations", () => {
+  const wrongDistrict = base.comps.map(c => ({ ...c, postcode: "LU10 2AA" }));
+  assert.equal(screenPropertyDeal({ ...base, comps: wrongDistrict }).verdict, "insufficient_evidence");
+});
+test("outlier references are excluded from the reported evidence", () => {
+  const outlier = { ...base.comps[0], price: 900000, evidenceRef: "HMLR-OUTLIER" };
+  const result = screenPropertyDeal({ ...base, comps: [...base.comps, outlier] });
+  assert.equal(result.comparablesUsed, 5);
+  assert.equal(result.comparableReferences.length, 5);
+  assert.ok(!result.comparableReferences.includes(outlier.evidenceRef));
+});
