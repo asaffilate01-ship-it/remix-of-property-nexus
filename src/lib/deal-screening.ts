@@ -174,12 +174,20 @@ export function scoreInvestorForDeal(input: {
   projectedProfit: number | null; worksCost: number;
 }, candidate: InvestorMandate): { score: number; reasons: string[]; fundingVerified: boolean } | null {
   if (!candidate.active || !candidate.id || !candidate.investorRef) return null;
-  for (const n of [input.purchasePrice, input.fee, candidate.minBudget, candidate.maxBudget]) amount(n, "buyer budget");
+  for (const n of [input.purchasePrice, input.fee, input.worksCost, candidate.minBudget, candidate.maxBudget]) amount(n, "buyer budget");
   if (candidate.maxBudget < candidate.minBudget) throw new Error("Invalid buyer budget");
-  const allIn = input.purchasePrice + input.fee + input.worksCost;
+  if (input.projectedProfit !== null && !Number.isFinite(input.projectedProfit)) throw new Error("Invalid projected profit");
+  if (candidate.minProfitTarget != null) amount(candidate.minProfitTarget, "buyer profit target");
+  const allIn = (whole(input.purchasePrice) + whole(input.fee) + whole(input.worksCost)) / 100;
   if (allIn > candidate.maxBudget || allIn < candidate.minBudget) return null;
   const postcode = normal(input.postcode);
-  if (candidate.areas.length && !candidate.areas.some(area => postcode.startsWith(normal(area)))) return null;
+  const district = postcode.replace(/[0-9][A-Z]{2}$/, "");
+  if (candidate.areas.length && !candidate.areas.some(area => {
+    const value = normal(area);
+    if (!value) return false;
+    if (/^[A-Z]{1,2}$/.test(value)) return district.replace(/[0-9].*$/, "") === value;
+    return district === value || postcode === value;
+  })) return null;
   if (candidate.strategies.length && !candidate.strategies.some(s => normal(s) === normal(input.strategy))) return null;
   if (input.worksCost > 0 && !candidate.acceptsRefurbishment) return null;
   if (candidate.minProfitTarget != null && (input.projectedProfit == null || input.projectedProfit < candidate.minProfitTarget)) return null;
