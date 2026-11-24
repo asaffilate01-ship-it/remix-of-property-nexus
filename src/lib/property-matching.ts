@@ -64,7 +64,8 @@ export function matchPublishedProperties<T extends MatchListing>(
   if(!l||typeof l.slug!=="string"||!l.slug||typeof l.id!=="string"||!l.id||
      l.status!=="published"||seen.has(l.id))continue;
   seen.add(l.id);
-  const intent=l.is_hmo?"hmo":normal(l.purpose||l.listing_type);
+  const kind=normal(l.purpose||l.listing_type);
+  const intent=l.is_hmo||kind==="room"?"hmo":kind;
   if(requirements.intent!==intent){
    if(!(requirements.intent==="commercial"&&normal(l.propertyType)==="commercial"))continue;
   }
@@ -90,7 +91,7 @@ export function matchPublishedProperties<T extends MatchListing>(
   if(requirements.minBathrooms!==undefined){score+=3;reasons.push("Meets bathroom requirement");}
   if(preferred.length){
    const features=featuresOf(l.features);
-   const matched=preferred.filter(f=>features.some(available=>available===f||available.includes(f)));
+   const matched=preferred.filter(f=>features.some(available=>available===f));
    score+=Math.round(12*matched.length/preferred.length);
    if(matched.length)reasons.push("Preferred features: "+matched.join(", "));
    if(matched.length<preferred.length)reasons.push("Not confirmed: "+preferred.filter(f=>!matched.includes(f)).join(", "));
