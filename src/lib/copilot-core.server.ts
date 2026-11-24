@@ -1,4 +1,5 @@
 // Server-only context builder + model call for the Gabley AI Copilot.
+import { currentLondonDate, rentChargeOutstandingMinor } from "./tenant-rent";
 
 export type CopilotMessage = { role: "user" | "assistant"; content: string };
 
@@ -38,7 +39,7 @@ export async function buildCopilotContext(supabase: any, userId: string): Promis
   const now = new Date();
   const in30 = new Date(now.getTime() + 30 * 86400000).toISOString().slice(0, 10);
   const in7 = new Date(now.getTime() + 7 * 86400000).toISOString();
-  const today = now.toISOString().slice(0, 10);
+  const today = currentLondonDate(now);
 
   const count = async (table: string, build: (q: any) => any) => {
     const { count: c, error } = await build(supabase.from(table).select("id", { count: "exact", head: true }));
@@ -60,14 +61,13 @@ export async function buildCopilotContext(supabase: any, userId: string): Promis
   let arrearsTotal = 0;
   try {
     const { data, error } = await supabase
-      .from("rent_invoices")
-      .select("amount, status, paid_at")
-      .neq("status", "paid")
-      .is("paid_at", null)
+      .from("rent_schedule")
+      .select("amount, paid_amount, status")
+      .lt("due_date", today)
       .limit(500);
     if (error || !data || data.length === 500) throw new Error("Incomplete rent snapshot.");
     for (const r of data ?? []) {
-      const outstanding = Number(r.amount ?? 0);
+      const outstanding = rentChargeOutstandingMinor(r) / 100;
       if (outstanding > 0) {
         arrearsCount += 1;
         arrearsTotal += outstanding;
@@ -105,7 +105,7 @@ export async function buildCopilotContext(supabase: any, userId: string): Promis
     open_leads: leads,
     open_work_orders: workOrders,
     arrears_count: arrearsCount,
-    arrears_total: Math.round(arrearsTotal),
+    arrears_total: Math.round(arrearsTotal * 100) / 100,
     compliance_expiring_30d: expiring,
     viewings_next_7d: viewings,
   };
@@ -122,7 +122,7 @@ export function contextToPrompt(ctx: CopilotContext): string {
     `Viewings in next 7 days: ${ctx.viewings_next_7d}`,
     `Rent arrears: ${ctx.arrears_count} charges, ${money(ctx.arrears_total)} outstanding`,
     ctx.compliance_expiring_30d.length
-      ? `Compliance expiring within 30 days:\n${ctx.compliance_expiring_30d
+      ? `Compliance expiring within 30 days (up to 15 records):\n${ctx.compliance_expiring_30d
           .map((c) => `  - ${c.type} at ${c.property ?? "unknown property"} expires ${c.expires_on}`)
           .join("\n")}`
       : "Compliance expiring within 30 days: none",
