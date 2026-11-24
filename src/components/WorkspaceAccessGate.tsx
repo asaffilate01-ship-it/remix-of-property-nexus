@@ -52,7 +52,7 @@ export function WorkspaceAccessGate({ children }: { children: ReactNode }) {
         className="flex min-h-52 items-center justify-center text-sm text-muted-foreground"
         role="status"
       >
-        <Loader2 aria-hidden="true" className="mr-2 h-4 w-4 animate-spin" /> Checking workspace
+        <Loader2 aria-hidden="true" className="mr-2 h-4 w-4 motion-safe:animate-spin" /> Checking workspace
         access…
       </div>
     );
@@ -68,6 +68,7 @@ export function WorkspaceAccessGate({ children }: { children: ReactNode }) {
           <span>Operational pages remain closed until the subscription status can be checked.</span>
           <Button
             size="sm"
+            className="min-h-11"
             variant="outline"
             onClick={() => {
               void load();
@@ -189,7 +190,7 @@ function OnboardingChecklist({
             <Link
               key={step.label}
               to={step.to}
-              className="flex items-center gap-2 rounded-lg border bg-background px-3 py-2 text-sm hover:border-primary/40"
+              className="flex min-h-11 items-center gap-2 rounded-lg border bg-background px-3 py-2 text-sm hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             >
               {step.complete ? (
                 <Check aria-hidden="true" className="h-4 w-4 text-success" />
