@@ -36,6 +36,7 @@ function Inbox() {
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [threadsStatus, setThreadsStatus] = useState<"loading" | "ready" | "error">("loading");
   const [messageReload, setMessageReload] = useState(0);
+  const [liveUnavailable, setLiveUnavailable] = useState(false);
   const [sending, setSending] = useState(false);
   const [creating, setCreating] = useState(false);
   const sendLock = useRef(false);
@@ -68,51 +69,50 @@ function Inbox() {
     }
   };
 
-  useEffect(() => {
-    let cancelled = false;
-    void (async () => {
-      try {
-        const { data: { user }, error } = await supabase.auth.getUser();
-        if (error || !user) throw new Error("Session unavailable");
-        if (cancelled) return;
-        setMe(user.id);
-        await loadThreads();
-      } catch {
-        if (!cancelled) setThreadsStatus("error");
-      }
-    })();
-    return () => { cancelled = true; };
-  }, []);
+  useEffect(() => { void loadThreads(); }, []);
 
   useEffect(() => {
     if (!activeId) return;
     let cancelled = false;
+    let revision = 0;
+    let pending = false;
+    let received: any[] = [];
     const threadId = activeId;
+    setLiveUnavailable(false);
     setMessageState({ threadId, rows: [], status: "loading" });
     const combine = (first: any[], second: any[]) => mergeThreadMessages(threadId, first, second);
     const load = async () => {
+      const request = ++revision;
+      pending = true;
+      received = [];
       try {
         const data = await collectPages((from, to) => supabase.from("messages").select("*").eq("thread_id", threadId)
           .order("created_at", { ascending: true }).order("id").range(from, to));
-        if (!cancelled) setMessageState(old => ({
-          threadId, status: "ready",
-          rows: combine(data ?? [], old?.threadId === threadId ? old.rows : []),
-        }));
+        if (!cancelled && revision === request) {
+          const rows = combine(data, received);
+          pending = false;
+          setMessageState({ threadId, status: "ready", rows });
+        }
       } catch {
-        if (!cancelled) setMessageState({ threadId, rows: [], status: "error" });
+        if (!cancelled && revision === request) {
+          pending = false;
+          setMessageState({ threadId, rows: [], status: "error" });
+        }
       }
     };
     const ch = supabase.channel(`thread:${threadId}`)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages", filter: `thread_id=eq.${threadId}` }, p => {
-        if (!cancelled) setMessageState(old => old?.threadId === threadId && old.status !== "error"
+        if (cancelled) return;
+        if (pending) received.push(p.new);
+        setMessageState(old => old?.threadId === threadId && old.status === "ready"
           ? { ...old, rows: combine(old.rows, [p.new]) } : old);
       })
       .subscribe(status => {
-        if (!cancelled && status === "SUBSCRIBED") void load();
-        if (!cancelled && (status === "CHANNEL_ERROR" || status === "TIMED_OUT")) {
-          setMessageState({ threadId, rows: [], status: "error" });
-        }
+        if (cancelled) return;
+        if (status === "SUBSCRIBED") { setLiveUnavailable(false); void load(); }
+        if (status === "CHANNEL_ERROR" || status === "TIMED_OUT" || status === "CLOSED") setLiveUnavailable(true);
       });
+    void load();
     return () => { cancelled = true; void supabase.removeChannel(ch); };
   }, [activeId, messageReload]);
 
@@ -128,6 +128,7 @@ function Inbox() {
       const { error } = await supabase.from("messages").insert({ thread_id: threadId, sender_id: me, body: text.trim() });
       if (error) throw error;
       setDrafts(old => old[threadId] === text ? { ...old, [threadId]: "" } : old);
+      if (liveUnavailable) setMessageReload(n => n + 1);
     } catch {
       toast.error("Message could not be sent. Your draft is still available.");
     } finally {
@@ -245,6 +246,7 @@ function Inbox() {
               <div className="flex items-center gap-2"><Button type="button" size="icon" variant="ghost" className="md:hidden min-h-11 min-w-11" aria-label="Back to conversations" onClick={() => setActive(null)}><ArrowLeft className="h-5 w-5" /></Button><CardTitle className="text-base break-words">{active.subject}</CardTitle></div>
             </CardHeader>
             <CardContent className="flex-1 min-h-0 max-h-[60dvh] md:max-h-none overflow-y-auto space-y-2 py-4">
+              {liveUnavailable && <div role="status" className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">Live updates unavailable. <Button size="sm" variant="outline" onClick={() => setMessageReload(n => n + 1)}>Refresh</Button></div>}
               {!currentMessages || currentMessages.status === "loading" ? <p role="status" className="text-sm text-muted-foreground">Loading messages…</p> : currentMessages.status === "error" ? <div role="alert" className="space-y-2"><p>Unable to verify messages.</p><Button variant="outline" onClick={() => setMessageReload(n => n + 1)}>Retry</Button></div> : <><p className="text-xs text-muted-foreground">Conversation history</p>{currentMessages.rows.map((m) => (
                 <div
                   key={m.id}
