@@ -14,7 +14,7 @@ const COPY: Record<string, { title: string; tagline: string; cta: { label: strin
   utility_provider: {
     title: "Utility provider portal",
     tagline: "Receive change-of-tenancy notifications and meter reads.",
-    cta: { label: "View notifications", to: "/work-orders" },
+    cta: { label: "Open assignments", to: "/work-orders" },
     icon: Zap,
   },
 };
@@ -34,19 +34,19 @@ export function SimpleRoleDashboard({ role, name }: { role: string; name: string
       </div>
 
       <Tabs defaultValue="home" className="space-y-4">
-        <TabsList className="bg-muted/50">
-          <TabsTrigger value="home" className="gap-1.5"><Eye className="h-3.5 w-3.5" /> Home</TabsTrigger>
-          <TabsTrigger value="notifications" className="gap-1.5"><Bell className="h-3.5 w-3.5" /> Notifications</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 min-h-11 h-auto bg-muted/50 sm:inline-flex sm:w-auto">
+          <TabsTrigger value="home" className="gap-1.5 min-h-10"><Eye className="h-3.5 w-3.5" /> Home</TabsTrigger>
+          <TabsTrigger value="notifications" className="gap-1.5 min-h-10"><Bell className="h-3.5 w-3.5" /> Notifications</TabsTrigger>
         </TabsList>
 
         <TabsContent value="home" className="space-y-4">
           <Card className="border-0 shadow-card bg-gradient-to-br from-primary/5 to-accent/5">
-            <CardContent className="p-6 flex items-center justify-between gap-4">
+            <CardContent className="p-6 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-3">
                 <Icon className="h-6 w-6 text-accent" />
                 <div>
-                  <div className="font-semibold">Your assignments will appear here</div>
-                  <div className="text-sm text-muted-foreground">Connected once an agent or landlord assigns work to you.</div>
+                  <div className="font-semibold">Manage your assignments</div>
+                  <div className="text-sm text-muted-foreground">Open your work orders to review assignments and their current status.</div>
                 </div>
               </div>
               <Button asChild><Link to={c.cta.to}>{c.cta.label} <ArrowRight className="ml-1 h-3 w-3" /></Link></Button>
@@ -57,7 +57,7 @@ export function SimpleRoleDashboard({ role, name }: { role: string; name: string
         <TabsContent value="notifications" className="space-y-4">
           <Card className="border-0 shadow-card">
             <CardContent className="p-6">
-              <div className="text-sm text-muted-foreground text-center py-8">No new notifications.</div>
+              <div className="space-y-3 py-4"><h2 className="font-semibold">Workspace messages</h2><p className="text-sm text-muted-foreground">Open your inbox to review the latest conversations and updates.</p><Button asChild variant="outline"><Link to="/inbox">Open inbox</Link></Button></div>
             </CardContent>
           </Card>
         </TabsContent>
