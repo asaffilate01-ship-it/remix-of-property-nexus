@@ -79,3 +79,18 @@ test("statement demo requires explicit review of each line", () => {
   assert.throws(() => summarizeDemoReview([...DEMO_STATEMENT_ROWS, DEMO_STATEMENT_ROWS[0]], {}), /duplicate/i);
   assert.throws(() => summarizeDemoStatement([{...DEMO_STATEMENT_ROWS[0], amountMinor: Number.NaN}]), /amount/i);
 });
+
+import { mergeThreadMessages } from "../src/lib/inbox-messages.ts";
+test("inbox deduplicates realtime events, rejects other threads and orders messages", () => {
+  const first = { id: "a", thread_id: "thread-a", created_at: "2026-11-25T06:00:00Z" };
+  const later = { id: "b", thread_id: "thread-a", created_at: "2026-11-25T06:01:00Z" };
+  const other = { id: "c", thread_id: "thread-b", created_at: "2026-11-25T06:02:00Z" };
+  assert.deepEqual(mergeThreadMessages("thread-a", [later, first], [later, other]), [first, later]);
+  assert.deepEqual(mergeThreadMessages("thread-b", [first], [other]), [other]);
+});
+test("inbox message ordering handles timestamp offsets and stable ties", () => {
+  const a = { id: "a", thread_id: "t", created_at: "2026-11-25T07:00:00+01:00" };
+  const b = { id: "b", thread_id: "t", created_at: "2026-11-25T06:00:00Z" };
+  const c = { id: "c", thread_id: "t", created_at: "2026-11-25T06:01:00Z" };
+  assert.deepEqual(mergeThreadMessages("t", [c, b, a], []), [a, b, c]);
+});
