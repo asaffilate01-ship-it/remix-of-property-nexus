@@ -32,9 +32,9 @@ function Dashboard() {
     case "admin": return <AdminDashboard name={name} />;
     case "agent": return <AgentDashboard name={name} />;
     case "tenant": return <TenantDashboard name={name} userId={userId} />;
-    case "contractor": return <ContractorDashboard name={name} />;
-    case "conveyancer": return <ConveyancerDashboard name={name} />;
-    case "buyer": return <BuyerDashboard name={name} />;
+    case "contractor": return <ContractorDashboard key={userId} name={name} />;
+    case "conveyancer": return <ConveyancerDashboard key={userId} name={name} />;
+    case "buyer": return <BuyerDashboard key={userId} name={name} />;
     case "inventory_clerk":
     case "utility_provider":
       return <SimpleRoleDashboard role={role} name={name} />;

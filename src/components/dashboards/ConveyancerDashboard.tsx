@@ -1,5 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { DashboardLoadState } from "./DashboardLoadState";
+import { collectPages } from "@/lib/portfolio-summary";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,24 +14,41 @@ type Deal = { id: string; status: string; offer_amount: number | null; agreed_pr
 export function ConveyancerDashboard({ name }: { name: string }) {
   const [deals, setDeals] = useState<Deal[]>([]);
 
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [reload, setReload] = useState(0);
+
   useEffect(() => {
-    (async () => {
-      const { data: u } = await supabase.auth.getUser();
-      if (!u.user?.email) return;
-      const { data: contacts } = await supabase.from("contacts").select("id").eq("email", u.user.email);
-      const ids = (contacts ?? []).map((c) => c.id);
-      if (!ids.length) return;
-      const { data } = await supabase
-        .from("sales_deals")
-        .select("id,status,offer_amount,agreed_price,exchange_at,completion_at,created_at")
-        .or(`seller_conveyancer_id.in.(${ids.join(",")}),buyer_conveyancer_id.in.(${ids.join(",")})`)
-        .order("created_at", { ascending: false });
-      setDeals((data as Deal[]) ?? []);
+    let active = true;
+    setLoading(true);
+    setError(false);
+    void (async () => {
+      try {
+        const { data: u, error: authError } = await supabase.auth.getUser();
+        if (authError || !u.user?.email) throw new Error("Account unavailable");
+        const contacts = await collectPages((from, to) => supabase.from("contacts").select("id").eq("email", u.user!.email!).order("id").range(from, to));
+        const ids = contacts.map((c) => c.id);
+        const data = ids.length ? await collectPages((from, to) => supabase
+          .from("sales_deals")
+          .select("id,status,offer_amount,agreed_price,exchange_at,completion_at,created_at")
+          .or(`seller_conveyancer_id.in.(${ids.join(",")}),buyer_conveyancer_id.in.(${ids.join(",")})`)
+          .order("created_at", { ascending: false })
+          .order("id")
+          .range(from, to)) : [];
+        if (active) setDeals(data as Deal[]);
+      } catch {
+        if (active) setError(true);
+      } finally {
+        if (active) setLoading(false);
+      }
     })();
-  }, []);
+    return () => { active = false; };
+  }, [reload]);
+
+  if (loading || error) return <DashboardLoadState loading={loading} retry={() => setReload(value => value + 1)} />;
 
   const active = deals.filter((d) => !["completed", "fallen_through"].includes(d.status)).length;
-  const exchanged = deals.filter((d) => d.exchange_at && !d.completion_at).length;
+  const exchanged = deals.filter((d) => d.exchange_at && !d.completion_at && !["completed", "fallen_through"].includes(d.status)).length;
 
   return (
     <div className="space-y-6">
@@ -43,9 +62,9 @@ export function ConveyancerDashboard({ name }: { name: string }) {
       </div>
 
       <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList className="bg-muted/50">
-          <TabsTrigger value="overview" className="gap-1.5"><Eye className="h-3.5 w-3.5" /> Overview</TabsTrigger>
-          <TabsTrigger value="matters" className="gap-1.5"><Gavel className="h-3.5 w-3.5" /> Matters</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 bg-muted/50 sm:inline-flex sm:w-auto h-auto min-h-11">
+          <TabsTrigger value="overview" className="gap-1.5 min-h-10"><Eye className="h-3.5 w-3.5" /> Overview</TabsTrigger>
+          <TabsTrigger value="matters" className="gap-1.5 min-h-10"><Gavel className="h-3.5 w-3.5" /> Matters</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
@@ -86,9 +105,9 @@ export function ConveyancerDashboard({ name }: { name: string }) {
               ) : (
                 <div className="divide-y">
                   {deals.slice(0, 10).map((d) => (
-                    <div key={d.id} className="py-3 flex items-center justify-between">
+                    <div key={d.id} className="py-3 flex flex-wrap items-center justify-between gap-2">
                       <div>
-                        <div className="font-medium">£{Number(d.agreed_price ?? d.offer_amount ?? 0).toLocaleString()}</div>
+                        <div className="font-medium">{d.agreed_price == null && d.offer_amount == null ? "Price not recorded" : `£${Number(d.agreed_price ?? d.offer_amount).toLocaleString("en-GB")}`}</div>
                         <div className="text-xs text-muted-foreground">Opened {new Date(d.created_at).toLocaleDateString("en-GB")}</div>
                       </div>
                       <Badge variant="outline">{d.status}</Badge>

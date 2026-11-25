@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { DashboardLoadState } from "./DashboardLoadState";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,18 +10,35 @@ import { Search, Heart, Bell, Sparkles, MapPin, TrendingUp, Eye } from "lucide-r
 export function BuyerDashboard({ name }: { name: string }) {
   const [stats, setStats] = useState({ searches: 0, shortlist: 0, alerts: 0 });
 
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [reload, setReload] = useState(0);
+
   useEffect(() => {
-    (async () => {
-      const { data: auth } = await supabase.auth.getUser();
-      if (!auth.user) return;
-      const [searches, shortlist, alerts] = await Promise.all([
-        supabase.from("saved_searches").select("id", { count: "exact", head: true }).eq("user_id", auth.user.id),
-        supabase.from("saved_listings").select("listing_id", { count: "exact", head: true }).eq("user_id", auth.user.id),
-        supabase.from("alerts").select("id", { count: "exact", head: true }).eq("user_id", auth.user.id).is("read_at", null),
-      ]);
-      setStats({ searches: searches.count ?? 0, shortlist: shortlist.count ?? 0, alerts: alerts.count ?? 0 });
+    let active = true;
+    setLoading(true);
+    setError(false);
+    void (async () => {
+      try {
+        const { data: auth, error: authError } = await supabase.auth.getUser();
+        if (authError || !auth.user) throw new Error("Account unavailable");
+        const [searches, shortlist, alerts] = await Promise.all([
+          supabase.from("saved_searches").select("id", { count: "exact", head: true }).eq("user_id", auth.user.id),
+          supabase.from("saved_listings").select("listing_id", { count: "exact", head: true }).eq("user_id", auth.user.id),
+          supabase.from("alerts").select("id", { count: "exact", head: true }).eq("user_id", auth.user.id).is("read_at", null),
+        ]);
+        if (searches.error || shortlist.error || alerts.error || searches.count === null || shortlist.count === null || alerts.count === null) throw new Error("Dashboard counts unavailable");
+        if (active) setStats({ searches: searches.count, shortlist: shortlist.count, alerts: alerts.count });
+      } catch {
+        if (active) setError(true);
+      } finally {
+        if (active) setLoading(false);
+      }
     })();
-  }, []);
+    return () => { active = false; };
+  }, [reload]);
+
+  if (loading || error) return <DashboardLoadState loading={loading} retry={() => setReload(value => value + 1)} />;
 
   return (
     <div className="space-y-6">
@@ -37,10 +55,10 @@ export function BuyerDashboard({ name }: { name: string }) {
       </div>
 
       <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList className="bg-muted/50">
-          <TabsTrigger value="overview" className="gap-1.5"><Eye className="h-3.5 w-3.5" /> Overview</TabsTrigger>
-          <TabsTrigger value="discover" className="gap-1.5"><MapPin className="h-3.5 w-3.5" /> Discover</TabsTrigger>
-          <TabsTrigger value="track" className="gap-1.5"><TrendingUp className="h-3.5 w-3.5" /> Track</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-3 bg-muted/50 sm:inline-flex sm:w-auto h-auto min-h-11">
+          <TabsTrigger value="overview" className="gap-1.5 min-h-10"><Eye className="h-3.5 w-3.5" /> Overview</TabsTrigger>
+          <TabsTrigger value="discover" className="gap-1.5 min-h-10"><MapPin className="h-3.5 w-3.5" /> Discover</TabsTrigger>
+          <TabsTrigger value="track" className="gap-1.5 min-h-10"><TrendingUp className="h-3.5 w-3.5" /> Track</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
@@ -74,7 +92,7 @@ export function BuyerDashboard({ name }: { name: string }) {
             <Card className="border-0 shadow-card bg-gradient-to-br from-primary/5 to-accent/5">
               <CardContent className="p-6">
                 <h3 className="font-semibold mb-2">Browse the marketplace</h3>
-                <p className="text-sm text-muted-foreground mb-4">Search thousands of properties for sale and to let.</p>
+                <p className="text-sm text-muted-foreground mb-4">Explore available properties for sale and to let.</p>
                 <Button asChild><Link to="/marketplace"><Search className="mr-2 h-4 w-4" /> Start browsing</Link></Button>
               </CardContent>
             </Card>

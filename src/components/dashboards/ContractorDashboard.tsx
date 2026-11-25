@@ -1,5 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { DashboardLoadState } from "./DashboardLoadState";
+import { collectPages } from "@/lib/portfolio-summary";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,24 +14,41 @@ type Job = { id: string; title: string; status: string; priority: string; schedu
 export function ContractorDashboard({ name }: { name: string }) {
   const [jobs, setJobs] = useState<Job[]>([]);
 
-  useEffect(() => {
-    (async () => {
-      const { data: u } = await supabase.auth.getUser();
-      if (!u.user?.email) return;
-      const { data: contacts } = await supabase.from("contacts").select("id").eq("email", u.user.email);
-      const ids = (contacts ?? []).map((c) => c.id);
-      if (!ids.length) return;
-      const { data } = await supabase
-        .from("work_orders")
-        .select("id,title,status,priority,scheduled_for,created_at")
-        .in("contact_id", ids)
-        .order("created_at", { ascending: false });
-      setJobs((data as Job[]) ?? []);
-    })();
-  }, []);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [reload, setReload] = useState(0);
 
-  const open = jobs.filter((j) => j.status !== "completed").length;
-  const scheduled = jobs.filter((j) => j.scheduled_for && new Date(j.scheduled_for) > new Date()).length;
+  useEffect(() => {
+    let active = true;
+    setLoading(true);
+    setError(false);
+    void (async () => {
+      try {
+        const { data: u, error: authError } = await supabase.auth.getUser();
+        if (authError || !u.user?.email) throw new Error("Account unavailable");
+        const contacts = await collectPages((from, to) => supabase.from("contacts").select("id").eq("email", u.user!.email!).order("id").range(from, to));
+        const ids = contacts.map((c) => c.id);
+        const data = ids.length ? await collectPages((from, to) => supabase
+          .from("work_orders")
+          .select("id,title,status,priority,scheduled_for,created_at")
+          .in("contact_id", ids)
+          .order("created_at", { ascending: false })
+          .order("id")
+          .range(from, to)) : [];
+        if (active) setJobs(data as Job[]);
+      } catch {
+        if (active) setError(true);
+      } finally {
+        if (active) setLoading(false);
+      }
+    })();
+    return () => { active = false; };
+  }, [reload]);
+
+  if (loading || error) return <DashboardLoadState loading={loading} retry={() => setReload(value => value + 1)} />;
+
+  const open = jobs.filter((j) => !["completed", "cancelled"].includes(j.status)).length;
+  const scheduled = jobs.filter((j) => !["completed", "cancelled"].includes(j.status) && j.scheduled_for && new Date(j.scheduled_for) > new Date()).length;
   const done = jobs.filter((j) => j.status === "completed").length;
 
   return (
@@ -44,9 +63,9 @@ export function ContractorDashboard({ name }: { name: string }) {
       </div>
 
       <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList className="bg-muted/50">
-          <TabsTrigger value="overview" className="gap-1.5"><Eye className="h-3.5 w-3.5" /> Overview</TabsTrigger>
-          <TabsTrigger value="schedule" className="gap-1.5"><Calendar className="h-3.5 w-3.5" /> Schedule</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 bg-muted/50 sm:inline-flex sm:w-auto h-auto min-h-11">
+          <TabsTrigger value="overview" className="gap-1.5 min-h-10"><Eye className="h-3.5 w-3.5" /> Overview</TabsTrigger>
+          <TabsTrigger value="schedule" className="gap-1.5 min-h-10"><Calendar className="h-3.5 w-3.5" /> Schedule</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
@@ -87,12 +106,12 @@ export function ContractorDashboard({ name }: { name: string }) {
               ) : (
                 <div className="divide-y">
                   {jobs.slice(0, 10).map((j) => (
-                    <div key={j.id} className="py-3 flex items-center justify-between gap-3">
+                    <div key={j.id} className="py-3 flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between">
                       <div className="min-w-0">
                         <div className="font-medium truncate">{j.title}</div>
                         <div className="text-xs text-muted-foreground">{j.scheduled_for ? new Date(j.scheduled_for).toLocaleString("en-GB") : "Unscheduled"}</div>
                       </div>
-                      <div className="flex gap-2 shrink-0">
+                      <div className="flex flex-wrap gap-2">
                         <Badge variant="outline">{j.priority}</Badge>
                         <Badge>{j.status}</Badge>
                       </div>
