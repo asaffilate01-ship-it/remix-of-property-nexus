@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import { collectPages } from "@/lib/portfolio-summary";
+import { mergeThreadMessages } from "@/lib/inbox-messages";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -19,8 +21,13 @@ import { Send, Plus, MessageSquare, ArrowLeft } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/inbox")({
   head: () => ({ meta: [{ title: "Inbox — Gabley" }] }),
-  component: Inbox,
+  component: InboxRoute,
 });
+
+function InboxRoute() {
+  const { user } = Route.useRouteContext();
+  return <Inbox key={user.id} />;
+}
 
 function Inbox() {
   const [threads, setThreads] = useState<any[]>([]);
@@ -46,16 +53,17 @@ function Inbox() {
   const loadThreads = async () => {
     setThreadsStatus("loading");
     try {
-      const { data, error } = await supabase
-        .from("message_threads")
-        .select("*")
-        .order("last_message_at", { ascending: false })
-        .order("id");
-      if (error) throw error;
-      setThreads(data ?? []);
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError || !user) throw new Error("Session unavailable");
+      setMe(user.id);
+      const data = await collectPages((from, to) => supabase.from("message_threads").select("*")
+        .order("last_message_at", { ascending: false }).order("id").range(from, to));
+      setThreads(data);
       setThreadsStatus("ready");
     } catch {
       setThreads([]);
+      setActive(null);
+      setMe(null);
       setThreadsStatus("error");
     }
   };
@@ -81,16 +89,11 @@ function Inbox() {
     let cancelled = false;
     const threadId = activeId;
     setMessageState({ threadId, rows: [], status: "loading" });
-    const combine = (first: any[], second: any[]) => [...new Map([...first, ...second]
-      .filter(row => row.thread_id === threadId)
-      .map(row => [row.id, row])).values()]
-      .sort((a, b) => a.created_at.localeCompare(b.created_at) || a.id.localeCompare(b.id))
-      .slice(-100);
+    const combine = (first: any[], second: any[]) => mergeThreadMessages(threadId, first, second);
     const load = async () => {
       try {
-        const { data, error } = await supabase.from("messages").select("*").eq("thread_id", threadId)
-          .order("created_at", { ascending: false }).order("id", { ascending: false }).limit(100);
-        if (error) throw error;
+        const data = await collectPages((from, to) => supabase.from("messages").select("*").eq("thread_id", threadId)
+          .order("created_at", { ascending: true }).order("id").range(from, to));
         if (!cancelled) setMessageState(old => ({
           threadId, status: "ready",
           rows: combine(data ?? [], old?.threadId === threadId ? old.rows : []),
@@ -242,7 +245,7 @@ function Inbox() {
               <div className="flex items-center gap-2"><Button type="button" size="icon" variant="ghost" className="md:hidden min-h-11 min-w-11" aria-label="Back to conversations" onClick={() => setActive(null)}><ArrowLeft className="h-5 w-5" /></Button><CardTitle className="text-base break-words">{active.subject}</CardTitle></div>
             </CardHeader>
             <CardContent className="flex-1 min-h-0 max-h-[60dvh] md:max-h-none overflow-y-auto space-y-2 py-4">
-              {!currentMessages || currentMessages.status === "loading" ? <p role="status" className="text-sm text-muted-foreground">Loading messages…</p> : currentMessages.status === "error" ? <div role="alert" className="space-y-2"><p>Unable to verify messages.</p><Button variant="outline" onClick={() => setMessageReload(n => n + 1)}>Retry</Button></div> : <><p className="text-xs text-muted-foreground">Showing up to 100 latest messages.</p>{currentMessages.rows.map((m) => (
+              {!currentMessages || currentMessages.status === "loading" ? <p role="status" className="text-sm text-muted-foreground">Loading messages…</p> : currentMessages.status === "error" ? <div role="alert" className="space-y-2"><p>Unable to verify messages.</p><Button variant="outline" onClick={() => setMessageReload(n => n + 1)}>Retry</Button></div> : <><p className="text-xs text-muted-foreground">Conversation history</p>{currentMessages.rows.map((m) => (
                 <div
                   key={m.id}
                   className={`flex ${m.sender_id === me ? "justify-end" : "justify-start"}`}
